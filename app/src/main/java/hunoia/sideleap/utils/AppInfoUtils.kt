@@ -10,6 +10,10 @@ import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.LauncherInfo
 import hunoia.sideleap.ktx.queryIntentActivitiesCompat
 
+internal fun queryFrozenApplicationsOnIo(context: Context, showSystemApps: Boolean): List<AppInfo> {
+    return AppInfoUtils.queryFrozenApplications(context, showSystemApps)
+}
+
 /**
  * @author aaronzzxup@gmail.com
  * @since 2024/12/2

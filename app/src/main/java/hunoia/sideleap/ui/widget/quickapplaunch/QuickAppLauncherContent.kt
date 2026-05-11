@@ -69,6 +69,7 @@ import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.DataStoreHolder
 import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.utils.key
+import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
 import hunoia.sideleap.utils.sortApps
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -102,7 +103,7 @@ internal fun QuickAppLauncherContent(
     }
     LaunchedEffect(launcherSettings.showSystemApps) {
         val state = kotlinx.coroutines.withContext(Dispatchers.IO) {
-            val fa = AppInfoUtils.queryFrozenApplications(context, launcherSettings.showSystemApps)
+            val fa = queryFrozenApplicationsOnIo(context, launcherSettings.showSystemApps)
             val frozenPkgSet = fa.map { it.packageName }.toSet()
             val la = AppInfoUtils.queryLauncherActivities(context, allowRepeatPackage = false, showSystemApps = launcherSettings.showSystemApps)
             val normalPkgNames = la.map { it.packageName }.toSet()

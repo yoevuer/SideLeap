@@ -10,6 +10,7 @@ import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiEvent
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiState
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
@@ -87,7 +88,7 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
                 }
             }
             val frozenApps = withContext(Dispatchers.IO) {
-                AppInfoUtils.queryFrozenApplications(App.getContext())
+                queryFrozenApplicationsOnIo(App.getContext(), true)
             }
             val normalPackageNames = appInfos.map { it.packageName }.toSet()
             val filteredFrozenApps = frozenApps.filter {

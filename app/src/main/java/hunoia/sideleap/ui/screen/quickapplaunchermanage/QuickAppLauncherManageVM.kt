@@ -6,19 +6,25 @@ import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.QuickAppLauncherSettings
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class QuickAppLauncherManageVM : BaseComposeVM<QuickAppLauncherManageVM.UiState, QuickAppLauncherManageVM.UiEvent>() {
     override val initialState = UiState()
     init { load() }
     fun load() = viewModelScope.launch {
-        val settings = DataStoreHolder.quickAppLauncherSettings.data.first()
         val context = hunoia.sideleap.App.getContext()
-        val normalApps = AppInfoUtils.queryLauncherActivities(context, false, settings.showSystemApps)
-        val frozenApps = AppInfoUtils.queryFrozenApplications(context, settings.showSystemApps)
+        val (settings, normalApps, frozenApps) = withContext(Dispatchers.IO) {
+            val s = DataStoreHolder.quickAppLauncherSettings.data.first()
+            val normal = AppInfoUtils.queryLauncherActivities(context, false, s.showSystemApps)
+            val frozen = queryFrozenApplicationsOnIo(context, s.showSystemApps)
+            Triple(s, normal, frozen)
+        }
         val normalPackageNames = normalApps.map { it.packageName }.toSet()
         val filteredFrozenApps = frozenApps.filter { it.packageName !in normalPackageNames }
         val mergedApps = mutableListOf<AppInfo>()
