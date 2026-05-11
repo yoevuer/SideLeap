@@ -1,5 +1,7 @@
 package hunoia.sideleap.ui.screen.quickapplaunchermanage
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -35,10 +39,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
-import hunoia.sideleap.ktx.icon
 import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.TextActionButton
 import hunoia.sideleap.ui.widget.TopBar
+import hunoia.sideleap.ui.widget.quickapplaunch.rememberAppIconAsync
 
 @Composable
 fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageVM = viewModel()) {
@@ -94,18 +98,28 @@ fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageV
                 val keys = uiState.settings.hiddenApps.toList()
                 items(keys, key = { "hidden:$it" }) { key ->
                     val app = filteredApps.firstOrNull { keyOf(it) == key } ?: return@items
+                    val icon = rememberAppIconAsync(context, app.packageName)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        AsyncImage(
-                            model = context.packageManager.getApplicationIcon(app.packageName),
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.width(40.dp).height(40.dp)
-                        )
+                        if (icon != null) {
+                            AsyncImage(
+                                model = icon,
+                                contentDescription = null,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.width(40.dp).height(40.dp)
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .width(40.dp).height(40.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                            )
+                        }
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = app.label, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium)
@@ -120,18 +134,28 @@ fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageV
                 items(filteredApps, key = { "all:${keyOf(it)}" }) { app ->
                     val key = keyOf(app)
                     val selected = uiState.settings.hiddenApps.contains(key)
+                    val icon = rememberAppIconAsync(context, app.packageName)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        AsyncImage(
-                            model = app.icon,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.width(40.dp).height(40.dp)
-                        )
+                        if (icon != null) {
+                            AsyncImage(
+                                model = icon,
+                                contentDescription = null,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.width(40.dp).height(40.dp)
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .width(40.dp).height(40.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                            )
+                        }
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(

@@ -1,8 +1,11 @@
 package hunoia.sideleap.ui.widget.quickapplaunch
 
+import android.content.Context
+import android.graphics.drawable.Drawable
 import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +44,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.utils.IconResizeCache
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -103,6 +110,19 @@ internal fun KeyboardRow(
     }
 }
 
+@Composable
+internal fun rememberAppIconAsync(context: Context, packageName: String): Drawable? {
+    var icon: Drawable? by remember(packageName) { mutableStateOf(IconResizeCache.iconCache[packageName]) }
+    if (icon == null) {
+        LaunchedEffect(packageName) {
+            icon = withContext(Dispatchers.IO) {
+                runCatching { context.packageManager.getApplicationIcon(packageName) }.getOrNull()
+            }?.also { IconResizeCache.iconCache[packageName] = it }
+        }
+    }
+    return icon
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun AppItem(app: AppInfo, isFrozen: Boolean = false, onClick: () -> Unit, onLongPress: (IntOffset, IntOffset) -> Unit) {
@@ -124,9 +144,7 @@ internal fun AppItem(app: AppInfo, isFrozen: Boolean = false, onClick: () -> Uni
             .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val icon = remember(app.packageName) {
-            runCatching { context.packageManager.getApplicationIcon(app.packageName) }.getOrNull()
-        }
+        val icon = rememberAppIconAsync(context, app.packageName)
         if (icon != null) {
             AsyncImage(
                 model = icon,
@@ -135,7 +153,13 @@ internal fun AppItem(app: AppInfo, isFrozen: Boolean = false, onClick: () -> Uni
                 contentScale = ContentScale.Fit
             )
         } else {
-            Box(modifier = Modifier.height(40.dp).fillMaxWidth())
+            Box(
+                modifier = Modifier
+                    .height(40.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            )
         }
     }
 }
