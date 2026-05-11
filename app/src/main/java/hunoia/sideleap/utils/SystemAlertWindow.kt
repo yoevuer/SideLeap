@@ -146,14 +146,7 @@ object SystemAlertWindow {
         } else appDetailsApi(context)
     }
 
-    private fun meiZuApi(context: Context): Intent? {
-        val intent = Intent("com.meizu.safe.security.SHOW_APPSEC")
-        intent.putExtra("packageName", context.packageName)
-        intent.setClassName("com.meizu.safe", "com.meizu.safe.security.AppSecActivity")
-        return if (hasActivity(context, intent)) {
-            intent
-        } else MdefaultApi(context)
-    }
+    
 
     private fun hasActivity(context: Context, intent: Intent?): Boolean {
         val packageManager = context.packageManager

@@ -9,6 +9,7 @@ import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.constant.ScaleableDefaults.DEFAULT_SCALE
 import hunoia.sideleap.ui.navigation.IconResize
+import hunoia.sideleap.ui.navigation.IconResizeCache
 import hunoia.sideleap.event.IconResizeEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiState
@@ -153,15 +154,15 @@ class IconResizeVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState, 
                         map[id] = clipApps[id] ?: clipShortcuts[id] ?: DEFAULT_SCALE
                     }
                     updateUiState {
-                        val icons = IconResize.iconCache.toMap()
+                        val icons = IconResizeCache.iconCache.toMap()
                         val bgColors = mutableMapOf<String, UiState.BgColor>()
-                        IconResize.iconBgColorCache.forEach { (id, bgColor) ->
+                        IconResizeCache.iconBgColorCache.forEach { (id, bgColor) ->
                             if (bgColor != 0) {
                                 bgColors[id] = UiState.BgColor(true, Color(bgColor))
                             }
                         }
-                        IconResize.iconCache.clear()
-                        IconResize.iconBgColorCache.clear()
+                        IconResizeCache.iconCache.clear()
+                        IconResizeCache.iconBgColorCache.clear()
                         it.copy(
                             ids = ids,
                             icons = icons,

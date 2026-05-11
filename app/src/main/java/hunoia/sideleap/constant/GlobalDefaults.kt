@@ -137,11 +137,6 @@ object GestureButtonDefaults {
     val Angle = GestureAngle()
     val SlideActions = GestureActions()
     val LongSlideActions = GestureActions()
-    val SlideTriggerDistance = GestureSettingsDefaults.SlideTriggerDistance
-    val LongSlideTriggerDistance = GestureSettingsDefaults.LongSlideTriggerDistance
-    const val LongSlideTriggerImmediately = GestureSettingsDefaults.LongSlideTriggerImmediately
-    const val LongSlideTriggerDelayMs = GestureSettingsDefaults.LongSlideTriggerDelayMs
-    val Vibrations = GestureSettingsDefaults.Vibrations
     const val Color = android.graphics.Color.TRANSPARENT
     const val AlignRegion = true
     const val ExcludeSystemGestureRects = false

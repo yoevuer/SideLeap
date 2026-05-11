@@ -14,6 +14,7 @@ import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.GestureButton
 import hunoia.sideleap.ui.navigation.IconResize
+import hunoia.sideleap.ui.navigation.IconResizeCache
 import hunoia.sideleap.entity.LauncherInfo
 import hunoia.sideleap.entity.Position
 import hunoia.sideleap.entity.TriggerDirection
@@ -195,14 +196,14 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
             appInfos.forEach { appInfo ->
                 val icon = appInfo.getIcon(App.getContext()) ?: return@forEach
                 ids.add(appInfo.qualifiedName)
-                IconResize.iconCache[appInfo.qualifiedName] = icon
-                IconResize.iconBgColorCache[appInfo.qualifiedName] = appInfo.iconBgColor
+                IconResizeCache.iconCache[appInfo.qualifiedName] = icon
+                IconResizeCache.iconBgColorCache[appInfo.qualifiedName] = appInfo.iconBgColor
             }
             shortcutInfos.forEach { shortcutInfo ->
                 val icon = shortcutInfo.getIcon(App.getContext()) ?: return@forEach
                 ids.add(shortcutInfo.qualifiedNameWithIntents)
-                IconResize.iconCache[shortcutInfo.qualifiedNameWithIntents] = icon
-                IconResize.iconBgColorCache[shortcutInfo.qualifiedNameWithIntents] = shortcutInfo.iconBgColor
+                IconResizeCache.iconCache[shortcutInfo.qualifiedNameWithIntents] = icon
+                IconResizeCache.iconBgColorCache[shortcutInfo.qualifiedNameWithIntents] = shortcutInfo.iconBgColor
             }
 
             sendUiEvent(UiEvent.GotoIconResize(IconResize(ids)))

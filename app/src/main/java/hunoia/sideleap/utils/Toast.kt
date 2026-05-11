@@ -3,16 +3,12 @@ package hunoia.sideleap.utils
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.view.Gravity
 import androidx.annotation.StringRes
 import androidx.core.os.postDelayed
 import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.ui.widget.ToastDuration
 import hunoia.sideleap.ui.widget.showComposeToast
-import com.blankj.utilcode.util.ConvertUtils
-import com.blankj.utilcode.util.ProcessUtils
-import com.blankj.utilcode.util.ToastUtils
 
 /**
  * @author aaronzzxup@gmail.com
@@ -20,8 +16,6 @@ import com.blankj.utilcode.util.ToastUtils
  */
 
 private const val DELAYED_MILLIS = 2000L
-
-private var init = false
 
 private val handler = Handler(Looper.getMainLooper())
 
@@ -59,13 +53,6 @@ fun showToastLongDelay(@StringRes resId: Int, continueBlock: () -> Unit) {
 }
 
 fun showToast(text: String, delayMs: Long = 0, continueBlock: (() -> Unit)? = null) {
-//    if (canShowToast()) {
-//        if (!init) {
-//            init()
-//        }
-//        ToastUtils.showShort(text)
-//    } else {
-//    }
     showComposeToast(text)
     if (delayMs > 0 && continueBlock != null) {
         handler.postDelayed(delayMs) {
@@ -75,13 +62,6 @@ fun showToast(text: String, delayMs: Long = 0, continueBlock: (() -> Unit)? = nu
 }
 
 fun showToastLong(text: String, delayMs: Long = 0, continueBlock: (() -> Unit)? = null) {
-//    if (canShowToast()) {
-//        if (!init) {
-//            init()
-//        }
-//        ToastUtils.showShort(text)
-//    } else {
-//    }
     showComposeToast(text, ToastDuration.Long)
     if (delayMs > 0 && continueBlock != null) {
         handler.postDelayed(delayMs) {
@@ -91,13 +71,6 @@ fun showToastLong(text: String, delayMs: Long = 0, continueBlock: (() -> Unit)? 
 }
 
 fun showToast(@StringRes resId: Int, delayMs: Long = 0, continueBlock: (() -> Unit)? = null) {
-//    if (canShowToast()) {
-//        if (!init) {
-//            init()
-//        }
-//        ToastUtils.showShort(resId)
-//    } else {
-//    }
     showComposeToast(resId)
     if (delayMs > 0 && continueBlock != null) {
         handler.postDelayed(delayMs) {
@@ -107,13 +80,6 @@ fun showToast(@StringRes resId: Int, delayMs: Long = 0, continueBlock: (() -> Un
 }
 
 fun showToastLong(@StringRes resId: Int, delayMs: Long = 0, continueBlock: (() -> Unit)? = null) {
-//    if (canShowToast()) {
-//        if (!init) {
-//            init()
-//        }
-//        ToastUtils.showShort(resId)
-//    } else {
-//    }
     showComposeToast(resId, ToastDuration.Long)
     if (delayMs > 0 && continueBlock != null) {
         handler.postDelayed(delayMs) {
@@ -122,14 +88,3 @@ fun showToastLong(@StringRes resId: Int, delayMs: Long = 0, continueBlock: (() -
     }
 }
 
-private fun canShowToast(): Boolean {
-    return ProcessUtils.isMainProcess() ||
-            PopBackgroundPermissionUtil.hasPopupBackgroundPermission(App.getContext())
-}
-
-private fun init() {
-    init = true
-    ToastUtils
-        .getDefaultMaker()
-        .setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, ConvertUtils.dp2px(100f))
-}
