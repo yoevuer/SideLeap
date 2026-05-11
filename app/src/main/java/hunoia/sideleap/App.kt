@@ -1,0 +1,41 @@
+package hunoia.sideleap
+
+import android.annotation.SuppressLint
+import android.app.Application
+import android.content.Context
+import com.aaron.compose.component.UDFComponentDefaults
+import hunoia.sideleap.defaults.UDFComponentDefaultsImpl
+import hunoia.sideleap.utils.CrashHandler
+import me.weishu.reflection.Reflection
+import rikka.shizuku.ShizukuProvider
+
+/**
+ * @author aaronzzxup@gmail.com
+ * @since 2024/11/17
+ */
+class App : Application() {
+
+    companion object {
+        @SuppressLint("StaticFieldLeak")
+        private lateinit var context: Context
+
+        fun getContext(): Context {
+            return context
+        }
+    }
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        ShizukuProvider.enableMultiProcessSupport(true)
+        Reflection.unseal(base)
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        context = applicationContext
+
+        UDFComponentDefaults.set(UDFComponentDefaultsImpl())
+
+        Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
+    }
+}

@@ -1,0 +1,183 @@
+@file:Suppress("ConstPropertyName")
+
+package hunoia.sideleap.constant
+
+import hunoia.sideleap.entity.Action
+import hunoia.sideleap.entity.ActionPanelStyles
+import hunoia.sideleap.entity.AnimationStyles
+import hunoia.sideleap.entity.GestureActions
+import hunoia.sideleap.entity.GestureAngle
+import hunoia.sideleap.entity.GestureAngles
+import hunoia.sideleap.entity.GestureButton
+import hunoia.sideleap.entity.Position
+import hunoia.sideleap.entity.VibrationEffects
+import hunoia.sideleap.entity.Vibrations
+import hunoia.sideleap.entity.WaveStyle.Companion.ICON_TYPE_ARROW
+import com.blankj.utilcode.util.ConvertUtils
+
+/**
+ * @author aaronzzxup@gmail.com
+ * @since 2024/12/12
+ */
+
+object AdvancedSettingsDefaults {
+
+    val ExcludeApps = emptyList<String>()
+    val AnimationStyles = AnimationStyles()
+    val ActionPanelStyles = ActionPanelStyles()
+    const val VolumeButtonSwitchSong = false
+    const val FitSoftKeyboard = true
+    const val ActionPanelAppLongPressLaunchPopup = false
+    const val QuickLauncherAppLongPressLaunchPopup = false
+    const val HideLandscape = false
+    const val HideScreenLock = false
+    const val HideHomeScreen = false
+    const val HideTemporary = false
+    const val ExcludeFromRecents = false
+    const val DynamicColor = false
+    val DayNightMode = hunoia.sideleap.entity.DayNightMode.Auto
+    val ClipApps = emptyMap<String, Float>()
+    val ClipShortcuts = emptyMap<String, Float>()
+    const val DiagnosticsEnabled = true
+}
+
+object GestureSettingsDefaults {
+
+    val Angles = GestureAngles()
+    val SlideTriggerDistance = ConvertUtils.dp2px(30f)
+    val LongSlideTriggerDistance = ConvertUtils.dp2px(100f)
+    const val LongPressTriggerDelayMs = 250L
+    const val LongSlideTriggerImmediately = true
+    const val LongSlideTriggerDelayMs = 100L
+    const val IsCustomVibration = false
+    const val IsPreciseSlideType = true
+    val Vibrations = Vibrations()
+}
+
+object InitialSettingsDefaults {
+
+    const val GestureEnabled = true
+    const val Unlocked = false
+}
+
+object ActionPanelStylesDefaults {
+
+    const val TYPE_ARC = 1
+
+    const val Type = TYPE_ARC
+    val ArcStyleItemSize = ConvertUtils.dp2px(48f)
+}
+
+object AnimationStylesDefaults {
+
+    const val TYPE_WAVE = 1
+
+    const val Type = TYPE_WAVE
+    const val IsAnimationEnabled = true
+    const val WaveStyleBackgroundColor = android.graphics.Color.BLACK
+    const val WaveStyleStrokeColor = android.graphics.Color.TRANSPARENT
+    const val WaveStyleStrokeWidth = 0
+    val WaveStyleWidth = ConvertUtils.dp2px(40f)
+    const val WaveStyleBezierLengthHalfRatio = 2.5f
+    const val WaveStyleSafeBounds = true
+    const val WaveStyleTransformEnabled = true
+    val WaveStyleIconColor = android.graphics.Color.argb(200, 255, 255, 255)
+    const val WaveStyleIconScale = 0.6f
+    const val WaveStyleIconType = ICON_TYPE_ARROW
+}
+
+object ScaleableDefaults {
+
+    const val MIN_SCALE = 0.5f
+    const val MAX_SCALE = 2.0f
+    const val DEFAULT_SCALE = 1f
+}
+
+object GestureActionsDefaults {
+
+    val Center = emptyList<Action>()
+    val Up = emptyList<Action>()
+    val Down = emptyList<Action>()
+    val Center2 = emptyList<Action>()
+    val Up2 = emptyList<Action>()
+    val Down2 = emptyList<Action>()
+    const val ActionValue = GlobalActions.NONE
+    val ActionNone = Action(value = ActionValue, data = "")
+}
+
+object GestureAnglesDefaults {
+
+    val Left = GestureAngle()
+    val Right = GestureAngle()
+    val Bottom = GestureAngle(0.12f, 0.40f, 0.60f, 0.88f)
+    const val P1 = 0.12f
+    const val P2 = 0.40f
+    const val P3 = 0.70f
+    const val P4 = 0.88f
+}
+
+object VibrationDefaults {
+
+    const val SlideEnabled = true
+    const val LongSlideEnabled = true
+    const val ActionPanelEnabled = true
+    const val MoveScreenEnabled = true
+    val PredefinedEffect = VibrationEffects.Click
+    const val CustomVibrationMs = 50L
+    const val VibrateImmediately = false
+}
+
+object GestureButtonDefaults {
+
+    const val ID_DEFAULT = "1"
+    const val Enabled = true
+    const val Start = 0.0f
+    const val End = 0.1f
+    val Width = ConvertUtils.dp2px(16f)
+    val Angle = GestureAngle()
+    val SlideActions = GestureActions()
+    val LongSlideActions = GestureActions()
+    val SlideTriggerDistance = GestureSettingsDefaults.SlideTriggerDistance
+    val LongSlideTriggerDistance = GestureSettingsDefaults.LongSlideTriggerDistance
+    const val LongSlideTriggerImmediately = GestureSettingsDefaults.LongSlideTriggerImmediately
+    const val LongSlideTriggerDelayMs = GestureSettingsDefaults.LongSlideTriggerDelayMs
+    val Vibrations = GestureSettingsDefaults.Vibrations
+    const val Color = android.graphics.Color.TRANSPARENT
+    const val AlignRegion = true
+    const val ExcludeSystemGestureRects = false
+    const val LimitMaxExcludeSystemGestureLength = true
+    val SideDefaults = listOf(
+        GestureButton(
+            id = ID_DEFAULT,
+            position = Position.Left,
+            start = 0.0f,
+            end = 1.0f,
+            slideActions = GestureActions(center = Action.toList(GlobalActions.BACK))
+        ),
+        GestureButton(
+            id = ID_DEFAULT,
+            position = Position.Right,
+            start = 0.0f,
+            end = 1.0f,
+            slideActions = GestureActions(center = Action.toList(GlobalActions.BACK))
+        )
+    )
+    val BottomDefaults = listOf(
+        GestureButton(
+            id = ID_DEFAULT,
+            position = Position.Bottom,
+            enabled = false,
+            start = 0.0f,
+            end = 1.0f,
+            slideActions = GestureActions(center = Action.toList(GlobalActions.HOME)),
+            longSlideActions = GestureActions(center = Action.toList(GlobalActions.RECENT))
+        )
+    )
+}
+
+object ActionSettingsDefaults {
+
+    const val MoveScreenRate = 2f
+    const val MoveScreenHoverDelayMs = 600L
+    const val GotoBottomStrength = 10
+}

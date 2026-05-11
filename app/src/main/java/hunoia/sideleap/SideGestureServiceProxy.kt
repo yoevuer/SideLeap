@@ -1,0 +1,529 @@
+package hunoia.sideleap
+
+import android.Manifest
+import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK
+import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_HOME
+import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN
+import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS
+import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_POWER_DIALOG
+import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS
+import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_RECENTS
+import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT
+import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.PowerManager
+import android.view.KeyEvent
+import android.view.accessibility.AccessibilityEvent
+import androidx.annotation.RequiresApi
+import hunoia.sideleap.constant.ActionSettingsDefaults.GotoBottomStrength
+import hunoia.sideleap.constant.GlobalActions
+import hunoia.sideleap.entity.Action
+import hunoia.sideleap.entity.MoveScreenData
+import hunoia.sideleap.entity.global.ActionSettings
+import hunoia.sideleap.ktx.appInfo
+import hunoia.sideleap.ktx.dispatchMediaKeyEvent
+import hunoia.sideleap.ktx.gotoAlipayPayCode
+import hunoia.sideleap.ktx.gotoAlipayScan
+import hunoia.sideleap.ktx.gotoAppDetailSettings
+import hunoia.sideleap.ktx.gotoWechat
+import hunoia.sideleap.ktx.gotoWechatScan
+import hunoia.sideleap.ktx.isMiniWindow
+import hunoia.sideleap.ktx.launchAppActivity
+import hunoia.sideleap.ktx.launchAppInPopup
+import hunoia.sideleap.ktx.launchAppInfo
+import hunoia.sideleap.ktx.launchAssist
+import hunoia.sideleap.ktx.launchShortcutInfo
+import hunoia.sideleap.ktx.launchUrl
+import hunoia.sideleap.ktx.queryIntentActivitiesCompat
+import hunoia.sideleap.ktx.shortcutInfo
+import hunoia.sideleap.ktx.toggleMute
+import hunoia.sideleap.ktx.volumeDown
+import hunoia.sideleap.ktx.volumeUp
+import hunoia.sideleap.ui.widget.ActionPanelState.TriggerType
+import hunoia.sideleap.utils.AccessibilityUtils
+import hunoia.sideleap.utils.AppInfoUtils
+import hunoia.sideleap.utils.JsonHelper
+import hunoia.sideleap.utils.LauncherDiagnostics
+import hunoia.sideleap.utils.showToast
+import hunoia.sideleap.utils.showVersionTooLowToast
+import com.blankj.utilcode.util.BarUtils
+import com.blankj.utilcode.util.ConvertUtils
+import com.blankj.utilcode.util.FlashlightUtils
+import com.blankj.utilcode.util.PermissionUtils
+import com.blankj.utilcode.util.ScreenUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
+
+/**
+ * @author aaronzzxup@gmail.com
+ * @since 2024/11/21
+ */
+class SideGestureServiceProxy(private val host: SideGestureService) {
+
+    private companion object {
+        const val KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS = 10 * 60 * 1000L
+    }
+
+    private var prevPackageName: String? = null
+    private var currPackageName: String? = null
+    private var currActivityName: String? = null
+
+    private val launchablePackageCache = mutableMapOf<String, Boolean>()
+    private val activityExistsCache = mutableMapOf<String, Boolean>()
+
+    private var pendingWechatPay = false
+    private var pendingWechatPayAutoCancelJob: Job? = null
+
+    private var wakeLock: PowerManager.WakeLock? = null
+
+    fun onRelease() {
+        host.quickAppLauncherOverlay.close()
+        safeReleaseWakeLock()
+        launchablePackageCache.clear()
+        activityExistsCache.clear()
+    }
+
+    fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        host.apply {
+            when(event?.eventType){
+                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+                    val packageName = event.packageName?.toString()
+                    val className = event.className?.toString()
+
+                    if (isActivity(packageName, className)) {
+                        currActivityName = className
+                    }
+                    val prevAppExcludePkgNames = host.actionSettings?.previousApp?.packageNames ?: emptyList()
+                    if (packageName !in prevAppExcludePkgNames &&
+                        hasLaunchIntent(packageName) &&
+                        currPackageName != packageName
+                    ) {
+                        prevPackageName = currPackageName
+                        currPackageName = packageName
+                        if (prevPackageName == null) {
+                            prevPackageName = currPackageName
+                        }
+                    }
+
+                    if (pendingWechatPay &&
+                        Build.VERSION.SDK_INT >= 24 &&
+                        packageName == "com.tencent.mm"
+                    ) {
+                        pendingWechatPayAutoCancelJob?.cancel()
+                        pendingWechatPay = false
+                        mockClickWechatPay()
+                    }
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    fun onAction(action: Action) {
+        host.onAction(action)
+    }
+
+    private fun SideGestureService.onAction(action: Action) {
+        when (action.value) {
+            GlobalActions.BACK -> {
+                performGlobalAction(GLOBAL_ACTION_BACK)
+            }
+            GlobalActions.HOME -> {
+                performGlobalAction(GLOBAL_ACTION_HOME)
+            }
+            GlobalActions.RECENT -> {
+                performGlobalAction(GLOBAL_ACTION_RECENTS)
+            }
+            GlobalActions.VOLUME_UP -> {
+                volumeUp()
+            }
+            GlobalActions.VOLUME_DOWN -> {
+                volumeDown()
+            }
+            GlobalActions.MUTE -> {
+                toggleMute()
+            }
+            GlobalActions.PLAY_PAUSE_SONG -> {
+                dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+            }
+            GlobalActions.LAST_SONG -> {
+                dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+            }
+            GlobalActions.NEXT_SONG -> {
+                dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT)
+            }
+            GlobalActions.PREVIOUS_APP -> {
+                previousApp()
+            }
+            GlobalActions.OPEN_NOTIFICATION_PANEL -> {
+                performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
+            }
+            GlobalActions.OPEN_QUICK_PANEL -> {
+                performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
+            }
+            GlobalActions.LOCK_SCREEN -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+                } else {
+                    showVersionTooLowToast(this, R.string.action_lock_screen)
+                }
+            }
+            GlobalActions.FLASHLIGHT -> {
+                if (FlashlightUtils.isFlashlightEnable()) {
+                    val block = {
+                        coroutineScope.launch(Dispatchers.Default) {
+                            val turnOn = !FlashlightUtils.isFlashlightOn()
+                            if (turnOn) {
+                                FlashlightUtils.setFlashlightStatus(true)
+                            } else {
+                                FlashlightUtils.setFlashlightStatus(false)
+                                FlashlightUtils.destroy()
+                            }
+                        }
+                    }
+                    if (PermissionUtils.isGranted(Manifest.permission.CAMERA)) {
+                        block()
+                    } else {
+                        showToast(R.string.grant_camera_permission)
+                        PermissionUtils
+                            .permission(Manifest.permission.CAMERA)
+                            .callback { isAllGranted, granted, deniedForever, denied ->
+                                if (isAllGranted) {
+                                    block()
+                                } else if (deniedForever.isNotEmpty()) {
+                                    showToast(R.string.goto_grant_camera_permission)
+                                    gotoAppDetailSettings()
+                                }
+                            }
+                            .request()
+                    }
+                } else {
+                    showToast(R.string.flashlight_failed)
+                }
+            }
+            GlobalActions.SPLIT_SCREEN -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN)
+                } else {
+                    showVersionTooLowToast(this, R.string.action_split_screen)
+                }
+            }
+            GlobalActions.POPUP_SCREEN -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    val curPkgName = currPackageName
+                    if (nowInLauncher() || curPkgName.isNullOrEmpty()) {
+                        return
+                    }
+                    val intent = Intent().apply {
+                        setPackage(curPkgName)
+                        setAction(Intent.ACTION_MAIN)
+                        addCategory(Intent.CATEGORY_LAUNCHER)
+                    }
+                    val resolveInfo = packageManager
+                        .queryIntentActivitiesCompat(intent, PackageManager.MATCH_ALL)
+                        .firstOrNull()
+                    val className = resolveInfo?.activityInfo?.name
+                    if (!className.isNullOrEmpty()) {
+                        launchAppInPopup(curPkgName, className)
+                    }
+                } else {
+                    showVersionTooLowToast(this, R.string.action_popup_screen)
+                }
+            }
+            GlobalActions.ASSIST_APP -> {
+                launchAssist()
+            }
+            GlobalActions.SCREENSHOT -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    coroutineScope.launch {
+                        delay(500)
+                        performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
+                    }
+                } else {
+                    showVersionTooLowToast(this, R.string.action_screenshot)
+                }
+            }
+            GlobalActions.POWER_BUTTON -> {
+                performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
+            }
+            GlobalActions.WECHAT_SCAN -> {
+                gotoWechatScan()
+            }
+            GlobalActions.WECHAT_PAY -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    val isCurrInWechatHome = currActivityName == "com.tencent.mm.ui.LauncherUI"
+                    gotoWechat()
+                    if (!isCurrInWechatHome) {
+                        pendingWechatPayAutoCancelJob?.cancel()
+                        pendingWechatPayAutoCancelJob = coroutineScope.launch {
+                            delay(3000)
+                            pendingWechatPay = false
+                        }
+                        pendingWechatPay = true
+                    }
+                } else {
+                    showVersionTooLowToast(this, R.string.action_wechat_pay_simulate_click)
+                }
+            }
+            GlobalActions.ALIPAY_SCAN -> {
+                gotoAlipayScan()
+            }
+            GlobalActions.ALIPAY_PAY -> {
+                gotoAlipayPayCode()
+            }
+            GlobalActions.EXTRA_LAUNCH_APP -> {
+                val advancedSettings = advancedSettings ?: return
+                val appInfo = action.appInfo
+                if (appInfo != null) {
+                    val longPressLaunchPopup = advancedSettings.actionPanelAppLongPressLaunchPopup
+                    val triggerType = action.extra as? TriggerType
+                    val miniWindow = triggerType?.isMiniWindow(longPressLaunchPopup) ?: appInfo.miniWindow
+                    launchAppWithFrozenSupport(appInfo, miniWindow)
+                }
+            }
+            GlobalActions.EXTRA_LAUNCH_SHORTCUT -> {
+                val shortcutInfo = action.shortcutInfo
+                if (shortcutInfo != null) {
+                    launchShortcutInfo(shortcutInfo)
+                }
+            }
+            GlobalActions.MOVE_SCREEN -> {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                    showVersionTooLowToast(this, R.string.action_move_screen)
+                    return
+                }
+                if (gestureSettings?.longSlideTriggerImmediately != true) {
+                    showToast(R.string.move_screen_disabled_cause_long_slide_trigger_immediately)
+                    return
+                }
+                val data = JsonHelper.decodeFromString<MoveScreenData>(action.data)
+                if (data.x in 0..ScreenUtils.getScreenWidth() &&
+                    data.y in 0..ScreenUtils.getScreenHeight()
+                ) {
+                    when (data.action) {
+                        ActionSettings.MoveScreen.Action.LongPress -> {
+                            AccessibilityUtils.longPress(host, data.x, data.y)
+                        }
+                        ActionSettings.MoveScreen.Action.DoubleTap -> {
+                            AccessibilityUtils.doubleTap(host, data.x, data.y)
+                        }
+                        ActionSettings.MoveScreen.Action.Tap -> {
+                            AccessibilityUtils.click(host, data.x, data.y)
+                        }
+                        else -> Unit
+                    }
+                }
+            }
+            GlobalActions.KEEP_SCREEN_ON -> {
+                if (wakeLock != null) {
+                    safeReleaseWakeLock()
+                    showToast(R.string.disable_keep_screen_on)
+                } else {
+                    val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+                    wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "gulugulu:KeepScreenOn")
+                    wakeLock?.setReferenceCounted(false)
+                    wakeLock?.acquire(KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS)
+                    showToast(R.string.enable_keep_screen_on)
+                }
+            }
+            GlobalActions.BACK_TO_TOP -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    AccessibilityUtils.fastVerticalScroll(host, true)
+                } else {
+                    showVersionTooLowToast(this, R.string.action_back_to_top)
+                }
+            }
+            GlobalActions.GOTO_BOTTOM -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    val strength = host.actionSettings?.gotoBottom?.strength ?: GotoBottomStrength
+                    AccessibilityUtils.fastVerticalScroll(host, false, strength)
+                } else {
+                    showVersionTooLowToast(this, R.string.action_goto_bottom)
+                }
+            }
+            GlobalActions.OPEN_APP_OR_URL -> {
+                val data = try {
+                    JsonHelper.decodeFromString<hunoia.sideleap.entity.OpenAppOrUrlData>(action.data)
+                } catch (e: Exception) {
+                    null
+                }
+                if (data != null) {
+                    if (data.type == hunoia.sideleap.entity.OpenAppOrUrlData.TYPE_ACTIVITY) {
+                        if (data.packageName.isNotEmpty() && data.activityClassName.isNotEmpty()) {
+                            launchAppActivity(data.packageName, data.activityClassName)
+                        }
+                    } else {
+                        if (data.url.isNotEmpty()) {
+                            launchUrl(data.url)
+                        }
+                    }
+                }
+            }
+            GlobalActions.QUICK_APP_LAUNCHER -> {
+                host.quickAppLauncherOverlay.toggle()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun mockClickWechatPay() {
+        val host = host
+        host.coroutineScope.launch {
+            delay(500)
+            val screenWidth = ScreenUtils.getScreenWidth()
+            val statusBarHeight = BarUtils.getStatusBarHeight()
+            val radius = ConvertUtils.dp2px(12f)
+            var x = screenWidth - ConvertUtils.dp2px(14f) - radius
+            var y = statusBarHeight + ConvertUtils.dp2px(10f) + radius
+            AccessibilityUtils.click(host, x, y)
+            delay(500)
+            x = screenWidth - ConvertUtils.dp2px(60f) - radius
+            y = statusBarHeight + ConvertUtils.dp2px(220f) + radius
+            AccessibilityUtils.click(host, x, y)
+        }
+    }
+
+    private fun AccessibilityService.previousApp() {
+        val prevPkgName = prevPackageName
+        val curPkgName = currPackageName
+        if (prevPkgName.isNullOrEmpty() || curPkgName.isNullOrEmpty()) {
+            return
+        }
+        if (currPackageNameError()) {
+            queryLaunchIntentAndStart(curPkgName)
+            return
+        }
+        if (prevPkgName == curPkgName) return
+        if (queryLaunchIntentAndStart(prevPkgName)) {
+            prevPackageName = curPkgName
+            currPackageName = prevPkgName
+        }
+    }
+
+    private fun AccessibilityService.queryLaunchIntentAndStart(packageName: String?): Boolean {
+        if (packageName.isNullOrEmpty()) {
+            return false
+        }
+        val intent = packageManager.getLaunchIntentForPackage(packageName) ?: return false
+        return try {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            true
+        } catch (ignored: Exception) {
+            false
+        }
+    }
+
+    private fun AccessibilityService.currPackageNameError(): Boolean {
+        val pkgName = rootInActiveWindow?.packageName?.toString()
+        return pkgName != currPackageName
+    }
+
+    private fun AccessibilityService.hasLaunchIntent(packageName: String?): Boolean {
+        val key = packageName ?: return false
+        launchablePackageCache[key]?.let { return it }
+        val result = packageManager.getLaunchIntentForPackage(key) != null
+        launchablePackageCache[key] = result
+        return result
+    }
+
+    private fun isActivity(packageName: String?, className: String?): Boolean {
+        packageName ?: return false
+        className ?: return false
+        val key = "$packageName/$className"
+        activityExistsCache[key]?.let { return it }
+        return try {
+            val component = ComponentName(packageName, className)
+            host.packageManager.getActivityInfo(component, 0)
+            cacheActivityExists(key, true)
+            true
+        } catch (e: Exception) {
+            cacheActivityExists(key, false)
+            false
+        }
+    }
+
+    private fun cacheActivityExists(key: String, value: Boolean) {
+        if (activityExistsCache.size > 512) {
+            activityExistsCache.clear()
+        }
+        activityExistsCache[key] = value
+    }
+
+    private fun safeReleaseWakeLock() {
+        val lock = wakeLock
+        wakeLock = null
+        if (lock?.isHeld == true) {
+            try {
+                lock.release()
+            } catch (ignored: RuntimeException) {
+                // Ignore defensively.
+            }
+        }
+    }
+
+    private fun launchAppWithFrozenSupport(appInfo: hunoia.sideleap.entity.AppInfo, miniWindow: Boolean) {
+        val packageName = appInfo.packageName
+        val className = appInfo.className
+
+        // Stage 1: Try direct intent if className is available
+        if (className.isNotEmpty()) {
+            try {
+                if (miniWindow && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    if (host.launchAppInPopup(packageName, className)) return
+                }
+                val intent = Intent().apply {
+                    setClassName(packageName, className)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                if (intent.resolveActivity(host.packageManager) != null) {
+                    host.startActivity(intent)
+                    return
+                }
+            } catch (e: Exception) {
+                LauncherDiagnostics.d(host, "launchFrozen: direct intent failed for $packageName/$className, fallback")
+            }
+        }
+
+        // Stage 2: Background fallback — matching QuickAppLauncherOverlay's proven pattern.
+        host.coroutineScope.launch(Dispatchers.IO) {
+            // Try to find launcher activity (handles unfrozen apps with empty className)
+            val foundInfo = AppInfoUtils.findLauncherActivity(host, packageName)
+            if (foundInfo != null) {
+                withContext(Dispatchers.Main) {
+                    host.launchAppInfo(foundInfo, miniWindow)
+                }
+                return@launch
+            }
+
+            // No launcher → likely frozen → reuse Overlay pattern:
+            // call requestEnableFrozenPackage (Shizuku gating is handled internally)
+            host.requestEnableFrozenPackage(packageName) { success ->
+                host.coroutineScope.launch(Dispatchers.IO) {
+                    if (success) {
+                        val enabledInfo = AppInfoUtils.findLauncherActivity(host, packageName)
+                        withContext(Dispatchers.Main) {
+                            if (enabledInfo != null) {
+                                host.launchAppInfo(enabledInfo, miniWindow)
+                            } else {
+                                showToast(R.string.frozen_app_enabled_but_no_launcher_found)
+                            }
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            showToast(R.string.enable_frozen_app_failed)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
