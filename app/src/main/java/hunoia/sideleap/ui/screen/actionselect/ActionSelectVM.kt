@@ -14,7 +14,7 @@ import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.GestureButton
 import hunoia.sideleap.ui.navigation.IconResize
-import hunoia.sideleap.ui.navigation.IconResizeCache
+import hunoia.sideleap.utils.IconResizeCache
 import hunoia.sideleap.entity.LauncherInfo
 import hunoia.sideleap.entity.Position
 import hunoia.sideleap.entity.TriggerDirection

@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.widget
+package hunoia.sideleap.ui.widget.quickapplaunch
 
 import android.view.HapticFeedbackConstants
 import android.view.View

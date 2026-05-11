@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.navigation
+package hunoia.sideleap.utils
 
 import android.graphics.drawable.Drawable
 import java.util.Collections

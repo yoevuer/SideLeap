@@ -32,6 +32,10 @@ versionName = "1.5.1"
             storePassword = properties.getProperty("KEYSTORE_PASSWORD")
             keyAlias = properties.getProperty("STORE_ALIAS")
             keyPassword = properties.getProperty("KEY_PASSWORD")
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+            enableV4Signing = false
         }
     }
     buildTypes {
