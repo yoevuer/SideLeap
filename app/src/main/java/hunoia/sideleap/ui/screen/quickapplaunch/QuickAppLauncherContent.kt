@@ -1,5 +1,8 @@
 package hunoia.sideleap.ui.screen.quickapplaunch
 
+import hunoia.sideleap.ui.widget.AppItem
+import hunoia.sideleap.ui.widget.KeyboardRow
+
 import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.compose.animation.AnimatedContent

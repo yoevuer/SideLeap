@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.quickapplaunch
+package hunoia.sideleap.ui.widget
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

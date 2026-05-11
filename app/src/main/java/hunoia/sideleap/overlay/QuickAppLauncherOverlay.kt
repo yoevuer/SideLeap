@@ -65,7 +65,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import hunoia.sideleap.R
 import hunoia.sideleap.SideGestureService
-import hunoia.sideleap.ui.screen.quickapplaunch.QuickAppLauncherAdjustPanel
+import hunoia.sideleap.ui.widget.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.screen.quickapplaunch.QuickAppLauncherContent
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.ktx.launchAppInfo
