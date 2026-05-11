@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -72,7 +73,6 @@ import hunoia.sideleap.utils.sortApps
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -92,7 +92,7 @@ internal fun QuickAppLauncherContent(
     val context = LocalContext.current
     val view = LocalView.current
     val coroutineScope = rememberCoroutineScope()
-    var allApps by remember { mutableStateOf<List<AppInfo>>(emptyList()) }
+    var appListState by remember { mutableStateOf(AppListState(emptyList(), emptySet())) }
     var tokens by remember { mutableStateOf(emptyList<String>()) }
     var launcherSettings by remember { mutableStateOf(initialSettings) }
     var keyboardExpanded by remember { mutableStateOf(true) }
@@ -100,31 +100,30 @@ internal fun QuickAppLauncherContent(
     LaunchedEffect(Unit) {
         DataStoreHolder.quickAppLauncherSettings.data.collectLatest { launcherSettings = it }
     }
-    var frozenPackageNames by remember { mutableStateOf(emptySet<String>()) }
     LaunchedEffect(launcherSettings.showSystemApps) {
-        val (merged, frozenPkgs) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+        val state = kotlinx.coroutines.withContext(Dispatchers.IO) {
             val fa = AppInfoUtils.queryFrozenApplications(context, launcherSettings.showSystemApps)
             val frozenPkgSet = fa.map { it.packageName }.toSet()
             val la = AppInfoUtils.queryLauncherActivities(context, allowRepeatPackage = false, showSystemApps = launcherSettings.showSystemApps)
             val normalPkgNames = la.map { it.packageName }.toSet()
             val merged = la + fa.filter { it.packageName !in normalPkgNames }
-            merged to frozenPkgSet
+            AppListState(merged, frozenPkgSet)
         }
-        allApps = merged
-        frozenPackageNames = frozenPkgs
+        appListState = state
     }
-    val visibleApps = remember(allApps, launcherSettings) {
-        allApps.filter { app ->
-            if (launcherSettings.hiddenApps.contains(app.key())) {
+    val hiddenApps = launcherSettings.hiddenApps
+    val visibleApps = remember(appListState.apps, hiddenApps) {
+        appListState.apps.filter { app ->
+            if (hiddenApps.contains(app.key())) {
                 false
             } else if (app.className.isEmpty()) {
-                launcherSettings.hiddenApps.none { it.startsWith("${app.packageName}/") }
+                hiddenApps.none { it.startsWith("${app.packageName}/") }
             } else {
                 true
             }
         }
     }
-    val filteredApps = remember(visibleApps, launcherSettings, tokens) {
+    val filteredApps = remember(visibleApps, launcherSettings.recentLaunchTime, launcherSettings.launchCount, tokens) {
         sortApps(context, visibleApps, launcherSettings, tokens)
     }
     val density = LocalDensity.current
@@ -218,14 +217,15 @@ Box(modifier = Modifier.fillMaxWidth().height(candidateHeight)) {
                                           horizontalArrangement = Arrangement.spacedBy(2.dp),
                                           modifier = Modifier.fillMaxSize()
                                       ) {
-                                          items(filteredApps.chunked(candidateRows)) { columnApps ->
+                                          items(filteredApps.chunked(candidateRows), key = { chunk -> chunk.firstOrNull()?.key() ?: "empty" }) { columnApps ->
 Column(
                                                     verticalArrangement = Arrangement.spacedBy(2.dp),
                                                     modifier = Modifier.width(64.dp)
                                                 ) {
-                                                    columnApps.forEach { app ->
-val isFrozen = app.packageName in frozenPackageNames
-                                                         AppItem(app = app, isFrozen = isFrozen, onClick = {
+columnApps.forEach { app ->
+                                                              key(app.key()) {
+val isFrozen = app.packageName in appListState.frozenPkgs
+                                                          AppItem(app = app, isFrozen = isFrozen, onClick = {
                                                              if (isFrozen) {
                                                                  service.requestEnableFrozenPackage(app.packageName) { success ->
                                                                      if (success) {
@@ -266,10 +266,11 @@ val isFrozen = app.packageName in frozenPackageNames
                                                                          }
                                                                      }
                                                                  }
-                                                             } else if (onLaunch(app, quickLauncherAppLongPressLaunchPopup)) closeAnimated()
-                                                         })
-                                                     }
-                                                 }
+} else if (onLaunch(app, quickLauncherAppLongPressLaunchPopup)) closeAnimated()
+                                                          })
+                                                      }
+                                                  }
+                                              }
                                             }
                                         }
                                     }
@@ -297,7 +298,7 @@ val isFrozen = app.packageName in frozenPackageNames
                                      LazyVerticalGrid(state = gridState, columns = GridCells.Adaptive(minSize = 64.dp), verticalArrangement = Arrangement.spacedBy(4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), contentPadding = PaddingValues(bottom = 36.dp), modifier = Modifier.fillMaxSize()) {
                                          if (filteredApps.isEmpty()) item { Box(modifier = Modifier.height(88.dp).fillMaxWidth()) }
                                          items(filteredApps, key = { it.key() }) { app ->
-                                             val isFrozen = app.packageName in frozenPackageNames
+                                             val isFrozen = app.packageName in appListState.frozenPkgs
                                              AppItem(app = app, isFrozen = isFrozen, onClick = {
                                                  if (isFrozen) {
                                                      service.requestEnableFrozenPackage(app.packageName) { success ->
@@ -390,3 +391,5 @@ private fun gridHeightFor(panelHeightFraction: Float) = when {
     panelHeightFraction < 0.75f -> 220.dp
     else -> 260.dp
 }
+
+private data class AppListState(val apps: List<AppInfo>, val frozenPkgs: Set<String>)

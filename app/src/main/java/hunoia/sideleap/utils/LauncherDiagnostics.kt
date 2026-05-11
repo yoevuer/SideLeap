@@ -2,6 +2,7 @@ package hunoia.sideleap.utils
 
 import android.content.Context
 import android.util.Log
+import hunoia.sideleap.BuildConfig
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -50,6 +51,7 @@ object LauncherDiagnostics {
     fun d(context: Context, message: String) {
         if (!enabled) return
         Log.d(TAG, message)
+        if (!BuildConfig.DEBUG) return
         val timestamp = dateFormat.format(Date())
         val safeMsg = message.replace('\n', ' ')
         val entry = "[$timestamp] $safeMsg"

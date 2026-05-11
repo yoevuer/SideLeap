@@ -161,8 +161,11 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
             overlayParams = null
         }
 
-        service.coroutineScope.launch(Dispatchers.Main.immediate) {
-            val initialSettings = DataStoreHolder.quickAppLauncherSettings.data.first()
+        service.coroutineScope.launch {
+            val initialSettings = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                DataStoreHolder.quickAppLauncherSettings.data.first()
+            }
+            kotlinx.coroutines.withContext(Dispatchers.Main.immediate) {
             val wm = ContextCompat.getSystemService(service, WindowManager::class.java)!!
             val lp = createLayoutParams(initialSettings)
             val composeView = ComposeView(service).apply {
@@ -234,6 +237,7 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
                     isShowing = false
                 }
                 .start()
+            }
         }
     }
 
