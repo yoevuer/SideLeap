@@ -56,12 +56,12 @@ fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageV
         Column(modifier = Modifier.fillMaxSize()) {
             TopBar(onBack = onBack, title = "管理隐藏应用")
             LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
-                item {
+                item(key = "clear_stats") {
                     SectionCard {
                         TextActionButton(onClick = { vm.clearStats() }, text = "清除最近/频率记录")
                     }
                 }
-                item {
+                item(key = "search_field") {
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
@@ -79,7 +79,7 @@ fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageV
                     )
                 }
                 if (searchQuery.isNotBlank() && filteredApps.isEmpty()) {
-                    item {
+                    item(key = "no_results") {
                         Text(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
                             text = stringResource(R.string.no_matching_results),
@@ -88,76 +88,70 @@ fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageV
                         )
                     }
                 }
-                item {
-                    SectionCard(modifier = Modifier.padding(top = 8.dp), title = "已隐藏") {
-                        val keys = uiState.settings.hiddenApps.toList()
-                        Column {
-                            keys.forEach { key ->
-                                val app = filteredApps.firstOrNull { keyOf(it) == key } ?: return@forEach
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    AsyncImage(
-                                        model = context.packageManager.getApplicationIcon(app.packageName),
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Fit,
-                                        modifier = Modifier.width(40.dp).height(40.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(text = app.label, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium)
-                                        Text(text = app.packageName, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
-                                    }
-                                    TextActionButton(onClick = { vm.setHidden(app, false) }, text = "恢复")
-                                }
-                            }
+                item(key = "hidden_header") {
+                    SectionCard(modifier = Modifier.padding(top = 8.dp), title = "已隐藏") { }
+                }
+                val keys = uiState.settings.hiddenApps.toList()
+                items(keys, key = { "hidden:$it" }) { key ->
+                    val app = filteredApps.firstOrNull { keyOf(it) == key } ?: return@items
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AsyncImage(
+                            model = context.packageManager.getApplicationIcon(app.packageName),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.width(40.dp).height(40.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = app.label, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium)
+                            Text(text = app.packageName, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
                         }
+                        TextActionButton(onClick = { vm.setHidden(app, false) }, text = "恢复")
                     }
                 }
-                item {
-                    SectionCard(modifier = Modifier.padding(top = 8.dp), title = "全部应用 - 添加隐藏") {
-                        Column {
-                            filteredApps.forEach { app ->
-                                val key = keyOf(app)
-                                val selected = uiState.settings.hiddenApps.contains(key)
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    AsyncImage(
-                                        model = app.icon,
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Fit,
-                                        modifier = Modifier.width(40.dp).height(40.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = app.label,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            style = MaterialTheme.typography.titleMedium
-                                        )
-                                        Text(
-                                            text = app.packageName,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.secondary
-                                        )
-                                    }
-                                    Switch(
-                                        checked = selected,
-                                        onCheckedChange = { vm.setHidden(app, it) }
-                                    )
-                                }
-                            }
+                item(key = "all_header") {
+                    SectionCard(modifier = Modifier.padding(top = 8.dp), title = "全部应用 - 添加隐藏") { }
+                }
+                items(filteredApps, key = { "all:${keyOf(it)}" }) { app ->
+                    val key = keyOf(app)
+                    val selected = uiState.settings.hiddenApps.contains(key)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AsyncImage(
+                            model = app.icon,
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.width(40.dp).height(40.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = app.label,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                text = app.packageName,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
                         }
+                        Switch(
+                            checked = selected,
+                            onCheckedChange = { vm.setHidden(app, it) }
+                        )
                     }
                 }
             }
