@@ -201,6 +201,7 @@ internal fun QuickAppLauncherContent(
                 Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
                     val contentHeightFraction = launcherSettings.contentHeightFraction
                     val candidateRows = launcherSettings.candidateRows.coerceIn(1, 3)
+                    val chunkedApps = remember(filteredApps, candidateRows) { filteredApps.chunked(candidateRows) }
                     val candidateHeight = candidateHeightFor(contentHeightFraction, candidateRows)
                     AnimatedContent(
                         targetState = keyboardExpanded,
@@ -217,7 +218,7 @@ Box(modifier = Modifier.fillMaxWidth().height(candidateHeight)) {
                                           horizontalArrangement = Arrangement.spacedBy(2.dp),
                                           modifier = Modifier.fillMaxSize()
                                       ) {
-                                          items(filteredApps.chunked(candidateRows), key = { chunk -> chunk.firstOrNull()?.key() ?: "empty" }) { columnApps ->
+                                          items(chunkedApps, key = { chunk -> chunk.firstOrNull()?.key() ?: "empty" }) { columnApps ->
 Column(
                                                     verticalArrangement = Arrangement.spacedBy(2.dp),
                                                     modifier = Modifier.width(64.dp)

@@ -4,8 +4,15 @@ import android.content.Context
 import net.sourceforge.pinyin4j.BasePinyinHelper
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.QuickAppLauncherSettings
+import java.util.LinkedHashMap
 
 internal data class AppSearchIndex(val raw: String, val pinyin: String, val initials: String)
+
+private val pinyinIndexCache: MutableMap<String, AppSearchIndex> = object : LinkedHashMap<String, AppSearchIndex>(1024, 0.75f, true) {
+    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, AppSearchIndex>?): Boolean {
+        return size > 1024
+    }
+}
 
 internal fun sortApps(context: Context, apps: List<AppInfo>, settings: QuickAppLauncherSettings, tokens: List<String>): List<AppInfo> {
     val matched = if (tokens.isEmpty()) apps else apps.filter { app -> matchesApp(context, app, tokens) }
@@ -39,7 +46,9 @@ internal fun containsRank(context: Context, app: AppInfo, tokens: List<String>):
 }
 
 internal fun buildIndex(context: Context, text: String): AppSearchIndex {
-    val raw = text.lowercase()
+    val key = text.lowercase()
+    pinyinIndexCache[key]?.let { return it }
+    val raw = key
     val pinyin = StringBuilder()
     val initials = StringBuilder()
     text.forEach { ch ->
@@ -51,7 +60,9 @@ internal fun buildIndex(context: Context, text: String): AppSearchIndex {
             val lower = ch.lowercaseChar(); pinyin.append(lower); initials.append(lower)
         }
     }
-    return AppSearchIndex(raw, pinyin.toString(), initials.toString())
+    val result = AppSearchIndex(raw, pinyin.toString(), initials.toString())
+    pinyinIndexCache[key] = result
+    return result
 }
 
 internal fun matchesTokens(text: String, tokens: List<String>): Boolean {
