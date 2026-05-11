@@ -53,6 +53,7 @@ import hunoia.sideleap.ktx.updateLayout
 import hunoia.sideleap.ktx.updateMainView
 import hunoia.sideleap.ktx.volumeDown
 import hunoia.sideleap.ktx.volumeUp
+import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import hunoia.sideleap.ui.widget.SideGestureContainer
 import hunoia.sideleap.utils.DataStoreHolder
@@ -526,10 +527,12 @@ class SideGestureService : ComponentAccessibilityService() {
         bindService(intent, conn, android.content.Context.BIND_AUTO_CREATE)
 
         coroutineScope.launch(Dispatchers.IO) {
+            val tEnable = System.currentTimeMillis()
             if (!latch.await(10, TimeUnit.SECONDS)) {
                 LauncherDiagnostics.d(this@SideGestureService, "enable_package: timeout for $packageName")
                 result = false
             }
+            if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "enable_package: shizuku_done pkg=$packageName result=$result elapsed=${System.currentTimeMillis() - tEnable}ms")
             try { unbindService(conn) } catch (_: Exception) {}
             synchronized(enableLock) {
                 if (enablePackageInFlight == inFlight) enablePackageInFlight = null

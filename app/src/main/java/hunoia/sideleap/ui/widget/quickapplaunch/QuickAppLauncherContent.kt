@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.QuickAppLauncherSettings
@@ -248,28 +249,42 @@ val isFrozen = app.packageName in appListState.frozenPkgs
                                                                      }
                                                                  }
                                                              } else if (onLaunch(app, !quickLauncherAppLongPressLaunchPopup)) closeAnimated()
-                                                         }, onLongPress = { _, _ ->
-                                                             if (isFrozen) {
-                                                                 service.requestEnableFrozenPackage(app.packageName) { success ->
-                                                                     if (success) {
-                                                                         LauncherDiagnostics.d(service, "enable_package: request launch pkg=${app.packageName} miniWindow=true")
-                                                                         coroutineScope.launch {
-                                                                             val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                                                 AppInfoUtils.findLauncherActivity(context, app.packageName)
-                                                                             }
-                                                                             if (found != null) {
-                                                                                 LauncherDiagnostics.d(service, "enable_package: launcher found pkg=${found.packageName} cls=${found.className}")
-                                                                                 val result = onLaunch(found, quickLauncherAppLongPressLaunchPopup)
-                                                                                 LauncherDiagnostics.d(service, "enable_package: launch after enable result=$result pkg=${app.packageName}")
-                                                                                 if (result) closeAnimated()
-                                                                             } else {
-                                                                                 LauncherDiagnostics.d(service, "enable_package: launcher activity not found pkg=${app.packageName}")
-                                                                             }
-                                                                         }
-                                                                     }
-                                                                 }
+}, onLongPress = { _, _ ->
+                                                   if (isFrozen) {
+                                                       val tFrozenStart = System.currentTimeMillis()
+                                                        if (BuildConfig.DEBUG) {
+                                                                       val beforeState = runCatching { context.packageManager.getApplicationEnabledSetting(app.packageName) }.getOrDefault(-1)
+                                                                       android.util.Log.d("LauncherPerf", "longPress: frozen start pkg=${app.packageName} beforeEnable=$beforeState")
+                                                                   }
+                                                                   service.requestEnableFrozenPackage(app.packageName) { success ->
+                                                                       if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: enable_end pkg=${app.packageName} success=$success elapsed=${System.currentTimeMillis() - tFrozenStart}ms")
+                                                                       if (success) {
+                                                                           LauncherDiagnostics.d(service, "enable_package: request launch pkg=${app.packageName} miniWindow=true")
+                                                                           if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: resolve_intent start pkg=${app.packageName}")
+                                                                           val tResolve = System.currentTimeMillis()
+                                                                           coroutineScope.launch {
+                                                                               val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                                                                   AppInfoUtils.findLauncherActivity(context, app.packageName)
+                                                                               }
+                                                                               if (found != null) {
+                                                                                   if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: resolve_intent found pkg=${app.packageName} elapsed=${System.currentTimeMillis() - tResolve}ms")
+                                                                                   LauncherDiagnostics.d(service, "enable_package: launcher found pkg=${found.packageName} cls=${found.className}")
+                                                                                   val tLaunch = System.currentTimeMillis()
+                                                                                   val result = onLaunch(found, quickLauncherAppLongPressLaunchPopup)
+                                                                                   if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: startActivity pkg=${app.packageName} result=$result elapsed=${System.currentTimeMillis() - tLaunch}ms total=${System.currentTimeMillis() - tFrozenStart}ms")
+                                                                                   LauncherDiagnostics.d(service, "enable_package: launch after enable result=$result pkg=${app.packageName}")
+                                                                                   if (result) closeAnimated()
+                                                                               } else {
+                                                                                   if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: resolve_intent not_found pkg=${app.packageName} elapsed=${System.currentTimeMillis() - tResolve}ms total=${System.currentTimeMillis() - tFrozenStart}ms")
+                                                                                   LauncherDiagnostics.d(service, "enable_package: launcher activity not found pkg=${app.packageName}")
+                                                                               }
+                                                                           }
+                                                                       } else {
+                                                                           if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: enable_failed pkg=${app.packageName} total=${System.currentTimeMillis() - tFrozenStart}ms")
+                                                                       }
+                                                                   }
 } else if (onLaunch(app, quickLauncherAppLongPressLaunchPopup)) closeAnimated()
-                                                          })
+                                                            })
                                                       }
                                                   }
                                               }
@@ -322,28 +337,42 @@ val isFrozen = app.packageName in appListState.frozenPkgs
                                                          }
                                                      }
                                                  } else if (onLaunch(app, !quickLauncherAppLongPressLaunchPopup)) closeAnimated()
-                                             }, onLongPress = { _, _ ->
-                                                 if (isFrozen) {
-                                                     service.requestEnableFrozenPackage(app.packageName) { success ->
-                                                         if (success) {
-                                                             LauncherDiagnostics.d(service, "enable_package: request launch pkg=${app.packageName} miniWindow=true")
-                                                             coroutineScope.launch {
-                                                                 val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                                     AppInfoUtils.findLauncherActivity(context, app.packageName)
-                                                                 }
-                                                                 if (found != null) {
-                                                                     LauncherDiagnostics.d(service, "enable_package: launcher found pkg=${found.packageName} cls=${found.className}")
-                                                                     val result = onLaunch(found, quickLauncherAppLongPressLaunchPopup)
-                                                                     LauncherDiagnostics.d(service, "enable_package: launch after enable result=$result pkg=${app.packageName}")
-                                                                     if (result) closeAnimated()
-                                                                 } else {
-                                                                     LauncherDiagnostics.d(service, "enable_package: launcher activity not found pkg=${app.packageName}")
-                                                                 }
-                                                             }
-                                                         }
-                                                     }
-                                                 } else if (onLaunch(app, quickLauncherAppLongPressLaunchPopup)) closeAnimated()
-                                             })
+}, onLongPress = { _, _ ->
+                                                  if (isFrozen) {
+val tFrozenStart = System.currentTimeMillis()
+                                                       if (BuildConfig.DEBUG) {
+                                                           val beforeState = runCatching { context.packageManager.getApplicationEnabledSetting(app.packageName) }.getOrDefault(-1)
+                                                           android.util.Log.d("LauncherPerf", "longPress_grid: frozen start pkg=${app.packageName} beforeEnable=$beforeState")
+                                                       }
+                                                       service.requestEnableFrozenPackage(app.packageName) { success ->
+                                                           if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: enable_end pkg=${app.packageName} success=$success elapsed=${System.currentTimeMillis() - tFrozenStart}ms")
+                                                           if (success) {
+                                                               LauncherDiagnostics.d(service, "enable_package: request launch pkg=${app.packageName} miniWindow=true")
+                                                               if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: resolve_intent start pkg=${app.packageName}")
+                                                               val tResolve = System.currentTimeMillis()
+                                                               coroutineScope.launch {
+                                                                   val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                                                       AppInfoUtils.findLauncherActivity(context, app.packageName)
+                                                                   }
+                                                                   if (found != null) {
+                                                                       if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: resolve_intent found pkg=${app.packageName} elapsed=${System.currentTimeMillis() - tResolve}ms")
+                                                                       LauncherDiagnostics.d(service, "enable_package: launcher found pkg=${found.packageName} cls=${found.className}")
+                                                                       val tLaunch = System.currentTimeMillis()
+                                                                       val result = onLaunch(found, quickLauncherAppLongPressLaunchPopup)
+                                                                       if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: startActivity pkg=${app.packageName} result=$result elapsed=${System.currentTimeMillis() - tLaunch}ms total=${System.currentTimeMillis() - tFrozenStart}ms")
+                                                                       LauncherDiagnostics.d(service, "enable_package: launch after enable result=$result pkg=${app.packageName}")
+                                                                       if (result) closeAnimated()
+                                                                   } else {
+                                                                       if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: resolve_intent not_found pkg=${app.packageName} elapsed=${System.currentTimeMillis() - tResolve}ms total=${System.currentTimeMillis() - tFrozenStart}ms")
+                                                                       LauncherDiagnostics.d(service, "enable_package: launcher activity not found pkg=${app.packageName}")
+                                                                   }
+                                                               }
+                                                           } else {
+                                                               if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: enable_failed pkg=${app.packageName} total=${System.currentTimeMillis() - tFrozenStart}ms")
+                                                           }
+                                                       }
+                                                   } else if (onLaunch(app, quickLauncherAppLongPressLaunchPopup)) closeAnimated()
+                                              })
                                          }
                                      }
                                  Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().pointerInput(keyboardExpanded) {
