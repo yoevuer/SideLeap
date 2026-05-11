@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import hunoia.sideleap.R
+import hunoia.sideleap.constant.WECHAT_PACKAGE
 import hunoia.sideleap.utils.showToast
 
 fun Context.gotoWechat(): Boolean {
@@ -22,7 +23,7 @@ fun Context.gotoWechat(): Boolean {
 }
 
 fun Context.gotoWechatScan(): Boolean {
-    val intent = packageManager.getLaunchIntentForPackage("com.tencent.mm")
+    val intent = packageManager.getLaunchIntentForPackage(WECHAT_PACKAGE)
     return if (intent != null &&
         packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null
     ) {

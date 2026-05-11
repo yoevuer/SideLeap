@@ -22,6 +22,7 @@ import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.RequiresApi
 import hunoia.sideleap.constant.ActionSettingsDefaults.GotoBottomStrength
 import hunoia.sideleap.constant.GlobalActions
+import hunoia.sideleap.constant.WECHAT_PACKAGE
 import hunoia.sideleap.entity.Action
 import hunoia.sideleap.entity.MoveScreenData
 import hunoia.sideleap.entity.global.ActionSettings
@@ -115,7 +116,7 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
 
                     if (pendingWechatPay &&
                         Build.VERSION.SDK_INT >= 24 &&
-                        packageName == "com.tencent.mm"
+                        packageName == WECHAT_PACKAGE
                     ) {
                         pendingWechatPayAutoCancelJob?.cancel()
                         pendingWechatPay = false
@@ -259,7 +260,7 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
             }
             GlobalActions.WECHAT_PAY -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    val isCurrInWechatHome = currActivityName == "com.tencent.mm.ui.LauncherUI"
+                    val isCurrInWechatHome = currActivityName == "${WECHAT_PACKAGE}.ui.LauncherUI"
                     gotoWechat()
                     if (!isCurrInWechatHome) {
                         pendingWechatPayAutoCancelJob?.cancel()

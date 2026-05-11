@@ -235,7 +235,7 @@ object AppInfoUtils {
                     }
                 }
                 val mainIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-                val resolves = pm.queryIntentActivities(mainIntent, 0)
+                val resolves = pm.queryIntentActivitiesCompat(mainIntent, 0)
                 for (resolve in resolves) {
                     if (resolve.activityInfo.packageName == packageName) {
                         val ai = pm.getApplicationInfo(packageName, 0)

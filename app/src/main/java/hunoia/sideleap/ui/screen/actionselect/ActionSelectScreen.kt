@@ -9,7 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.widget.Toast
+import hunoia.sideleap.utils.showToast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -1521,20 +1521,20 @@ private fun OpenAppOrUrlPage(
                     onTestUrl = {
                         val normalized = normalizeUrl(urlInput)
                         if (normalized == null) {
-                            Toast.makeText(context, context.getString(R.string.invalid_url), Toast.LENGTH_SHORT).show()
+                            showToast(R.string.invalid_url)
                             return@OpenAppOrUrlLinkSection
                         }
                         runCatching {
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(normalized))
                             context.startActivity(intent)
                         }.onFailure {
-                            Toast.makeText(context, context.getString(R.string.launch_failed), Toast.LENGTH_SHORT).show()
+                            showToast(R.string.launch_failed)
                         }
                     },
                     onAddUrl = {
                         val trimmedUrl = normalizeUrl(urlInput)
                         if (trimmedUrl == null) {
-                            Toast.makeText(context, context.getString(R.string.invalid_url), Toast.LENGTH_SHORT).show()
+                            showToast(R.string.invalid_url)
                             return@OpenAppOrUrlLinkSection
                         }
                         val newAction = Action(
@@ -2662,7 +2662,7 @@ private fun copyToClipboard(context: android.content.Context, label: String, tex
     val clipboardManager = context.getSystemService(ClipboardManager::class.java)
     val clip = ClipData.newPlainText(label, text)
     clipboardManager?.setPrimaryClip(clip)
-    Toast.makeText(context, context.getString(R.string.copy_success), Toast.LENGTH_SHORT).show()
+    showToast(R.string.copy_success)
 }
 
 private fun normalizeUrl(raw: String): String? {
