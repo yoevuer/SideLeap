@@ -7,7 +7,6 @@ import hunoia.sideleap.constant.AdvancedSettingsDefaults.AnimationStyles
 import hunoia.sideleap.constant.AdvancedSettingsDefaults.ClipApps
 import hunoia.sideleap.constant.AdvancedSettingsDefaults.ClipShortcuts
 import hunoia.sideleap.constant.AdvancedSettingsDefaults.DayNightMode
-import hunoia.sideleap.constant.AdvancedSettingsDefaults.DiagnosticsEnabled
 import hunoia.sideleap.constant.AdvancedSettingsDefaults.DynamicColor
 import hunoia.sideleap.constant.AdvancedSettingsDefaults.ExcludeApps
 import hunoia.sideleap.constant.AdvancedSettingsDefaults.ExcludeFromRecents
@@ -49,6 +48,5 @@ data class AdvancedSettings(
     // qualifiedName
     val clipApps: Map<String, Float> = ClipApps,
     // qualifiedNameWithIntents
-    val clipShortcuts: Map<String, Float> = ClipShortcuts,
-    val diagnosticsEnabled: Boolean = DiagnosticsEnabled
+    val clipShortcuts: Map<String, Float> = ClipShortcuts
 )

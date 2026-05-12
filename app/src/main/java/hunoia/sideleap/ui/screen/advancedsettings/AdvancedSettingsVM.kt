@@ -8,7 +8,6 @@ import hunoia.sideleap.entity.DayNightMode
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsVM.UiState
 import hunoia.sideleap.utils.DataStoreHolder
-import hunoia.sideleap.utils.LauncherDiagnostics
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -173,7 +172,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                 .data
                 .take(1)
                 .collectLatest { item ->
-                    LauncherDiagnostics.setEnabled(item.diagnosticsEnabled)
                     updateUiState {
                         it.copy(
                             showAnimation = item.animationStyles.isAnimationEnabled,

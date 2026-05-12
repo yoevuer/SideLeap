@@ -38,7 +38,6 @@ object AdvancedSettingsDefaults {
     val DayNightMode = hunoia.sideleap.entity.DayNightMode.Auto
     val ClipApps = emptyMap<String, Float>()
     val ClipShortcuts = emptyMap<String, Float>()
-    const val DiagnosticsEnabled = true
 }
 
 object GestureSettingsDefaults {

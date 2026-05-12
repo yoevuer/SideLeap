@@ -36,5 +36,5 @@
 -verbose
 -printmapping mapping.txt
 
-#抛出异常时保留源文件和代码行号
--keepattributes SourceFile,LineNumberTable
+# 抛出异常时保留代码行号，源文件名不保留以减少元数据体积
+-keepattributes LineNumberTable

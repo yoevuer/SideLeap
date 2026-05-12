@@ -85,7 +85,6 @@ import com.blankj.utilcode.util.TimeUtils
 @Composable
 fun HomeScreen(
     onNavToUnlock: () -> Unit,
-    onNavToAbout: () -> Unit,
     onNavToAdvancedSettings: () -> Unit,
     onNavToGestureSettings: () -> Unit,
     onNavToGestureButtonSettings: (GestureButton) -> Unit,
@@ -209,16 +208,6 @@ fun HomeScreen(
                                 },
                                 text = {
                                     Text(text = stringResource(id = R.string.backup_restore))
-                                }
-                            )
-                            DropdownMenuItem(
-                                onClick = {
-                                    vm.showMoreMenu(false) {
-                                        onNavToAbout()
-                                    }
-                                },
-                                text = {
-                                    Text(text = stringResource(id = R.string.about))
                                 }
                             )
                         }

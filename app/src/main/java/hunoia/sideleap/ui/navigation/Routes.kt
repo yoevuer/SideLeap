@@ -12,10 +12,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data object About
-
-@Keep
-@Serializable
 data class ActionSelect(
     val gestureButtonId: String,
     val position: Position,
@@ -69,7 +65,3 @@ data object Unlock
 @Keep
 @Serializable
 data object WaveAnimationStyle
-
-@Keep
-@Serializable
-data object DiagnosticLogs

@@ -288,7 +288,6 @@ class SideGestureService : ComponentAccessibilityService() {
                     .data
                     .collectLatest {
                         advancedSettings = it
-                        LauncherDiagnostics.setEnabled(it.diagnosticsEnabled)
                     }
             }
             launch {

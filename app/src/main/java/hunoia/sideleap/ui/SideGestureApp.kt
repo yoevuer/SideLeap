@@ -22,12 +22,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import hunoia.sideleap.ui.navigation.About
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.ui.navigation.AdjustGestureAngles
 import hunoia.sideleap.ui.navigation.AdvancedSettings
 import hunoia.sideleap.ui.navigation.AppBlacklist
-import hunoia.sideleap.ui.navigation.DiagnosticLogs
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.ui.navigation.QuickAppLauncherHidden
 import hunoia.sideleap.ui.navigation.GestureSettings
@@ -36,7 +34,6 @@ import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.ui.navigation.Unlock
 import hunoia.sideleap.ui.navigation.WaveAnimationStyle
 import hunoia.sideleap.ktx.LocalNavController
-import hunoia.sideleap.ui.screen.about.AboutScreen
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectScreen
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsScreen
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleScreen
@@ -44,7 +41,6 @@ import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistScreen
 import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesScreen
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsScreen
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsScreen
-import hunoia.sideleap.ui.screen.diagnosticlogs.DiagnosticLogsScreen
 import hunoia.sideleap.ui.screen.home.HomeScreen
 import hunoia.sideleap.ui.screen.iconresize.IconResizeScreen
 import hunoia.sideleap.ui.screen.quickapplaunchermanage.QuickAppLauncherManageScreen
@@ -85,7 +81,6 @@ fun SideGestureApp() {
                 myComposable<Home> {
                     HomeScreen(
                         onNavToUnlock = { navController.navigate(Unlock) },
-                        onNavToAbout = { navController.navigate(About) },
                         onNavToAdvancedSettings = { navController.navigate(AdvancedSettings) },
                         onNavToGestureSettings = { navController.navigate(GestureSettings) },
                         onNavToGestureButtonSettings = { button ->
@@ -96,12 +91,6 @@ fun SideGestureApp() {
                 myComposable<Unlock> {
                     UnlockScreen(onBack = { navController.navigateUp() })
                 }
-                myComposable<About> {
-                    AboutScreen(
-                        onBack = { navController.navigateUp() },
-                        onNavToDiagnosticLogs = { navController.navigate(DiagnosticLogs) }
-                    )
-                }
                 myComposable<AdvancedSettings> {
                     AdvancedSettingsScreen(
                         onBack = { navController.navigateUp() },
@@ -111,9 +100,6 @@ fun SideGestureApp() {
                             navController.navigate(WaveAnimationStyle)
                         }
                     )
-                }
-                myComposable<DiagnosticLogs> {
-                    DiagnosticLogsScreen(onBack = { navController.navigateUp() })
                 }
                 myComposable<GestureSettings> {
                     GestureSettingsScreen(

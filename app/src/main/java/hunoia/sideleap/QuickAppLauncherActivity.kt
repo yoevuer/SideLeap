@@ -3,26 +3,14 @@ package hunoia.sideleap
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import hunoia.sideleap.utils.DataStoreHolder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import hunoia.sideleap.utils.LauncherDiagnostics
 
 class QuickAppLauncherActivity : Activity() {
 
-    private val activityScope = MainScope()
     private var activityCreateTime: Long = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityScope.launch(Dispatchers.IO) {
-            runCatching {
-                LauncherDiagnostics.setEnabled(DataStoreHolder.advancedSettings.data.first().diagnosticsEnabled)
-            }
-        }
         activityCreateTime = System.currentTimeMillis()
         val intent = intent
         LauncherDiagnostics.d(this, "activity: onCreate taskId=$taskId isTaskRoot=$isTaskRoot action=${intent?.action} flags=${intent?.flags} data=${intent?.dataString} categories=${intent?.categories} extras=${intent?.extras?.keySet()}")
@@ -57,7 +45,6 @@ class QuickAppLauncherActivity : Activity() {
     override fun onDestroy() {
         LauncherDiagnostics.d(this, "activity: onDestroy taskId=$taskId")
         super.onDestroy()
-        activityScope.cancel()
     }
 
     override fun finish() {
