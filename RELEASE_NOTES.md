@@ -1,5 +1,21 @@
 # SideLeap Release Notes
 
+## v1.5.4
+
+### 新功能
+- 新增「生成随机名称」动作：一键生成 4–8 字母轻幻想昵称，自动复制到系统剪贴板；支持重试和失败提示
+
+### 体验调整
+- 将动作选择器中的设置提示和权限提示由 Snackbar 改为 Toast，统一短反馈方式
+- 删除选择器中无用的标签 Chip 展示，简化界面
+
+### 性能优化
+- 将 PackageManager 的 `getLaunchIntentForPackage` 调用移至 `Dispatchers.IO`，减少主线程阻塞
+- 将 `getResourcesForApplication` 调用移至 `Dispatchers.IO`，减少主线程阻塞
+
+### 资源清理
+- 删除无引用的 Play Store 图标文件
+
 ## v1.5.3
 
 ### 启动器性能优化
