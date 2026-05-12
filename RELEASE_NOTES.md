@@ -1,26 +1,28 @@
 # SideLeap Release Notes
 
-## v1.5.4
+## v1.5.5
 
-### 新功能
-- 新增「生成随机名称」动作：一键生成 4–8 字母轻幻想昵称，自动复制到系统剪贴板；支持重试和失败提示
-
-### 体验调整
-- 将动作选择器中的设置提示和权限提示由 Snackbar 改为 Toast，统一短反馈方式
-- 删除选择器中无用的标签 Chip 展示，简化界面
+### 性能与结构优化
+- DataStore 7 个实例全量懒加载，减少冷启动初始化
+- 动作文本/图标映射数据化重构，消除冗余 when 分支
+- JsonHelper 序列化移除 `encodeDefaults = true`，缩小存储体积
+- `findLauncherActivity` 使用协程挂起替代 `Thread.sleep` 阻塞
+- 多项内部优化：匿名 callback → null、graphicsLayer → Modifier.alpha、Regex 常量提取
+- 构建工具链升级至 Android 16；精简 Release 资源与本地化包
+- DataStore 依赖瘦身，ProGuard 规则收紧
 
 ### 功能变更
-- 移除支付分类及 4 个支付动作（微信扫一扫、微信付款码、支付宝扫一扫、支付宝付款码）
-- 删除支付专用 helper 和资源文件
+- **移除支付分类及 4 个支付动作（微信扫一扫、微信付款码、支付宝扫一扫、支付宝付款码）**
+- 删除支付宝/微信支付专用 helper 与图片资源文件
 
-### 性能优化
-- 将 PackageManager 的 `getLaunchIntentForPackage` 调用移至 `Dispatchers.IO`，减少主线程阻塞
-- 将 `getResourcesForApplication` 调用移至 `Dispatchers.IO`，减少主线程阻塞
+### 验证
+- assembleDebug 通过
+- assembleRelease 通过
+- lintDebug 通过
+- 实机测试通过
+- release APK v3 签名通过
 
-### 资源清理
-- 删除无引用的 Play Store 图标文件
-
-## v1.5.3
+## v1.5.4
 
 ### 新功能
 - 新增「生成随机名称」动作：一键生成 4–8 字母轻幻想昵称，自动复制到系统剪贴板；支持重试和失败提示
