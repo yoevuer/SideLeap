@@ -7,6 +7,7 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import rikka.shizuku.Shizuku
 import rikka.shizuku.Shizuku.UserServiceArgs
+import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.IShizukuCommandService
 
 import java.util.concurrent.atomic.AtomicBoolean
@@ -296,6 +297,22 @@ object ShizukuUtils {
 
     private val enableProbeRunning = AtomicBoolean(false)
 
+    private val enableLock = Any()
+    private var enableService: IShizukuCommandService? = null
+    private var enableBinder: IBinder? = null
+    private var enableArgs: UserServiceArgs? = null
+
+    private val enableDeathRecipient = IBinder.DeathRecipient {
+        synchronized(enableLock) {
+            if (BuildConfig.DEBUG) {
+                android.util.Log.d("LauncherPerf", "enable_package: bind_user_service dead")
+            }
+            enableService = null
+            enableBinder = null
+            enableArgs = null
+        }
+    }
+
     fun enablePackageForDiagnostic(context: Context, packageName: String) {
         if (!isShizukuAvailable()) {
             LauncherDiagnostics.d(context, "shizuku_enable_probe: unavailable")
@@ -412,75 +429,162 @@ object ShizukuUtils {
 
         LauncherDiagnostics.d(context, "shizuku_enable_launcher: target=$packageName")
 
-        try {
-            val args = UserServiceArgs(
-                ComponentName(context.packageName, ShizukuCommandService::class.java.name)
-            ).processNameSuffix("enable_launcher").tag("sideleap-enable-package-launcher")
-                .version(1).debuggable(true).daemon(false)
-
-            val latch = java.util.concurrent.CountDownLatch(1)
-            var result = ""
-            val timedOut = java.util.concurrent.atomic.AtomicBoolean(false)
-
-            val conn = object : ServiceConnection {
-                override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-                    try {
-                        val service = IShizukuCommandService.Stub.asInterface(binder)
-                        result = service.enablePackage(packageName)
-                        try { service.destroy() } catch (_: Exception) {}
-                    } catch (e: Exception) {
-                        result = "error: ${e::class.simpleName} ${e.message}"
-                    } finally {
-                        latch.countDown()
-                    }
-                }
-
-                override fun onServiceDisconnected(name: ComponentName?) {}
-                override fun onBindingDied(name: ComponentName?) { latch.countDown() }
-                override fun onNullBinding(name: ComponentName?) { latch.countDown() }
-            }
-
-            try {
-                Shizuku.bindUserService(args, conn)
-                if (!latch.await(8, java.util.concurrent.TimeUnit.SECONDS)) {
-                    timedOut.set(true)
-                }
-            } catch (e: Exception) {
-                result = "error: ${e::class.simpleName} ${e.message}"
-            } finally {
-                try { Shizuku.unbindUserService(args, conn, true) } catch (_: Exception) {}
-            }
-
-            if (timedOut.get()) {
-                LauncherDiagnostics.d(context, "shizuku_enable_launcher: timeout")
-                return EnablePackageResult(false, packageName, error = "timeout")
-            }
-
-            if (result.startsWith("error:")) {
-                LauncherDiagnostics.d(context, "shizuku_enable_launcher: $result")
-                return EnablePackageResult(false, packageName, error = result.removePrefix("error:").trim())
-            }
-
-            val exitCode = result.lines()
-                .firstOrNull { it.startsWith("exitCode=") }
-                ?.removePrefix("exitCode=")
-                ?.toIntOrNull() ?: -1
-            val output = result.lines()
-                .firstOrNull { it.startsWith("output=") }
-                ?.removePrefix("output=") ?: ""
-            val success = exitCode == 0
-
-            LauncherDiagnostics.d(context, "shizuku_enable_launcher: exitCode=$exitCode success=$success")
-            for (line in result.lines()) {
-                if (line.isNotBlank()) {
-                    LauncherDiagnostics.d(context, "shizuku_enable_launcher: $line")
-                }
-            }
-
-            return EnablePackageResult(success, packageName, exitCode, output)
-        } catch (e: Exception) {
-            LauncherDiagnostics.d(context, "shizuku_enable_launcher: exception ${e::class.simpleName} ${e.message}")
-            return EnablePackageResult(false, packageName, error = "${e::class.simpleName} ${e.message}")
+        var result = enableWithCachedService(context, packageName)
+        if (result != null) {
+            LauncherDiagnostics.d(context, "shizuku_enable_launcher: result=${result.success}")
+            return result
         }
+
+        // Cache miss or dead — clear and retry with fresh bind
+        synchronized(enableLock) { clearEnableCache() }
+        result = enableWithCachedService(context, packageName)
+        if (result != null) {
+            LauncherDiagnostics.d(context, "shizuku_enable_launcher: result=${result.success} retry")
+            return result
+        }
+
+        LauncherDiagnostics.d(context, "shizuku_enable_launcher: failed after retry")
+        return EnablePackageResult(false, packageName, error = "enable failed after retry")
+    }
+
+    fun clearEnableServiceCache() {
+        synchronized(enableLock) {
+            enableBinder?.unlinkToDeath(enableDeathRecipient, 0)
+            enableService = null
+            enableBinder = null
+            enableArgs = null
+        }
+        if (BuildConfig.DEBUG) {
+            android.util.Log.d("LauncherPerf", "enable_package: cache cleared")
+        }
+    }
+
+    private fun clearEnableCache() {
+        enableBinder?.unlinkToDeath(enableDeathRecipient, 0)
+        enableService = null
+        enableBinder = null
+        enableArgs = null
+    }
+
+    private fun enableWithCachedService(context: Context, packageName: String): EnablePackageResult? {
+        val cached = synchronized(enableLock) { enableService }
+        if (cached != null) {
+            if (BuildConfig.DEBUG) {
+                android.util.Log.d("LauncherPerf", "enable_package: bind_user_service reused pkg=$packageName")
+            }
+            return try {
+                val resultStr = cached.enablePackage(packageName)
+                parseLauncherResult(context, resultStr, packageName)
+            } catch (e: android.os.DeadObjectException) {
+                if (BuildConfig.DEBUG) {
+                    android.util.Log.d("LauncherPerf", "enable_package: bind_user_service dead pkg=$packageName ${e::class.simpleName}")
+                }
+                null
+            } catch (e: android.os.RemoteException) {
+                if (BuildConfig.DEBUG) {
+                    android.util.Log.d("LauncherPerf", "enable_package: bind_user_service remote_exception pkg=$packageName ${e::class.simpleName}")
+                }
+                null
+            }
+        }
+        return enableBindAndCache(context, packageName)
+    }
+
+    private fun enableBindAndCache(context: Context, packageName: String): EnablePackageResult? {
+        val tBind = System.currentTimeMillis()
+        if (BuildConfig.DEBUG) {
+            android.util.Log.d("LauncherPerf", "enable_package: bind_user_service start pkg=$packageName")
+        }
+
+        val args = UserServiceArgs(
+            ComponentName(context.packageName, ShizukuCommandService::class.java.name)
+        ).processNameSuffix("enable_launcher").tag("sideleap-enable-package-launcher")
+            .version(1).debuggable(true).daemon(false)
+
+        val latch = java.util.concurrent.CountDownLatch(1)
+        var result = ""
+        val timedOut = java.util.concurrent.atomic.AtomicBoolean(false)
+        var serviceRef: IShizukuCommandService? = null
+        var binderRef: IBinder? = null
+
+        val conn = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+                if (BuildConfig.DEBUG) {
+                    android.util.Log.d("LauncherPerf",
+                        "enable_package: bind_user_service connected pkg=$packageName elapsed=${System.currentTimeMillis() - tBind}ms")
+                }
+                try {
+                    val svc = IShizukuCommandService.Stub.asInterface(binder)
+                    serviceRef = svc
+                    binderRef = binder
+                    result = svc.enablePackage(packageName)
+                } catch (e: Exception) {
+                    result = "error: ${e::class.simpleName} ${e.message}"
+                } finally {
+                    latch.countDown()
+                }
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {}
+            override fun onBindingDied(name: ComponentName?) { latch.countDown() }
+            override fun onNullBinding(name: ComponentName?) { latch.countDown() }
+        }
+
+        try {
+            Shizuku.bindUserService(args, conn)
+            if (!latch.await(8, java.util.concurrent.TimeUnit.SECONDS)) {
+                timedOut.set(true)
+            }
+        } catch (e: Exception) {
+            result = "error: ${e::class.simpleName} ${e.message}"
+        }
+
+        if (timedOut.get()) {
+            if (BuildConfig.DEBUG) {
+                android.util.Log.d("LauncherPerf",
+                    "enable_package: bind_user_service timeout pkg=$packageName")
+            }
+            try { Shizuku.unbindUserService(args, conn, true) } catch (_: Exception) {}
+            return EnablePackageResult(false, packageName, error = "timeout")
+        }
+
+        if (result.startsWith("error:")) {
+            try { Shizuku.unbindUserService(args, conn, true) } catch (_: Exception) {}
+            return EnablePackageResult(false, packageName, error = result.removePrefix("error:").trim())
+        }
+
+        // Cache: keep service connected, do NOT destroy or unbind
+        val binderToCache = binderRef
+        val serviceToCache = serviceRef
+        synchronized(enableLock) {
+            if (enableService == null && serviceToCache != null && binderToCache != null) {
+                enableService = serviceToCache
+                enableBinder = binderToCache
+                enableArgs = args
+                try {
+                    binderToCache.linkToDeath(enableDeathRecipient, 0)
+                } catch (_: Exception) {}
+            }
+        }
+
+        return parseLauncherResult(context, result, packageName)
+    }
+
+    private fun parseLauncherResult(context: Context, result: String, packageName: String): EnablePackageResult {
+        val exitCode = result.lines()
+            .firstOrNull { it.startsWith("exitCode=") }
+            ?.removePrefix("exitCode=")
+            ?.toIntOrNull() ?: -1
+        val output = result.lines()
+            .firstOrNull { it.startsWith("output=") }
+            ?.removePrefix("output=") ?: ""
+        val success = exitCode == 0
+        LauncherDiagnostics.d(context, "shizuku_enable_launcher: exitCode=$exitCode success=$success")
+        for (line in result.lines()) {
+            if (line.isNotBlank()) {
+                LauncherDiagnostics.d(context, "shizuku_enable_launcher: $line")
+            }
+        }
+        return EnablePackageResult(success, packageName, exitCode, output)
     }
 }
