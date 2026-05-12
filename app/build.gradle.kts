@@ -15,8 +15,8 @@ android {
         applicationId = "hunoia.sideleap"
         minSdk = 24
         targetSdk = 35
-versionCode = 10504
-versionName = "1.5.4"
+        versionCode = 10504
+        versionName = "1.5.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -24,18 +24,36 @@ versionName = "1.5.4"
         }
     }
     signingConfigs {
-        val properties = Properties()
-        val inputStream = project.rootProject.file("local.properties").inputStream()
-        properties.load(inputStream)
-        register("release") {
-            storeFile = file(properties.getProperty("STORE_FILE_NAME"))
-            storePassword = properties.getProperty("KEYSTORE_PASSWORD")
-            keyAlias = properties.getProperty("STORE_ALIAS")
-            keyPassword = properties.getProperty("KEY_PASSWORD")
-            enableV1Signing = true
-            enableV2Signing = true
-            enableV3Signing = true
-            enableV4Signing = false
+        val localProperties = project.rootProject.file("local.properties")
+        if (localProperties.exists()) {
+            val properties = Properties()
+            localProperties.inputStream().use { properties.load(it) }
+            val storeFileName = properties.getProperty("STORE_FILE_NAME")?.trim().orEmpty()
+            val keystorePassword = properties.getProperty("KEYSTORE_PASSWORD")?.trim().orEmpty()
+            val storeAlias = properties.getProperty("STORE_ALIAS")?.trim().orEmpty()
+            val keyPasswordValue = properties.getProperty("KEY_PASSWORD")?.trim().orEmpty()
+            val hasCompleteSigningFields =
+                storeFileName.isNotEmpty() &&
+                        keystorePassword.isNotEmpty() &&
+                        storeAlias.isNotEmpty() &&
+                        keyPasswordValue.isNotEmpty()
+            val releaseStoreFile = if (hasCompleteSigningFields) {
+                file(storeFileName)
+            } else {
+                null
+            }
+            if (releaseStoreFile?.exists() == true) {
+                register("release") {
+                    storeFile = releaseStoreFile
+                    storePassword = keystorePassword
+                    keyAlias = storeAlias
+                    keyPassword = keyPasswordValue
+                    enableV1Signing = true
+                    enableV2Signing = true
+                    enableV3Signing = true
+                    enableV4Signing = false
+                }
+            }
         }
     }
     buildTypes {
@@ -45,15 +63,13 @@ versionName = "1.5.4"
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            signingConfigs.findByName("release")?.let {
+                signingConfig = it
+            }
         }
         debug {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
         create("perf") {
             initWith(getByName("release"))

@@ -193,4 +193,4 @@ private inline fun <reified T : Any> NavGraphBuilder.myComposable(
     }
 }
 
-private const val ANIMATION_DURATION_MS = 400
+private const val ANIMATION_DURATION_MS = 250

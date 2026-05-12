@@ -20,7 +20,6 @@ import hunoia.sideleap.entity.Position
 import hunoia.sideleap.entity.TriggerDirection
 import hunoia.sideleap.event.IconResizeEvent
 import hunoia.sideleap.ktx.appInfo
-import hunoia.sideleap.ktx.coerceTimeMillis
 import hunoia.sideleap.ktx.getIcon
 import hunoia.sideleap.ktx.qualifiedName
 import hunoia.sideleap.ktx.qualifiedNameWithIntents
@@ -216,14 +215,10 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     fun updateShortcutInfos() {
         viewModelScope.launchWithLoading {
             val createLauncherInfos = withContext(Dispatchers.IO) {
-                coerceTimeMillis(250) {
-                    AppInfoUtils.queryCreateShortcutActivities(App.getContext())
-                }
+                AppInfoUtils.queryCreateShortcutActivities(App.getContext())
             }
             val launchLauncherInfos = withContext(Dispatchers.IO) {
-                coerceTimeMillis(250) {
-                    ShortcutUtils.getAllAppsWithShortcut(App.getContext())
-                }
+                ShortcutUtils.getAllAppsWithShortcut(App.getContext())
             }
             if (uiState.selectSingle) {
                 updateUiState {
@@ -313,9 +308,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
-                coerceTimeMillis(500) {
-                    AppInfoUtils.queryLauncherActivities(App.getContext())
-                }
+                AppInfoUtils.queryLauncherActivities(App.getContext())
             }
             val frozenApps = withContext(Dispatchers.IO) {
                 queryFrozenApplicationsOnIo(App.getContext(), true)

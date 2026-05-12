@@ -5,7 +5,6 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.ktx.coerceTimeMillis
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiEvent
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiState
 import hunoia.sideleap.utils.AppInfoUtils
@@ -79,13 +78,11 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
-                coerceTimeMillis(500) {
-                    AppInfoUtils
-                        .queryLauncherActivities(App.getContext())
-                        .filter {
-                            it.packageName != App.getContext().packageName
-                        }
-                }
+                AppInfoUtils
+                    .queryLauncherActivities(App.getContext())
+                    .filter {
+                        it.packageName != App.getContext().packageName
+                    }
             }
             val frozenApps = withContext(Dispatchers.IO) {
                 queryFrozenApplicationsOnIo(App.getContext(), true)

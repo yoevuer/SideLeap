@@ -72,7 +72,7 @@ import kotlinx.coroutines.launch
 class SideGestureServiceProxy(private val host: SideGestureService) {
 
     private companion object {
-        const val KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS = 10 * 60 * 1000L
+        const val KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS = 2 * 60 * 1000L
         private val regexThreeVowels = Regex("[aeiou]{3}")
         private val regexThreeConsonants = Regex("[bcdfghjklmnpqrstvwxz]{3}")
     }

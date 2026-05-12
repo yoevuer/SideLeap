@@ -78,11 +78,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.content.ComponentName
 import android.content.ServiceConnection
+import android.os.Build
 import android.os.IBinder
 import android.os.Message
 import android.os.Messenger
 import android.os.Handler
 import android.os.Looper
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -102,7 +105,7 @@ class SideGestureService : ComponentAccessibilityService() {
     private val proxy = SideGestureServiceProxy(this)
     val quickAppLauncherOverlay by lazy { QuickAppLauncherOverlay(this) }
 
-    private val imeInsetObserver = ImeInsetObserver(this)
+    private val imeInsetObserver = ImeInsetObserver(this) { mainView }
     private var mainView: View? = null
     private var buttonViews: List<View>? = null
     private var orientation = if (ScreenUtils.isLandscape()) 2 else 1
@@ -543,16 +546,43 @@ class SideGestureService : ComponentAccessibilityService() {
         }
     }
 
-    private class ImeInsetObserver(val context: Context) {
+    private class ImeInsetObserver(
+        private val context: Context,
+        private val anchorProvider: () -> View?
+    ) {
 
         private val _flow = MutableStateFlow(0)
         val flow: StateFlow<Int> = _flow.asStateFlow()
 
-        private var view: View? = null
+        private var overlayView: View? = null
+        private var insetsView: View? = null
 
         fun register() {
             unregister()
-            this.view = View(context).apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                registerWithWindowInsets()
+            } else {
+                registerWithOverlayFallback()
+            }
+        }
+
+        private fun registerWithWindowInsets() {
+            val anchor = anchorProvider() ?: return
+            insetsView = anchor
+            ViewCompat.setOnApplyWindowInsetsListener(anchor) { _, insets ->
+                val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
+                _flow.value = if (imeVisible) {
+                    insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+                } else {
+                    0
+                }
+                insets
+            }
+            ViewCompat.requestApplyInsets(anchor)
+        }
+
+        private fun registerWithOverlayFallback() {
+            overlayView = View(context).apply {
                 val localRect = Rect()
                 val windowRect = Rect()
                 viewTreeObserver.addOnGlobalLayoutListener {
@@ -583,12 +613,15 @@ class SideGestureService : ComponentAccessibilityService() {
         }
 
         fun unregister() {
-            val view = view
-            if (view != null) {
-                _flow.value = 0
-                removeView(view)
-                this.view = null
+            _flow.value = 0
+            insetsView?.let {
+                ViewCompat.setOnApplyWindowInsetsListener(it, null)
             }
+            insetsView = null
+            overlayView?.let {
+                removeView(it)
+            }
+            overlayView = null
         }
 
         private fun addView(view: View, lp: WindowManager.LayoutParams) {
