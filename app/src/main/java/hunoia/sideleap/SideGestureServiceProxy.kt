@@ -73,6 +73,8 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
 
     private companion object {
         const val KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS = 10 * 60 * 1000L
+        private val regexThreeVowels = Regex("[aeiou]{3}")
+        private val regexThreeConsonants = Regex("[bcdfghjklmnpqrstvwxz]{3}")
     }
 
     private var prevPackageName: String? = null
@@ -113,9 +115,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
         "ly", "ny", "da", "ra", "la", "na", "lia", "nia", "ria",
         "lya", "nya", "ra", "la", "ya", "da", "ra", "la", "na"
     )
-
-    private val regexThreeVowels = Regex("[aeiou]{3}")
-    private val regexThreeConsonants = Regex("[bcdfghjklmnpqrstvwxz]{3}")
 
     private fun generateRandomName(): String? {
         repeat(20) {

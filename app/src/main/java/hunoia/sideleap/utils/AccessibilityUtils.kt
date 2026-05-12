@@ -1,7 +1,6 @@
 package hunoia.sideleap.utils
 
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityService.GestureResultCallback
 import android.accessibilityservice.GestureDescription
 import android.accessibilityservice.GestureDescription.StrokeDescription
 import android.graphics.Path
@@ -29,15 +28,7 @@ object AccessibilityUtils {
         builder.addStroke(StrokeDescription(path, 0L, 100L))
         val gesture = builder.build()
 
-        return service.dispatchGesture(gesture, object : GestureResultCallback() {
-            override fun onCompleted(gestureDescription: GestureDescription?) {
-                super.onCompleted(gestureDescription)
-            }
-
-            override fun onCancelled(gestureDescription: GestureDescription?) {
-                super.onCancelled(gestureDescription)
-            }
-        }, null)
+        return service.dispatchGesture(gesture, null, null)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -53,15 +44,7 @@ object AccessibilityUtils {
         builder.addStroke(StrokeDescription(path, 0L, 1000L))
         val gesture = builder.build()
 
-        return service.dispatchGesture(gesture, object : GestureResultCallback() {
-            override fun onCompleted(gestureDescription: GestureDescription?) {
-                super.onCompleted(gestureDescription)
-            }
-
-            override fun onCancelled(gestureDescription: GestureDescription?) {
-                super.onCancelled(gestureDescription)
-            }
-        }, null)
+        return service.dispatchGesture(gesture, null, null)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -81,15 +64,7 @@ object AccessibilityUtils {
         builder.addStroke(StrokeDescription(path2, 250L, 100L))
         val gesture = builder.build()
 
-        return service.dispatchGesture(gesture, object : GestureResultCallback() {
-            override fun onCompleted(gestureDescription: GestureDescription?) {
-                super.onCompleted(gestureDescription)
-            }
-
-            override fun onCancelled(gestureDescription: GestureDescription?) {
-                super.onCancelled(gestureDescription)
-            }
-        }, null)
+        return service.dispatchGesture(gesture, null, null)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -117,14 +92,6 @@ object AccessibilityUtils {
                 builder.addStroke(StrokeDescription(path, delay, 10L))
             }
         }
-        return service.dispatchGesture(builder.build(), object : GestureResultCallback() {
-            override fun onCompleted(gestureDescription: GestureDescription?) {
-                super.onCompleted(gestureDescription)
-            }
-
-            override fun onCancelled(gestureDescription: GestureDescription?) {
-                super.onCancelled(gestureDescription)
-            }
-        }, null)
+        return service.dispatchGesture(builder.build(), null, null)
     }
 }

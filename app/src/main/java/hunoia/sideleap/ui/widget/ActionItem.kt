@@ -26,8 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -59,9 +59,7 @@ fun TextActionButton(
 ) {
     Row(
         modifier = modifier
-            .graphicsLayer {
-                alpha = if (enabled) 1f else DISABLED_ALPHA
-            }
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
             .fillMaxWidth()
             .let {
                 val minHeight = if (secondaryText.isEmpty()) {
@@ -135,9 +133,7 @@ fun LabeledSwitch(
 ) {
     Row(
         modifier = modifier
-            .graphicsLayer {
-                alpha = if (enabled) 1f else DISABLED_ALPHA
-            }
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
             .fillMaxWidth()
             .let {
                 val minHeight = if (secondaryText.isEmpty()) {
