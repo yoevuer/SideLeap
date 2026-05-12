@@ -9,6 +9,8 @@ import android.os.Build
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.LauncherInfo
 import hunoia.sideleap.ktx.queryIntentActivitiesCompat
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 
 internal fun queryFrozenApplicationsOnIo(context: Context, showSystemApps: Boolean): List<AppInfo> {
     return AppInfoUtils.queryFrozenApplications(context, showSystemApps)
@@ -222,10 +224,10 @@ object AppInfoUtils {
         )
     }
 
-    fun findLauncherActivity(context: Context, packageName: String, maxRetries: Int = 5, retryDelayMs: Long = 200): AppInfo? {
+    suspend fun findLauncherActivity(context: Context, packageName: String, maxRetries: Int = 5, retryDelayMs: Long = 200): AppInfo? {
         repeat(maxRetries) { attempt ->
             if (attempt > 0) {
-                try { Thread.sleep(retryDelayMs) } catch (_: InterruptedException) { return null }
+                delay(retryDelayMs)
             }
             try {
                 val pm = context.packageManager
@@ -247,7 +249,7 @@ object AppInfoUtils {
                         return AppInfo(packageName, resolve.activityInfo.name, label)
                     }
                 }
-            } catch (_: Exception) {
+            } catch (e: CancellationException) { throw e } catch (_: Exception) {
             }
         }
         return null
