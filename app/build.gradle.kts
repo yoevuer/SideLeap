@@ -2,22 +2,20 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 android {
     namespace = "hunoia.sideleap"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "hunoia.sideleap"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 10504
         versionName = "1.5.4"
-        resourceConfigurations += listOf("en", "zh-rCN", "zh-rTW")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -91,13 +89,14 @@ android {
         abortOnError = false
         lintConfig = file("lint.xml")
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     buildFeatures {
         compose = true
         buildConfig = true
         aidl = true
+        resValues = true
+    }
+    androidResources {
+        localeFilters += listOf("en", "zh-rCN", "zh-rTW")
     }
     packaging {
         resources {
