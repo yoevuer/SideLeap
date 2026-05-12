@@ -155,6 +155,8 @@ val actionMetaList = listOf(
     ActionMeta(Action(GlobalActions.QUICK_APP_LAUNCHER), R.string.action_quick_app_panel, ActionCategory.LAUNCHER,
         icon = Icons.Default.Apps,
         descRes = R.string.action_desc_quick_launcher, tags = listOf(ActionTag.Launch), highlighted = true),
+    ActionMeta(Action(GlobalActions.RANDOM_NAME), R.string.action_random_name, ActionCategory.TOOL,
+        icon = Icons.Default.Assistant),
 )
 
 val actionMetaByValue: Map<String, ActionMeta> = actionMetaList.associateBy { it.action.value }

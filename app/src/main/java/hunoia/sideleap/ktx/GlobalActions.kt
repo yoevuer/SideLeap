@@ -105,6 +105,7 @@ fun Context.actionText(action: Action, emptyIfNone: Boolean = true): String = wh
     GlobalActions.GOTO_BOTTOM -> getString(R.string.action_goto_bottom)
     GlobalActions.OPEN_APP_OR_URL -> getString(R.string.action_open_app_or_url)
     GlobalActions.QUICK_APP_LAUNCHER -> getString(R.string.action_quick_app_panel)
+    GlobalActions.RANDOM_NAME -> getString(R.string.action_random_name)
     else -> if (emptyIfNone) "" else getString(R.string.action_none)
 }
 
@@ -162,6 +163,7 @@ fun actionText(action: Action, emptyIfNone: Boolean = true): String = when (acti
     GlobalActions.GOTO_BOTTOM -> stringResource(R.string.action_goto_bottom)
     GlobalActions.OPEN_APP_OR_URL -> stringResource(R.string.action_open_app_or_url)
     GlobalActions.QUICK_APP_LAUNCHER -> stringResource(R.string.action_quick_app_panel)
+    GlobalActions.RANDOM_NAME -> stringResource(R.string.action_random_name)
     else -> if (emptyIfNone) "" else stringResource(R.string.action_none)
 }
 
@@ -224,5 +226,6 @@ fun actionIcon(action: Action): Any? = when (action.value) {
     GlobalActions.GOTO_BOTTOM -> Icons.Default.VerticalAlignBottom
     GlobalActions.OPEN_APP_OR_URL -> Icons.Default.Forward
     GlobalActions.QUICK_APP_LAUNCHER -> Icons.Default.Apps
+    GlobalActions.RANDOM_NAME -> Icons.Default.Assistant
     else -> null
 }

@@ -11,6 +11,8 @@ import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_QUICK_SET
 import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_RECENTS
 import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT
 import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -84,6 +86,44 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
     private var pendingWechatPayAutoCancelJob: Job? = null
 
     private var wakeLock: PowerManager.WakeLock? = null
+
+    private var lastRandomName: String? = null
+
+    private val blockedNames = setOf("test", "null", "admin", "root", "system", "user")
+
+    private val consonants = arrayOf("b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "r", "s", "t", "v", "w", "z")
+    private val vowels = arrayOf("a", "e", "i", "o", "u")
+    private val codas = arrayOf("n", "m", "l", "r", "k", "t", "s", "d")
+
+    private fun generateRandomName(): String? {
+        repeat(20) {
+            val syllableCount = 2 + (Math.random() * 2).toInt()
+            val name = buildString {
+                repeat(syllableCount) {
+                    append(generateRandomSyllable())
+                }
+            }
+            if (name.length in 4..8) {
+                val formatted = name.replaceFirstChar { it.uppercase() }
+                if (formatted.lowercase() !in blockedNames && formatted != lastRandomName) {
+                    lastRandomName = formatted
+                    return formatted
+                }
+            }
+        }
+        return null
+    }
+
+    private fun generateRandomSyllable(): String {
+        val pattern = (Math.random() * 3).toInt()
+        return when (pattern) {
+            0 -> "${pick(consonants)}${pick(vowels)}"
+            1 -> "${pick(consonants)}${pick(vowels)}${pick(codas)}"
+            else -> "${pick(vowels)}${pick(consonants)}"
+        }
+    }
+
+    private fun pick(array: Array<String>): String = array[(Math.random() * array.size).toInt()]
 
     fun onRelease() {
         host.quickAppLauncherOverlay.close()
@@ -370,6 +410,20 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
             }
             GlobalActions.QUICK_APP_LAUNCHER -> {
                 host.quickAppLauncherOverlay.toggle()
+            }
+            GlobalActions.RANDOM_NAME -> {
+                val name = generateRandomName()
+                if (name != null) {
+                    try {
+                        val clipboard = host.getSystemService(ClipboardManager::class.java)
+                        clipboard?.setPrimaryClip(ClipData.newPlainText(null, name))
+                        showToast(name)
+                    } catch (_: Exception) {
+                        showToast(R.string.random_name_copy_failed)
+                    }
+                } else {
+                    showToast(R.string.random_name_generate_failed)
+                }
             }
         }
     }

@@ -310,4 +310,7 @@
     <string name="copy_another_side_button">复制对侧触钮</string>
     <string name="copy_another_side_button_tips">将对侧触钮配置复制到当前触钮下。</string>
     <string name="diagnostics_log">诊断日志</string>
+    <string name="action_random_name">生成随机名称</string>
+    <string name="random_name_generate_failed">生成失败</string>
+    <string name="random_name_copy_failed">复制失败</string>
 </resources>
