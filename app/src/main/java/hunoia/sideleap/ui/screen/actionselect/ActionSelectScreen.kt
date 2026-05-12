@@ -914,7 +914,7 @@ private fun ActionItem(
                                     onSettingsClick?.invoke()
                                 },
                                 onLongClick = if (settingHintText != null) {
-                                    { coroutineScope.launch { snackbarHostState.showSnackbar(settingHintText) } }
+                                    { showToast(settingHintText) }
                                 } else null
                             )
                             .clipToBackground(
@@ -941,40 +941,6 @@ private fun ActionItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            val tags = meta?.tags.orEmpty()
-            if (meta?.highlighted == true || tags.isNotEmpty()) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.padding(top = 2.dp)
-                ) {
-                    if (meta?.highlighted == true) {
-                        TagChip(stringResource(R.string.frequent_tag), MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer)
-                    }
-                    tags.forEach { tag ->
-                        if (tag == ActionTag.RequiresPermission && meta?.permissionHintRes != null) {
-                            val hint = stringResource(meta.permissionHintRes)
-                            Surface(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(message = hint)
-                                    }
-                                },
-                                shape = RoundedCornerShape(4.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant
-                            ) {
-                                Text(
-                                    text = tag.displayName,
-                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        } else {
-                            TagChip(tag.displayName, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                }
-            }
         }
         if (!selectSingle) {
             Checkbox(
@@ -984,21 +950,6 @@ private fun ActionItem(
                 onCheckedChange = onSelect
             )
         }
-    }
-}
-
-@Composable
-private fun TagChip(text: String, background: Color, content: Color) {
-    Surface(
-        shape = RoundedCornerShape(4.dp),
-        color = background
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = content
-        )
     }
 }
 
