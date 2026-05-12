@@ -151,8 +151,10 @@ import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import android.os.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ChevronRight
@@ -238,28 +240,30 @@ fun ActionSelectScreen(
                             val context = LocalContext.current
                             var currentLauncherInfo: LauncherInfo? by remember { mutableStateOf(null) }
                             val shortcutLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                                val launcherInfo = currentLauncherInfo
-                                if (result.resultCode == Activity.RESULT_OK && launcherInfo != null) {
-                                    val bitmap = result.data?.shortcutParcelableExtraCompat(shortcutIconExtraKey(), Bitmap::class.java)
-                                    val shortcutIconRes = result.data?.shortcutParcelableExtraCompat(shortcutIconResourceExtraKey(), ShortcutIconResource::class.java)
-                                    val intent = result.data?.shortcutParcelableExtraCompat(shortcutIntentExtraKey(), Intent::class.java)?.toUri(Intent.URI_INTENT_SCHEME)
-                                    val label = result.data?.shortcutStringExtraCompat(shortcutNameExtraKey()).orEmpty()
-                                    var iconRes = 0
-                                    if (shortcutIconRes != null) {
-                                        val res = context.packageManager.getResourcesForApplication(shortcutIconRes.packageName)
-                                        @Suppress("DiscouragedApi")
-                                        val id = res.getIdentifier(shortcutIconRes.resourceName, null, null)
-                                        iconRes = id
+                                coroutineScope.launch {
+                                    val launcherInfo = currentLauncherInfo
+                                    if (result.resultCode == Activity.RESULT_OK && launcherInfo != null) {
+                                        val bitmap = result.data?.shortcutParcelableExtraCompat(shortcutIconExtraKey(), Bitmap::class.java)
+                                        val shortcutIconRes = result.data?.shortcutParcelableExtraCompat(shortcutIconResourceExtraKey(), ShortcutIconResource::class.java)
+                                        val intent = result.data?.shortcutParcelableExtraCompat(shortcutIntentExtraKey(), Intent::class.java)?.toUri(Intent.URI_INTENT_SCHEME)
+                                        val label = result.data?.shortcutStringExtraCompat(shortcutNameExtraKey()).orEmpty()
+                                        val iconRes = if (shortcutIconRes != null) {
+                                            withContext(Dispatchers.IO) {
+                                                val res = context.packageManager.getResourcesForApplication(shortcutIconRes.packageName)
+                                                @Suppress("DiscouragedApi")
+                                                res.getIdentifier(shortcutIconRes.resourceName, null, null)
+                                            }
+                                        } else 0
+                                        val shortcutInfo = LauncherInfo.ShortcutInfo(
+                                            packageName = launcherInfo.packageName, className = launcherInfo.className,
+                                            intents = intent?.let { listOf(it) } ?: emptyList(), label = label,
+                                            iconRes = iconRes, iconPath = null, iconBitmap = bitmap
+                                        )
+                                        vm.addNewShortcut(launcherInfo, shortcutInfo)
+                                        if (uiState.selectedRecord.size < MAX_SELECT_COUNT) vm.select(shortcutInfo, true)
                                     }
-                                    val shortcutInfo = LauncherInfo.ShortcutInfo(
-                                        packageName = launcherInfo.packageName, className = launcherInfo.className,
-                                        intents = intent?.let { listOf(it) } ?: emptyList(), label = label,
-                                        iconRes = iconRes, iconPath = null, iconBitmap = bitmap
-                                    )
-                                    vm.addNewShortcut(launcherInfo, shortcutInfo)
-                                    if (uiState.selectedRecord.size < MAX_SELECT_COUNT) vm.select(shortcutInfo, true)
+                                    currentLauncherInfo = null
                                 }
-                                currentLauncherInfo = null
                             }
                             ActionPage(
                                 modifier = Modifier.fillMaxSize(),

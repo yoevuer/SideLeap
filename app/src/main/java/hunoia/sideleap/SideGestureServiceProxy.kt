@@ -453,21 +453,27 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
             return
         }
         if (currPackageNameError()) {
-            queryLaunchIntentAndStart(curPkgName)
+            host.coroutineScope.launch {
+                queryLaunchIntentAndStart(curPkgName)
+            }
             return
         }
         if (prevPkgName == curPkgName) return
-        if (queryLaunchIntentAndStart(prevPkgName)) {
-            prevPackageName = curPkgName
-            currPackageName = prevPkgName
+        host.coroutineScope.launch {
+            if (queryLaunchIntentAndStart(prevPkgName)) {
+                prevPackageName = curPkgName
+                currPackageName = prevPkgName
+            }
         }
     }
 
-    private fun AccessibilityService.queryLaunchIntentAndStart(packageName: String?): Boolean {
+    private suspend fun AccessibilityService.queryLaunchIntentAndStart(packageName: String?): Boolean {
         if (packageName.isNullOrEmpty()) {
             return false
         }
-        val intent = packageManager.getLaunchIntentForPackage(packageName) ?: return false
+        val intent = withContext(Dispatchers.IO) {
+            packageManager.getLaunchIntentForPackage(packageName)
+        } ?: return false
         return try {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
