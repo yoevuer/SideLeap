@@ -1,5 +1,23 @@
 # SideLeap Release Notes
 
+## v1.5.3
+
+### 启动器性能优化
+- 减少快捷启动器重组与阻塞 IO
+- 优化应用图标异步加载
+- 缓存搜索计算结果
+- 优化快捷启动器管理页列表加载
+- 将冻结应用查询迁出主线程
+
+### 冻结应用启动优化
+- 复用 Shizuku UserService Binder 连接，减少重复绑定开销
+- 优先使用直接 PackageManager/IPackageManager API 启用冻结应用
+- 保留 pm enable fallback，提高兼容性
+
+### 深色模式修复
+- 修复深色 MediumContrast 主题下部分 on-container 文本为黑色的问题
+- 修复隐藏应用页应用名和包名在深色模式下可读性不足的问题
+
 ## v1.5.2
 
 ### 签名配置
