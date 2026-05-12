@@ -10,7 +10,6 @@ import kotlinx.serialization.json.Json
 object JsonHelper {
 
     val globalJson = Json {
-        encodeDefaults = true
         ignoreUnknownKeys = true
     }
 
