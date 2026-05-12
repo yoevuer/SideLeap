@@ -9,6 +9,7 @@ Android 侧边手势与快速启动工具
 - 新增「生成随机名称」动作，一键生成轻幻想昵称并自动复制到剪贴板
 - 将动作选择器中的设置提示和权限提示由 Snackbar 改为 Toast，统一短反馈方式
 - 删除选择器中无用的标签 Chip 展示，简化界面
+- **移除支付分类及 4 个支付动作（微信扫一扫、微信付款码、支付宝扫一扫、支付宝付款码）**
 - 优化 PackageManager 调用（`getLaunchIntentForPackage`、`getResourcesForApplication`），减少主线程阻塞
 - 清理无引用的 Play Store 图标
 

@@ -21,20 +21,15 @@ import android.os.Build
 import android.os.PowerManager
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
-import androidx.annotation.RequiresApi
 import hunoia.sideleap.constant.ActionSettingsDefaults.GotoBottomStrength
 import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.constant.WECHAT_PACKAGE
+
 import hunoia.sideleap.entity.Action
 import hunoia.sideleap.entity.MoveScreenData
 import hunoia.sideleap.entity.global.ActionSettings
 import hunoia.sideleap.ktx.appInfo
 import hunoia.sideleap.ktx.dispatchMediaKeyEvent
-import hunoia.sideleap.ktx.gotoAlipayPayCode
-import hunoia.sideleap.ktx.gotoAlipayScan
 import hunoia.sideleap.ktx.gotoAppDetailSettings
-import hunoia.sideleap.ktx.gotoWechat
-import hunoia.sideleap.ktx.gotoWechatScan
 import hunoia.sideleap.ktx.isMiniWindow
 import hunoia.sideleap.ktx.launchAppActivity
 import hunoia.sideleap.ktx.launchAppInPopup
@@ -54,8 +49,6 @@ import hunoia.sideleap.utils.JsonHelper
 import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.utils.showToast
 import hunoia.sideleap.utils.showVersionTooLowToast
-import com.blankj.utilcode.util.BarUtils
-import com.blankj.utilcode.util.ConvertUtils
 import com.blankj.utilcode.util.FlashlightUtils
 import com.blankj.utilcode.util.PermissionUtils
 import com.blankj.utilcode.util.ScreenUtils
@@ -83,9 +76,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
 
     private val launchablePackageCache = mutableMapOf<String, Boolean>()
     private val activityExistsCache = mutableMapOf<String, Boolean>()
-
-    private var pendingWechatPay = false
-    private var pendingWechatPayAutoCancelJob: Job? = null
 
     private var wakeLock: PowerManager.WakeLock? = null
 
@@ -184,14 +174,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                         }
                     }
 
-                    if (pendingWechatPay &&
-                        Build.VERSION.SDK_INT >= 24 &&
-                        packageName == WECHAT_PACKAGE
-                    ) {
-                        pendingWechatPayAutoCancelJob?.cancel()
-                        pendingWechatPay = false
-                        mockClickWechatPay()
-                    }
                 }
                 else -> Unit
             }
@@ -325,31 +307,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
             GlobalActions.POWER_BUTTON -> {
                 performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
             }
-            GlobalActions.WECHAT_SCAN -> {
-                gotoWechatScan()
-            }
-            GlobalActions.WECHAT_PAY -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    val isCurrInWechatHome = currActivityName == "${WECHAT_PACKAGE}.ui.LauncherUI"
-                    gotoWechat()
-                    if (!isCurrInWechatHome) {
-                        pendingWechatPayAutoCancelJob?.cancel()
-                        pendingWechatPayAutoCancelJob = coroutineScope.launch {
-                            delay(3000)
-                            pendingWechatPay = false
-                        }
-                        pendingWechatPay = true
-                    }
-                } else {
-                    showVersionTooLowToast(this, R.string.action_wechat_pay_simulate_click)
-                }
-            }
-            GlobalActions.ALIPAY_SCAN -> {
-                gotoAlipayScan()
-            }
-            GlobalActions.ALIPAY_PAY -> {
-                gotoAlipayPayCode()
-            }
             GlobalActions.EXTRA_LAUNCH_APP -> {
                 val advancedSettings = advancedSettings ?: return
                 val appInfo = action.appInfo
@@ -455,24 +412,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                     showToast(R.string.random_name_generate_failed)
                 }
             }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun mockClickWechatPay() {
-        val host = host
-        host.coroutineScope.launch {
-            delay(500)
-            val screenWidth = ScreenUtils.getScreenWidth()
-            val statusBarHeight = BarUtils.getStatusBarHeight()
-            val radius = ConvertUtils.dp2px(12f)
-            var x = screenWidth - ConvertUtils.dp2px(14f) - radius
-            var y = statusBarHeight + ConvertUtils.dp2px(10f) + radius
-            AccessibilityUtils.click(host, x, y)
-            delay(500)
-            x = screenWidth - ConvertUtils.dp2px(60f) - radius
-            y = statusBarHeight + ConvertUtils.dp2px(220f) + radius
-            AccessibilityUtils.click(host, x, y)
         }
     }
 

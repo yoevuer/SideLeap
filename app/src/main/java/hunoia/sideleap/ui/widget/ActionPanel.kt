@@ -60,7 +60,7 @@ import coil.imageLoader
 import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.toDp
 import com.aaron.compose.ktx.toPx
-import hunoia.sideleap.R
+
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
 import hunoia.sideleap.entity.Action
@@ -70,13 +70,11 @@ import hunoia.sideleap.entity.Position
 import hunoia.sideleap.entity.Vibrations
 import hunoia.sideleap.ktx.actionIcon
 import hunoia.sideleap.ktx.actionText
-import hunoia.sideleap.ktx.alipayColor
 import hunoia.sideleap.ktx.appInfo
 import hunoia.sideleap.ktx.isMiniWindow
 import hunoia.sideleap.ktx.shortcutInfo
 import hunoia.sideleap.ktx.toIntOffset
 import hunoia.sideleap.ktx.tryVibrateForActionPanel
-import hunoia.sideleap.ktx.wechatColor
 import hunoia.sideleap.ui.theme.RootPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -324,12 +322,6 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                     }
 
                     val actionIcon = actionIcon(action = action)
-                    val isWechatAlipay = remember(actionIcon) {
-                        actionIcon == R.drawable.wechat_scan ||
-                                actionIcon == R.drawable.wechat_paycode ||
-                                actionIcon == R.drawable.alipay_scan ||
-                                actionIcon == R.drawable.alipay_paycode
-                    }
                     Box(
                         modifier = Modifier
                             .onGloballyPositioned {
@@ -357,12 +349,6 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                             .matchParentSize()
                             .clipToBackground(
                                 color = when (action.value) {
-                                    GlobalActions.WECHAT_SCAN,
-                                    GlobalActions.WECHAT_PAY -> MaterialTheme.colorScheme.wechatColor
-
-                                    GlobalActions.ALIPAY_SCAN,
-                                    GlobalActions.ALIPAY_PAY -> MaterialTheme.colorScheme.alipayColor
-
                                     GlobalActions.EXTRA_LAUNCH_APP -> when (actionIcon is ImageVector) {
                                         true -> MaterialTheme.colorScheme.primary
                                         else -> Color(action.appInfo!!.iconBgColor)
@@ -389,29 +375,21 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                             AsyncImage(
                                 modifier = Modifier
                                     .graphicsLayer {
-                                        if (isWechatAlipay) {
-                                            scaleX = 0.5f
-                                            scaleY = 0.5f
-                                        } else {
-                                            val appInfo = action.appInfo
-                                            if (appInfo != null) {
-                                                scaleX = appInfo.iconScale
-                                                scaleY = appInfo.iconScale
-                                                return@graphicsLayer
-                                            }
-                                            val shortcutInfo = action.shortcutInfo
-                                            if (shortcutInfo != null) {
-                                                scaleX = shortcutInfo.iconScale
-                                                scaleY = shortcutInfo.iconScale
-                                            }
+                                        val appInfo = action.appInfo
+                                        if (appInfo != null) {
+                                            scaleX = appInfo.iconScale
+                                            scaleY = appInfo.iconScale
+                                            return@graphicsLayer
+                                        }
+                                        val shortcutInfo = action.shortcutInfo
+                                        if (shortcutInfo != null) {
+                                            scaleX = shortcutInfo.iconScale
+                                            scaleY = shortcutInfo.iconScale
                                         }
                                     },
                                 model = actionIcon,
                                 contentDescription = null,
                                 imageLoader = LocalContext.current.imageLoader,
-                                colorFilter = if (!isWechatAlipay) null else {
-                                    ColorFilter.tint(Color.White)
-                                }
                             )
                         }
                     }

@@ -91,14 +91,6 @@ object GlobalActions {
     const val FLOAT_BALL = "39"
     /** 隐藏触钮 */
     const val HIDE_GESTURE_BUTTON = "40"
-    /** 微信扫一扫 */
-    const val WECHAT_SCAN = "41"
-    /** 微信付款码 */
-    const val WECHAT_PAY = "42"
-    /** 支付宝扫一扫 */
-    const val ALIPAY_SCAN = "43"
-    /** 支付宝付款码 */
-    const val ALIPAY_PAY = "44"
     /** 移动屏幕 */
     const val MOVE_SCREEN = "45"
     /** 屏幕常亮 */
@@ -123,7 +115,7 @@ object GlobalActions {
         NONE, BACK, HOME, RECENT, VOLUME_UP, VOLUME_DOWN, MUTE, PLAY_PAUSE_SONG,
         LAST_SONG, NEXT_SONG, PREVIOUS_APP, OPEN_NOTIFICATION_PANEL,
         OPEN_QUICK_PANEL, LOCK_SCREEN,  FLASHLIGHT, ASSIST_APP, SCREENSHOT, POWER_BUTTON,
-        KEEP_SCREEN_ON, POPUP_SCREEN, MOVE_SCREEN, BACK_TO_TOP, GOTO_BOTTOM, WECHAT_SCAN, WECHAT_PAY, ALIPAY_SCAN, ALIPAY_PAY,
+        KEEP_SCREEN_ON, POPUP_SCREEN, MOVE_SCREEN, BACK_TO_TOP, GOTO_BOTTOM,
         OPEN_APP_OR_URL, QUICK_APP_LAUNCHER, RANDOM_NAME
     )
 }

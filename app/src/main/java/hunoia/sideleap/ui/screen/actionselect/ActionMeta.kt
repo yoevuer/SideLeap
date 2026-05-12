@@ -36,7 +36,7 @@ enum class ActionCategory {
     MEDIA,
     SYSTEM,
     WINDOW,
-    PAYMENT,
+
     LAUNCHER,
     TOOL
 }
@@ -46,7 +46,7 @@ enum class ActionTag(val displayName: String) {
     RequiresPermission("需权限"),
     Launch("启动"),
     System("系统"),
-    Payment("支付"),
+
     Media("媒体")
 }
 
@@ -136,18 +136,6 @@ val actionMetaList = listOf(
         icon = Icons.Default.VerticalAlignBottom,
         hasSettings = true, tags = listOf(ActionTag.Configurable),
         settingHintRes = R.string.action_setting_hint_goto_bottom),
-    ActionMeta(Action(GlobalActions.WECHAT_SCAN), R.string.action_wechat_scan, ActionCategory.PAYMENT,
-        icon = R.drawable.wechat_scan,
-        descRes = R.string.action_desc_wechat_scan, tags = listOf(ActionTag.Payment)),
-    ActionMeta(Action(GlobalActions.WECHAT_PAY), R.string.action_wechat_pay_simulate_click, ActionCategory.PAYMENT,
-        icon = R.drawable.wechat_paycode,
-        descRes = R.string.action_desc_wechat_pay, tags = listOf(ActionTag.Payment)),
-    ActionMeta(Action(GlobalActions.ALIPAY_SCAN), R.string.action_alipay_scan, ActionCategory.PAYMENT,
-        icon = R.drawable.alipay_scan,
-        descRes = R.string.action_desc_alipay_scan, tags = listOf(ActionTag.Payment)),
-    ActionMeta(Action(GlobalActions.ALIPAY_PAY), R.string.action_alipay_pay, ActionCategory.PAYMENT,
-        icon = R.drawable.alipay_paycode,
-        descRes = R.string.action_desc_alipay_pay, tags = listOf(ActionTag.Payment)),
     ActionMeta(Action(GlobalActions.OPEN_APP_OR_URL), R.string.action_open_app_or_url, ActionCategory.LAUNCHER,
         icon = Icons.Default.OpenInNew,
         hasSettings = true, descRes = R.string.action_desc_open_app, tags = listOf(ActionTag.Configurable, ActionTag.Launch),

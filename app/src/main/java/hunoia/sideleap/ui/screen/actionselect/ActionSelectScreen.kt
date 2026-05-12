@@ -122,14 +122,12 @@ import hunoia.sideleap.entity.LauncherInfo
 import hunoia.sideleap.entity.OpenAppOrUrlData
 import hunoia.sideleap.ktx.actionIcon
 import hunoia.sideleap.ktx.actionText
-import hunoia.sideleap.ktx.alipayColor
 import hunoia.sideleap.ktx.deniedForever
 import hunoia.sideleap.ktx.gotoAppDetailSettings
 import hunoia.sideleap.ktx.icon
 import hunoia.sideleap.ktx.qualifiedName
 import hunoia.sideleap.ktx.queryIntentActivitiesCompat
 import hunoia.sideleap.ktx.rememberGetInstalledAppsPermissionState
-import hunoia.sideleap.ktx.wechatColor
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
@@ -537,7 +535,6 @@ private fun ActionPage(
             ActionCategory.MEDIA to ActionCategory.MEDIA.displayName,
             ActionCategory.SYSTEM to ActionCategory.SYSTEM.displayName,
             ActionCategory.WINDOW to ActionCategory.WINDOW.displayName,
-            ActionCategory.PAYMENT to ActionCategory.PAYMENT.displayName,
             ActionCategory.LAUNCHER to ActionCategory.LAUNCHER.displayName,
             ActionCategory.TOOL to ActionCategory.TOOL.displayName,
             "app" to context.getString(R.string.tab_apps),
@@ -828,7 +825,6 @@ private val ActionCategory.displayName: String
         ActionCategory.MEDIA -> "媒体"
         ActionCategory.SYSTEM -> "系统"
         ActionCategory.WINDOW -> "窗口"
-        ActionCategory.PAYMENT -> "支付"
         ActionCategory.LAUNCHER -> "启动"
         ActionCategory.TOOL -> "工具"
     }
@@ -880,13 +876,7 @@ private fun ActionItem(
                     contentDescription = null,
                     imageLoader = context.imageLoader,
                     contentScale = ContentScale.Crop,
-                    colorFilter = when (icon) {
-                        R.drawable.wechat_scan,
-                        R.drawable.wechat_paycode -> ColorFilter.tint(MaterialTheme.colorScheme.wechatColor)
-                        R.drawable.alipay_scan,
-                        R.drawable.alipay_paycode -> ColorFilter.tint(MaterialTheme.colorScheme.alipayColor)
-                        else -> null
-                    }
+                    colorFilter = null
                 )
             }
         }
