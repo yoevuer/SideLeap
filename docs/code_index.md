@@ -1,6 +1,6 @@
 # SideLeap 代码索引
 ## 元信息
-- 源码基准 commit：`76f45de`
+- 源码基准 commit：`083d72d`（v1.5.5 release）
 ## 索引范围与统计口径
 ### 排除规则
 - `.git/` - Git 版本控制目录
@@ -90,59 +90,59 @@ SideLeap/
 ### 按扩展名统计
 | 扩展名 | 文件数量 | 总行数 | 说明 |
 |--------|----------|--------|------|
-| .kt    | 138      | 21,239 | Kotlin 源码文件 |
-| .xml   | 9        | 489    | XML 配置文件（Manifest、资源、规则） |
-| .md    | 2        | 112    | Markdown 文档 |
-| .properties | 2    | 29     | 属性配置文件 |
+| .kt    | 129      | 20,290 | Kotlin 源码文件 |
+| .xml   | 9        | 469    | XML 配置文件（Manifest、资源、规则） |
+| .md    | 4        | 2,650  | Markdown 文档 |
+| .properties | 2    | 32     | 属性配置文件 |
 | .pro   | 1        | 35     | ProGuard 规则 |
 | .toml  | 1        | 39     | Gradle 版本目录 |
 | .aidl  | 1        | N/A    | Android IDL 接口 |
 | .bat   | 1        | N/A    | Windows 批处理脚本 |
 | .jar   | 1        | N/A    | Gradle Wrapper JAR（58K） |
-| .png   | 5        | N/A    | PNG 图片资源（支付宝、微信二维码等） |
+| .png   | 1        | N/A    | PNG 图片资源 |
 | .webp  | 1        | N/A    | WebP 图片（应用图标，18K） |
-| **总计** | **161** | **21,982** |  |
+| **总计** | **151** | **23,876** |  |
 ### 按用途统计
 | 用途分类 | 文件数量 | 总行数 | 主要内容 |
 |----------|----------|--------|----------|
-| Kotlin 源码 | 138 | 21,239 | 所有 Kotlin 源代码文件 |
-| XML 资源 | 9 | 489 | AndroidManifest、strings、colors、themes、规则配置 |
+| Kotlin 源码 | 129 | 20,290 | 所有 Kotlin 源代码文件 |
+| XML 资源 | 9 | 469 | AndroidManifest、strings、colors、themes、规则配置 |
 | 构建配置 | 4 | 74 | build.gradle.kts、settings.gradle.kts、proguard-rules.pro、lint.xml |
 | 依赖配置 | 1 | 39 | libs.versions.toml |
-| 文档 | 2 | 112 | README.md、RELEASE_NOTES.md |
-| 图片资源 | 6 | N/A | 5 个 PNG（二维码、图标）+ 1 个 WebP（应用图标） |
+| 文档 | 4 | 2,650 | README.md、RELEASE_NOTES.md、docs/ |
+| 图片资源 | 2 | N/A | 1 个 PNG + 1 个 WebP（应用图标） |
 | Gradle 脚本 | 2 | N/A | gradlew、gradlew.bat |
-| 属性文件 | 1 | 29 | gradle.properties |
+| 属性文件 | 1 | 24 | gradle.properties |
 | AIDL 接口 | 1 | N/A | Shizuku AIDL 接口 |
-| **总计** | **164** | **21,982** |  |
+| **总计** | **164** | **23,876** |  |
 ### 按一级目录统计
 | 目录 | 文件数量 | 说明 |
 |------|----------|------|
 | app/ | 145 | 应用主目录（含源码、资源、测试） |
 | gradle/ | 3 | Gradle 相关（libs.versions.toml、wrapper） |
-| docs/ | 1 | 文档目录（仅 code_index.md） |
+| docs/ | 2 | 文档目录（code_index.md、v1.5.5_optimization_review.md） |
 | 根目录 | 15 | 根配置文件（README、LICENSE、gradlew 等） |
 | **总计** | **164** |  |
 ### 按主要源码/资源目录统计
 | 目录 | 文件数量 | 总行数 | 说明 |
 |------|----------|--------|------|
-| app/src/main/java | 138 | 21,239 | Kotlin/Java 源码 |
-| app/src/main/res | 13 | N/A | 资源文件（XML + 图片） |
+| app/src/main/java | 129 | 20,290 | Kotlin/Java 源码 |
+| app/src/main/res | 9 | N/A | 资源文件（XML + 图片） |
 | app/src/test | 1 | N/A | 单元测试 |
 | app/src/androidTest | 1 | N/A | Android 测试 |
-| **小计** | **153** | **21,239** |  |
+| **小计** | **140** | **20,290** |  |
 ### 按顶层功能包统计
 | 顶层包 | 文件数量 | 主要内容 |
 |--------|----------|----------|
 | ui/ | 48 | UI 层（Screen、Widget、Theme、Dialog、Navigation） |
 | utils/ | 23 | 工具类（系统服务、权限、Shizuku、快捷启动器等） |
-| ktx/ | 31 | Kotlin 扩展函数（Context、数据类、系统 API 封装） |
+| ktx/ | 24 | Kotlin 扩展函数（Context、数据类、系统 API 封装） |
 | entity/ | 25 | 数据模型（全局配置、实体类、序列化数据） |
-| constant/ | 7 | 常量定义（GlobalActions、GlobalSettings 等） |
+| constant/ | 5 | 常量定义（GlobalActions、GlobalSettings 等） |
 | event/ | 2 | 事件定义（IconResizeEvent、WallpaperChangedEvent） |
 | defaults/ | 1 | 默认值配置（UDFComponentDefaults） |
 | overlay/ | 1 | 覆盖层组件（QuickAppLauncherOverlay） |
-| **总计** | **138** |  |
+| **总计** | **129** |  |
 ## 核心链路索引
 ### 动作体系链路
 - **入口**: 用户在 `ActionSelectScreen` 选择动作，或手势触发动作执行
@@ -152,7 +152,7 @@ SideLeap/
   - 入口文件: `ui/screen/actionselect/ActionSelectScreen.kt`, `SideGestureServiceProxy.kt`
   - 状态管理: `ui/screen/actionselect/ActionSelectVM.kt`, `ui/dialog/ActionSettingsVM.kt`
   - UI 展示: `ui/widget/ActionPanel.kt`, `ui/widget/ActionItem.kt`
-  - 执行逻辑: `SideGestureServiceProxy.kt`, `ktx/ContextLaunch.kt`, `ktx/ContextAlipay.kt`, `ktx/ContextWeChat.kt`, `ktx/ContextAudio.kt`, `ktx/ContextSettings.kt`
+  - 执行逻辑: `SideGestureServiceProxy.kt`, `ktx/ContextLaunch.kt`, `ktx/ContextAudio.kt`, `ktx/ContextSettings.kt`
   - 工具类: `ktx/GestureActions.kt`, `utils/ShortcutUtils.kt`, `utils/VibrateUtils.kt`
   - 资源配置: `constant/GlobalActions.kt`, `ui/screen/actionselect/ActionMeta.kt`, `res/values/strings.xml`
   - 其他必要角色: `entity/GestureActions.kt`, `entity/global/ActionSettings.kt`
@@ -300,7 +300,7 @@ SideLeap/
 - **客观维护注意事项**: 见源码
 ### hunoia/sideleap/SideGestureServiceProxy.kt
 - **文件路径**: `app/src/main/java/hunoia/sideleap/SideGestureServiceProxy.kt`
-- **行数**: 621
+- **行数**: 559
 - **文件类型**: Kotlin 源码
 - **所属包路径**: `hunoia.sideleap`
 - **职责标签**: 无障碍服务、手势识别
@@ -328,7 +328,7 @@ SideLeap/
 - **客观维护注意事项**: 见源码
 ### hunoia/sideleap/constant/GlobalActions.kt
 - **文件路径**: `app/src/main/java/hunoia/sideleap/constant/GlobalActions.kt`
-- **行数**: 129
+- **行数**: 121
 - **文件类型**: Kotlin 源码
 - **所属包路径**: `hunoia.sideleap.constant`
 - **职责标签**: 资源配置
@@ -364,20 +364,6 @@ SideLeap/
 - **入口类型**: 非入口文件
 - **简要职责**: 见文件名
 - **主要类、函数或 Composable**: GlobalSettings
-- **实现方式概述**: 见源码
-- **关键依赖**: 见源码
-- **被哪些核心链路使用**: 见源码
-- **客观维护注意事项**: 见源码
-### hunoia/sideleap/constant/PackageNames.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/constant/PackageNames.kt`
-- **行数**: 3
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.constant`
-- **职责标签**: 资源配置
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **简要职责**: 见文件名
-- **主要类、函数或 Composable**: 见源码
 - **实现方式概述**: 见源码
 - **关键依赖**: 见源码
 - **被哪些核心链路使用**: 见源码
@@ -746,20 +732,6 @@ SideLeap/
 - **关键依赖**: 见源码
 - **被哪些核心链路使用**: 见源码
 - **客观维护注意事项**: 见源码
-### hunoia/sideleap/ktx/ContextAlipay.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/ktx/ContextAlipay.kt`
-- **行数**: 35
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.ktx`
-- **职责标签**: 工具类
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **简要职责**: 见文件名
-- **主要类、函数或 Composable**: Context, Context
-- **实现方式概述**: 见源码
-- **关键依赖**: 见源码
-- **被哪些核心链路使用**: 见源码
-- **客观维护注意事项**: 见源码
 ### hunoia/sideleap/ktx/ContextAudio.kt
 - **文件路径**: `app/src/main/java/hunoia/sideleap/ktx/ContextAudio.kt`
 - **行数**: 47
@@ -798,20 +770,6 @@ SideLeap/
 - **入口类型**: 非入口文件
 - **简要职责**: 见文件名
 - **主要类、函数或 Composable**: Context, Context, Context, Context, Context
-- **实现方式概述**: 见源码
-- **关键依赖**: 见源码
-- **被哪些核心链路使用**: 见源码
-- **客观维护注意事项**: 见源码
-### hunoia/sideleap/ktx/ContextWeChat.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/ktx/ContextWeChat.kt`
-- **行数**: 44
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.ktx`
-- **职责标签**: 工具类
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **简要职责**: 见文件名
-- **主要类、函数或 Composable**: Context, Context
 - **实现方式概述**: 见源码
 - **关键依赖**: 见源码
 - **被哪些核心链路使用**: 见源码
@@ -902,7 +860,7 @@ SideLeap/
 - **客观维护注意事项**: 见源码
 ### hunoia/sideleap/ktx/GlobalActions.kt
 - **文件路径**: `app/src/main/java/hunoia/sideleap/ktx/GlobalActions.kt`
-- **行数**: 231
+- **行数**: 178
 - **文件类型**: Kotlin 源码
 - **所属包路径**: `hunoia.sideleap.ktx`
 - **职责标签**: 工具类
@@ -916,7 +874,7 @@ SideLeap/
 - **客观维护注意事项**: 见源码
 ### hunoia/sideleap/ktx/MaterialTheme.kt
 - **文件路径**: `app/src/main/java/hunoia/sideleap/ktx/MaterialTheme.kt`
-- **行数**: 16
+- **行数**: 0
 - **文件类型**: Kotlin 源码
 - **所属包路径**: `hunoia.sideleap.ktx`
 - **职责标签**: 工具类
