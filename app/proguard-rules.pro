@@ -20,10 +20,15 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class hunoia.sideleap.entity.** { *; }
 -keep class hunoia.sideleap.utils.ShizukuCommandService { *; }
 -keep class hunoia.sideleap.utils.ShizukuBridgeService { *; }
 -keep class hunoia.sideleap.IShizukuCommandService { *; }
+
+# Keep serialization entry points while allowing model obfuscation/shrinking.
+-keepclassmembers class **$$serializer { *; }
+-keepclassmembers class * {
+    kotlinx.serialization.KSerializer serializer(...);
+}
 
 # 有了verbose这句话，混淆后就会生成映射文件
 # 包含有类名->混淆后类名的映射关系
