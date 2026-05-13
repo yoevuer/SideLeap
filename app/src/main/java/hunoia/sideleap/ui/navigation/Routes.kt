@@ -65,3 +65,11 @@ data object Unlock
 @Keep
 @Serializable
 data object WaveAnimationStyle
+
+@Keep
+@Serializable
+data object FrozenAppManage
+
+@Keep
+@Serializable
+data object FrozenAppProtect

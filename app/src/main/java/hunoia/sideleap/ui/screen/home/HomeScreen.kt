@@ -87,6 +87,7 @@ fun HomeScreen(
     onNavToUnlock: () -> Unit,
     onNavToAdvancedSettings: () -> Unit,
     onNavToGestureSettings: () -> Unit,
+    onNavToFrozenAppManage: () -> Unit,
     onNavToGestureButtonSettings: (GestureButton) -> Unit,
     vm: HomeVM = viewModel()
 ) {
@@ -274,6 +275,10 @@ fun HomeScreen(
                             onClick = onNavToGestureSettings,
                             text = stringResource(id = R.string.gesture_settings),
                             secondaryText = stringResource(id = R.string.gesture_settings_hint)
+                        )
+                        TextActionButton(
+                            onClick = onNavToFrozenAppManage,
+                            text = stringResource(id = R.string.frozen_app_manage)
                         )
                     }
 

@@ -6,6 +6,7 @@ import hunoia.sideleap.constant.DataStoreFiles
 import hunoia.sideleap.entity.GestureButton
 import hunoia.sideleap.entity.global.ActionSettings
 import hunoia.sideleap.entity.global.AdvancedSettings
+import hunoia.sideleap.entity.global.FrozenAppSettings
 import hunoia.sideleap.entity.global.GestureSettings
 import hunoia.sideleap.entity.global.InitialSettings
 import hunoia.sideleap.entity.QuickAppLauncherSettings
@@ -59,6 +60,12 @@ object DataStoreHolder {
         App.getContext().dataStore(fileName, defValue)
     }
 
+    val frozenAppSettings: DataStore<FrozenAppSettings> by lazy {
+        val fileName = DataStoreFiles.FROZEN_APP_SETTINGS
+        val defValue = FrozenAppSettings()
+        App.getContext().dataStore(fileName, defValue)
+    }
+
     suspend fun resetAll() {
         initialSettings.updateData { InitialSettings() }
         advancedSettings.updateData { AdvancedSettings() }
@@ -67,5 +74,6 @@ object DataStoreHolder {
         sideGestureButtons.updateData { GestureButton.SideDefaults }
         bottomGestureButtons.updateData { GestureButton.BottomDefaults }
         quickAppLauncherSettings.updateData { QuickAppLauncherSettings() }
+        frozenAppSettings.updateData { FrozenAppSettings() }
     }
 }

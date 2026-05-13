@@ -295,6 +295,99 @@ object ShizukuUtils {
         val error: String? = null
     )
 
+    data class PackageCommandResult(
+        val success: Boolean,
+        val packageName: String,
+        val exitCode: Int = -1,
+        val error: String? = null
+    )
+
+    fun isUsableForFrozenAppActions(): Boolean {
+        if (!isShizukuAvailable()) return false
+        if (isPreV11OrUnsupported()) return false
+        if (!checkPermission()) return false
+        return true
+    }
+
+    fun disablePackageForFrozenApp(context: Context, packageName: String): PackageCommandResult {
+        return executePackageCommand(context, packageName, disable = true)
+    }
+
+    fun enablePackageForFrozenApp(context: Context, packageName: String): PackageCommandResult {
+        return executePackageCommand(context, packageName, disable = false)
+    }
+
+    private fun executePackageCommand(context: Context, packageName: String, disable: Boolean): PackageCommandResult {
+        if (!isUsableForFrozenAppActions()) {
+            return PackageCommandResult(false, packageName, error = "shizuku unavailable")
+        }
+
+        val args = UserServiceArgs(
+            ComponentName(context.packageName, ShizukuCommandService::class.java.name)
+        ).processNameSuffix("frozen_app_action").tag("sideleap-frozen-app-action")
+            .version(1).debuggable(true).daemon(false)
+
+        val latch = java.util.concurrent.CountDownLatch(1)
+        val timedOut = java.util.concurrent.atomic.AtomicBoolean(false)
+        var result = ""
+
+        val conn = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+                try {
+                    val service = IShizukuCommandService.Stub.asInterface(binder)
+                    result = if (disable) {
+                        service.disablePackage(packageName)
+                    } else {
+                        service.enablePackage(packageName)
+                    }
+                    try {
+                        service.destroy()
+                    } catch (_: Exception) {
+                    }
+                } catch (e: Exception) {
+                    result = "error: ${e::class.simpleName} ${e.message}"
+                } finally {
+                    latch.countDown()
+                }
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {}
+            override fun onBindingDied(name: ComponentName?) { latch.countDown() }
+            override fun onNullBinding(name: ComponentName?) { latch.countDown() }
+        }
+
+        try {
+            Shizuku.bindUserService(args, conn)
+            if (!latch.await(8, java.util.concurrent.TimeUnit.SECONDS)) {
+                timedOut.set(true)
+            }
+        } catch (e: Exception) {
+            result = "error: ${e::class.simpleName} ${e.message}"
+        } finally {
+            try {
+                Shizuku.unbindUserService(args, conn, true)
+            } catch (_: Exception) {
+            }
+        }
+
+        if (timedOut.get()) {
+            return PackageCommandResult(false, packageName, error = "timeout")
+        }
+        if (result.startsWith("error:")) {
+            return PackageCommandResult(false, packageName, error = result.removePrefix("error:").trim())
+        }
+
+        val exitCode = result.lines()
+            .firstOrNull { it.startsWith("exitCode=") }
+            ?.removePrefix("exitCode=")
+            ?.toIntOrNull() ?: -1
+        return PackageCommandResult(
+            success = exitCode == 0,
+            packageName = packageName,
+            exitCode = exitCode
+        )
+    }
+
     private val enableProbeRunning = AtomicBoolean(false)
 
     private val enableLock = Any()

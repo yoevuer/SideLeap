@@ -9,6 +9,7 @@ import hunoia.sideleap.utils.DataStoreHolder.actionSettings
 import hunoia.sideleap.utils.DataStoreHolder.advancedSettings
 import hunoia.sideleap.utils.DataStoreHolder.bottomGestureButtons
 import hunoia.sideleap.utils.DataStoreHolder.gestureSettings
+import hunoia.sideleap.utils.DataStoreHolder.frozenAppSettings
 import hunoia.sideleap.utils.DataStoreHolder.initialSettings
 import hunoia.sideleap.utils.DataStoreHolder.quickAppLauncherSettings
 import hunoia.sideleap.utils.DataStoreHolder.sideGestureButtons
@@ -20,6 +21,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
+import android.content.pm.PackageManager
+import android.os.Build
 import java.io.File
 
 /**
@@ -84,7 +87,7 @@ object BackupHelper {
                 val input = inputStream.readBytes()
                 try {
                     // 兼容旧版备份文件恢复
-                    restoreBackupFromBytes(input)
+                    restoreBackupFromBytes(context, input)
                     FileUtils.deleteAllInDir(Paths.Image)
                 } catch (ignored: Exception) {
                     val restoreDirFile = File(restoreDir).also {
@@ -97,7 +100,7 @@ object BackupHelper {
                     }
                     ZipUtils.unzipFile(restoreFile, restoreDirFile).forEach { file ->
                         if (file.name == ZIP_BACKUP) {
-                            restoreBackupFromBytes(file.readBytes())
+                            restoreBackupFromBytes(context, file.readBytes())
                         } else if (file.name == ZIP_IMAGES) {
                             FileUtils.deleteAllInDir(Paths.Image)
                             FileUtils.createOrExistsDir(Paths.Image)
@@ -127,6 +130,7 @@ object BackupHelper {
                 gestureButtons = async { sideGestureButtons.data.first() }.await(),
                 bottomGestureButtons = async { bottomGestureButtons.data.first() }.await(),
                 quickAppLauncherSettings = async { quickAppLauncherSettings.data.first() }.await(),
+                frozenAppSettings = async { frozenAppSettings.data.first() }.await(),
                 timestamp = System.currentTimeMillis(),
                 version = BuildConfig.VERSION_NAME
             )
@@ -135,10 +139,15 @@ object BackupHelper {
         return EncodeUtils.base64Encode(json.toByteArray())
     }
 
-    private suspend fun restoreBackupFromBytes(bytes: ByteArray) {
+    private suspend fun restoreBackupFromBytes(context: Context, bytes: ByteArray) {
         // 兼容旧版备份文件恢复
         val decoded = EncodeUtils.base64Decode(bytes)
         val backup = JsonHelper.decodeFromString<Backup>(String(decoded))
+        val installedPackages = queryInstalledPackageNames(context)
+        val sanitizedFrozenSettings = sanitizeFrozenAppSettings(
+            backup.frozenAppSettings,
+            installedPackages
+        )
         coroutineScope {
             listOf(
                 async {
@@ -175,8 +184,42 @@ object BackupHelper {
                     quickAppLauncherSettings.updateData {
                         backup.quickAppLauncherSettings ?: it
                     }
+                },
+                async {
+                    frozenAppSettings.updateData {
+                        sanitizedFrozenSettings ?: it
+                    }
                 }
             ).awaitAll()
+        }
+    }
+
+    private fun sanitizeFrozenAppSettings(
+        settings: hunoia.sideleap.entity.global.FrozenAppSettings?,
+        installedPackages: Set<String>
+    ): hunoia.sideleap.entity.global.FrozenAppSettings? {
+        settings ?: return null
+        val protected = settings.protectedPackageNames.filterTo(mutableSetOf()) { it in installedPackages }
+        val oneKey = settings.oneKeyPackageNames
+            .filterTo(mutableSetOf()) { it in installedPackages && it !in protected }
+        return settings.copy(
+            oneKeyPackageNames = oneKey,
+            protectedPackageNames = protected
+        )
+    }
+
+    private fun queryInstalledPackageNames(context: Context): Set<String> {
+        val pm = context.packageManager
+        return try {
+            val apps = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pm.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                pm.getInstalledApplications(0)
+            }
+            apps.map { it.packageName }.filter { it.isNotBlank() }.toSet()
+        } catch (_: Exception) {
+            emptySet()
         }
     }
 }

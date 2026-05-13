@@ -54,6 +54,15 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
         return enablePackageShell(packageName, startTime)
     }
 
+    override fun disablePackage(packageName: String): String {
+        val startTime = System.currentTimeMillis()
+        if (!Regex("^[A-Za-z0-9_.]+$").matches(packageName)) {
+            val elapsed = System.currentTimeMillis() - startTime
+            return "service: elapsed=${elapsed}ms\nerror: invalid packageName=$packageName"
+        }
+        return disablePackageShell(packageName, startTime)
+    }
+
     private fun enablePackageDirect(packageName: String, overallStart: Long): String? {
         val apiStart = System.currentTimeMillis()
         try {
@@ -144,6 +153,22 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
             }
             return "service: elapsed=${totalElapsed}ms\ndirect_api=false\n" +
                    "command=pm enable $packageName\nexitCode=$exitCode\noutput=$output"
+        } catch (e: Exception) {
+            val elapsed = System.currentTimeMillis() - overallStart
+            return "service: elapsed=${elapsed}ms\nerror: ${e::class.simpleName} ${e.message}"
+        }
+    }
+
+    private fun disablePackageShell(packageName: String, overallStart: Long): String {
+        try {
+            val process = ProcessBuilder("pm", "disable-user", "--user", "0", packageName)
+                .redirectErrorStream(true)
+                .start()
+            val output = process.inputStream.bufferedReader().readText()
+            val exitCode = process.waitFor()
+            val elapsed = System.currentTimeMillis() - overallStart
+            return "service: elapsed=${elapsed}ms\n" +
+                "command=pm disable-user --user 0 $packageName\nexitCode=$exitCode\noutput=$output"
         } catch (e: Exception) {
             val elapsed = System.currentTimeMillis() - overallStart
             return "service: elapsed=${elapsed}ms\nerror: ${e::class.simpleName} ${e.message}"

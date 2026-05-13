@@ -22,6 +22,23 @@ internal fun queryFrozenApplicationsOnIo(context: Context, showSystemApps: Boole
  */
 object AppInfoUtils {
 
+    fun isFrozenDisabledUser(context: Context, packageName: String): Boolean {
+        val pm = context.packageManager
+        val enabledSetting = runCatching { pm.getApplicationEnabledSetting(packageName) }.getOrNull()
+        return enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+    }
+
+    fun queryFrozenStateByPackage(context: Context, packageNames: Collection<String>): Map<String, Boolean> {
+        if (packageNames.isEmpty()) return emptyMap()
+        val pm = context.packageManager
+        val result = LinkedHashMap<String, Boolean>(packageNames.size)
+        packageNames.forEach { packageName ->
+            val enabledSetting = runCatching { pm.getApplicationEnabledSetting(packageName) }.getOrNull()
+            result[packageName] = enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+        }
+        return result
+    }
+
     fun queryCreateShortcutActivities(context: Context, allowRepeatPackage: Boolean = true): List<LauncherInfo> {
         val list = mutableListOf<LauncherInfo>()
         val pkgList = mutableListOf<String>()

@@ -29,6 +29,8 @@ import hunoia.sideleap.ui.navigation.AppBlacklist
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.ui.navigation.QuickAppLauncherHidden
 import hunoia.sideleap.ui.navigation.GestureSettings
+import hunoia.sideleap.ui.navigation.FrozenAppManage
+import hunoia.sideleap.ui.navigation.FrozenAppProtect
 import hunoia.sideleap.ui.navigation.Home
 import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.ui.navigation.Unlock
@@ -41,6 +43,8 @@ import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistScreen
 import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesScreen
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsScreen
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsScreen
+import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppManageScreen
+import hunoia.sideleap.ui.screen.frozenappprotect.FrozenAppProtectScreen
 import hunoia.sideleap.ui.screen.home.HomeScreen
 import hunoia.sideleap.ui.screen.iconresize.IconResizeScreen
 import hunoia.sideleap.ui.screen.quickapplaunchermanage.QuickAppLauncherManageScreen
@@ -83,6 +87,7 @@ fun SideGestureApp() {
                         onNavToUnlock = { navController.navigate(Unlock) },
                         onNavToAdvancedSettings = { navController.navigate(AdvancedSettings) },
                         onNavToGestureSettings = { navController.navigate(GestureSettings) },
+                        onNavToFrozenAppManage = { navController.navigate(FrozenAppManage) },
                         onNavToGestureButtonSettings = { button ->
                             navController.navigate(GestureButtonSettings(button.id, button.position))
                         }
@@ -133,6 +138,15 @@ fun SideGestureApp() {
                 }
                 myComposable<WaveAnimationStyle> {
                     WaveStyleScreen(onBack = { navController.navigateUp() })
+                }
+                myComposable<FrozenAppManage> {
+                    FrozenAppManageScreen(
+                        onBack = { navController.navigateUp() },
+                        onNavToProtectPage = { navController.navigate(FrozenAppProtect) }
+                    )
+                }
+                myComposable<FrozenAppProtect> {
+                    FrozenAppProtectScreen(onBack = { navController.navigateUp() })
                 }
             }
         }
