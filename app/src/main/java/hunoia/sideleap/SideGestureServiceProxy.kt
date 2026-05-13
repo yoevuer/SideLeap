@@ -28,6 +28,8 @@ import android.os.PowerManager
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
 import hunoia.sideleap.constant.ActionSettingsDefaults.GotoBottomStrength
+import hunoia.sideleap.action.ActionHandlerContext
+import hunoia.sideleap.action.ActionRegistry
 import hunoia.sideleap.constant.GlobalActions
 
 import hunoia.sideleap.entity.Action
@@ -57,6 +59,7 @@ import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.utils.ShizukuBridgeService
 import hunoia.sideleap.utils.ShizukuUtils
 import hunoia.sideleap.utils.showToast
+import hunoia.sideleap.utils.showToastLong
 import hunoia.sideleap.utils.showVersionTooLowToast
 import com.blankj.utilcode.util.FlashlightUtils
 import com.blankj.utilcode.util.PermissionUtils
@@ -199,6 +202,19 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
     }
 
     private fun SideGestureService.onAction(action: Action) {
+        if (ActionRegistry.isRegistered(action.value)) {
+            coroutineScope.launch {
+                ActionRegistry.handle(action, ActionHandlerContext(
+                    service = this@onAction,
+                    appContext = this@onAction,
+                    scope = coroutineScope,
+                    actionSettings = actionSettings ?: ActionSettings(),
+                    showToast = { showToast(it) },
+                    showLongToast = { showToastLong(it) },
+                ))
+            }
+            return
+        }
         when (action.value) {
             GlobalActions.BACK -> {
                 performGlobalAction(GLOBAL_ACTION_BACK)

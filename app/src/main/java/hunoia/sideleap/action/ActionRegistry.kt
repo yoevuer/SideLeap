@@ -1,10 +1,11 @@
 package hunoia.sideleap.action
 
 import hunoia.sideleap.BuildConfig
+import hunoia.sideleap.action.handlers.NavigationActionHandler
 import hunoia.sideleap.entity.Action
 
 object ActionRegistry {
-    private val handlers: List<ActionHandler> = emptyList()
+    private val handlers: List<ActionHandler> = listOf(NavigationActionHandler)
 
     private val handlerMap: Map<String, ActionHandler> = handlers
         .flatMap { handler -> handler.supportedActions.map { it to handler } }
@@ -20,6 +21,8 @@ object ActionRegistry {
             }
         }
     }
+
+    fun isRegistered(actionId: String): Boolean = actionId in handlerMap
 
     suspend fun handle(action: Action, context: ActionHandlerContext): Boolean {
         val handler = handlerMap[action.value]
