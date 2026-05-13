@@ -47,11 +47,14 @@ import hunoia.sideleap.utils.AccessibilityUtils
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.JsonHelper
 import hunoia.sideleap.utils.LauncherDiagnostics
+import hunoia.sideleap.utils.ShizukuUtils
 import hunoia.sideleap.utils.showToast
 import hunoia.sideleap.utils.showVersionTooLowToast
+import hunoia.sideleap.utils.DataStoreHolder
 import com.blankj.utilcode.util.FlashlightUtils
 import com.blankj.utilcode.util.PermissionUtils
 import com.blankj.utilcode.util.ScreenUtils
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -410,6 +413,40 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                     }
                 } else {
                     showToast(R.string.random_name_generate_failed)
+                }
+            }
+            GlobalActions.ONE_KEY_FREEZE_APPS -> {
+                coroutineScope.launch {
+                    val context = host
+                    if (!ShizukuUtils.isUsableForFrozenAppActions()) {
+                        showToast(R.string.frozen_state_unchanged)
+                        return@launch
+                    }
+                    val settings = withContext(Dispatchers.IO) {
+                        DataStoreHolder.frozenAppSettings.data.first()
+                    }
+                    val targets = withContext(Dispatchers.IO) {
+                        AppInfoUtils.queryOneKeyFrozenTargets(context, settings)
+                    }
+                    if (targets.isEmpty()) {
+                        showToast(context.getString(R.string.bulk_frozen_count, 0))
+                        return@launch
+                    }
+                    val beforeState = withContext(Dispatchers.IO) {
+                        AppInfoUtils.queryFrozenStateByPackage(context, targets)
+                    }
+                    val candidates = targets.filter { beforeState[it] != true }
+                    if (candidates.isNotEmpty()) {
+                        withContext(Dispatchers.IO) {
+                            ShizukuUtils.executeFrozenBatch(context, candidates, disable = true)
+                        }
+                    }
+                    delay(100)
+                    val latestState = withContext(Dispatchers.IO) {
+                        AppInfoUtils.queryFrozenStateByPackage(context, targets)
+                    }
+                    val successCount = candidates.count { latestState[it] == true }
+                    showToast(context.getString(R.string.bulk_frozen_count, successCount))
                 }
             }
         }

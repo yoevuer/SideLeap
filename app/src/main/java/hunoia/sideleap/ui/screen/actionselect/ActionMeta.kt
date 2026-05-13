@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.OpenWith
 import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.ScreenLockPortrait
 import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.SkipNext
@@ -145,6 +146,9 @@ val actionMetaList = listOf(
         descRes = R.string.action_desc_quick_launcher, tags = listOf(ActionTag.Launch), highlighted = true),
     ActionMeta(Action(GlobalActions.RANDOM_NAME), R.string.action_random_name, ActionCategory.TOOL,
         icon = Icons.Default.Assistant),
+    ActionMeta(Action(GlobalActions.ONE_KEY_FREEZE_APPS), R.string.action_one_key_freeze_apps, ActionCategory.TOOL,
+        icon = Icons.Default.AcUnit,
+        tags = listOf(ActionTag.System)),
 )
 
 val actionMetaByValue: Map<String, ActionMeta> = actionMetaList.associateBy { it.action.value }

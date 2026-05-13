@@ -99,7 +99,8 @@ private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.GOTO_BOTTOM to R.string.action_goto_bottom,
     GlobalActions.OPEN_APP_OR_URL to R.string.action_open_app_or_url,
     GlobalActions.QUICK_APP_LAUNCHER to R.string.action_quick_app_panel,
-    GlobalActions.RANDOM_NAME to R.string.action_random_name
+    GlobalActions.RANDOM_NAME to R.string.action_random_name,
+    GlobalActions.ONE_KEY_FREEZE_APPS to R.string.action_one_key_freeze_apps
 )
 
 private val actionIconMap: Map<String, Any> = mapOf(
@@ -148,7 +149,8 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.GOTO_BOTTOM to Icons.Default.VerticalAlignBottom,
     GlobalActions.OPEN_APP_OR_URL to Icons.Default.Forward,
     GlobalActions.QUICK_APP_LAUNCHER to Icons.Default.Apps,
-    GlobalActions.RANDOM_NAME to Icons.Default.Assistant
+    GlobalActions.RANDOM_NAME to Icons.Default.Assistant,
+    GlobalActions.ONE_KEY_FREEZE_APPS to Icons.Default.FlashlightOn
 )
 
 fun Context.actionText(action: Action, emptyIfNone: Boolean = true): String = when (action.value) {

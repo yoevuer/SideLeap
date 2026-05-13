@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.LauncherInfo
+import hunoia.sideleap.entity.global.FrozenAppSettings
 import hunoia.sideleap.ktx.queryIntentActivitiesCompat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -21,6 +22,26 @@ internal fun queryFrozenApplicationsOnIo(context: Context, showSystemApps: Boole
  * @since 2024/12/2
  */
 object AppInfoUtils {
+
+    fun queryOneKeyFrozenTargets(context: Context, settings: FrozenAppSettings): List<String> {
+        val normal = queryLauncherActivities(
+            context = context,
+            allowRepeatPackage = false,
+            showSystemApps = settings.showSystemAppsInManagePage
+        )
+        val frozen = queryFrozenApplications(
+            context = context,
+            showSystemApps = settings.showSystemAppsInManagePage
+        )
+        val allPackages = (normal + frozen)
+            .asSequence()
+            .map { it.packageName }
+            .filter { it.isNotBlank() }
+            .distinct()
+        val oneKeySet = settings.oneKeyPackageNames
+        val protectedSet = settings.protectedPackageNames
+        return allPackages.filter { it in oneKeySet && it !in protectedSet }.toList()
+    }
 
     fun isFrozenDisabledUser(context: Context, packageName: String): Boolean {
         val pm = context.packageManager

@@ -105,6 +105,8 @@ object GlobalActions {
     const val QUICK_APP_LAUNCHER = "50"
     /** 生成随机名称 */
     const val RANDOM_NAME = "51"
+    /** 一键冻结应用 */
+    const val ONE_KEY_FREEZE_APPS = "52"
 
     /** 启动应用 */
     const val EXTRA_LAUNCH_APP = "101"
@@ -116,6 +118,6 @@ object GlobalActions {
         LAST_SONG, NEXT_SONG, PREVIOUS_APP, OPEN_NOTIFICATION_PANEL,
         OPEN_QUICK_PANEL, LOCK_SCREEN,  FLASHLIGHT, ASSIST_APP, SCREENSHOT, POWER_BUTTON,
         KEEP_SCREEN_ON, POPUP_SCREEN, MOVE_SCREEN, BACK_TO_TOP, GOTO_BOTTOM,
-        OPEN_APP_OR_URL, QUICK_APP_LAUNCHER, RANDOM_NAME
+        OPEN_APP_OR_URL, QUICK_APP_LAUNCHER, RANDOM_NAME, ONE_KEY_FREEZE_APPS
     )
 }
