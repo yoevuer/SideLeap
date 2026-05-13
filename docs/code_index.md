@@ -1,6 +1,6 @@
 # SideLeap 代码索引
 ## 元信息
-- 源码基准 commit：`083d72d`（v1.5.5 release）
+- 源码基准 commit：`0b746f0`（v1.5.6 post-refactor）
 ## 索引范围与统计口径
 ### 排除规则
 - `.git/` - Git 版本控制目录
@@ -1056,7 +1056,7 @@ SideLeap/
 - **客观维护注意事项**: 见源码
 ### hunoia/sideleap/ui/dialog/ActionSettingsDialog.kt
 - **文件路径**: `app/src/main/java/hunoia/sideleap/ui/dialog/ActionSettingsDialog.kt`
-- **行数**: 577
+- **行数**: 608
 - **文件类型**: Kotlin 源码
 - **所属包路径**: `hunoia.sideleap.ui.dialog`
 - **职责标签**: Compose UI、Compose UI
@@ -1140,21 +1140,21 @@ SideLeap/
 - **客观维护注意事项**: 见源码
 ### hunoia/sideleap/ui/screen/actionselect/ActionSelectScreen.kt
 - **文件路径**: `app/src/main/java/hunoia/sideleap/ui/screen/actionselect/ActionSelectScreen.kt`
-- **行数**: 2678
+- **行数**: 1335
 - **文件类型**: Kotlin 源码
 - **所属包路径**: `hunoia.sideleap.ui.screen.actionselect`
 - **职责标签**: 动作体系
 - **是否入口**: 否
 - **入口类型**: 非入口文件
 - **简要职责**: 见文件名
-- **主要类、函数或 Composable**: OpenAppOrUrlLauncherAppOption, OpenAppOrUrlActivityOption, OpenAppOrUrlSearchIndex
+- **主要类、函数或 Composable**: ActionPage, AppPage, ShortcutPage, ActionItem, PermissionPage
 - **实现方式概述**: 见源码
 - **关键依赖**: 见源码
 - **被哪些核心链路使用**: 见源码
 - **客观维护注意事项**: 见源码
 ### hunoia/sideleap/ui/screen/actionselect/ActionSelectVM.kt
 - **文件路径**: `app/src/main/java/hunoia/sideleap/ui/screen/actionselect/ActionSelectVM.kt`
-- **行数**: 806
+- **行数**: 799
 - **文件类型**: Kotlin 源码
 - **所属包路径**: `hunoia.sideleap.ui.screen.actionselect`
 - **职责标签**: 动作体系
