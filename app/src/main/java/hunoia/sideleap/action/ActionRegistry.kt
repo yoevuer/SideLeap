@@ -3,11 +3,17 @@ package hunoia.sideleap.action
 import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.action.handlers.MediaActionHandler
 import hunoia.sideleap.action.handlers.NavigationActionHandler
+import hunoia.sideleap.action.handlers.RandomNameActionHandler
 import hunoia.sideleap.action.handlers.SystemActionHandler
 import hunoia.sideleap.entity.Action
 
 object ActionRegistry {
-    private val handlers: List<ActionHandler> = listOf(NavigationActionHandler, MediaActionHandler, SystemActionHandler)
+    private val handlers: List<ActionHandler> = listOf(
+        NavigationActionHandler,
+        MediaActionHandler,
+        SystemActionHandler,
+        RandomNameActionHandler,
+    )
 
     private val handlerMap: Map<String, ActionHandler> = handlers
         .flatMap { handler -> handler.supportedActions.map { it to handler } }
