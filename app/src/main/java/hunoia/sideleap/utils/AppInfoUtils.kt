@@ -23,6 +23,15 @@ internal fun queryFrozenApplicationsOnIo(context: Context, showSystemApps: Boole
  */
 object AppInfoUtils {
 
+    data class FrozenOneKeySnapshot(
+        val oneKeyPackageCount: Int,
+        val protectedPackageCount: Int,
+        val inScopePackageCount: Int,
+        val targets: List<String>,
+        val candidates: List<String>,
+        val executeBatchCalled: Boolean
+    )
+
     fun queryOneKeyFrozenTargets(context: Context, settings: FrozenAppSettings): List<String> {
         val normal = queryLauncherActivities(
             context = context,
@@ -41,6 +50,42 @@ object AppInfoUtils {
         val oneKeySet = settings.oneKeyPackageNames
         val protectedSet = settings.protectedPackageNames
         return allPackages.filter { it in oneKeySet && it !in protectedSet }.toList()
+    }
+
+    fun snapshotOneKeyFreezeTargets(
+        context: Context,
+        settings: FrozenAppSettings
+    ): FrozenOneKeySnapshot {
+        val normal = queryLauncherActivities(
+            context = context,
+            allowRepeatPackage = false,
+            showSystemApps = settings.showSystemAppsInManagePage
+        )
+        val frozen = queryFrozenApplications(
+            context = context,
+            showSystemApps = settings.showSystemAppsInManagePage
+        )
+        val inScope = (normal + frozen)
+            .asSequence()
+            .map { it.packageName }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .toList()
+
+        val oneKeySet = settings.oneKeyPackageNames
+        val protectedSet = settings.protectedPackageNames
+        val targets = inScope.filter { it in oneKeySet && it !in protectedSet }
+        val frozenState = queryFrozenStateByPackage(context, targets)
+        val candidates = targets.filter { frozenState[it] != true }
+
+        return FrozenOneKeySnapshot(
+            oneKeyPackageCount = oneKeySet.size,
+            protectedPackageCount = protectedSet.size,
+            inScopePackageCount = inScope.size,
+            targets = targets,
+            candidates = candidates,
+            executeBatchCalled = candidates.isNotEmpty()
+        )
     }
 
     fun isFrozenDisabledUser(context: Context, packageName: String): Boolean {

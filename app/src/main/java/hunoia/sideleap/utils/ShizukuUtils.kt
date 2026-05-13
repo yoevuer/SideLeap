@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import rikka.shizuku.Shizuku
 import rikka.shizuku.Shizuku.UserServiceArgs
 import hunoia.sideleap.BuildConfig
@@ -302,6 +303,18 @@ object ShizukuUtils {
         val error: String? = null
     )
 
+    data class BatchFrozenResult(
+        val requestedCount: Int,
+        val attemptedCount: Int,
+        val successCount: Int,
+        val failedCount: Int,
+        val fallbackTriggered: Boolean,
+        val fallbackAttemptedCount: Int = 0,
+        val fallbackSuccessCount: Int = 0,
+        val fallbackFailedCount: Int = 0,
+        val errorSummary: String? = null
+    )
+
     fun isUsableForFrozenAppActions(): Boolean {
         if (!isShizukuAvailable()) return false
         if (isPreV11OrUnsupported()) return false
@@ -317,12 +330,36 @@ object ShizukuUtils {
         return executePackageCommand(context, packageName, disable = false)
     }
 
-    fun executeFrozenBatch(context: Context, packageNames: List<String>, disable: Boolean): List<PackageCommandResult> {
-        if (packageNames.isEmpty()) return emptyList()
-        if (!isUsableForFrozenAppActions()) {
-            return packageNames.map {
-                PackageCommandResult(false, it, error = "shizuku unavailable")
+    private fun awaitShizukuBinderReady(timeoutMs: Long = 5000): Boolean {
+        if (Shizuku.pingBinder()) return true
+        val latch = java.util.concurrent.CountDownLatch(1)
+        val listener = object : Shizuku.OnBinderReceivedListener {
+            override fun onBinderReceived() {
+                latch.countDown()
             }
+        }
+        @Suppress("DEPRECATION")
+        Shizuku.addBinderReceivedListenerSticky(listener)
+        try {
+            return latch.await(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS)
+        } finally {
+            Shizuku.removeBinderReceivedListener(listener)
+        }
+    }
+
+    fun executeFrozenBatch(context: Context, packageNames: List<String>, disable: Boolean): BatchFrozenResult {
+        val requestedCount = packageNames.size
+        if (packageNames.isEmpty()) return BatchFrozenResult(0, 0, 0, 0, false)
+        val dt = "FrozenBatch"
+
+        if (!awaitShizukuBinderReady()) {
+            Log.e(dt, "shizuku binder not received after timeout")
+            Log.e(dt, "shizuku binder not received after timeout")
+            return BatchFrozenResult(
+                requestedCount = requestedCount, attemptedCount = 0,
+                successCount = 0, failedCount = requestedCount,
+                fallbackTriggered = false, errorSummary = "shizuku binder not received"
+            )
         }
 
         val args = UserServiceArgs(
@@ -336,61 +373,146 @@ object ShizukuUtils {
 
         val conn = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+                if (binder == null) {
+                    Log.e(dt, "binder is null")
+                    packageNames.forEach { pkg ->
+                        results += PackageCommandResult(false, pkg, error = "null binder")
+                    }
+                    latch.countDown()
+                    return
+                }
                 try {
                     val service = IShizukuCommandService.Stub.asInterface(binder)
                     packageNames.forEach { packageName ->
-                        val result = if (disable) {
-                            service.disablePackageApi(packageName)
-                        } else {
-                            service.enablePackageApi(packageName)
+                        try {
+                            val apiResult = if (disable) {
+                                service.disablePackageApi(packageName)
+                            } else {
+                                service.enablePackageApi(packageName)
+                            }
+                            val parsed = parseFrozenActionResult(packageName, apiResult)
+                            results += parsed
+                            if (!parsed.success) {
+                                Log.e(dt, "FAIL pkg=$packageName exitCode=${parsed.exitCode} error=${parsed.error}")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(dt, "EXCEPTION pkg=$packageName ${e::class.simpleName} ${e.message}")
+                            results += PackageCommandResult(false, packageName, error = "${e::class.simpleName} ${e.message}")
                         }
-                        results += parseFrozenActionResult(packageName, result)
                     }
                     try {
                         service.destroy()
-                    } catch (_: Exception) {
+                    } catch (e: Exception) {
+                        Log.w(dt, "destroy exception: ${e::class.simpleName} ${e.message}")
                     }
                 } catch (e: Exception) {
-                    packageNames.forEach { packageName ->
-                        results += PackageCommandResult(false, packageName, error = "${e::class.simpleName} ${e.message}")
+                    Log.e(dt, "onServiceConnected fatal: ${e::class.simpleName} ${e.message}")
+                    e.printStackTrace()
+                    packageNames.forEach { pkg ->
+                        results += PackageCommandResult(false, pkg, error = "${e::class.simpleName} ${e.message}")
                     }
                 } finally {
                     latch.countDown()
                 }
             }
 
-            override fun onServiceDisconnected(name: ComponentName?) {}
-            override fun onBindingDied(name: ComponentName?) { latch.countDown() }
-            override fun onNullBinding(name: ComponentName?) { latch.countDown() }
+            override fun onServiceDisconnected(name: ComponentName?) {
+                Log.w(dt, "onServiceDisconnected")
+            }
+            override fun onBindingDied(name: ComponentName?) {
+                Log.e(dt, "onBindingDied")
+                latch.countDown()
+            }
+            override fun onNullBinding(name: ComponentName?) {
+                Log.e(dt, "onNullBinding")
+                latch.countDown()
+            }
         }
 
+        var bindException: String? = null
         try {
             Shizuku.bindUserService(args, conn)
-            if (!latch.await(8, java.util.concurrent.TimeUnit.SECONDS)) {
+            val completed = latch.await(8, java.util.concurrent.TimeUnit.SECONDS)
+            if (!completed) {
                 timedOut.set(true)
+                Log.e(dt, "latch timed out after 8s")
             }
         } catch (e: Exception) {
-            packageNames.forEach { packageName ->
-                results += PackageCommandResult(false, packageName, error = "${e::class.simpleName} ${e.message}")
+            bindException = "${e::class.simpleName} ${e.message}"
+            Log.e(dt, "bindUserService exception: $bindException")
+            e.printStackTrace()
+            packageNames.forEach { pkg ->
+                results += PackageCommandResult(false, pkg, error = bindException)
             }
         } finally {
             try {
                 Shizuku.unbindUserService(args, conn, true)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.w(dt, "unbind exception: ${e::class.simpleName} ${e.message}")
             }
         }
 
         if (timedOut.get()) {
-            return packageNames.map { packageName ->
-                PackageCommandResult(false, packageName, error = "timeout")
-            }
+            Log.e(dt, "batch timed out, falling back")
+            return executeSingleFallback(context, packageNames, disable, "timeout")
+        }
+        if (bindException != null && results.isEmpty()) {
+            Log.e(dt, "bind failed with no results, falling back")
+            return executeSingleFallback(context, packageNames, disable, bindException)
         }
         if (results.isEmpty()) {
-            return packageNames.map { packageName ->
-                PackageCommandResult(false, packageName, error = "empty result")
+            Log.e(dt, "empty results despite successful bind, falling back")
+            return executeSingleFallback(context, packageNames, disable, "empty results")
+        }
+
+        val batchSuccessCount = results.count { it.success }
+        val batchFailedCount = results.count { !it.success }
+        val needsFallback = batchFailedCount > 0
+
+        if (needsFallback) {
+            Log.w(dt, "batch partial/full failure: success=$batchSuccessCount failed=$batchFailedCount, falling back")
+            return executeSingleFallback(context, packageNames, disable,
+                "batch failed: ${batchFailedCount}/${requestedCount}")
+        }
+
+        return BatchFrozenResult(
+            requestedCount = requestedCount,
+            attemptedCount = results.size,
+            successCount = batchSuccessCount,
+            failedCount = batchFailedCount,
+            fallbackTriggered = false
+        )
+    }
+
+    private fun executeSingleFallback(
+        context: Context, packageNames: List<String>, disable: Boolean, reason: String
+    ): BatchFrozenResult {
+        val dt = "FrozenBatch"
+        Log.w(dt, "executeSingleFallback triggered: $reason")
+        var fallbackAttempted = 0
+        var fallbackSuccess = 0
+        var fallbackFailed = 0
+        for (pkg in packageNames) {
+            val singleResult = executePackageCommandDirect(context, pkg, disable)
+            fallbackAttempted++
+            if (singleResult.success) {
+                fallbackSuccess++
+            } else {
+                fallbackFailed++
+                Log.e(dt, "fallback FAIL pkg=$pkg exitCode=${singleResult.exitCode} error=${singleResult.error}")
             }
         }
-        return results
+        return BatchFrozenResult(
+            requestedCount = packageNames.size,
+            attemptedCount = 0,
+            successCount = 0,
+            failedCount = packageNames.size,
+            fallbackTriggered = true,
+            fallbackAttemptedCount = fallbackAttempted,
+            fallbackSuccessCount = fallbackSuccess,
+            fallbackFailedCount = fallbackFailed,
+            errorSummary = reason
+        )
     }
 
     private fun executePackageCommand(context: Context, packageName: String, disable: Boolean): PackageCommandResult {
@@ -430,6 +552,63 @@ object ShizukuUtils {
             override fun onServiceDisconnected(name: ComponentName?) {}
             override fun onBindingDied(name: ComponentName?) { latch.countDown() }
             override fun onNullBinding(name: ComponentName?) { latch.countDown() }
+        }
+
+        try {
+            Shizuku.bindUserService(args, conn)
+            if (!latch.await(8, java.util.concurrent.TimeUnit.SECONDS)) {
+                timedOut.set(true)
+            }
+        } catch (e: Exception) {
+            result = "error: ${e::class.simpleName} ${e.message}"
+        } finally {
+            try {
+                Shizuku.unbindUserService(args, conn, true)
+            } catch (_: Exception) {
+            }
+        }
+
+        if (timedOut.get()) return PackageCommandResult(false, packageName, error = "timeout")
+        return parseFrozenActionResult(packageName, result)
+    }
+
+    private fun executePackageCommandDirect(context: Context, packageName: String, disable: Boolean): PackageCommandResult {
+        val args = UserServiceArgs(
+            ComponentName(context.packageName, ShizukuCommandService::class.java.name)
+        ).processNameSuffix("frozen_app_action").tag("sideleap-frozen-app-action")
+            .version(1).debuggable(true).daemon(false)
+
+        val latch = java.util.concurrent.CountDownLatch(1)
+        val timedOut = java.util.concurrent.atomic.AtomicBoolean(false)
+        var result = ""
+
+        val conn = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+                try {
+                    val service = IShizukuCommandService.Stub.asInterface(binder)
+                    result = if (disable) {
+                        service.disablePackageApi(packageName)
+                    } else {
+                        service.enablePackageApi(packageName)
+                    }
+                    try {
+                        service.destroy()
+                    } catch (_: Exception) {
+                    }
+                } catch (e: Exception) {
+                    result = "error: ${e::class.simpleName} ${e.message}"
+                } finally {
+                    latch.countDown()
+                }
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {}
+            override fun onBindingDied(name: ComponentName?) { latch.countDown() }
+            override fun onNullBinding(name: ComponentName?) { latch.countDown() }
+        }
+
+        if (!awaitShizukuBinderReady()) {
+            return PackageCommandResult(false, packageName, error = "shizuku binder not received")
         }
 
         try {

@@ -9,6 +9,7 @@ import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.global.FrozenAppSettings
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.utils.FrozenAppActionUtils
 import hunoia.sideleap.utils.ShizukuUtils
 import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
 import hunoia.sideleap.ui.widget.showComposeToast
@@ -140,23 +141,18 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
     fun onOneKeyFreezeAll() {
         if (!uiState.shizukuReady || uiState.bulkActionRunning) return
         viewModelScope.launch {
-            val targets = currentOneKeyTargetsInRange()
-            if (targets.isEmpty()) return@launch
             updateUiState { it.copy(bulkActionRunning = true) }
-            val beforeState = uiState.frozenStateByPackage
-            val candidates = targets.filter { beforeState[it] != true }
-            withContext(Dispatchers.IO) {
-                ShizukuUtils.executeFrozenBatch(App.getContext(), candidates, disable = true)
+            val result = withContext(Dispatchers.IO) {
+                FrozenAppActionUtils.oneKeyFreeze(App.getContext())
             }
-            delay(100)
-            val latestState = withContext(Dispatchers.IO) {
-                AppInfoUtils.queryFrozenStateByPackage(App.getContext(), targets)
+            showComposeToast(App.getContext().getString(R.string.bulk_frozen_count, result.successCount))
+            val refreshedFrozenState = withContext(Dispatchers.IO) {
+                val packageNames = uiState.apps.asSequence().map { it.packageName }.distinct().toList()
+                AppInfoUtils.queryFrozenStateByPackage(App.getContext(), packageNames)
             }
-            val successCount = candidates.count { latestState[it] == true }
-            showComposeToast(App.getContext().getString(R.string.bulk_frozen_count, successCount))
             updateUiState {
                 it.copy(
-                    frozenStateByPackage = it.frozenStateByPackage + latestState,
+                    frozenStateByPackage = refreshedFrozenState,
                     bulkActionRunning = false
                 )
             }

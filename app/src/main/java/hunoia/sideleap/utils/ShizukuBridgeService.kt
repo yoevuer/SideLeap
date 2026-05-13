@@ -38,6 +38,24 @@ class ShizukuBridgeService : Service() {
                         stopSelf()
                     }
                 }
+                MSG_FREEZE_BATCH -> {
+                    val replyTo = msg.replyTo
+                    scope.launch {
+                        try {
+                            val result = FrozenAppActionUtils.oneKeyFreeze(this@ShizukuBridgeService)
+                            val reply = Message.obtain(null, MSG_FREEZE_BATCH_RESULT)
+                            reply.data.putInt(EXTRA_SUCCESS_COUNT, result.successCount)
+                            try { replyTo?.send(reply) } catch (_: Exception) {}
+                        } catch (e: Exception) {
+                            val reply = Message.obtain(null, MSG_FREEZE_BATCH_RESULT)
+                            reply.data.putInt(EXTRA_SUCCESS_COUNT, -1)
+                            reply.data.putString(EXTRA_ERROR, "${e::class.simpleName} ${e.message}")
+                            try { replyTo?.send(reply) } catch (_: Exception) {}
+                        } finally {
+                            stopSelf()
+                        }
+                    }
+                }
             }
         }
     }
@@ -53,10 +71,13 @@ class ShizukuBridgeService : Service() {
     companion object {
         const val MSG_ENABLE_PACKAGE = 1
         const val MSG_ENABLE_PACKAGE_RESULT = 2
+        const val MSG_FREEZE_BATCH = 3
+        const val MSG_FREEZE_BATCH_RESULT = 4
         const val EXTRA_PACKAGE_NAME = "packageName"
         const val EXTRA_SUCCESS = "success"
         const val EXTRA_EXIT_CODE = "exitCode"
         const val EXTRA_OUTPUT = "output"
         const val EXTRA_ERROR = "error"
+        const val EXTRA_SUCCESS_COUNT = "successCount"
     }
 }
