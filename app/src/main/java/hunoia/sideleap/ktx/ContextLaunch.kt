@@ -10,10 +10,12 @@ import hunoia.sideleap.R
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.LauncherInfo
 import hunoia.sideleap.entity.OpenAppOrUrlData
+import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.MiniWindowUtils
 import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.utils.showToast
 import hunoia.sideleap.utils.showVersionTooLowToast
+import kotlinx.coroutines.delay
 
 fun Context.launchAssist(): Boolean {
     return try {
@@ -99,6 +101,39 @@ fun Context.launchApp(packageName: String, className: String, miniWindow: Boolea
         }
         false
     }
+}
+
+suspend fun Context.launchAppWithAutoUnfreeze(
+    packageName: String,
+    className: String,
+    miniWindow: Boolean = false,
+    unfreezePackage: suspend (context: Context, packageName: String) -> Boolean = { _, _ -> true }
+): Boolean {
+    if (AppInfoUtils.isFrozenDisabledUser(this, packageName)) {
+        val unfrozen = unfreezePackage(this, packageName)
+        if (!unfrozen) {
+            showToast(R.string.enable_frozen_app_failed)
+            return false
+        }
+        delay(100)
+    }
+    return launchApp(packageName, className, miniWindow)
+}
+
+suspend fun Context.launchAppActivityWithAutoUnfreeze(
+    packageName: String,
+    className: String,
+    unfreezePackage: suspend (context: Context, packageName: String) -> Boolean = { _, _ -> true }
+): Boolean {
+    if (AppInfoUtils.isFrozenDisabledUser(this, packageName)) {
+        val unfrozen = unfreezePackage(this, packageName)
+        if (!unfrozen) {
+            showToast(R.string.enable_frozen_app_failed)
+            return false
+        }
+        delay(100)
+    }
+    return launchAppActivity(packageName, className)
 }
 
 @RequiresApi(Build.VERSION_CODES.N)

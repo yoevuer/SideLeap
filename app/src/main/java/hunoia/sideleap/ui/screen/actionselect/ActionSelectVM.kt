@@ -93,7 +93,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
             }
         } else if (obj is Action) {
             selectAction(obj, selected)
-            if (uiState.selectSingle && obj.value != GlobalActions.OPEN_APP_OR_URL) {
+            if (uiState.selectSingle && (obj.value != GlobalActions.OPEN_APP_OR_URL || obj.data.isNotEmpty())) {
                 saveSettings()
             }
         }

@@ -141,6 +141,7 @@ import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.theme.SubMinInteractiveSize
 import hunoia.sideleap.ui.theme.TopBarPaddingExtra
+import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
 import hunoia.sideleap.ui.widget.ActionSettingsDialog
 import hunoia.sideleap.ui.widget.MySnackbarHost
 import hunoia.sideleap.ui.widget.TopBar
@@ -182,11 +183,32 @@ fun ActionSelectScreen(
             }
         }
     ) { uiState ->
+        var showOpenAppOrUrlDialog by remember { mutableStateOf(false) }
+
         if (uiState.actionSettingsDialog.show) {
             ActionSettingsDialog(
                 onDismissRequest = { vm.actionSettingsDialog.show(false) },
                 action = uiState.actionSettingsDialog.action,
                 onActionDataChanged = { vm.updateActionData(uiState.actionSettingsDialog.action, it) }
+            )
+        }
+
+        if (showOpenAppOrUrlDialog && !uiState.actionSettingsDialog.show) {
+            AlertDialog(
+                onDismissRequest = { showOpenAppOrUrlDialog = false },
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = { Text(stringResource(R.string.open_app_or_url_card_title)) },
+                text = {
+                    OpenAppOrUrlSettingsContent(
+                        action = Action(value = GlobalActions.OPEN_APP_OR_URL, data = ""),
+                        onConfirm = { data ->
+                            vm.select(Action(value = GlobalActions.OPEN_APP_OR_URL, data = data), true)
+                            showOpenAppOrUrlDialog = false
+                        }
+                    )
+                },
+                confirmButton = {},
+                dismissButton = {}
             )
         }
 
@@ -294,7 +316,7 @@ fun ActionSelectScreen(
                                         shortcutLauncher.launch(Intent().apply { setClassName(launcherInfo.packageName, launcherInfo.className) })
                                     } catch (ignored: Exception) { currentLauncherInfo = null }
                                 },
-                                onOpenAppOrUrl = { coroutineScope.launch { pagerState.animateScrollToPage(PAGE_OPEN_APP_OR_URL) } }
+                                onOpenAppOrUrl = { showOpenAppOrUrlDialog = true }
                             )
                         }
                         PAGE_OPEN_APP_OR_URL -> {
@@ -664,7 +686,7 @@ private fun ActionPage(
                 }
             }
         }
-        if (selectedActions.isNotEmpty()) {
+        if (!selectSingle && selectedActions.isNotEmpty()) {
             item(key = "selected_bar") {
                 Row(
                     modifier = Modifier

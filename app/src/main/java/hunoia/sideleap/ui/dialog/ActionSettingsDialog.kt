@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
@@ -11,20 +12,26 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,6 +45,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,9 +62,11 @@ import hunoia.sideleap.constant.GlobalSettings.MaxMoveScreenRate
 import hunoia.sideleap.constant.GlobalSettings.MinGotoBottomStrength
 import hunoia.sideleap.constant.GlobalSettings.MinMoveScreenHover
 import hunoia.sideleap.constant.GlobalSettings.MinMoveScreenRate
+import hunoia.sideleap.ktx.normalizeOpenAppOrUrl
 import hunoia.sideleap.ktx.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
+import hunoia.sideleap.ui.theme.SubMinInteractiveSize
 import hunoia.sideleap.ui.widget.MyTextSlider
 
 import androidx.compose.material3.RadioButton
@@ -77,36 +87,54 @@ fun OpenAppOrUrlSettingsContent(
     onConfirm: (String) -> Unit
 ) {
     val context = LocalContext.current
-    var data by remember {
-        mutableStateOf(
-            try {
-                JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data)
-            } catch (e: Exception) {
-                OpenAppOrUrlData()
-            }
-        )
-    }
-    var showAppSelector by remember { mutableStateOf(false) }
-    var showActivitySelector by remember { mutableStateOf(false) }
-    var appQuery by remember { mutableStateOf("") }
-    var activityQuery by remember { mutableStateOf("") }
-
     val launcherApps = remember(context) { queryLauncherApps(context) }
-    val selectedLauncherApp = launcherApps.firstOrNull { it.packageName == data.packageName }
-    val filteredLauncherApps = launcherApps.filter {
-        appQuery.isBlank() || it.label.contains(appQuery, ignoreCase = true) || it.packageName.contains(appQuery, ignoreCase = true)
+    val existingData = remember {
+        runCatching { JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data) }.getOrNull()
     }
-    val activityOptions = remember(context, data.packageName, data.activityClassName, selectedLauncherApp) {
-        queryActivityOptions(
-            context = context,
-            packageName = data.packageName,
-            selectedActivityClassName = data.activityClassName,
-            launcherClassName = selectedLauncherApp?.launcherClassName
+
+    var mode by remember { mutableStateOf(
+        when (existingData?.type) {
+            OpenAppOrUrlData.TYPE_URL -> 1
+            else -> 0
+        }
+    ) }
+    var appQuery by remember { mutableStateOf("") }
+    var selectedApp by remember {
+        mutableStateOf(
+            if (existingData?.type == OpenAppOrUrlData.TYPE_ACTIVITY && existingData.packageName.isNotBlank()) {
+                launcherApps.firstOrNull { it.packageName == existingData.packageName }
+            } else null
         )
     }
-    val filteredActivityOptions = activityOptions.filter {
-        activityQuery.isBlank() || formatActivityOptionText(it, data.packageName).contains(activityQuery, ignoreCase = true) ||
-            it.className.contains(activityQuery, ignoreCase = true)
+    var selectedActivityClassName by remember {
+        mutableStateOf(
+            if (existingData?.type == OpenAppOrUrlData.TYPE_ACTIVITY) existingData.activityClassName else ""
+        )
+    }
+    var activityQuery by remember { mutableStateOf("") }
+    var urlInput by remember { mutableStateOf(existingData?.url ?: "") }
+
+    val filteredApps = launcherApps.filter {
+        appQuery.isBlank() ||
+        it.label.contains(appQuery, ignoreCase = true) ||
+        it.packageName.contains(appQuery, ignoreCase = true)
+    }
+    val activityOptions = remember(selectedApp) {
+        val app = selectedApp
+        if (app != null) queryActivityOptions(
+            context = context,
+            packageName = app.packageName,
+            selectedActivityClassName = "",
+            launcherClassName = app.launcherClassName
+        ) else emptyList()
+    }
+    val filteredActivities = activityOptions.filter {
+        activityQuery.isBlank() ||
+        formatActivityOptionText(it, selectedApp?.packageName ?: "").contains(activityQuery, ignoreCase = true) ||
+        it.className.contains(activityQuery, ignoreCase = true)
+    }
+    val normalizedUrl = remember(urlInput) {
+        urlInput.trim().takeIf { it.isNotBlank() }?.let { normalizeOpenAppOrUrl(it) }
     }
 
     Column(
@@ -115,222 +143,225 @@ fun OpenAppOrUrlSettingsContent(
             .padding(horizontal = ItemPadding),
         verticalArrangement = Arrangement.spacedBy(ItemPadding)
     ) {
-        Text(text = stringResource(R.string.launch_mode), style = MaterialTheme.typography.titleSmall)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(
-                selected = data.type == OpenAppOrUrlData.TYPE_ACTIVITY,
-                onClick = { data = data.copy(type = OpenAppOrUrlData.TYPE_ACTIVITY) }
-            )
-            Text(
-                text = stringResource(R.string.mode_activity),
-                modifier = Modifier.onSingleClick { data = data.copy(type = OpenAppOrUrlData.TYPE_ACTIVITY) }
-            )
-            RadioButton(
-                selected = data.type == OpenAppOrUrlData.TYPE_URL,
-                onClick = { data = data.copy(type = OpenAppOrUrlData.TYPE_URL) }
-            )
-            Text(
-                text = stringResource(R.string.mode_url),
-                modifier = Modifier.onSingleClick { data = data.copy(type = OpenAppOrUrlData.TYPE_URL) }
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listOf(
+                R.string.select_activity,
+                R.string.add_link
+            ).forEachIndexed { index, labelRes ->
+                Surface(
+                    onClick = { mode = index },
+                    shape = RoundedCornerShape(16.dp),
+                    color = if (mode == index) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.surfaceVariant
+                ) {
+                    Text(
+                        text = stringResource(labelRes),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        color = if (mode == index) MaterialTheme.colorScheme.onPrimary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+            }
         }
 
-        if (data.type == OpenAppOrUrlData.TYPE_ACTIVITY) {
-            Box {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onClick {
-                            showActivitySelector = false
-                            showAppSelector = true
-                        },
-                    value = selectedLauncherApp?.label?.let { "$it (${selectedLauncherApp.packageName})" }
-                        ?: data.packageName,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text(stringResource(R.string.package_name)) },
-                    singleLine = true
-                )
-                DropdownMenu(
-                    expanded = showAppSelector,
-                    onDismissRequest = {
-                        showAppSelector = false
-                        appQuery = ""
-                    }
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(ItemPadding)) {
-                        OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = appQuery,
-                            onValueChange = { appQuery = it },
-                            label = { Text(stringResource(R.string.search_app_hint)) },
-                            singleLine = true
+        when (mode) {
+            0 -> {
+                if (selectedApp == null) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = appQuery,
+                        onValueChange = { appQuery = it },
+                        label = { Text(stringResource(R.string.search_app_hint)) },
+                        singleLine = true
+                    )
+                    if (appQuery.isBlank()) {
+                        Text(
+                            text = stringResource(R.string.no_matching_results),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                            textAlign = TextAlign.Center
                         )
-                        if (filteredLauncherApps.isEmpty()) {
-                            DropdownMenuItem(
-                                text = { Text(text = stringResource(R.string.no_matching_results)) },
-                                onClick = {},
-                                enabled = false
-                            )
-                        } else {
-                            filteredLauncherApps.forEach { item ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(ItemPadding),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            AsyncImage(
-                                                modifier = Modifier.size(MinInteractiveSize),
-                                                model = runCatching { context.packageManager.getApplicationIcon(item.packageName) }.getOrNull(),
-                                                contentDescription = null,
-                                                contentScale = ContentScale.Fit
-                                            )
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Text(text = item.label, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                                Text(
-                                                    text = item.packageName,
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                            }
+                    } else if (filteredApps.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.no_matching_results),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 300.dp)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            filteredApps.forEach { item ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            selectedApp = item
+                                            selectedActivityClassName = activityOptions.firstOrNull()?.className.orEmpty()
+                                            appQuery = ""
+                                            activityQuery = ""
                                         }
-                                    },
-                                    onClick = {
-                                        val nextActivityClassName = resolveInitialActivityClassName(
-                                            context = context,
-                                            packageName = item.packageName,
-                                            selectedActivityClassName = data.activityClassName,
-                                            launcherClassName = item.launcherClassName
+                                        .padding(vertical = 6.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(ItemPadding),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    AsyncImage(
+                                        modifier = Modifier.size(SubMinInteractiveSize),
+                                        model = runCatching { context.packageManager.getApplicationIcon(item.packageName) }.getOrNull(),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Fit
+                                    )
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(text = item.label, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                        Text(
+                                            text = item.packageName,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
-                                        data = data.copy(
-                                            packageName = item.packageName,
-                                            activityClassName = nextActivityClassName
-                                        )
-                                        appQuery = ""
-                                        showAppSelector = false
-                                        showActivitySelector = false
                                     }
-                                )
+                                }
                             }
                         }
                     }
-                }
-            }
-
-            if (data.packageName.isNotBlank()) {
-                Box {
+                } else {
+                    val app = selectedApp!!
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${app.label} (${app.packageName})",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        TextButton(onClick = { selectedApp = null }) {
+                            Text(text = stringResource(id = R.string.cancel))
+                        }
+                    }
                     OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onClick {
-                                showAppSelector = false
-                                showActivitySelector = true
-                            },
-                        value = activityOptions.firstOrNull { it.className == data.activityClassName }?.label
-                            ?: data.activityClassName,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.activity_class_name)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        value = activityQuery,
+                        onValueChange = { activityQuery = it },
+                        label = { Text(stringResource(R.string.search_activity_hint)) },
                         singleLine = true
                     )
-                    DropdownMenu(
-                        expanded = showActivitySelector,
-                        onDismissRequest = {
-                            showActivitySelector = false
-                            activityQuery = ""
-                        }
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(ItemPadding)) {
-                            OutlinedTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = activityQuery,
-                                onValueChange = { activityQuery = it },
-                                label = { Text(stringResource(R.string.search_activity_hint)) },
-                                singleLine = true
-                            )
-                            if (filteredActivityOptions.isEmpty()) {
-                                DropdownMenuItem(
-                                    text = { Text(text = stringResource(R.string.no_matching_results)) },
-                                    onClick = {},
-                                    enabled = false
-                                )
-                            } else {
-                                filteredActivityOptions.forEach { item ->
-                                    DropdownMenuItem(
-                                        text = {
-                                            Row(
-                                                horizontalArrangement = Arrangement.spacedBy(ItemPadding),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Settings,
-                                                    contentDescription = null
+                    if (filteredActivities.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.no_matching_results),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 250.dp)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            (if (activityQuery.isBlank()) activityOptions else filteredActivities).forEach { activity ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            onConfirm(
+                                                JsonHelper.encodeToString(
+                                                    OpenAppOrUrlData(
+                                                        type = OpenAppOrUrlData.TYPE_ACTIVITY,
+                                                        packageName = app.packageName,
+                                                        activityClassName = activity.className
+                                                    )
                                                 )
-                                                Column(modifier = Modifier.weight(1f)) {
-                                                    Text(
-                                                        text = formatActivityOptionText(item, data.packageName),
-                                                        maxLines = 1,
-                                                        overflow = TextOverflow.Ellipsis
-                                                    )
-                                                    Text(
-                                                        text = item.className,
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        maxLines = 1,
-                                                        overflow = TextOverflow.Ellipsis
-                                                    )
-                                                }
-                                            }
-                                        },
-                                        onClick = {
-                                            data = data.copy(activityClassName = item.className)
-                                            activityQuery = ""
-                                            showActivitySelector = false
+                                            )
                                         }
+                                        .padding(vertical = 6.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(ItemPadding),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SubMinInteractiveSize)
                                     )
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = formatActivityOptionText(activity, app.packageName),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            text = activity.className,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        } else {
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = data.url,
-                onValueChange = { data = data.copy(url = it) },
-                label = { Text(stringResource(R.string.url_link)) },
-                singleLine = true
-            )
-        }
-        TextButton(
-            modifier = Modifier.align(Alignment.End),
-            onClick = {
-                val trimmedPackageName = data.packageName.trim()
-                val trimmedActivityClassName = data.activityClassName.trim()
-                val trimmedUrl = data.url.trim()
-                val isValid = if (data.type == OpenAppOrUrlData.TYPE_ACTIVITY) {
-                    trimmedPackageName.isNotEmpty() && trimmedActivityClassName.isNotEmpty()
-                } else {
-                    trimmedUrl.isNotEmpty()
+
+            1 -> {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = urlInput,
+                    onValueChange = { urlInput = it },
+                    label = { Text(stringResource(R.string.url_link)) },
+                    singleLine = true
+                )
+                if (urlInput.isNotBlank()) {
+                    if (normalizedUrl != null) {
+                        Text(
+                            text = normalizedUrl,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(R.string.invalid_url),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
-                if (isValid) {
-                    onConfirm(
-                        JsonHelper.encodeToString(
-                            data.copy(
-                                packageName = trimmedPackageName,
-                                activityClassName = trimmedActivityClassName,
-                                url = trimmedUrl
+                TextButton(
+                    modifier = Modifier.align(Alignment.End),
+                    enabled = normalizedUrl != null,
+                    onClick = {
+                        onConfirm(
+                            JsonHelper.encodeToString(
+                                OpenAppOrUrlData(
+                                    type = OpenAppOrUrlData.TYPE_URL,
+                                    url = normalizedUrl!!
+                                )
                             )
                         )
-                    )
-                } else {
-                    showToast(R.string.please_input_complete_info)
+                    }
+                ) {
+                    Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                    Text(text = stringResource(id = R.string.confirm))
                 }
             }
-        ) {
-            Text(text = stringResource(id = R.string.confirm))
         }
     }
 }

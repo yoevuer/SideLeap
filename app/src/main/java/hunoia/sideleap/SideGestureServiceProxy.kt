@@ -37,13 +37,13 @@ import hunoia.sideleap.ktx.appInfo
 import hunoia.sideleap.ktx.dispatchMediaKeyEvent
 import hunoia.sideleap.ktx.gotoAppDetailSettings
 import hunoia.sideleap.ktx.isMiniWindow
-import hunoia.sideleap.ktx.launchAppActivity
 import hunoia.sideleap.ktx.launchAppInPopup
-import hunoia.sideleap.ktx.launchAppInfo
 import hunoia.sideleap.ktx.launchOpenAppOrUrl
 import hunoia.sideleap.ktx.launchAssist
 import hunoia.sideleap.ktx.launchShortcutInfo
 import hunoia.sideleap.ktx.launchUrl
+import hunoia.sideleap.ktx.launchAppWithAutoUnfreeze
+import hunoia.sideleap.ktx.launchAppActivityWithAutoUnfreeze
 import hunoia.sideleap.ktx.queryIntentActivitiesCompat
 import hunoia.sideleap.ktx.shortcutInfo
 import hunoia.sideleap.ktx.toggleMute
@@ -61,11 +61,12 @@ import hunoia.sideleap.utils.showVersionTooLowToast
 import com.blankj.utilcode.util.FlashlightUtils
 import com.blankj.utilcode.util.PermissionUtils
 import com.blankj.utilcode.util.ScreenUtils
+import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -397,7 +398,18 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                     null
                 }
                 if (data != null) {
-                    launchOpenAppOrUrl(data)
+                    when (data.type) {
+                        hunoia.sideleap.entity.OpenAppOrUrlData.TYPE_ACTIVITY -> {
+                            coroutineScope.launch {
+                                host.launchAppActivityWithAutoUnfreeze(
+                                    data.packageName, data.activityClassName
+                                ) { _, pkg ->
+                                    suspendEnablePackageViaBridge(pkg)
+                                }
+                            }
+                        }
+                        else -> launchOpenAppOrUrl(data)
+                    }
                 }
             }
             GlobalActions.QUICK_APP_LAUNCHER -> {
@@ -519,58 +531,13 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
     }
 
     private fun launchAppWithFrozenSupport(appInfo: hunoia.sideleap.entity.AppInfo, miniWindow: Boolean) {
-        val packageName = appInfo.packageName
-        val className = appInfo.className
-
-        // Stage 1: Try direct intent if className is available
-        if (className.isNotEmpty()) {
-            try {
-                if (miniWindow && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    if (host.launchAppInPopup(packageName, className)) return
-                }
-                val intent = Intent().apply {
-                    setClassName(packageName, className)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                if (intent.resolveActivity(host.packageManager) != null) {
-                    host.startActivity(intent)
-                    return
-                }
-            } catch (e: Exception) {
-                LauncherDiagnostics.d(host, "launchFrozen: direct intent failed for $packageName/$className, fallback")
-            }
-        }
-
-        // Stage 2: Background fallback — matching QuickAppLauncherOverlay's proven pattern.
-        host.coroutineScope.launch(Dispatchers.IO) {
-            // Try to find launcher activity (handles unfrozen apps with empty className)
-            val foundInfo = AppInfoUtils.findLauncherActivity(host, packageName)
-            if (foundInfo != null) {
-                withContext(Dispatchers.Main) {
-                    host.launchAppInfo(foundInfo, miniWindow)
-                }
-                return@launch
-            }
-
-            // No launcher → likely frozen → reuse Overlay pattern:
-            // call requestEnableFrozenPackage (Shizuku gating is handled internally)
-            host.requestEnableFrozenPackage(packageName) { success ->
-                host.coroutineScope.launch(Dispatchers.IO) {
-                    if (success) {
-                        val enabledInfo = AppInfoUtils.findLauncherActivity(host, packageName)
-                        withContext(Dispatchers.Main) {
-                            if (enabledInfo != null) {
-                                host.launchAppInfo(enabledInfo, miniWindow)
-                            } else {
-                                showToast(R.string.frozen_app_enabled_but_no_launcher_found)
-                            }
-                        }
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            showToast(R.string.enable_frozen_app_failed)
-                        }
-                    }
-                }
+        host.coroutineScope.launch {
+            host.launchAppWithAutoUnfreeze(
+                packageName = appInfo.packageName,
+                className = appInfo.className,
+                miniWindow = miniWindow
+            ) { _, pkg ->
+                suspendEnablePackageViaBridge(pkg)
             }
         }
     }
@@ -617,5 +584,11 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
         }
 
         return result.get()
+    }
+
+    private suspend fun suspendEnablePackageViaBridge(packageName: String): Boolean = suspendCancellableCoroutine { cont ->
+        host.requestEnableFrozenPackage(packageName) { success ->
+            cont.resume(success)
+        }
     }
 }
