@@ -30,6 +30,7 @@ object SystemActionHandler : ActionHandler {
         GlobalActions.SPLIT_SCREEN,
         GlobalActions.ASSIST_APP,
         GlobalActions.SCREENSHOT,
+        GlobalActions.KEEP_SCREEN_ON,
     )
 
     override suspend fun handle(action: Action, context: ActionHandlerContext): Boolean {
@@ -40,6 +41,7 @@ object SystemActionHandler : ActionHandler {
             GlobalActions.SPLIT_SCREEN -> handleSplitScreen(context)
             GlobalActions.ASSIST_APP -> context.appContext.launchAssist()
             GlobalActions.SCREENSHOT -> handleScreenshot(context)
+            GlobalActions.KEEP_SCREEN_ON -> context.toggleKeepScreenOn()
             else -> return false
         }
         return true

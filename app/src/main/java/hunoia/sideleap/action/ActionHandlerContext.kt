@@ -12,4 +12,6 @@ data class ActionHandlerContext(
     val actionSettings: ActionSettings,
     val showToast: (String) -> Unit,
     val showLongToast: (String) -> Unit,
+    val currentPackageName: () -> String? = { null },
+    val toggleKeepScreenOn: () -> Unit = {},
 )

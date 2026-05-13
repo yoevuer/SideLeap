@@ -1,10 +1,12 @@
 package hunoia.sideleap.action
 
 import hunoia.sideleap.BuildConfig
+import hunoia.sideleap.action.handlers.AppLaunchActionHandler
 import hunoia.sideleap.action.handlers.MediaActionHandler
 import hunoia.sideleap.action.handlers.MoveScreenActionHandler
 import hunoia.sideleap.action.handlers.NavigationActionHandler
 import hunoia.sideleap.action.handlers.RandomNameActionHandler
+import hunoia.sideleap.action.handlers.ShortcutActionHandler
 import hunoia.sideleap.action.handlers.SystemActionHandler
 import hunoia.sideleap.entity.Action
 
@@ -15,6 +17,8 @@ object ActionRegistry {
         SystemActionHandler,
         RandomNameActionHandler,
         MoveScreenActionHandler,
+        AppLaunchActionHandler,
+        ShortcutActionHandler,
     )
 
     private val handlerMap: Map<String, ActionHandler> = handlers

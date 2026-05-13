@@ -211,6 +211,19 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                     actionSettings = actionSettings ?: ActionSettings(),
                     showToast = { showToast(it) },
                     showLongToast = { showToastLong(it) },
+                    currentPackageName = { currPackageName },
+                    toggleKeepScreenOn = {
+                        if (wakeLock != null) {
+                            safeReleaseWakeLock()
+                            showToast(R.string.disable_keep_screen_on)
+                        } else {
+                            val pm = this@onAction.getSystemService(Context.POWER_SERVICE) as PowerManager
+                            wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "gulugulu:KeepScreenOn")
+                            wakeLock?.setReferenceCounted(false)
+                            wakeLock?.acquire(KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS)
+                            showToast(R.string.enable_keep_screen_on)
+                        }
+                    },
                 ))
             }
             return
@@ -218,80 +231,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
         when (action.value) {
             GlobalActions.PREVIOUS_APP -> {
                 previousApp()
-            }
-            GlobalActions.POPUP_SCREEN -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    val curPkgName = currPackageName
-                    if (nowInLauncher() || curPkgName.isNullOrEmpty()) {
-                        return
-                    }
-                    val intent = Intent().apply {
-                        setPackage(curPkgName)
-                        setAction(Intent.ACTION_MAIN)
-                        addCategory(Intent.CATEGORY_LAUNCHER)
-                    }
-                    val resolveInfo = packageManager
-                        .queryIntentActivitiesCompat(intent, PackageManager.MATCH_ALL)
-                        .firstOrNull()
-                    val className = resolveInfo?.activityInfo?.name
-                    if (!className.isNullOrEmpty()) {
-                        launchAppInPopup(curPkgName, className)
-                    }
-                } else {
-                    showVersionTooLowToast(this, R.string.action_popup_screen)
-                }
-            }
-            GlobalActions.EXTRA_LAUNCH_APP -> {
-                val advancedSettings = advancedSettings ?: return
-                val appInfo = action.appInfo
-                if (appInfo != null) {
-                    val longPressLaunchPopup = advancedSettings.actionPanelAppLongPressLaunchPopup
-                    val triggerType = action.extra as? TriggerType
-                    val miniWindow = triggerType?.isMiniWindow(longPressLaunchPopup) ?: appInfo.miniWindow
-                    launchAppWithFrozenSupport(appInfo, miniWindow)
-                }
-            }
-            GlobalActions.EXTRA_LAUNCH_SHORTCUT -> {
-                val shortcutInfo = action.shortcutInfo
-                if (shortcutInfo != null) {
-                    launchShortcutInfo(shortcutInfo)
-                }
-            }
-            GlobalActions.KEEP_SCREEN_ON -> {
-                if (wakeLock != null) {
-                    safeReleaseWakeLock()
-                    showToast(R.string.disable_keep_screen_on)
-                } else {
-                    val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-                    wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "gulugulu:KeepScreenOn")
-                    wakeLock?.setReferenceCounted(false)
-                    wakeLock?.acquire(KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS)
-                    showToast(R.string.enable_keep_screen_on)
-                }
-            }
-            GlobalActions.OPEN_APP_OR_URL -> {
-                val data = try {
-                    JsonHelper.decodeFromString<hunoia.sideleap.entity.OpenAppOrUrlData>(action.data)
-                } catch (e: Exception) {
-                    null
-                }
-                if (data != null) {
-                    when (data.type) {
-                        hunoia.sideleap.entity.OpenAppOrUrlData.TYPE_ACTIVITY -> {
-                            coroutineScope.launch {
-                                host.launchAppActivityWithAutoUnfreeze(
-                                    data.packageName, data.activityClassName
-                                ) { _, pkg ->
-                                    suspendEnablePackageViaBridge(pkg)
-                                }
-                            }
-                        }
-                        else -> launchOpenAppOrUrl(data)
-                    }
-                }
-            }
-            GlobalActions.QUICK_APP_LAUNCHER -> {
-                host.quickAppLauncherOverlay.toggle()
             }
             GlobalActions.ONE_KEY_FREEZE_APPS -> {
                 coroutineScope.launch {
