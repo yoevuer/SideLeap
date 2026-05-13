@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi
 import hunoia.sideleap.R
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.LauncherInfo
+import hunoia.sideleap.entity.OpenAppOrUrlData
 import hunoia.sideleap.utils.MiniWindowUtils
 import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.utils.showToast
@@ -126,13 +127,63 @@ fun Context.launchAppActivity(packageName: String, className: String): Boolean {
     }
 }
 
+fun normalizeOpenAppOrUrl(raw: String): String? {
+    val trimmed = raw.trim()
+    if (trimmed.isBlank()) return null
+
+    if (trimmed.startsWith("intent:")) {
+        return runCatching {
+            Intent.parseUri(trimmed, Intent.URI_INTENT_SCHEME)
+            trimmed
+        }.getOrNull()
+    }
+
+    val hasExplicitScheme = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*:").containsMatchIn(trimmed)
+    val candidate = if (hasExplicitScheme || trimmed.contains("://")) {
+        trimmed
+    } else {
+        "https://$trimmed"
+    }
+    val uri = runCatching { Uri.parse(candidate) }.getOrNull() ?: return null
+    return if (uri.scheme.isNullOrBlank()) null else candidate
+}
+
+fun Context.launchOpenAppOrUrl(data: OpenAppOrUrlData): Boolean {
+    return when (data.type) {
+        OpenAppOrUrlData.TYPE_ACTIVITY -> {
+            if (data.packageName.isBlank() || data.activityClassName.isBlank()) {
+                showToast(R.string.launch_failed)
+                false
+            } else {
+                launchAppActivity(data.packageName, data.activityClassName)
+            }
+        }
+
+        OpenAppOrUrlData.TYPE_URL -> launchUrl(data.url)
+        else -> {
+            showToast(R.string.launch_failed)
+            false
+        }
+    }
+}
+
 fun Context.launchUrl(url: String): Boolean {
     return try {
-        val trimmedUrl = url.trim()
-        val normalizedUrl = if (trimmedUrl.contains("://") || trimmedUrl.startsWith("intent:")) {
-            trimmedUrl
-        } else {
-            "https://$trimmedUrl"
+        val normalizedUrl = normalizeOpenAppOrUrl(url) ?: run {
+            showToast(R.string.invalid_url)
+            return false
+        }
+        if (normalizedUrl.startsWith("intent:")) {
+            val intent = Intent.parseUri(normalizedUrl, Intent.URI_INTENT_SCHEME).apply {
+                addCategory(Intent.CATEGORY_BROWSABLE)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            if (intent.resolveActivity(packageManager) == null) {
+                showToast(R.string.launch_failed)
+                return false
+            }
+            startActivity(intent)
+            return true
         }
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(normalizedUrl)).apply {
             addCategory(Intent.CATEGORY_BROWSABLE)

@@ -125,6 +125,8 @@ import hunoia.sideleap.ktx.actionText
 import hunoia.sideleap.ktx.deniedForever
 import hunoia.sideleap.ktx.gotoAppDetailSettings
 import hunoia.sideleap.ktx.icon
+import hunoia.sideleap.ktx.launchUrl
+import hunoia.sideleap.ktx.normalizeOpenAppOrUrl
 import hunoia.sideleap.ktx.qualifiedName
 import hunoia.sideleap.ktx.queryIntentActivitiesCompat
 import hunoia.sideleap.ktx.rememberGetInstalledAppsPermissionState
@@ -1464,20 +1466,15 @@ private fun OpenAppOrUrlPage(
                     selectedRecord = selectedRecord,
                     onUrlInputChange = { urlInput = it },
                     onTestUrl = {
-                        val normalized = normalizeUrl(urlInput)
+                        val normalized = normalizeOpenAppOrUrl(urlInput)
                         if (normalized == null) {
                             showToast(R.string.invalid_url)
                             return@OpenAppOrUrlLinkSection
                         }
-                        runCatching {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(normalized))
-                            context.startActivity(intent)
-                        }.onFailure {
-                            showToast(R.string.launch_failed)
-                        }
+                        context.launchUrl(normalized)
                     },
                     onAddUrl = {
-                        val trimmedUrl = normalizeUrl(urlInput)
+                        val trimmedUrl = normalizeOpenAppOrUrl(urlInput)
                         if (trimmedUrl == null) {
                             showToast(R.string.invalid_url)
                             return@OpenAppOrUrlLinkSection
@@ -1921,8 +1918,11 @@ private fun OpenAppOrUrlSelectedItem(
                     )
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         TextButton(onClick = {
-                            val trimmed = editingUrl.trim()
-                            if (trimmed.isBlank()) return@TextButton
+                            val trimmed = normalizeOpenAppOrUrl(editingUrl)
+                            if (trimmed == null) {
+                                showToast(R.string.invalid_url)
+                                return@TextButton
+                            }
                             val newData = JsonHelper.encodeToString(
                                 OpenAppOrUrlData(
                                     type = OpenAppOrUrlData.TYPE_URL,
@@ -2611,12 +2611,7 @@ private fun copyToClipboard(context: android.content.Context, label: String, tex
 }
 
 private fun normalizeUrl(raw: String): String? {
-    val trimmed = raw.trim()
-    if (trimmed.isBlank()) return null
-    val candidate = if (trimmed.contains("://")) trimmed else "https://$trimmed"
-    val uri = runCatching { Uri.parse(candidate) }.getOrNull() ?: return null
-    if (uri.scheme.isNullOrBlank() || uri.host.isNullOrBlank()) return null
-    return candidate
+    return normalizeOpenAppOrUrl(raw)
 }
 
 private fun prioritizeOpenAppOrUrlLauncherApps(

@@ -34,6 +34,7 @@ import hunoia.sideleap.ktx.isMiniWindow
 import hunoia.sideleap.ktx.launchAppActivity
 import hunoia.sideleap.ktx.launchAppInPopup
 import hunoia.sideleap.ktx.launchAppInfo
+import hunoia.sideleap.ktx.launchOpenAppOrUrl
 import hunoia.sideleap.ktx.launchAssist
 import hunoia.sideleap.ktx.launchShortcutInfo
 import hunoia.sideleap.ktx.launchUrl
@@ -387,15 +388,7 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                     null
                 }
                 if (data != null) {
-                    if (data.type == hunoia.sideleap.entity.OpenAppOrUrlData.TYPE_ACTIVITY) {
-                        if (data.packageName.isNotEmpty() && data.activityClassName.isNotEmpty()) {
-                            launchAppActivity(data.packageName, data.activityClassName)
-                        }
-                    } else {
-                        if (data.url.isNotEmpty()) {
-                            launchUrl(data.url)
-                        }
-                    }
+                    launchOpenAppOrUrl(data)
                 }
             }
             GlobalActions.QUICK_APP_LAUNCHER -> {
