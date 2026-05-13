@@ -261,7 +261,7 @@
     <string name="search_app_hint">搜索应用</string>
     <string name="search_activity_hint">搜索活动</string>
     <string name="no_matching_results">无匹配结果</string>
-    <string name="selected_count">已选 %d/%d</string>
+    <string name="selected_count">已选 %1$d/%2$d</string>
     <string name="clear_all">清空</string>
     <string name="all_categories">全部</string>
     <string name="frequent_tag">常用</string>

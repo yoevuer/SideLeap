@@ -146,10 +146,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             val beforeState = uiState.frozenStateByPackage
             val candidates = targets.filter { beforeState[it] != true }
             withContext(Dispatchers.IO) {
-                val context = App.getContext()
-                for (packageName in candidates) {
-                    ShizukuUtils.disablePackageForFrozenApp(context, packageName)
-                }
+                ShizukuUtils.executeFrozenBatch(App.getContext(), candidates, disable = true)
             }
             delay(100)
             val latestState = withContext(Dispatchers.IO) {
@@ -176,10 +173,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             val beforeState = uiState.frozenStateByPackage
             val candidates = targets.filter { beforeState[it] == true }
             withContext(Dispatchers.IO) {
-                val context = App.getContext()
-                for (packageName in candidates) {
-                    ShizukuUtils.enablePackageForFrozenApp(context, packageName)
-                }
+                ShizukuUtils.executeFrozenBatch(App.getContext(), candidates, disable = false)
             }
             delay(100)
             val latestState = withContext(Dispatchers.IO) {

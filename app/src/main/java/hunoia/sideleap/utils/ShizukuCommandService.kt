@@ -60,7 +60,26 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
             val elapsed = System.currentTimeMillis() - startTime
             return "service: elapsed=${elapsed}ms\nerror: invalid packageName=$packageName"
         }
-        return disablePackageShell(packageName, startTime)
+        return disablePackageDirect(packageName, startTime)
+    }
+
+    override fun enablePackageApi(packageName: String): String {
+        val startTime = System.currentTimeMillis()
+        if (!Regex("^[A-Za-z0-9_.]+$").matches(packageName)) {
+            val elapsed = System.currentTimeMillis() - startTime
+            return "service: elapsed=${elapsed}ms\nerror: invalid packageName=$packageName"
+        }
+        return enablePackageDirect(packageName, startTime)
+            ?: "service: elapsed=${System.currentTimeMillis() - startTime}ms\nerror: enablePackageDirect failed"
+    }
+
+    override fun disablePackageApi(packageName: String): String {
+        val startTime = System.currentTimeMillis()
+        if (!Regex("^[A-Za-z0-9_.]+$").matches(packageName)) {
+            val elapsed = System.currentTimeMillis() - startTime
+            return "service: elapsed=${elapsed}ms\nerror: invalid packageName=$packageName"
+        }
+        return disablePackageDirect(packageName, startTime)
     }
 
     private fun enablePackageDirect(packageName: String, overallStart: Long): String? {
@@ -172,6 +191,56 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
         } catch (e: Exception) {
             val elapsed = System.currentTimeMillis() - overallStart
             return "service: elapsed=${elapsed}ms\nerror: ${e::class.simpleName} ${e.message}"
+        }
+    }
+
+    private fun disablePackageDirect(packageName: String, overallStart: Long): String {
+        val apiStart = System.currentTimeMillis()
+        return try {
+            val smClass = Class.forName("android.os.ServiceManager")
+            val getService = smClass.getDeclaredMethod("getService", String::class.java)
+            val binder = getService.invoke(null, "package") as IBinder
+
+            val pmStubClass = Class.forName("android.content.pm.IPackageManager\$Stub")
+            val asInterface = pmStubClass.getDeclaredMethod("asInterface", IBinder::class.java)
+            val pm = asInterface.invoke(null, binder)
+            val pmClass = Class.forName("android.content.pm.IPackageManager")
+
+            val uhClass = Class.forName("android.os.UserHandle")
+            val myUserId = uhClass.getDeclaredMethod("myUserId")
+            val userId = myUserId.invoke(null) as Int
+
+            val setEnabled = try {
+                pmClass.getDeclaredMethod(
+                    "setApplicationEnabledSetting",
+                    String::class.java, Int::class.javaPrimitiveType,
+                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
+                    String::class.java
+                )
+            } catch (_: NoSuchMethodException) {
+                pmClass.getDeclaredMethod(
+                    "setApplicationEnabledSetting",
+                    String::class.java, Int::class.javaPrimitiveType,
+                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType
+                )
+            }
+            val callArgs: Array<Any> = if (setEnabled.parameterCount == 5) {
+                arrayOf(packageName, 3, 0, userId, "com.android.shell")
+            } else {
+                arrayOf(packageName, 3, 0, userId)
+            }
+            setEnabled.invoke(pm, *callArgs)
+
+            val getEnabled = pmClass.getDeclaredMethod(
+                "getApplicationEnabledSetting",
+                String::class.java, Int::class.javaPrimitiveType
+            )
+            val newState = getEnabled.invoke(pm, packageName, userId) as Int
+            val totalElapsed = System.currentTimeMillis() - overallStart
+            "service: elapsed=${totalElapsed}ms\ndirect_api=true\ncommand=android disable-user $packageName\nexitCode=0\noutput=Package $packageName new state=$newState"
+        } catch (e: Exception) {
+            val elapsed = System.currentTimeMillis() - overallStart
+            "service: elapsed=${elapsed}ms\nerror: ${e::class.simpleName} ${e.message}"
         }
     }
 
