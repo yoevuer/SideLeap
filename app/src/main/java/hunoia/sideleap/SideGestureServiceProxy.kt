@@ -219,53 +219,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
             GlobalActions.PREVIOUS_APP -> {
                 previousApp()
             }
-            GlobalActions.LOCK_SCREEN -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
-                } else {
-                    showVersionTooLowToast(this, R.string.action_lock_screen)
-                }
-            }
-            GlobalActions.FLASHLIGHT -> {
-                if (FlashlightUtils.isFlashlightEnable()) {
-                    val block = {
-                        coroutineScope.launch(Dispatchers.Default) {
-                            val turnOn = !FlashlightUtils.isFlashlightOn()
-                            if (turnOn) {
-                                FlashlightUtils.setFlashlightStatus(true)
-                            } else {
-                                FlashlightUtils.setFlashlightStatus(false)
-                                FlashlightUtils.destroy()
-                            }
-                        }
-                    }
-                    if (PermissionUtils.isGranted(Manifest.permission.CAMERA)) {
-                        block()
-                    } else {
-                        showToast(R.string.grant_camera_permission)
-                        PermissionUtils
-                            .permission(Manifest.permission.CAMERA)
-                            .callback { isAllGranted, granted, deniedForever, denied ->
-                                if (isAllGranted) {
-                                    block()
-                                } else if (deniedForever.isNotEmpty()) {
-                                    showToast(R.string.goto_grant_camera_permission)
-                                    gotoAppDetailSettings()
-                                }
-                            }
-                            .request()
-                    }
-                } else {
-                    showToast(R.string.flashlight_failed)
-                }
-            }
-            GlobalActions.SPLIT_SCREEN -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN)
-                } else {
-                    showVersionTooLowToast(this, R.string.action_split_screen)
-                }
-            }
             GlobalActions.POPUP_SCREEN -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     val curPkgName = currPackageName
@@ -286,19 +239,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                     }
                 } else {
                     showVersionTooLowToast(this, R.string.action_popup_screen)
-                }
-            }
-            GlobalActions.ASSIST_APP -> {
-                launchAssist()
-            }
-            GlobalActions.SCREENSHOT -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    coroutineScope.launch {
-                        delay(500)
-                        performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
-                    }
-                } else {
-                    showVersionTooLowToast(this, R.string.action_screenshot)
                 }
             }
             GlobalActions.EXTRA_LAUNCH_APP -> {
