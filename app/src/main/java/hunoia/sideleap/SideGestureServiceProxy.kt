@@ -216,41 +216,8 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
             return
         }
         when (action.value) {
-            GlobalActions.BACK -> {
-                performGlobalAction(GLOBAL_ACTION_BACK)
-            }
-            GlobalActions.HOME -> {
-                performGlobalAction(GLOBAL_ACTION_HOME)
-            }
-            GlobalActions.RECENT -> {
-                performGlobalAction(GLOBAL_ACTION_RECENTS)
-            }
-            GlobalActions.VOLUME_UP -> {
-                volumeUp()
-            }
-            GlobalActions.VOLUME_DOWN -> {
-                volumeDown()
-            }
-            GlobalActions.MUTE -> {
-                toggleMute()
-            }
-            GlobalActions.PLAY_PAUSE_SONG -> {
-                dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
-            }
-            GlobalActions.LAST_SONG -> {
-                dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
-            }
-            GlobalActions.NEXT_SONG -> {
-                dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT)
-            }
             GlobalActions.PREVIOUS_APP -> {
                 previousApp()
-            }
-            GlobalActions.OPEN_NOTIFICATION_PANEL -> {
-                performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
-            }
-            GlobalActions.OPEN_QUICK_PANEL -> {
-                performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
             }
             GlobalActions.LOCK_SCREEN -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -334,9 +301,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                     showVersionTooLowToast(this, R.string.action_screenshot)
                 }
             }
-            GlobalActions.POWER_BUTTON -> {
-                performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
-            }
             GlobalActions.EXTRA_LAUNCH_APP -> {
                 val advancedSettings = advancedSettings ?: return
                 val appInfo = action.appInfo
@@ -353,33 +317,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                     launchShortcutInfo(shortcutInfo)
                 }
             }
-            GlobalActions.MOVE_SCREEN -> {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                    showVersionTooLowToast(this, R.string.action_move_screen)
-                    return
-                }
-                if (gestureSettings?.longSlideTriggerImmediately != true) {
-                    showToast(R.string.move_screen_disabled_cause_long_slide_trigger_immediately)
-                    return
-                }
-                val data = JsonHelper.decodeFromString<MoveScreenData>(action.data)
-                if (data.x in 0..ScreenUtils.getScreenWidth() &&
-                    data.y in 0..ScreenUtils.getScreenHeight()
-                ) {
-                    when (data.action) {
-                        ActionSettings.MoveScreen.Action.LongPress -> {
-                            AccessibilityUtils.longPress(host, data.x, data.y)
-                        }
-                        ActionSettings.MoveScreen.Action.DoubleTap -> {
-                            AccessibilityUtils.doubleTap(host, data.x, data.y)
-                        }
-                        ActionSettings.MoveScreen.Action.Tap -> {
-                            AccessibilityUtils.click(host, data.x, data.y)
-                        }
-                        else -> Unit
-                    }
-                }
-            }
             GlobalActions.KEEP_SCREEN_ON -> {
                 if (wakeLock != null) {
                     safeReleaseWakeLock()
@@ -390,21 +327,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                     wakeLock?.setReferenceCounted(false)
                     wakeLock?.acquire(KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS)
                     showToast(R.string.enable_keep_screen_on)
-                }
-            }
-            GlobalActions.BACK_TO_TOP -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    AccessibilityUtils.fastVerticalScroll(host, true)
-                } else {
-                    showVersionTooLowToast(this, R.string.action_back_to_top)
-                }
-            }
-            GlobalActions.GOTO_BOTTOM -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    val strength = host.actionSettings?.gotoBottom?.strength ?: GotoBottomStrength
-                    AccessibilityUtils.fastVerticalScroll(host, false, strength)
-                } else {
-                    showVersionTooLowToast(this, R.string.action_goto_bottom)
                 }
             }
             GlobalActions.OPEN_APP_OR_URL -> {
@@ -430,20 +352,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
             }
             GlobalActions.QUICK_APP_LAUNCHER -> {
                 host.quickAppLauncherOverlay.toggle()
-            }
-            GlobalActions.RANDOM_NAME -> {
-                val name = generateRandomName()
-                if (name != null) {
-                    try {
-                        val clipboard = host.getSystemService(ClipboardManager::class.java)
-                        clipboard?.setPrimaryClip(ClipData.newPlainText(null, name))
-                        showToast(name)
-                    } catch (_: Exception) {
-                        showToast(R.string.random_name_copy_failed)
-                    }
-                } else {
-                    showToast(R.string.random_name_generate_failed)
-                }
             }
             GlobalActions.ONE_KEY_FREEZE_APPS -> {
                 coroutineScope.launch {

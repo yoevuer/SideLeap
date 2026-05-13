@@ -2,6 +2,7 @@ package hunoia.sideleap.action
 
 import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.action.handlers.MediaActionHandler
+import hunoia.sideleap.action.handlers.MoveScreenActionHandler
 import hunoia.sideleap.action.handlers.NavigationActionHandler
 import hunoia.sideleap.action.handlers.RandomNameActionHandler
 import hunoia.sideleap.action.handlers.SystemActionHandler
@@ -13,6 +14,7 @@ object ActionRegistry {
         MediaActionHandler,
         SystemActionHandler,
         RandomNameActionHandler,
+        MoveScreenActionHandler,
     )
 
     private val handlerMap: Map<String, ActionHandler> = handlers
