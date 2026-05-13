@@ -232,19 +232,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
             GlobalActions.PREVIOUS_APP -> {
                 previousApp()
             }
-            GlobalActions.ONE_KEY_FREEZE_APPS -> {
-                coroutineScope.launch {
-                    val successCount = withContext(Dispatchers.IO) {
-                        bridgeOneKeyFreeze(host)
-                    }
-                    if (successCount >= 0) {
-                        showToast(host.getString(R.string.bulk_frozen_count, successCount))
-                    } else {
-                        @Suppress("HardCodedStringLiteral")
-                        showToast("冻结功能暂不可用")
-                    }
-                }
-            }
         }
     }
 
