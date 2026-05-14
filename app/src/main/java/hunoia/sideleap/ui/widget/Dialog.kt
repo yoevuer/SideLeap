@@ -52,7 +52,7 @@ import com.aaron.compose.utils.SystemFontScaleHandler
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 import hunoia.sideleap.ktx.actionText
 import hunoia.sideleap.ui.theme.DialogTitleFontSize
 import hunoia.sideleap.ui.theme.DialogTitlePadding

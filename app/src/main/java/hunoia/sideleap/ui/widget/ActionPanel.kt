@@ -63,10 +63,10 @@ import com.aaron.compose.ktx.toPx
 
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.ActionPanelStyle
 import hunoia.sideleap.entity.ArcStyle
-import hunoia.sideleap.entity.Position
+import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.entity.Vibrations
 import hunoia.sideleap.ktx.actionIcon
 import hunoia.sideleap.ktx.actionText

@@ -1,7 +1,7 @@
 package hunoia.sideleap.entity.global
 
 import androidx.annotation.Keep
-import hunoia.sideleap.entity.GestureButton
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.entity.QuickAppLauncherSettings
 import kotlinx.serialization.Serializable
 

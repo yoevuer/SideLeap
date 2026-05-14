@@ -7,7 +7,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.util.AttributeSet
 import android.view.View
-import hunoia.sideleap.entity.GestureButton
+import hunoia.sideleap.gesture.GestureButton
 
 /**
  * @author aaronzzxup@gmail.com

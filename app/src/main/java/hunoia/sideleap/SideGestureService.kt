@@ -32,8 +32,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.postDelayed
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aaron.composeaccessibility.ComponentAccessibilityService
-import hunoia.sideleap.entity.GestureButton
-import hunoia.sideleap.entity.Position
+import hunoia.sideleap.gesture.GestureButton
+import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.entity.global.ActionSettings
 import hunoia.sideleap.entity.global.AdvancedSettings
 import hunoia.sideleap.entity.global.GestureSettings

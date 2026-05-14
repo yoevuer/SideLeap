@@ -13,7 +13,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 import hunoia.sideleap.utils.ShizukuBridgeService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

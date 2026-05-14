@@ -9,7 +9,7 @@ import hunoia.sideleap.action.handlers.NavigationActionHandler
 import hunoia.sideleap.action.handlers.RandomNameActionHandler
 import hunoia.sideleap.action.handlers.ShortcutActionHandler
 import hunoia.sideleap.action.handlers.SystemActionHandler
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 
 object ActionRegistry {
     private val handlers: List<ActionHandler> = listOf(

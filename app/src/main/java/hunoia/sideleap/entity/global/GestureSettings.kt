@@ -10,7 +10,7 @@ import hunoia.sideleap.constant.GestureSettingsDefaults.LongSlideTriggerDistance
 import hunoia.sideleap.constant.GestureSettingsDefaults.LongSlideTriggerImmediately
 import hunoia.sideleap.constant.GestureSettingsDefaults.SlideTriggerDistance
 import hunoia.sideleap.constant.GestureSettingsDefaults.Vibrations
-import hunoia.sideleap.entity.GestureAngles
+import hunoia.sideleap.gesture.GestureAngles
 import hunoia.sideleap.entity.Vibrations
 import kotlinx.serialization.Serializable
 

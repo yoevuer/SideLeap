@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.constant.GlobalSettings.MinGestureButtonLength
-import hunoia.sideleap.entity.GestureButton
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.ktx.fraction
 import hunoia.sideleap.ktx.rootSize

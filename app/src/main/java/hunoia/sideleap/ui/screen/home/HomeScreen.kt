@@ -55,7 +55,7 @@ import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalSettings.GestureButtonColorAlpha
-import hunoia.sideleap.entity.GestureButton
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ktx.actionTextCompose
 import hunoia.sideleap.ktx.bounds
 import hunoia.sideleap.ktx.buttonTextCompose

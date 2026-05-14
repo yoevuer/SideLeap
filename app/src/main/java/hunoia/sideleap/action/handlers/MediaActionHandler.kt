@@ -4,7 +4,7 @@ import android.view.KeyEvent
 import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 import hunoia.sideleap.ktx.dispatchMediaKeyEvent
 import hunoia.sideleap.ktx.toggleMute
 import hunoia.sideleap.ktx.volumeDown

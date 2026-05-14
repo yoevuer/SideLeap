@@ -86,11 +86,11 @@ import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.entity.LauncherInfo
-import hunoia.sideleap.entity.OpenAppOrUrlData
+import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.ktx.actionIcon
 import hunoia.sideleap.ktx.actionText
 import hunoia.sideleap.ktx.deniedForever

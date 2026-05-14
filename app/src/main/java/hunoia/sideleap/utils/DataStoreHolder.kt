@@ -3,7 +3,7 @@ package hunoia.sideleap.utils
 import androidx.datastore.core.DataStore
 import hunoia.sideleap.App
 import hunoia.sideleap.constant.DataStoreFiles
-import hunoia.sideleap.entity.GestureButton
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.entity.global.ActionSettings
 import hunoia.sideleap.entity.global.AdvancedSettings
 import hunoia.sideleap.entity.global.FrozenAppSettings

@@ -29,7 +29,7 @@ import androidx.compose.material.icons.filled.Window
 import hunoia.sideleap.ui.theme.icons.PlayPause
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 
 enum class ActionCategory {
     NONE,

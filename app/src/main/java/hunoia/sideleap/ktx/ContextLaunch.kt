@@ -9,7 +9,7 @@ import androidx.annotation.RequiresApi
 import hunoia.sideleap.R
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.LauncherInfo
-import hunoia.sideleap.entity.OpenAppOrUrlData
+import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.MiniWindowUtils
 import hunoia.sideleap.utils.LauncherDiagnostics

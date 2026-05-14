@@ -2,14 +2,14 @@
 
 package hunoia.sideleap.constant
 
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.ActionPanelStyles
 import hunoia.sideleap.entity.AnimationStyles
-import hunoia.sideleap.entity.GestureActions
-import hunoia.sideleap.entity.GestureAngle
-import hunoia.sideleap.entity.GestureAngles
-import hunoia.sideleap.entity.GestureButton
-import hunoia.sideleap.entity.Position
+import hunoia.sideleap.gesture.GestureActions
+import hunoia.sideleap.gesture.GestureAngle
+import hunoia.sideleap.gesture.GestureAngles
+import hunoia.sideleap.gesture.GestureButton
+import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.entity.VibrationEffects
 import hunoia.sideleap.entity.Vibrations
 import hunoia.sideleap.entity.WaveStyle.Companion.ICON_TYPE_ARROW

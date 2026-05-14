@@ -6,8 +6,8 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.stringResource
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.GestureButton
-import hunoia.sideleap.entity.Position
+import hunoia.sideleap.gesture.GestureButton
+import hunoia.sideleap.gesture.Position
 
 /**
  * @author aaronzzxup@gmail.com

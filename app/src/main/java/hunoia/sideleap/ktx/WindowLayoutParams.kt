@@ -6,8 +6,8 @@ import android.os.Build
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.ui.unit.IntSize
-import hunoia.sideleap.entity.GestureButton
-import hunoia.sideleap.entity.Position
+import hunoia.sideleap.gesture.GestureButton
+import hunoia.sideleap.gesture.Position
 import com.blankj.utilcode.util.ScreenUtils
 
 /**

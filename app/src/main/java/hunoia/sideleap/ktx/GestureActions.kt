@@ -3,13 +3,11 @@ package hunoia.sideleap.ktx
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import hunoia.sideleap.App
-import hunoia.sideleap.constant.GestureActionsDefaults.ActionNone
 import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.entity.GestureActions
+import hunoia.sideleap.gesture.GestureActions
 import hunoia.sideleap.entity.LauncherInfo
-import hunoia.sideleap.entity.TriggerDirection
 import hunoia.sideleap.utils.JsonHelper
 
 /**
@@ -74,17 +72,3 @@ fun List<Action>.actionTextCompose(emptyIfNone: Boolean = false): String {
     }
 }
 
-fun GestureActions.actionsBy(direction: TriggerDirection): List<Action> {
-    return when (direction) {
-        TriggerDirection.Up -> up
-        TriggerDirection.Center -> center
-        TriggerDirection.Down -> down
-        TriggerDirection.Up2 -> up2
-        TriggerDirection.Center2 -> emptyList()
-        TriggerDirection.Down2 -> down2
-    }
-}
-
-fun List<Action>.isEmptyOrNone(): Boolean {
-    return isEmpty() || first() == ActionNone
-}

@@ -44,7 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 import hunoia.sideleap.ui.theme.icons.PlayPause
 
 /**

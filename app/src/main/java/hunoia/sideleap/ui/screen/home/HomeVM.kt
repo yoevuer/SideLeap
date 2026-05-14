@@ -7,7 +7,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.SideGestureService
-import hunoia.sideleap.entity.GestureButton
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ktx.isAccessibilitySettingsOn
 import hunoia.sideleap.ktx.isIgnoringBatteryOptimizations
 import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent

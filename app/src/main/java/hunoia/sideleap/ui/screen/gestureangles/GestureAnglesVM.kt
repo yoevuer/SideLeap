@@ -3,9 +3,9 @@ package hunoia.sideleap.ui.screen.gestureangles
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.GestureAngle
-import hunoia.sideleap.entity.GestureAngles
-import hunoia.sideleap.entity.Position
+import hunoia.sideleap.gesture.GestureAngle
+import hunoia.sideleap.gesture.GestureAngles
+import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesVM.UiEvent
 import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesVM.UiState
 import hunoia.sideleap.utils.DataStoreHolder

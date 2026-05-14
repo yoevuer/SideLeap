@@ -53,7 +53,7 @@ import com.aaron.compose.utils.SystemFontScaleHandler
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.MoveScreenData
 import hunoia.sideleap.entity.global.ActionSettings
 import hunoia.sideleap.entity.global.ActionSettings.MoveScreen.Action.DoubleTap

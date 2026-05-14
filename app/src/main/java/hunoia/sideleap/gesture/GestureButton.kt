@@ -1,4 +1,4 @@
-package hunoia.sideleap.entity
+package hunoia.sideleap.gesture
 
 import android.os.SystemClock
 import androidx.annotation.Keep
@@ -18,10 +18,6 @@ import hunoia.sideleap.constant.GestureButtonDefaults.Width
 import com.blankj.utilcode.util.ColorUtils
 import kotlinx.serialization.Serializable
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/18
- */
 @Serializable
 @Keep
 data class GestureButton(
@@ -79,7 +75,6 @@ data class GestureButton(
     override fun compareTo(other: GestureButton): Int {
         val idCompared = id.compareTo(other.id)
         if (idCompared == 0) {
-            // id相同，意味着是一组的，比较position
             return position.compareTo(other.position)
         }
         return idCompared

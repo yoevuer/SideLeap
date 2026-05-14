@@ -8,7 +8,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import hunoia.sideleap.entity.Position
+import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.entity.WaveStyle
 
 /**

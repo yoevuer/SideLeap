@@ -1,13 +1,42 @@
-package hunoia.sideleap.ktx
+package hunoia.sideleap.gesture
 
-import hunoia.sideleap.entity.GestureAngle
-import hunoia.sideleap.entity.TriggerDirection
+import androidx.annotation.Keep
+import hunoia.sideleap.constant.GestureAnglesDefaults.Bottom
+import hunoia.sideleap.constant.GestureAnglesDefaults.Left
+import hunoia.sideleap.constant.GestureAnglesDefaults.P1
+import hunoia.sideleap.constant.GestureAnglesDefaults.P2
+import hunoia.sideleap.constant.GestureAnglesDefaults.P3
+import hunoia.sideleap.constant.GestureAnglesDefaults.P4
+import hunoia.sideleap.constant.GestureAnglesDefaults.Right
+import kotlinx.serialization.Serializable
 import kotlin.reflect.KProperty0
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/18
- */
+const val GESTURE_ANGLE_BASE = 180f
+
+@Serializable
+@Keep
+data class GestureAngles(
+    val left: GestureAngle = Left,
+    val right: GestureAngle = Right,
+    val bottom: GestureAngle = Bottom
+)
+
+@Serializable
+@Keep
+data class GestureAngle(
+    val p1: Float = P1,
+    val p2: Float = P2,
+    val p3: Float = P3,
+    val p4: Float = P4
+) {
+    val ps: List<Float> = listOf(p1, p2, p3, p4)
+
+    init {
+        require(p1 >= 0f && p1 <= p2 && p2 <= p3 && p3 <= p4 && p4 <= 1f) {
+            "Illegal arguments: $p1, $p2, $p3, $p4, need 0<=p1<=p2<=p3<=p4<=1"
+        }
+    }
+}
 
 fun GestureAngle.copyNew(
     fieldName: String,
@@ -88,5 +117,3 @@ fun GestureAngle.getTriggerDirection(degree: Float): TriggerDirection? {
         else -> TriggerDirection.Center2
     }
 }
-
-const val GESTURE_ANGLE_BASE = 180f
