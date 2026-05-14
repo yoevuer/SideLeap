@@ -12,7 +12,6 @@ import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.action.appInfo
-import hunoia.sideleap.ui.widget.isMiniWindow
 import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.widget.ActionPanelState
@@ -70,7 +69,12 @@ object AppLaunchActionHandler : ActionHandler {
         if (appInfo != null) {
             val longPressLaunchPopup = advancedSettings.actionPanelAppLongPressLaunchPopup
             val triggerType = action.extra as? ActionPanelState.TriggerType
-            val miniWindow = triggerType?.isMiniWindow(longPressLaunchPopup) ?: appInfo.miniWindow
+            val miniWindow = triggerType?.let {
+                when (it) {
+                    ActionPanelState.TriggerType.Press -> !longPressLaunchPopup
+                    ActionPanelState.TriggerType.LongPress -> longPressLaunchPopup
+                }
+            } ?: appInfo.miniWindow
             launchAppWithFrozenSupport(context, appInfo, miniWindow)
         }
     }
