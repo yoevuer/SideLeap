@@ -1,6 +1,5 @@
 package hunoia.sideleap.action.handlers
 
-import android.util.Log
 import hunoia.sideleap.R
 import hunoia.sideleap.action.ActionExecutionResult
 import hunoia.sideleap.action.ActionHandler
@@ -17,16 +16,8 @@ object FreezeAppsActionHandler : ActionHandler {
         when (action.value) {
             GlobalActions.ONE_KEY_FREEZE_APPS -> {
                 val result = FreezeAction.oneKeyFreeze(context.appContext)
-                if (!result.shizukuAvailable) {
-                    Log.e("FreezeActionHandler", "oneKeyFreeze failed: shizuku=${result.shizukuAvailable}")
-                    @Suppress("HardCodedStringLiteral")
-                    context.showToast("冻结功能暂不可用")
-                } else {
-                    val msg = context.appContext.getString(
-                        R.string.bulk_frozen_count, result.successCount
-                    )
-                    context.showToast(msg)
-                }
+                val msg = context.appContext.getString(R.string.bulk_frozen_count, result.successCount)
+                context.showToast(msg)
             }
             else -> return ActionExecutionResult.Ignored
         }

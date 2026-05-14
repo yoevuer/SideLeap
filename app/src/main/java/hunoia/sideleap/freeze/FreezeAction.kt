@@ -24,9 +24,7 @@ data class OneKeyFreezeResult(
     val protectedCount: Int,
     val targetCount: Int,
     val candidateCount: Int,
-    val successCount: Int,
-    val shizukuAvailable: Boolean = true,
-    val errorMessage: String? = null
+    val successCount: Int
 )
 
 data class BatchFreezeResult(
@@ -115,14 +113,6 @@ object FreezeAction {
     }
 
     suspend fun oneKeyFreeze(context: Context): OneKeyFreezeResult = withContext(Dispatchers.IO) {
-        if (!isShizukuReady()) {
-            Log.e("OneKeyFreeze", "Shizuku not available for oneKeyFreeze")
-            return@withContext OneKeyFreezeResult(
-                oneKeyCount = 0, protectedCount = 0, targetCount = 0,
-                candidateCount = 0, successCount = 0,
-                shizukuAvailable = false, errorMessage = "Shizuku not available"
-            )
-        }
         val settings = hunoia.sideleap.utils.DataStoreHolder.frozenAppSettings.data.first()
         val showSystemApps = settings.showSystemAppsInManagePage
         val oneKeySet = settings.oneKeyPackageNames
@@ -179,14 +169,6 @@ object FreezeAction {
     }
 
     suspend fun oneKeyUnfreeze(context: Context, targets: List<String>): OneKeyFreezeResult = withContext(Dispatchers.IO) {
-        if (!isShizukuReady()) {
-            Log.e("OneKeyUnfreeze", "Shizuku not available")
-            return@withContext OneKeyFreezeResult(
-                oneKeyCount = 0, protectedCount = 0, targetCount = 0,
-                candidateCount = 0, successCount = 0,
-                shizukuAvailable = false, errorMessage = "Shizuku not available"
-            )
-        }
         val frozenState = FreezeState.queryFrozenStateByPackage(context, targets)
         val candidates = targets.filter { frozenState[it] == true }
 
