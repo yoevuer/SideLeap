@@ -46,6 +46,8 @@ import androidx.compose.ui.res.stringResource
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
+import hunoia.sideleap.action.appInfo
+import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.ui.theme.icons.PlayPause
 
 /**

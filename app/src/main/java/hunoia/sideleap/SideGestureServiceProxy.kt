@@ -35,14 +35,14 @@ import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.MoveScreenData
 import hunoia.sideleap.settings.model.ActionSettings
-import hunoia.sideleap.ktx.appInfo
+import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
 import hunoia.sideleap.ktx.gotoAppDetailSettings
 import hunoia.sideleap.ktx.isMiniWindow
 
 import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
-import hunoia.sideleap.ktx.shortcutInfo
+import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.system.audio.toggleMute
 import hunoia.sideleap.system.audio.volumeDown
 import hunoia.sideleap.system.audio.volumeUp

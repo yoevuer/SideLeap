@@ -6,7 +6,7 @@ import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.launcher.launch.Launcher
-import hunoia.sideleap.ktx.shortcutInfo
+import hunoia.sideleap.action.shortcutInfo
 
 object ShortcutActionHandler : ActionHandler {
 

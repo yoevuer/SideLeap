@@ -5,29 +5,7 @@ import androidx.compose.runtime.remember
 import hunoia.sideleap.App
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.gesture.GestureActions
-import hunoia.sideleap.launcher.model.LauncherInfo
-import hunoia.sideleap.utils.JsonHelper
-
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/18
- */
-
-val Action.appInfo: AppInfo? get() {
-    if (value == GlobalActions.EXTRA_LAUNCH_APP) {
-        return JsonHelper.decodeFromString<AppInfo>(data)
-    }
-    return null
-}
-
-val Action.shortcutInfo: LauncherInfo.ShortcutInfo? get() {
-    if (value == GlobalActions.EXTRA_LAUNCH_SHORTCUT) {
-        return JsonHelper.decodeFromString<LauncherInfo.ShortcutInfo>(data)
-    }
-    return null
-}
 
 @Composable
 fun GestureActions.actionTextCompose(): String {

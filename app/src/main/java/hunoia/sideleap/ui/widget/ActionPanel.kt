@@ -70,9 +70,9 @@ import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.entity.Vibrations
 import hunoia.sideleap.ktx.actionIcon
 import hunoia.sideleap.ktx.actionText
-import hunoia.sideleap.ktx.appInfo
+import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.ktx.isMiniWindow
-import hunoia.sideleap.ktx.shortcutInfo
+import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.ktx.toIntOffset
 import hunoia.sideleap.ktx.tryVibrateForActionPanel
 import hunoia.sideleap.ui.theme.RootPadding
