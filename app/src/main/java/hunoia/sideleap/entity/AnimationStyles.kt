@@ -1,34 +1,16 @@
 package hunoia.sideleap.entity
 
 import androidx.annotation.Keep
-import hunoia.sideleap.constant.AnimationStylesDefaults
-import hunoia.sideleap.constant.AnimationStylesDefaults.IsAnimationEnabled
-import hunoia.sideleap.constant.AnimationStylesDefaults.Type
-import hunoia.sideleap.constant.AnimationStylesDefaults.WaveStyleBackgroundColor
-import hunoia.sideleap.constant.AnimationStylesDefaults.WaveStyleBezierLengthHalfRatio
-import hunoia.sideleap.constant.AnimationStylesDefaults.WaveStyleIconColor
-import hunoia.sideleap.constant.AnimationStylesDefaults.WaveStyleIconScale
-import hunoia.sideleap.constant.AnimationStylesDefaults.WaveStyleIconType
-import hunoia.sideleap.constant.AnimationStylesDefaults.WaveStyleSafeBounds
-import hunoia.sideleap.constant.AnimationStylesDefaults.WaveStyleStrokeColor
-import hunoia.sideleap.constant.AnimationStylesDefaults.WaveStyleStrokeWidth
-import hunoia.sideleap.constant.AnimationStylesDefaults.WaveStyleTransformEnabled
-import hunoia.sideleap.constant.AnimationStylesDefaults.WaveStyleWidth
 import hunoia.sideleap.utils.JsonHelper
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/20
- */
-
 @Serializable
 @Keep
 data class AnimationStyles(
-    val type: Int = Type,
+    val type: Int = AnimationStylesDefaults.Type,
     val json: String = "",
-    val isAnimationEnabled: Boolean = IsAnimationEnabled
+    val isAnimationEnabled: Boolean = AnimationStylesDefaults.IsAnimationEnabled
 ) {
     companion object {
         const val TYPE_WAVE = AnimationStylesDefaults.TYPE_WAVE
@@ -47,21 +29,39 @@ data class AnimationStyles(
     }
 }
 
+object AnimationStylesDefaults {
+
+    const val TYPE_WAVE = 1
+
+    const val Type = TYPE_WAVE
+    const val IsAnimationEnabled = true
+    const val WaveStyleBackgroundColor = android.graphics.Color.BLACK
+    const val WaveStyleStrokeColor = android.graphics.Color.TRANSPARENT
+    const val WaveStyleStrokeWidth = 0
+    val WaveStyleWidth = com.blankj.utilcode.util.ConvertUtils.dp2px(40f)
+    const val WaveStyleBezierLengthHalfRatio = 2.5f
+    const val WaveStyleSafeBounds = true
+    const val WaveStyleTransformEnabled = true
+    val WaveStyleIconColor = android.graphics.Color.argb(200, 255, 255, 255)
+    const val WaveStyleIconScale = 0.6f
+    const val WaveStyleIconType = WaveStyle.ICON_TYPE_ARROW
+}
+
 sealed interface AnimationStyle
 
 @Serializable
 @Keep
 data class WaveStyle(
-    val backgroundColor: Int = WaveStyleBackgroundColor,
-    val strokeColor: Int = WaveStyleStrokeColor,
-    val strokeWidth: Int = WaveStyleStrokeWidth,
-    val width: Int = WaveStyleWidth,
-    val bezierLengthHalfRatio: Float = WaveStyleBezierLengthHalfRatio,
-    val safeBounds: Boolean = WaveStyleSafeBounds,
-    val transformEnabled: Boolean = WaveStyleTransformEnabled,
-    val iconColor: Int = WaveStyleIconColor,
-    val iconScale: Float = WaveStyleIconScale,
-    val iconType: Int = WaveStyleIconType,
+    val backgroundColor: Int = AnimationStylesDefaults.WaveStyleBackgroundColor,
+    val strokeColor: Int = AnimationStylesDefaults.WaveStyleStrokeColor,
+    val strokeWidth: Int = AnimationStylesDefaults.WaveStyleStrokeWidth,
+    val width: Int = AnimationStylesDefaults.WaveStyleWidth,
+    val bezierLengthHalfRatio: Float = AnimationStylesDefaults.WaveStyleBezierLengthHalfRatio,
+    val safeBounds: Boolean = AnimationStylesDefaults.WaveStyleSafeBounds,
+    val transformEnabled: Boolean = AnimationStylesDefaults.WaveStyleTransformEnabled,
+    val iconColor: Int = AnimationStylesDefaults.WaveStyleIconColor,
+    val iconScale: Float = AnimationStylesDefaults.WaveStyleIconScale,
+    val iconType: Int = AnimationStylesDefaults.WaveStyleIconType,
     val stickySlideEnabled: Boolean = false
 ) : AnimationStyle {
 

@@ -4,35 +4,67 @@ import android.os.SystemClock
 import androidx.annotation.Keep
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import hunoia.sideleap.constant.GestureButtonDefaults
-import hunoia.sideleap.constant.GestureButtonDefaults.AlignRegion
-import hunoia.sideleap.constant.GestureButtonDefaults.Color
-import hunoia.sideleap.constant.GestureButtonDefaults.Enabled
-import hunoia.sideleap.constant.GestureButtonDefaults.End
-import hunoia.sideleap.constant.GestureButtonDefaults.ExcludeSystemGestureRects
-import hunoia.sideleap.constant.GestureButtonDefaults.LimitMaxExcludeSystemGestureLength
-import hunoia.sideleap.constant.GestureButtonDefaults.LongSlideActions
-import hunoia.sideleap.constant.GestureButtonDefaults.SlideActions
-import hunoia.sideleap.constant.GestureButtonDefaults.Start
-import hunoia.sideleap.constant.GestureButtonDefaults.Width
 import com.blankj.utilcode.util.ColorUtils
+import com.blankj.utilcode.util.ConvertUtils
 import kotlinx.serialization.Serializable
+
+object GestureButtonDefaults {
+
+    const val ID_DEFAULT = "1"
+    const val Enabled = true
+    const val Start = 0.0f
+    const val End = 0.1f
+    val Width = ConvertUtils.dp2px(16f)
+    val SlideActions = GestureActions()
+    val LongSlideActions = GestureActions()
+    const val Color = android.graphics.Color.TRANSPARENT
+    const val AlignRegion = true
+    const val ExcludeSystemGestureRects = false
+    const val LimitMaxExcludeSystemGestureLength = true
+    val SideDefaults = listOf(
+        GestureButton(
+            id = ID_DEFAULT,
+            position = Position.Left,
+            start = 0.0f,
+            end = 1.0f,
+            slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.constant.GlobalActions.BACK))
+        ),
+        GestureButton(
+            id = ID_DEFAULT,
+            position = Position.Right,
+            start = 0.0f,
+            end = 1.0f,
+            slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.constant.GlobalActions.BACK))
+        )
+    )
+    val BottomDefaults = listOf(
+        GestureButton(
+            id = ID_DEFAULT,
+            position = Position.Bottom,
+            enabled = false,
+            start = 0.0f,
+            end = 1.0f,
+            slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.constant.GlobalActions.HOME)),
+            longSlideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.constant.GlobalActions.RECENT))
+        )
+    )
+}
 
 @Serializable
 @Keep
 data class GestureButton(
     val id: String,
     val position: Position,
-    val enabled: Boolean = Enabled,
-    val start: Float = Start,
-    val end: Float = End,
-    val width: Int = Width,
-    val slideActions: GestureActions = SlideActions,
-    val longSlideActions: GestureActions = LongSlideActions,
-    val color: Int = Color,
-    val alignRegion: Boolean = AlignRegion,
-    val excludeSystemGestureRects: Boolean = ExcludeSystemGestureRects,
-    val limitMaxExcludeSystemGestureLength: Boolean = LimitMaxExcludeSystemGestureLength
+    val enabled: Boolean = GestureButtonDefaults.Enabled,
+    val start: Float = GestureButtonDefaults.Start,
+    val end: Float = GestureButtonDefaults.End,
+    val width: Int = GestureButtonDefaults.Width,
+    val slideActions: GestureActions = GestureButtonDefaults.SlideActions,
+    val longSlideActions: GestureActions = GestureButtonDefaults.LongSlideActions,
+    val color: Int = GestureButtonDefaults.Color,
+    val alignRegion: Boolean = GestureButtonDefaults.AlignRegion,
+    val excludeSystemGestureRects: Boolean = GestureButtonDefaults.ExcludeSystemGestureRects,
+    val limitMaxExcludeSystemGestureLength: Boolean = GestureButtonDefaults.LimitMaxExcludeSystemGestureLength
 ) : Comparable<GestureButton> {
 
     companion object {

@@ -1,33 +1,37 @@
 package hunoia.sideleap.gesture
 
 import androidx.annotation.Keep
-import hunoia.sideleap.constant.GestureAnglesDefaults.Bottom
-import hunoia.sideleap.constant.GestureAnglesDefaults.Left
-import hunoia.sideleap.constant.GestureAnglesDefaults.P1
-import hunoia.sideleap.constant.GestureAnglesDefaults.P2
-import hunoia.sideleap.constant.GestureAnglesDefaults.P3
-import hunoia.sideleap.constant.GestureAnglesDefaults.P4
-import hunoia.sideleap.constant.GestureAnglesDefaults.Right
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KProperty0
+
+object GestureAnglesDefaults {
+
+    val Left = GestureAngle()
+    val Right = GestureAngle()
+    val Bottom = GestureAngle(0.12f, 0.40f, 0.60f, 0.88f)
+    const val P1 = 0.12f
+    const val P2 = 0.40f
+    const val P3 = 0.70f
+    const val P4 = 0.88f
+}
 
 const val GESTURE_ANGLE_BASE = 180f
 
 @Serializable
 @Keep
 data class GestureAngles(
-    val left: GestureAngle = Left,
-    val right: GestureAngle = Right,
-    val bottom: GestureAngle = Bottom
+    val left: GestureAngle = GestureAnglesDefaults.Left,
+    val right: GestureAngle = GestureAnglesDefaults.Right,
+    val bottom: GestureAngle = GestureAnglesDefaults.Bottom
 )
 
 @Serializable
 @Keep
 data class GestureAngle(
-    val p1: Float = P1,
-    val p2: Float = P2,
-    val p3: Float = P3,
-    val p4: Float = P4
+    val p1: Float = GestureAnglesDefaults.P1,
+    val p2: Float = GestureAnglesDefaults.P2,
+    val p3: Float = GestureAnglesDefaults.P3,
+    val p4: Float = GestureAnglesDefaults.P4
 ) {
     val ps: List<Float> = listOf(p1, p2, p3, p4)
 

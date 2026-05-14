@@ -2,7 +2,7 @@ package hunoia.sideleap.entity
 
 import android.graphics.Bitmap
 import androidx.annotation.Keep
-import hunoia.sideleap.constant.ScaleableDefaults.DEFAULT_SCALE
+import hunoia.sideleap.entity.ScaleableDefaults.DEFAULT_SCALE
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 

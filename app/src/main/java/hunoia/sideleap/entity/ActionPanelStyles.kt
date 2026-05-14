@@ -1,22 +1,15 @@
 package hunoia.sideleap.entity
 
 import androidx.annotation.Keep
-import hunoia.sideleap.constant.ActionPanelStylesDefaults
-import hunoia.sideleap.constant.ActionPanelStylesDefaults.ArcStyleItemSize
-import hunoia.sideleap.constant.ActionPanelStylesDefaults.Type
+import com.blankj.utilcode.util.ConvertUtils
 import hunoia.sideleap.utils.JsonHelper
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/20
- */
-
 @Serializable
 @Keep
 data class ActionPanelStyles(
-    val type: Int = Type,
+    val type: Int = ActionPanelStylesDefaults.Type,
     val json: String = ""
 ) {
     companion object {
@@ -36,10 +29,18 @@ data class ActionPanelStyles(
     }
 }
 
+object ActionPanelStylesDefaults {
+
+    const val TYPE_ARC = 1
+
+    const val Type = TYPE_ARC
+    val ArcStyleItemSize = ConvertUtils.dp2px(48f)
+}
+
 sealed interface ActionPanelStyle
 
 @Serializable
 @Keep
 data class ArcStyle(
-    val itemSize: Int = ArcStyleItemSize
+    val itemSize: Int = ActionPanelStylesDefaults.ArcStyleItemSize
 ) : ActionPanelStyle
