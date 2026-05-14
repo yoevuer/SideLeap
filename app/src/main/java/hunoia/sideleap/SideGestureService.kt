@@ -22,15 +22,20 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
 import androidx.core.view.postDelayed
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.aaron.composeaccessibility.ComponentAccessibilityService
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
@@ -40,16 +45,17 @@ import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.event.WallpaperChangedEvent
 import hunoia.sideleap.ktx.SubscribeEvent
-import hunoia.sideleap.ktx.attachComposeOverlay
-import hunoia.sideleap.ktx.attachGestureButtons
 import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
-import hunoia.sideleap.ktx.removeWindow
-import hunoia.sideleap.ktx.removeWindows
+import hunoia.sideleap.system.window.removeWindow
+import hunoia.sideleap.system.window.removeWindows
+import hunoia.sideleap.system.window.setBasic
 import hunoia.sideleap.system.window.setFlags
 import hunoia.sideleap.system.window.updateGestureButton
+import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
-import hunoia.sideleap.ktx.updateLayout
+import hunoia.sideleap.ui.widget.GestureView
+import hunoia.sideleap.utils.MotionEventDispatcher
 import java.lang.ref.WeakReference
 import hunoia.sideleap.system.audio.volumeDown
 import hunoia.sideleap.system.audio.volumeUp
@@ -376,6 +382,48 @@ class SideGestureService : ComponentAccessibilityService() {
                     }
             }
         }
+    }
+
+    private fun attachComposeOverlay(content: @Composable () -> Unit): ComposeView {
+        val wm = ContextCompat.getSystemService(this, WindowManager::class.java)!!
+        val lp = WindowManager.LayoutParams().apply {
+            setBasic(false)
+            updateMainView()
+        }
+        val composeView = ComposeView(this).apply {
+            setViewTreeLifecycleOwner(this@SideGestureService)
+            setViewTreeViewModelStoreOwner(this@SideGestureService)
+            setViewTreeSavedStateRegistryOwner(this@SideGestureService)
+            setContent {
+                content()
+            }
+        }
+        wm.addView(composeView, lp)
+        return composeView
+    }
+
+    private fun attachGestureButtons(buttons: Collection<GestureButton>): List<View> {
+        return buttons.map { button ->
+            attachGestureButton(button)
+        }
+    }
+
+    private fun attachGestureButton(button: GestureButton): View {
+        val wm = ContextCompat.getSystemService(this, WindowManager::class.java)!!
+        val lp = WindowManager.LayoutParams().apply {
+            setBasic(button.enabled)
+            updateGestureButton(button)
+        }
+        val view = GestureView(this, button).apply {
+            tag = button
+            setOnTouchListener { v, event ->
+                MotionEventDispatcher.dispatch(event)
+                if (event.action == MotionEvent.ACTION_UP) v.performClick()
+                false
+            }
+        }
+        wm.addView(view, lp)
+        return view
     }
 
     private fun updateLayout() {
