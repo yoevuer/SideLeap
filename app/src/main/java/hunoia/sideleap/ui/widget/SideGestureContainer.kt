@@ -26,9 +26,10 @@ import hunoia.sideleap.R
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.entity.ActionPanelStyle
-import hunoia.sideleap.entity.AnimationStyle
-import hunoia.sideleap.entity.ArcStyle
+import hunoia.sideleap.settings.model.ActionPanelStyle
+import hunoia.sideleap.settings.model.ActionPanelStyles
+import hunoia.sideleap.settings.model.AnimationStyle
+import hunoia.sideleap.settings.model.ArcStyle
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
@@ -38,7 +39,7 @@ import hunoia.sideleap.gesture.TriggerDirection.Down
 import hunoia.sideleap.gesture.TriggerDirection.Down2
 import hunoia.sideleap.gesture.TriggerDirection.Up
 import hunoia.sideleap.gesture.TriggerDirection.Up2
-import hunoia.sideleap.entity.WaveStyle
+import hunoia.sideleap.settings.model.WaveStyle
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.GestureSettings

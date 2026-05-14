@@ -1,7 +1,6 @@
 package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
-import hunoia.sideleap.entity.Vibrations
 import hunoia.sideleap.gesture.GestureAngles
 import hunoia.sideleap.settings.GestureSettingsDefaults.Angles
 import hunoia.sideleap.settings.GestureSettingsDefaults.IsCustomVibration

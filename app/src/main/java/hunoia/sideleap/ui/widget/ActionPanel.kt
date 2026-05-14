@@ -65,10 +65,10 @@ import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
 import hunoia.sideleap.action.TriggerType
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.entity.ActionPanelStyle
-import hunoia.sideleap.entity.ArcStyle
+import hunoia.sideleap.settings.model.ActionPanelStyle
+import hunoia.sideleap.settings.model.ArcStyle
 import hunoia.sideleap.gesture.Position
-import hunoia.sideleap.entity.Vibrations
+import hunoia.sideleap.settings.model.Vibrations
 import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.action.appInfo

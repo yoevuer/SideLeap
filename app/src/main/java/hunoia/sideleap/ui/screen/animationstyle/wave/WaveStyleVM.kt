@@ -2,8 +2,8 @@ package hunoia.sideleap.ui.screen.animationstyle.wave
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.entity.AnimationStyles
-import hunoia.sideleap.entity.WaveStyle
+import hunoia.sideleap.settings.model.AnimationStyles
+import hunoia.sideleap.settings.model.WaveStyle
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleVM.UiEvent
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleVM.UiState
 import hunoia.sideleap.settings.SettingsProvider

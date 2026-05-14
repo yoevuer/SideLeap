@@ -2,8 +2,8 @@
 
 package hunoia.sideleap.settings
 
-import hunoia.sideleap.entity.ActionPanelStyles
-import hunoia.sideleap.entity.AnimationStyles
+import hunoia.sideleap.settings.model.ActionPanelStyles
+import hunoia.sideleap.settings.model.AnimationStyles
 import com.blankj.utilcode.util.ConvertUtils
 
 object AdvancedSettingsDefaults {
@@ -21,7 +21,7 @@ object AdvancedSettingsDefaults {
     const val HideTemporary = false
     const val ExcludeFromRecents = false
     const val DynamicColor = false
-    val DayNightMode = hunoia.sideleap.entity.DayNightMode.Auto
+    val DayNightMode = hunoia.sideleap.settings.model.DayNightMode.Auto
     val ClipApps = emptyMap<String, Float>()
     val ClipShortcuts = emptyMap<String, Float>()
 }
@@ -36,7 +36,7 @@ object GestureSettingsDefaults {
     const val LongSlideTriggerDelayMs = 100L
     const val IsCustomVibration = false
     const val IsPreciseSlideType = true
-    val Vibrations = hunoia.sideleap.entity.Vibrations()
+    val Vibrations = hunoia.sideleap.settings.model.Vibrations()
 }
 
 object InitialSettingsDefaults {

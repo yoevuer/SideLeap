@@ -54,13 +54,13 @@ import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.entity.MoveScreenData
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.DoubleTap
 import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.LongPress
 import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.Tap
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.system.vibration.tryVibrateForMoveScreen
+import hunoia.sideleap.action.MoveScreenData
 import hunoia.sideleap.core.serialization.JsonHelper
 import com.blankj.utilcode.util.ScreenUtils
 import kotlinx.coroutines.CoroutineScope

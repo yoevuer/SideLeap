@@ -1,4 +1,4 @@
-package hunoia.sideleap.entity
+package hunoia.sideleap.action
 
 import androidx.annotation.Keep
 import hunoia.sideleap.settings.model.ActionSettings

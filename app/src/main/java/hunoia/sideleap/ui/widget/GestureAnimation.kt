@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.dp
 import com.aaron.compose.ktx.toPx
-import hunoia.sideleap.entity.AnimationStyle
+import hunoia.sideleap.settings.model.AnimationStyle
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection.Center
 import hunoia.sideleap.gesture.TriggerDirection.Center2
@@ -22,7 +22,7 @@ import hunoia.sideleap.gesture.TriggerDirection.Down
 import hunoia.sideleap.gesture.TriggerDirection.Down2
 import hunoia.sideleap.gesture.TriggerDirection.Up
 import hunoia.sideleap.gesture.TriggerDirection.Up2
-import hunoia.sideleap.entity.WaveStyle
+import hunoia.sideleap.settings.model.WaveStyle
 import hunoia.sideleap.ktx.getIcon
 import hunoia.sideleap.ktx.getIconInitialRotation
 

@@ -38,10 +38,10 @@ import hunoia.sideleap.constant.GlobalSettings.MinBezierLength
 import hunoia.sideleap.constant.GlobalSettings.MinBezierStrokeWidth
 import hunoia.sideleap.constant.GlobalSettings.MinBezierWidth
 import hunoia.sideleap.constant.GlobalSettings.MinIconScale
-import hunoia.sideleap.entity.WaveStyle.Companion.ICON_TYPE_ANGLE
-import hunoia.sideleap.entity.WaveStyle.Companion.ICON_TYPE_ARROW
-import hunoia.sideleap.entity.WaveStyle.Companion.ICON_TYPE_ARROW_NEW
-import hunoia.sideleap.entity.WaveStyle.Companion.ICON_TYPE_TRIANGLE
+import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ANGLE
+import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW
+import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW_NEW
+import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_TRIANGLE
 import hunoia.sideleap.ktx.getWaveStyleIcon
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleVM.UiEvent
 import hunoia.sideleap.ui.theme.MinInteractiveSize

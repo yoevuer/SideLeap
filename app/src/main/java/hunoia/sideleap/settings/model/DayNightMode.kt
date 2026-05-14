@@ -1,4 +1,4 @@
-package hunoia.sideleap.entity
+package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
 

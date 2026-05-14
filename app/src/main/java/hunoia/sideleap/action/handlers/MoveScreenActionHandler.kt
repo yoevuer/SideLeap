@@ -8,10 +8,10 @@ import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.entity.MoveScreenData
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.system.accessibility.Accessibility
 import hunoia.sideleap.core.serialization.JsonHelper
+import hunoia.sideleap.action.MoveScreenData
 
 object MoveScreenActionHandler : ActionHandler {
 

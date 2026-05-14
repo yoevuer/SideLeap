@@ -1,9 +1,6 @@
 package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
-import hunoia.sideleap.entity.ActionPanelStyles
-import hunoia.sideleap.entity.AnimationStyles
-import hunoia.sideleap.entity.DayNightMode
 import hunoia.sideleap.settings.AdvancedSettingsDefaults.ActionPanelAppLongPressLaunchPopup
 import hunoia.sideleap.settings.AdvancedSettingsDefaults.ActionPanelStyles
 import hunoia.sideleap.settings.AdvancedSettingsDefaults.AnimationStyles

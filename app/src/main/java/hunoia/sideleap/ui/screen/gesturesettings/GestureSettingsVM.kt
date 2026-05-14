@@ -3,11 +3,11 @@ package hunoia.sideleap.ui.screen.gesturesettings
 import android.os.Build
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.entity.VibrationEffects
-import hunoia.sideleap.entity.Vibrations
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiState
 import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.model.VibrationEffects
+import hunoia.sideleap.settings.model.Vibrations
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

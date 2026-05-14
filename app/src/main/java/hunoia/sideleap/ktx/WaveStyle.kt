@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import hunoia.sideleap.gesture.Position
-import hunoia.sideleap.entity.WaveStyle
+import hunoia.sideleap.settings.model.WaveStyle
 
 /**
  * @author DS-Z

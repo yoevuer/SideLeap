@@ -11,7 +11,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
-import hunoia.sideleap.entity.DayNightMode
+import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.ui.SideGestureApp
 import hunoia.sideleap.settings.SettingsProvider
 import kotlinx.coroutines.flow.collectLatest

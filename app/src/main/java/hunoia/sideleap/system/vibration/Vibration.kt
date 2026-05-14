@@ -3,7 +3,7 @@ package hunoia.sideleap.system.vibration
 import android.Manifest.permission.VIBRATE
 import androidx.annotation.RequiresPermission
 import hunoia.sideleap.App
-import hunoia.sideleap.entity.Vibrations
+import hunoia.sideleap.settings.model.Vibrations
 
 @RequiresPermission(VIBRATE)
 fun Vibrations.tryVibrateForSlide() {

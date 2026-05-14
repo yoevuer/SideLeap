@@ -31,13 +31,13 @@ import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalSettings.getDayNightModeText
-import hunoia.sideleap.entity.DayNightMode
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.EdgeMenuPadding
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.SectionPadding
+import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.ui.widget.MyColumn
 import hunoia.sideleap.ui.widget.MyAlertDialog
 import hunoia.sideleap.ui.widget.SectionCard
