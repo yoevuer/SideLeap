@@ -29,7 +29,7 @@ import hunoia.sideleap.ktx.subscribeEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState
 import hunoia.sideleap.utils.AppInfoUtils
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.JsonHelper
 import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.launcher.query.ShortcutQuery
@@ -418,14 +418,13 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     private fun loadData() {
         viewModelScope.launch {
             val buttons = if (actionSelect.isSideButton) {
-                DataStoreHolder.sideGestureButtons
+                SettingsProvider.sideGestureButtons
             } else {
-                DataStoreHolder.bottomGestureButtons
+                SettingsProvider.bottomGestureButtons
             }
-            DataStoreHolder
+            SettingsProvider
                 .gestureSettings
-                .data
-                .combine(buttons.data) { f1, f2 ->
+                .combine(buttons) { f1, f2 ->
                     f1 to f2
                 }
                 .take(1)
@@ -498,12 +497,12 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
 
     private fun saveSettings() {
         viewModelScope.launch {
-            val buttons = if (actionSelect.isSideButton) {
-                DataStoreHolder.sideGestureButtons
+            val buttonsUpdater = if (actionSelect.isSideButton) {
+                SettingsProvider::updateSideGestureButtons
             } else {
-                DataStoreHolder.bottomGestureButtons
+                SettingsProvider::updateBottomGestureButtons
             }
-            buttons.updateData { list ->
+            buttonsUpdater { list ->
                 val mutableList = list.toMutableList()
                 val actionSelect = actionSelect
                 var button: GestureButton? = null
@@ -519,7 +518,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
                     }
                 }
                 if (button == null) {
-                    return@updateData mutableList
+                    return@buttonsUpdater mutableList
                 }
                 val selectedRecord = uiState.selectedRecord
                 val selectedList = selectedRecord.list.map { obj ->

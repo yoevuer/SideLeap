@@ -56,7 +56,7 @@ import hunoia.sideleap.system.audio.volumeUp
 import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import hunoia.sideleap.ui.widget.SideGestureContainer
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.Events
 import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.overlay.QuickAppLauncherOverlay
@@ -229,28 +229,23 @@ class SideGestureService : ComponentAccessibilityService() {
             key(key) {
                 SideGestureTheme {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        val sideButtons by DataStoreHolder
+                        val sideButtons by SettingsProvider
                             .sideGestureButtons
-                            .data
                             .collectAsStateWithLifecycle(initialValue = emptyList())
-                        val bottomButtons by DataStoreHolder
+                        val bottomButtons by SettingsProvider
                             .bottomGestureButtons
-                            .data
                             .collectAsStateWithLifecycle(initialValue = emptyList())
-                        val advancedSettings by DataStoreHolder
+                        val advancedSettings by SettingsProvider
                             .advancedSettings
-                            .data
                             .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
-                        val gestureSettings by DataStoreHolder
+                        val gestureSettings by SettingsProvider
                             .gestureSettings
-                            .data
                             .collectAsStateWithLifecycle(initialValue = GestureSettings())
                         val imePadding by imeInsetObserver
                             .flow
                             .collectAsStateWithLifecycle()
-                        val actionSettings by DataStoreHolder
+                        val actionSettings by SettingsProvider
                             .actionSettings
-                            .data
                             .collectAsStateWithLifecycle(initialValue = ActionSettings())
                         SideGestureContainer(
                             modifier = Modifier.matchParentSize(),
@@ -275,33 +270,29 @@ class SideGestureService : ComponentAccessibilityService() {
         coroutineScope.launch(Dispatchers.Main.immediate) {
             // 监听全局配置修改
             launch {
-                DataStoreHolder
+                SettingsProvider
                     .initialSettings
-                    .data
                     .collectLatest {
                         initialSettings = it
                     }
             }
             launch {
-                DataStoreHolder
+                SettingsProvider
                     .advancedSettings
-                    .data
                     .collectLatest {
                         advancedSettings = it
                     }
             }
             launch {
-                DataStoreHolder
+                SettingsProvider
                     .gestureSettings
-                    .data
                     .collectLatest {
                         gestureSettings = it
                     }
             }
             launch {
-                DataStoreHolder
+                SettingsProvider
                     .actionSettings
-                    .data
                     .collectLatest {
                         actionSettings = it
                     }
@@ -309,10 +300,9 @@ class SideGestureService : ComponentAccessibilityService() {
 
             // 监听触钮修改
             launch {
-                DataStoreHolder
+                SettingsProvider
                     .sideGestureButtons
-                    .data
-                    .combine(DataStoreHolder.bottomGestureButtons.data) { l1, l2 ->
+                    .combine(SettingsProvider.bottomGestureButtons) { l1, l2 ->
                         l1 + l2
                     }
                     .collectLatest { buttons ->
@@ -326,9 +316,8 @@ class SideGestureService : ComponentAccessibilityService() {
             }
             // 监听手势开关
             launch {
-                DataStoreHolder
+                SettingsProvider
                     .initialSettings
-                    .data
                     .distinctUntilChangedBy {
                         it.gestureEnabled
                     }
@@ -338,9 +327,8 @@ class SideGestureService : ComponentAccessibilityService() {
             }
             // 监听手势临时隐藏
             launch {
-                DataStoreHolder
+                SettingsProvider
                     .advancedSettings
-                    .data
                     .distinctUntilChangedBy {
                         it.hideTemporary
                     }
@@ -374,9 +362,8 @@ class SideGestureService : ComponentAccessibilityService() {
                 }
             }
             launch {
-                DataStoreHolder
+                SettingsProvider
                     .advancedSettings
-                    .data
                     .distinctUntilChangedBy {
                         it.fitSoftKeyboard
                     }
@@ -431,7 +418,7 @@ class SideGestureService : ComponentAccessibilityService() {
                         view.setOnClickListener(null)
                     }
 
-                    val initialSettings = DataStoreHolder.initialSettings.data.first()
+                    val initialSettings = SettingsProvider.getInitialSettings()
                     if (!initialSettings.gestureEnabled) {
                         setFlags(false)
                     } else {

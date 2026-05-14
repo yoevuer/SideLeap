@@ -7,7 +7,7 @@ import hunoia.sideleap.entity.VibrationEffects
 import hunoia.sideleap.entity.Vibrations
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiState
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -27,7 +27,7 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         viewModelScope.launch {
             val uiState = uiState
             launch {
-                DataStoreHolder.gestureSettings.updateData {
+                SettingsProvider.updateGestureSettings {
                     it.copy(
                         slideTriggerDistance = uiState.slideTriggerDistance.toInt(),
                         longPressTriggerDelayMs = uiState.longPressTriggerDelayMs,
@@ -131,9 +131,8 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun loadData() {
         viewModelScope.launch {
-            DataStoreHolder
+            SettingsProvider
                 .gestureSettings
-                .data
                 .collectLatest { item ->
                     updateUiState {
                         it.copy(

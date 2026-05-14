@@ -8,7 +8,7 @@ import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiEvent
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiState
 import hunoia.sideleap.utils.AppInfoUtils
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -48,7 +48,7 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun done() {
         viewModelScope.launch {
-            DataStoreHolder.advancedSettings.updateData {
+            SettingsProvider.updateAdvancedSettings {
                 it.copy(excludeApps = uiState.excludeApps)
             }
         }.invokeOnCompletion {
@@ -63,7 +63,7 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun reset() {
         viewModelScope.launch {
-            DataStoreHolder.advancedSettings.updateData {
+            SettingsProvider.updateAdvancedSettings {
                 it.copy(excludeApps = emptyList())
             }
         }.invokeOnCompletion {
@@ -100,9 +100,8 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun loadData() {
         viewModelScope.launch {
-            DataStoreHolder
+            SettingsProvider
                 .advancedSettings
-                .data
                 .take(1)
                 .collectLatest { item ->
                     updateUiState {

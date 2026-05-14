@@ -125,7 +125,7 @@ object FreezeAction {
     }
 
     suspend fun oneKeyFreeze(context: Context): OneKeyFreezeResult = withContext(Dispatchers.IO) {
-        val settings = hunoia.sideleap.utils.DataStoreHolder.frozenAppSettings.data.first()
+        val settings = hunoia.sideleap.settings.SettingsProvider.getFrozenAppSettings()
         val showSystemApps = settings.showSystemAppsInManagePage
         val oneKeySet = settings.oneKeyPackageNames
         val protectedSet = settings.protectedPackageNames

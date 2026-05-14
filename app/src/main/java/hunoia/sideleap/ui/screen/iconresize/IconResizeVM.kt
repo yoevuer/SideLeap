@@ -13,7 +13,7 @@ import hunoia.sideleap.launcher.util.IconResizeCache
 import hunoia.sideleap.event.IconResizeEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiState
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.Events
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
@@ -109,7 +109,7 @@ class IconResizeVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState, 
             val uiState = uiState
             val ids = uiState.ids
             val scaleFactors = uiState.scaleFactors
-            DataStoreHolder.advancedSettings.updateData {
+            SettingsProvider.updateAdvancedSettings {
                 val newClipApps = it.clipApps.toMutableMap()
                 val newClipShortcuts = it.clipShortcuts.toMutableMap()
                 ids.forEach { id ->
@@ -141,9 +141,8 @@ class IconResizeVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState, 
 
     private fun loadData() {
         viewModelScope.launch {
-            DataStoreHolder
+            SettingsProvider
                 .advancedSettings
-                .data
                 .take(1)
                 .collectLatest { advancedSettings ->
                     val clipApps = advancedSettings.clipApps

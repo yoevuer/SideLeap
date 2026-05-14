@@ -23,13 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import hunoia.sideleap.entity.QuickAppLauncherSettings
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
 internal fun QuickAppLauncherAdjustPanel(onSettingsChanged: (QuickAppLauncherSettings) -> Unit) {
-    val settings by DataStoreHolder.quickAppLauncherSettings.data.collectAsState(initial = QuickAppLauncherSettings())
+    val settings by SettingsProvider.quickAppLauncherSettings.collectAsState(initial = QuickAppLauncherSettings())
     val coroutineScope = rememberCoroutineScope()
     var activeLabel by remember { mutableStateOf<String?>(null) }
 
@@ -42,31 +42,31 @@ internal fun QuickAppLauncherAdjustPanel(onSettingsChanged: (QuickAppLauncherSet
             AdjustSlider("位置高度", settings.panelHeightFraction, 0.05f, 0.9f, activeLabel, { activeLabel = it }) { value ->
                 val next = settings.copy(panelHeightFraction = value)
                 onSettingsChanged(next)
-                coroutineScope.launch { DataStoreHolder.quickAppLauncherSettings.updateData { next } }
+                coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
             }
             Spacer(modifier = Modifier.height(12.dp))
             AdjustSlider("内部高度", settings.contentHeightFraction, 0.35f, 0.9f, activeLabel, { activeLabel = it }) { value ->
                 val next = settings.copy(contentHeightFraction = value)
                 onSettingsChanged(next)
-                coroutineScope.launch { DataStoreHolder.quickAppLauncherSettings.updateData { next } }
+                coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
             }
             Spacer(modifier = Modifier.height(12.dp))
             AdjustSlider("宽度", settings.panelWidthFraction, 0.65f, 1.0f, activeLabel, { activeLabel = it }) { value ->
                 val next = settings.copy(panelWidthFraction = value)
                 onSettingsChanged(next)
-                coroutineScope.launch { DataStoreHolder.quickAppLauncherSettings.updateData { next } }
+                coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
             }
             Spacer(modifier = Modifier.height(12.dp))
             AdjustSlider("水平位置", settings.panelHorizontalBias, 0.0f, 1.0f, activeLabel, { activeLabel = it }) { value ->
                 val next = settings.copy(panelHorizontalBias = value)
                 onSettingsChanged(next)
-                coroutineScope.launch { DataStoreHolder.quickAppLauncherSettings.updateData { next } }
+                coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
             }
             Spacer(modifier = Modifier.height(12.dp))
             AdjustSlider("候选应用行数", settings.candidateRows.toFloat(), 1f, 3f, activeLabel, { activeLabel = it }, valueFormatter = { it.roundToInt().toString() }) { value ->
                 val next = settings.copy(candidateRows = value.roundToInt().coerceIn(1, 3))
                 onSettingsChanged(next)
-                coroutineScope.launch { DataStoreHolder.quickAppLauncherSettings.updateData { next } }
+                coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
             }
             if (activeLabel == null) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -81,7 +81,7 @@ internal fun QuickAppLauncherAdjustPanel(onSettingsChanged: (QuickAppLauncherSet
                             panelHorizontalBias = 0.5f,
                         )
                         onSettingsChanged(next)
-                        coroutineScope.launch { DataStoreHolder.quickAppLauncherSettings.updateData { next } }
+                        coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
                     }
                 ) {
                     Text("重置布局", color = MaterialTheme.colorScheme.onSurface)

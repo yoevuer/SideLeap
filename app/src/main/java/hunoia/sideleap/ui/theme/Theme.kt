@@ -8,13 +8,12 @@ import hunoia.sideleap.entity.DayNightMode
 import hunoia.sideleap.entity.global.AdvancedSettings
 import hunoia.sideleap.ui.theme.generator.AppTheme
 import hunoia.sideleap.ui.widget.ComposeToast
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 
 @Composable
 fun SideGestureTheme(content: @Composable () -> Unit) {
-    val advancedSettings by DataStoreHolder
+    val advancedSettings by SettingsProvider
         .advancedSettings
-        .data
         .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
     val darkTheme = when (advancedSettings.dayNightMode) {
         DayNightMode.Auto -> isSystemInDarkTheme()

@@ -69,7 +69,7 @@ import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.ktx.launchAppInfo
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.utils.updateQuickAppLauncherStats
 import com.blankj.utilcode.util.ScreenUtils
@@ -163,7 +163,7 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
 
         service.coroutineScope.launch {
             val initialSettings = kotlinx.coroutines.withContext(Dispatchers.IO) {
-                DataStoreHolder.quickAppLauncherSettings.data.first()
+                SettingsProvider.getQuickAppLauncherSettings()
             }
             kotlinx.coroutines.withContext(Dispatchers.Main.immediate) {
             val wm = ContextCompat.getSystemService(service, WindowManager::class.java)!!

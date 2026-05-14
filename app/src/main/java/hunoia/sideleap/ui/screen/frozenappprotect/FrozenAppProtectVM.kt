@@ -7,7 +7,7 @@ import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.global.FrozenAppSettings
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.freeze.FreezeAction
 import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.ui.widget.showComposeToast
@@ -23,7 +23,7 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
 
     init {
         viewModelScope.launch {
-            DataStoreHolder.frozenAppSettings.data.collectLatest { settings ->
+            SettingsProvider.frozenAppSettings.collectLatest { settings ->
                 val showSystemAppsChanged = uiState.showSystemApps != settings.showSystemAppsInProtectPage
                 updateUiState {
                     it.copy(
@@ -47,7 +47,7 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
 
     fun onShowSystemAppsChange(show: Boolean) {
         viewModelScope.launch {
-            DataStoreHolder.frozenAppSettings.updateData {
+            SettingsProvider.updateFrozenAppSettings {
                 it.copy(showSystemAppsInProtectPage = show)
             }
         }
@@ -55,7 +55,7 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
 
     fun onProtectedChecked(packageName: String, checked: Boolean) {
         viewModelScope.launch {
-            DataStoreHolder.frozenAppSettings.updateData { settings ->
+            SettingsProvider.updateFrozenAppSettings { settings ->
                 val protected = settings.protectedPackageNames.toMutableSet()
                 val oneKey = settings.oneKeyPackageNames.toMutableSet()
                 if (checked) {

@@ -67,7 +67,7 @@ import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.QuickAppLauncherSettings
 import hunoia.sideleap.utils.AppInfoUtils
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.utils.key
 import hunoia.sideleap.freeze.FreezeState
@@ -100,7 +100,7 @@ internal fun QuickAppLauncherContent(
     var keyboardExpanded by remember { mutableStateOf(true) }
     var panelVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        DataStoreHolder.quickAppLauncherSettings.data.collectLatest { launcherSettings = it }
+        SettingsProvider.quickAppLauncherSettings.collectLatest { launcherSettings = it }
     }
     LaunchedEffect(launcherSettings.showSystemApps) {
         val state = kotlinx.coroutines.withContext(Dispatchers.IO) {

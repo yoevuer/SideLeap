@@ -5,7 +5,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.QuickAppLauncherSettings
 import hunoia.sideleap.utils.AppInfoUtils
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.freeze.FreezeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -20,7 +20,7 @@ class QuickAppLauncherManageVM : BaseComposeVM<QuickAppLauncherManageVM.UiState,
     fun load() = viewModelScope.launch {
         val context = hunoia.sideleap.App.getContext()
         val (settings, normalApps, frozenApps) = withContext(Dispatchers.IO) {
-            val s = DataStoreHolder.quickAppLauncherSettings.data.first()
+            val s = SettingsProvider.getQuickAppLauncherSettings()
             val normal = AppInfoUtils.queryLauncherActivities(context, false, s.showSystemApps)
             val frozen = FreezeState.queryFrozenApplications(context, s.showSystemApps)
             Triple(s, normal, frozen)
@@ -33,14 +33,14 @@ class QuickAppLauncherManageVM : BaseComposeVM<QuickAppLauncherManageVM.UiState,
         updateUiState { it.copy(apps = mergedApps, settings = settings) }
     }
     fun setHidden(app: AppInfo, hide: Boolean) = viewModelScope.launch {
-        DataStoreHolder.quickAppLauncherSettings.updateData {
+        SettingsProvider.updateQuickAppLauncherSettings {
             it.copy(hiddenApps = if (hide) it.hiddenApps + app.key() else it.hiddenApps - app.key())
         }
         load()
     }
 
     fun clearStats() = viewModelScope.launch {
-        DataStoreHolder.quickAppLauncherSettings.updateData { it.copy(recentLaunchTime = emptyMap(), launchCount = emptyMap()) }
+        SettingsProvider.updateQuickAppLauncherSettings { it.copy(recentLaunchTime = emptyMap(), launchCount = emptyMap()) }
         load()
     }
     private fun AppInfo.key() = "$packageName/$className"

@@ -13,7 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import hunoia.sideleap.entity.DayNightMode
 import hunoia.sideleap.ui.SideGestureApp
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            DataStoreHolder.advancedSettings.data.collectLatest { item ->
+            SettingsProvider.advancedSettings.collectLatest { item ->
                 am.appTasks.firstOrNull()?.setExcludeFromRecents(item.excludeFromRecents)
                 myEnableEdgeToEdge(item.dayNightMode)
             }

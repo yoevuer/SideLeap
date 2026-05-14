@@ -5,7 +5,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.entity.global.ActionSettings
 import hunoia.sideleap.ui.dialog.ActionSettingsVM.UiEvent
 import hunoia.sideleap.ui.dialog.ActionSettingsVM.UiState
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -72,7 +72,7 @@ class ActionSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun saveSettings() {
         viewModelScope.launchWithLoading {
-            DataStoreHolder.actionSettings.updateData {
+            SettingsProvider.updateActionSettings {
                 uiState.actionSettings
             }
         }
@@ -80,9 +80,8 @@ class ActionSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun loadData() {
         viewModelScope.launch {
-            DataStoreHolder
+            SettingsProvider
                 .actionSettings
-                .data
                 .take(1)
                 .collectLatest { actionSettings ->
                     updateUiState {
