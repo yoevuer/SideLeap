@@ -1,16 +1,12 @@
-package hunoia.sideleap.utils
+package hunoia.sideleap.system.intent
 
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import hunoia.sideleap.R
+import hunoia.sideleap.system.feedback.showToast
 import com.blankj.utilcode.util.RomUtils
 
-
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/8
- */
 object KeepAliveHelper {
 
     fun gotoSettings(context: Context) {
@@ -90,9 +86,6 @@ object KeepAliveHelper {
         }
     }
 
-    /**
-     * 跳转到指定应用的首页
-     */
     private fun showActivity(context: Context, packageName: String) {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) {
@@ -100,9 +93,6 @@ object KeepAliveHelper {
         }
     }
 
-    /**
-     * 跳转到指定应用的指定页面
-     */
     private fun showActivity(context: Context, packageName: String, activityDir: String) {
         val intent = Intent().apply {
             setComponent(ComponentName(packageName, activityDir))
@@ -110,5 +100,4 @@ object KeepAliveHelper {
         }
         context.startActivity(intent)
     }
-
 }

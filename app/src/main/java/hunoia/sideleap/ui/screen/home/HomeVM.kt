@@ -12,7 +12,7 @@ import hunoia.sideleap.ktx.isAccessibilitySettingsOn
 import hunoia.sideleap.ktx.isIgnoringBatteryOptimizations
 import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent
 import hunoia.sideleap.ui.screen.home.HomeVM.UiState
-import hunoia.sideleap.utils.BackupHelper
+import hunoia.sideleap.settings.BackupHelper
 import hunoia.sideleap.settings.SettingsProvider
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers

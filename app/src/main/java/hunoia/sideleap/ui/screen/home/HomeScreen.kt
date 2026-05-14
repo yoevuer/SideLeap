@@ -74,7 +74,7 @@ import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.TextActionButton
 import hunoia.sideleap.ui.widget.LabeledSwitch
 import hunoia.sideleap.ui.widget.TopBar
-import hunoia.sideleap.utils.KeepAliveHelper
+import hunoia.sideleap.system.intent.KeepAliveHelper
 import com.blankj.utilcode.util.TimeUtils
 
 /**
