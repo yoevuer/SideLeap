@@ -7,8 +7,8 @@ import androidx.annotation.StringRes
 import androidx.core.os.postDelayed
 import hunoia.sideleap.App
 import hunoia.sideleap.R
-import hunoia.sideleap.ui.widget.ToastDuration
-import hunoia.sideleap.ui.widget.showComposeToast
+import hunoia.sideleap.system.feedback.ToastDuration
+import hunoia.sideleap.system.feedback.showComposeToast
 
 /**
  * @author aaronzzxup@gmail.com

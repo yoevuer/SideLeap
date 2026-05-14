@@ -1,0 +1,48 @@
+@file:OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
+
+package hunoia.sideleap.system.feedback
+
+import androidx.annotation.StringRes
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+
+enum class ToastDuration {
+    Short, Long
+}
+
+private fun getTimeMillis(duration: ToastDuration): Long {
+    return when (duration) {
+        ToastDuration.Short -> TOAST_SHORT
+        ToastDuration.Long -> TOAST_LONG
+    }
+}
+
+fun showComposeToast(@StringRes resId: Int, duration: ToastDuration = ToastDuration.Short) {
+    GlobalScope.launch {
+        channel.send(ToastData(resId = resId, duration = getTimeMillis(duration)))
+    }
+}
+
+fun showComposeToast(text: String, duration: ToastDuration = ToastDuration.Short) {
+    GlobalScope.launch {
+        channel.send(ToastData(text = text, duration = getTimeMillis(duration)))
+    }
+}
+
+class ToastData(
+    @StringRes val resId: Int = 0,
+    val text: String = "",
+    val duration: Long = TOAST_SHORT
+) {
+    companion object {
+        val None = ToastData()
+    }
+
+    val isEmpty: Boolean = resId == 0 && text.isEmpty()
+}
+
+internal val channel = Channel<ToastData>()
+
+private const val TOAST_SHORT = 2000L
+private const val TOAST_LONG = 3500L

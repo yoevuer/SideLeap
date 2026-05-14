@@ -63,6 +63,7 @@ import com.aaron.compose.ktx.toPx
 
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
+import hunoia.sideleap.action.TriggerType
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.ActionPanelStyle
 import hunoia.sideleap.entity.ArcStyle
@@ -467,8 +468,4 @@ class ActionPanelState(private val coroutineScope: CoroutineScope) : LongSlideSt
     /**
      * 用于实现短按和长按
      */
-    enum class TriggerType {
-
-        Press, LongPress
-    }
 }

@@ -6,8 +6,6 @@ import android.os.Looper
 import androidx.annotation.StringRes
 import androidx.core.os.postDelayed
 import hunoia.sideleap.R
-import hunoia.sideleap.ui.widget.ToastDuration
-import hunoia.sideleap.ui.widget.showComposeToast
 
 private const val DELAYED_MILLIS = 2000L
 

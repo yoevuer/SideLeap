@@ -14,7 +14,7 @@ import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
-import hunoia.sideleap.ui.widget.ActionPanelState
+import hunoia.sideleap.action.TriggerType
 import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -68,11 +68,11 @@ object AppLaunchActionHandler : ActionHandler {
         val appInfo = action.appInfo
         if (appInfo != null) {
             val longPressLaunchPopup = advancedSettings.actionPanelAppLongPressLaunchPopup
-            val triggerType = action.extra as? ActionPanelState.TriggerType
+            val triggerType = action.extra as? TriggerType
             val miniWindow = triggerType?.let {
                 when (it) {
-                    ActionPanelState.TriggerType.Press -> !longPressLaunchPopup
-                    ActionPanelState.TriggerType.LongPress -> longPressLaunchPopup
+                    TriggerType.Press -> !longPressLaunchPopup
+                    TriggerType.LongPress -> longPressLaunchPopup
                 }
             } ?: appInfo.miniWindow
             launchAppWithFrozenSupport(context, appInfo, miniWindow)

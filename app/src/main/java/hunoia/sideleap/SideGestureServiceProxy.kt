@@ -45,7 +45,7 @@ import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.system.audio.toggleMute
 import hunoia.sideleap.system.audio.volumeDown
 import hunoia.sideleap.system.audio.volumeUp
-import hunoia.sideleap.ui.widget.ActionPanelState.TriggerType
+
 
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
