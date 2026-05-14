@@ -1,4 +1,4 @@
-package hunoia.sideleap.ktx
+package hunoia.sideleap.launcher.ext
 
 import android.content.ComponentName
 import android.content.Context
@@ -14,14 +14,9 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.drawable.updateBounds
 import androidx.core.graphics.scale
-import hunoia.sideleap.launcher.model.LauncherInfo
 import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.launcher.model.LauncherInfo
 import kotlin.math.min
-
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/3
- */
 
 val LauncherInfo.componentName: ComponentName get() = ComponentName.createRelative(packageName, className)
 

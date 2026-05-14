@@ -21,9 +21,9 @@ import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
 import hunoia.sideleap.event.IconResizeEvent
 import hunoia.sideleap.ktx.appInfo
-import hunoia.sideleap.ktx.getIcon
-import hunoia.sideleap.ktx.qualifiedName
-import hunoia.sideleap.ktx.qualifiedNameWithIntents
+import hunoia.sideleap.launcher.ext.getIcon
+import hunoia.sideleap.launcher.ext.qualifiedName
+import hunoia.sideleap.launcher.ext.qualifiedNameWithIntents
 import hunoia.sideleap.ktx.shortcutInfo
 import hunoia.sideleap.ktx.subscribeEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent

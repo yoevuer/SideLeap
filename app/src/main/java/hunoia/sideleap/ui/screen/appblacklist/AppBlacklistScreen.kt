@@ -53,8 +53,8 @@ import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ktx.deniedForever
 import hunoia.sideleap.ktx.gotoAppDetailSettings
-import hunoia.sideleap.ktx.icon
-import hunoia.sideleap.ktx.qualifiedName
+import hunoia.sideleap.launcher.ext.icon
+import hunoia.sideleap.launcher.ext.qualifiedName
 import hunoia.sideleap.ktx.rememberGetInstalledAppsPermissionState
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVertical
