@@ -71,7 +71,6 @@ import hunoia.sideleap.entity.Vibrations
 import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.action.appInfo
-import hunoia.sideleap.ktx.isMiniWindow
 import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.ktx.toIntOffset
 import hunoia.sideleap.system.vibration.tryVibrateForActionPanel

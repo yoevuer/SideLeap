@@ -1,4 +1,4 @@
-package hunoia.sideleap.ktx
+package hunoia.sideleap.gesture
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
@@ -6,15 +6,8 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.stringResource
 import hunoia.sideleap.R
-import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.action.display.actionTextCompose
-import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.system.window.rootSize
-
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/18
- */
 
 @Composable
 fun GestureButton.buttonTextCompose(): String {

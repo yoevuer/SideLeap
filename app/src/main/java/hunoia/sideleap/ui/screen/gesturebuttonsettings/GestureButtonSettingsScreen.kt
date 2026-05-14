@@ -47,7 +47,7 @@ import hunoia.sideleap.gesture.TriggerDirection.Down2
 import hunoia.sideleap.gesture.TriggerDirection.Up
 import hunoia.sideleap.gesture.TriggerDirection.Up2
 import hunoia.sideleap.action.display.actionTextCompose
-import hunoia.sideleap.ktx.bounds
+import hunoia.sideleap.gesture.bounds
 import hunoia.sideleap.ui.theme.IconTextPadding
 import hunoia.sideleap.ui.theme.MarkColorSize
 import hunoia.sideleap.ui.theme.SectionPadding

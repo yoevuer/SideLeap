@@ -1,11 +1,4 @@
-package hunoia.sideleap.ktx
-
-import hunoia.sideleap.ui.widget.ActionPanelState
-
-/**
- * @author DS-Z
- * @since 2025/6/30
- */
+package hunoia.sideleap.ui.widget
 
 fun ActionPanelState.TriggerType.isMiniWindow(longPressLaunchPopup: Boolean): Boolean {
     return when (this) {

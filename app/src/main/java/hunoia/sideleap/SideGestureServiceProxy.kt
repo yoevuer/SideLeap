@@ -38,7 +38,6 @@ import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
 import hunoia.sideleap.ktx.gotoAppDetailSettings
-import hunoia.sideleap.ktx.isMiniWindow
 
 import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat

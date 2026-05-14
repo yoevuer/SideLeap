@@ -12,7 +12,7 @@ import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.action.appInfo
-import hunoia.sideleap.ktx.isMiniWindow
+import hunoia.sideleap.ui.widget.isMiniWindow
 import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.widget.ActionPanelState

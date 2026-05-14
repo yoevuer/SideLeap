@@ -11,7 +11,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.constant.GlobalSettings.MinGestureButtonLength
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
-import hunoia.sideleap.ktx.fraction
+import hunoia.sideleap.gesture.fraction
 import hunoia.sideleap.system.window.rootSize
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsVM.UiState
