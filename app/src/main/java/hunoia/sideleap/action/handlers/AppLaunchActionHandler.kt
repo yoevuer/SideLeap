@@ -13,8 +13,7 @@ import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.ktx.appInfo
 import hunoia.sideleap.ktx.isMiniWindow
-import hunoia.sideleap.ktx.launchAppInPopup
-import hunoia.sideleap.ktx.launchOpenAppOrUrl
+import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.widget.ActionPanelState
 import hunoia.sideleap.utils.JsonHelper
@@ -58,7 +57,7 @@ object AppLaunchActionHandler : ActionHandler {
                 .firstOrNull()
             val className = resolveInfo?.activityInfo?.name
             if (!className.isNullOrEmpty()) {
-                context.appContext.launchAppInPopup(curPkgName, className)
+                Launcher.launchAppInPopup(context.appContext, curPkgName, className)
             }
         } else {
             context.showVersionTooLowToast(R.string.action_popup_screen)
@@ -95,7 +94,7 @@ object AppLaunchActionHandler : ActionHandler {
                         }
                     }
                 }
-                else -> context.appContext.launchOpenAppOrUrl(data)
+                else -> Launcher.launchOpenAppOrUrl(context.appContext, data)
             }
         }
     }

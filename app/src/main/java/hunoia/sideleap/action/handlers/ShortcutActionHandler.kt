@@ -5,7 +5,7 @@ import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.ktx.launchShortcutInfo
+import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.ktx.shortcutInfo
 
 object ShortcutActionHandler : ActionHandler {
@@ -17,7 +17,7 @@ object ShortcutActionHandler : ActionHandler {
             GlobalActions.EXTRA_LAUNCH_SHORTCUT -> {
                 val shortcutInfo = action.shortcutInfo
                 if (shortcutInfo != null) {
-                    context.appContext.launchShortcutInfo(shortcutInfo)
+                    Launcher.launchShortcutInfo(context.appContext, shortcutInfo)
                 }
             }
             else -> return ActionExecutionResult.Ignored

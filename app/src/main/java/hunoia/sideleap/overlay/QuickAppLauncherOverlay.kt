@@ -68,7 +68,7 @@ import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
 import hunoia.sideleap.launcher.model.AppInfo
-import hunoia.sideleap.ktx.launchAppInfo
+import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.utils.updateQuickAppLauncherStats
@@ -210,7 +210,7 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
                                 val now = System.currentTimeMillis()
                                 val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
                                 LauncherDiagnostics.d(service,"appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
-                                val success = service.launchAppInfo(appInfo, miniWindow)
+                                val success = Launcher.launchAppInfo(service, appInfo, miniWindow)
                                 LauncherDiagnostics.d(service,"appClick: ${appInfo.label} launchResult=$success")
                                 if (success) {
                                     service.updateQuickAppLauncherStats(appInfo)

@@ -39,11 +39,7 @@ import hunoia.sideleap.ktx.appInfo
 import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
 import hunoia.sideleap.ktx.gotoAppDetailSettings
 import hunoia.sideleap.ktx.isMiniWindow
-import hunoia.sideleap.ktx.launchAppInPopup
-import hunoia.sideleap.ktx.launchOpenAppOrUrl
-import hunoia.sideleap.system.intent.launchAssist
-import hunoia.sideleap.ktx.launchShortcutInfo
-import hunoia.sideleap.system.intent.launchUrl
+
 import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ktx.shortcutInfo
