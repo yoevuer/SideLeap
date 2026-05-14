@@ -1,4 +1,4 @@
-package hunoia.sideleap.ktx
+package hunoia.sideleap.ui.screen.animationstyle.wave
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward

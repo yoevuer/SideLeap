@@ -1,4 +1,4 @@
-package hunoia.sideleap.ktx
+package hunoia.sideleap.settings.internal
 
 import android.content.Context
 import androidx.datastore.core.DataStore

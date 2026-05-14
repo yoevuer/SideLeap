@@ -25,7 +25,7 @@ import hunoia.sideleap.launcher.ext.getIcon
 import hunoia.sideleap.launcher.ext.qualifiedName
 import hunoia.sideleap.launcher.ext.qualifiedNameWithIntents
 import hunoia.sideleap.action.shortcutInfo
-import hunoia.sideleap.ktx.subscribeEvent
+import hunoia.sideleap.ui.event.subscribeEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState
 import hunoia.sideleap.launcher.query.AppQuery

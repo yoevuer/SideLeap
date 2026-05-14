@@ -1,4 +1,4 @@
-package hunoia.sideleap.ktx
+package hunoia.sideleap.ui.event
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect

@@ -1,4 +1,4 @@
-package hunoia.sideleap.ktx
+package hunoia.sideleap.ui.event
 
 import androidx.lifecycle.ViewModel
 import hunoia.sideleap.core.event.Events

@@ -59,8 +59,8 @@ import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.actionTextCompose
 import hunoia.sideleap.gesture.bounds
 import hunoia.sideleap.gesture.buttonTextCompose
-import hunoia.sideleap.ktx.gotoAccessibilitySettings
-import hunoia.sideleap.ktx.gotoIgnoreBatteryOptimizations
+import hunoia.sideleap.system.intent.gotoAccessibilitySettings
+import hunoia.sideleap.system.intent.gotoIgnoreBatteryOptimizations
 import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent
 import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.RootPadding

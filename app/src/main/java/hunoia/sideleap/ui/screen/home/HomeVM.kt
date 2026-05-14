@@ -8,8 +8,8 @@ import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.ktx.isAccessibilitySettingsOn
-import hunoia.sideleap.ktx.isIgnoringBatteryOptimizations
+import hunoia.sideleap.system.intent.isAccessibilitySettingsOn
+import hunoia.sideleap.system.intent.isIgnoringBatteryOptimizations
 import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent
 import hunoia.sideleap.ui.screen.home.HomeVM.UiState
 import hunoia.sideleap.settings.BackupHelper

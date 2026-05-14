@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
@@ -73,7 +74,6 @@ import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.action.shortcutInfo
-import hunoia.sideleap.ktx.toIntOffset
 import hunoia.sideleap.system.vibration.tryVibrateForActionPanel
 import hunoia.sideleap.ui.theme.RootPadding
 import kotlinx.coroutines.CoroutineScope
@@ -338,11 +338,17 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                                 animateEnterExit(
                                     enter = scaleIn(spring(stiffness = stiffness)) +
                                             slideIn(animationSpec = spring(stiffness = stiffness)) {
-                                                -targetAnimOffset.toIntOffset()
+                                                IntOffset(
+                                                    x = -targetAnimOffset.x.toInt(),
+                                                    y = -targetAnimOffset.y.toInt()
+                                                )
                                             },
                                     exit = scaleOut(spring(stiffness = stiffness)) +
                                             slideOut(animationSpec = spring(stiffness = stiffness)) {
-                                                -targetAnimOffset.toIntOffset()
+                                                IntOffset(
+                                                    x = -targetAnimOffset.x.toInt(),
+                                                    y = -targetAnimOffset.y.toInt()
+                                                )
                                             }
                                 )
                             }

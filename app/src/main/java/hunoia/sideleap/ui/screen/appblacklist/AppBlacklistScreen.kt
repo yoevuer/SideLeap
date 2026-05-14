@@ -51,11 +51,11 @@ import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
-import hunoia.sideleap.ktx.deniedForever
-import hunoia.sideleap.ktx.gotoAppDetailSettings
+import hunoia.sideleap.ui.permission.deniedForever
+import hunoia.sideleap.system.intent.gotoAppDetailSettings
 import hunoia.sideleap.launcher.ext.icon
 import hunoia.sideleap.launcher.ext.qualifiedName
-import hunoia.sideleap.ktx.rememberGetInstalledAppsPermissionState
+import hunoia.sideleap.ui.permission.rememberGetInstalledAppsPermissionState
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVertical
 import hunoia.sideleap.ui.theme.IconTextPadding

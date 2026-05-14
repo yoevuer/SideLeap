@@ -1,4 +1,4 @@
-package hunoia.sideleap.ktx
+package hunoia.sideleap.system.intent
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context

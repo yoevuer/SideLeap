@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalPermissionsApi::class)
 
-package hunoia.sideleap.ktx
+package hunoia.sideleap.ui.permission
 
 import android.content.Context
 import androidx.compose.runtime.Composable

@@ -23,8 +23,8 @@ import hunoia.sideleap.gesture.TriggerDirection.Down2
 import hunoia.sideleap.gesture.TriggerDirection.Up
 import hunoia.sideleap.gesture.TriggerDirection.Up2
 import hunoia.sideleap.settings.model.WaveStyle
-import hunoia.sideleap.ktx.getIcon
-import hunoia.sideleap.ktx.getIconInitialRotation
+import hunoia.sideleap.ui.screen.animationstyle.wave.getIcon
+import hunoia.sideleap.ui.screen.animationstyle.wave.getIconInitialRotation
 
 /**
  * @author aaronzzxup@gmail.com

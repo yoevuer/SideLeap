@@ -12,7 +12,7 @@ import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.ktx.dataStore
+import hunoia.sideleap.settings.internal.dataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 

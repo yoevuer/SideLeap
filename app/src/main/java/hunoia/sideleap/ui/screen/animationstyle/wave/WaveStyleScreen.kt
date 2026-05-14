@@ -42,7 +42,7 @@ import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ANGLE
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW_NEW
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_TRIANGLE
-import hunoia.sideleap.ktx.getWaveStyleIcon
+import hunoia.sideleap.ui.screen.animationstyle.wave.getWaveStyleIcon
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleVM.UiEvent
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.SectionPadding

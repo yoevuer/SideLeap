@@ -44,7 +44,6 @@ import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.event.WallpaperChangedEvent
-import hunoia.sideleap.ktx.SubscribeEvent
 import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.system.window.removeWindow
@@ -54,6 +53,7 @@ import hunoia.sideleap.system.window.setFlags
 import hunoia.sideleap.system.window.updateGestureButton
 import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
+import hunoia.sideleap.ui.event.SubscribeEvent
 import hunoia.sideleap.ui.widget.GestureView
 import hunoia.sideleap.gesture.input.MotionEventDispatcher
 import java.lang.ref.WeakReference
