@@ -1,16 +1,28 @@
 package hunoia.sideleap.freeze
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
+import android.os.Message
+import android.os.Messenger
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import hunoia.sideleap.system.shizuku.ShizukuCommand
 import hunoia.sideleap.system.shizuku.ShizukuRuntime
+import hunoia.sideleap.utils.ShizukuBridgeService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 data class FreezeResult(
     val success: Boolean,
@@ -164,6 +176,59 @@ object FreezeAction {
             protectedCount = protectedSet.size,
             targetCount = installedTargets.size,
             candidateCount = candidates.size,
+            successCount = successCount
+        )
+    }
+
+    suspend fun oneKeyFreezeForService(context: Context): OneKeyFreezeResult = withContext(Dispatchers.IO) {
+        Log.i("OneKeyFreeze", "using bridge service for action context")
+        val intent = Intent(context, ShizukuBridgeService::class.java)
+        val latch = CountDownLatch(1)
+        val result = AtomicInteger(-1)
+
+        val conn = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+                if (binder == null) { latch.countDown(); return }
+                try {
+                    val messenger = Messenger(binder)
+                    val replyHandler = object : Handler(Looper.getMainLooper()) {
+                        override fun handleMessage(msg: Message) {
+                            if (msg.what == ShizukuBridgeService.MSG_FREEZE_BATCH_RESULT) {
+                                result.set(msg.data.getInt(ShizukuBridgeService.EXTRA_SUCCESS_COUNT, -1))
+                                latch.countDown()
+                            }
+                        }
+                    }
+                    val replyMessenger = Messenger(replyHandler)
+                    val msg = Message.obtain(null, ShizukuBridgeService.MSG_FREEZE_BATCH)
+                    msg.replyTo = replyMessenger
+                    messenger.send(msg)
+                } catch (e: Exception) {
+                    latch.countDown()
+                }
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {}
+        }
+
+        try {
+            context.bindService(intent, conn, Context.BIND_AUTO_CREATE)
+            if (!latch.await(2, TimeUnit.SECONDS)) {
+                result.set(-2)
+            }
+        } catch (e: Exception) {
+            result.set(-3)
+        } finally {
+            try { context.unbindService(conn) } catch (_: Exception) {}
+        }
+
+        val successCount = result.get().coerceAtLeast(0)
+        Log.i("OneKeyFreeze", "bridge result successCount=$successCount")
+        OneKeyFreezeResult(
+            oneKeyCount = successCount,
+            protectedCount = 0,
+            targetCount = successCount,
+            candidateCount = successCount,
             successCount = successCount
         )
     }
