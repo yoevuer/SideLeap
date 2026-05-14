@@ -2,7 +2,7 @@ package hunoia.sideleap.ui.dialog
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.entity.global.ActionSettings
+import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.ui.dialog.ActionSettingsVM.UiEvent
 import hunoia.sideleap.ui.dialog.ActionSettingsVM.UiState
 import hunoia.sideleap.settings.SettingsProvider

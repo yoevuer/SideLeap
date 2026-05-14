@@ -39,9 +39,9 @@ import hunoia.sideleap.gesture.TriggerDirection.Down2
 import hunoia.sideleap.gesture.TriggerDirection.Up
 import hunoia.sideleap.gesture.TriggerDirection.Up2
 import hunoia.sideleap.entity.WaveStyle
-import hunoia.sideleap.entity.global.ActionSettings
-import hunoia.sideleap.entity.global.AdvancedSettings
-import hunoia.sideleap.entity.global.GestureSettings
+import hunoia.sideleap.settings.model.ActionSettings
+import hunoia.sideleap.settings.model.AdvancedSettings
+import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.gesture.GESTURE_ANGLE_BASE
 import hunoia.sideleap.gesture.actionsBy
 import hunoia.sideleap.ktx.bounds

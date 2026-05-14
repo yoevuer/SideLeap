@@ -34,10 +34,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aaron.composeaccessibility.ComponentAccessibilityService
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
-import hunoia.sideleap.entity.global.ActionSettings
-import hunoia.sideleap.entity.global.AdvancedSettings
-import hunoia.sideleap.entity.global.GestureSettings
-import hunoia.sideleap.entity.global.InitialSettings
+import hunoia.sideleap.settings.model.ActionSettings
+import hunoia.sideleap.settings.model.AdvancedSettings
+import hunoia.sideleap.settings.model.GestureSettings
+import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.event.WallpaperChangedEvent
 import hunoia.sideleap.ktx.SubscribeEvent
 import hunoia.sideleap.ktx.attachComposeOverlay

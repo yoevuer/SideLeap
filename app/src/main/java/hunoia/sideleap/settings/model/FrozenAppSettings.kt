@@ -1,4 +1,4 @@
-package hunoia.sideleap.entity.global
+package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
 import kotlinx.serialization.Serializable

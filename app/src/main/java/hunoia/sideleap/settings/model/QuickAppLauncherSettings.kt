@@ -1,4 +1,4 @@
-package hunoia.sideleap.entity
+package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Keep
 data class QuickAppLauncherSettings(
-    // field 1 was favoriteApps, do not reuse
     val hiddenApps: Set<String> = emptySet(),
     val recentLaunchTime: Map<String, Long> = emptyMap(),
     val launchCount: Map<String, Long> = emptyMap(),

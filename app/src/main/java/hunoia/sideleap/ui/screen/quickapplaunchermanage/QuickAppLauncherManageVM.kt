@@ -3,7 +3,7 @@ package hunoia.sideleap.ui.screen.quickapplaunchermanage
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.entity.QuickAppLauncherSettings
+import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.freeze.FreezeState

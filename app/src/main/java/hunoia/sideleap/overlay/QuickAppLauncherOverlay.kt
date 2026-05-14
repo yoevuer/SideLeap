@@ -77,7 +77,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import hunoia.sideleap.entity.QuickAppLauncherSettings
+import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

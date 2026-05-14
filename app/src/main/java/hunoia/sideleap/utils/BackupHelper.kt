@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.constant.Paths
-import hunoia.sideleap.entity.global.Backup
+import hunoia.sideleap.settings.model.Backup
 import hunoia.sideleap.settings.SettingsProvider
 import com.blankj.utilcode.util.EncodeUtils
 import com.blankj.utilcode.util.FileIOUtils
@@ -120,9 +120,9 @@ object BackupHelper {
     }
 
     private fun sanitizeFrozenAppSettings(
-        settings: hunoia.sideleap.entity.global.FrozenAppSettings?,
+        settings: hunoia.sideleap.settings.model.FrozenAppSettings?,
         installedPackages: Set<String>
-    ): hunoia.sideleap.entity.global.FrozenAppSettings? {
+    ): hunoia.sideleap.settings.model.FrozenAppSettings? {
         settings ?: return null
         val protected = settings.protectedPackageNames.filterTo(mutableSetOf()) { it in installedPackages }
         val oneKey = settings.oneKeyPackageNames

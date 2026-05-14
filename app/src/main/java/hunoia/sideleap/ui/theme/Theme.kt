@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hunoia.sideleap.entity.DayNightMode
-import hunoia.sideleap.entity.global.AdvancedSettings
+import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.ui.theme.generator.AppTheme
 import hunoia.sideleap.ui.widget.ComposeToast
 import hunoia.sideleap.settings.SettingsProvider

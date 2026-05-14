@@ -1,14 +1,9 @@
-package hunoia.sideleap.entity.global
+package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.entity.QuickAppLauncherSettings
 import kotlinx.serialization.Serializable
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/10
- */
 @Serializable
 @Keep
 data class Backup(

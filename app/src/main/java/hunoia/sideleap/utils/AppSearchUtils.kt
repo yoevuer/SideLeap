@@ -3,7 +3,7 @@ package hunoia.sideleap.utils
 import android.content.Context
 import net.sourceforge.pinyin4j.BasePinyinHelper
 import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.entity.QuickAppLauncherSettings
+import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import java.util.LinkedHashMap
 
 internal data class AppSearchIndex(val raw: String, val pinyin: String, val initials: String)

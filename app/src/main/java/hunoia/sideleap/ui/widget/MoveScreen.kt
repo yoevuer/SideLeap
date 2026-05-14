@@ -55,11 +55,11 @@ import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.MoveScreenData
-import hunoia.sideleap.entity.global.ActionSettings
-import hunoia.sideleap.entity.global.ActionSettings.MoveScreen.Action.DoubleTap
-import hunoia.sideleap.entity.global.ActionSettings.MoveScreen.Action.LongPress
-import hunoia.sideleap.entity.global.ActionSettings.MoveScreen.Action.Tap
-import hunoia.sideleap.entity.global.GestureSettings
+import hunoia.sideleap.settings.model.ActionSettings
+import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.DoubleTap
+import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.LongPress
+import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.Tap
+import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.ktx.tryVibrateForMoveScreen
 import hunoia.sideleap.utils.JsonHelper
 import com.blankj.utilcode.util.ScreenUtils

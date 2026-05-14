@@ -65,7 +65,7 @@ import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.entity.QuickAppLauncherSettings
+import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.LauncherDiagnostics

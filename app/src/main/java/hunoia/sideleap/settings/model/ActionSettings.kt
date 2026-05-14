@@ -1,16 +1,12 @@
-package hunoia.sideleap.entity.global
+package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
-import hunoia.sideleap.constant.ActionSettingsDefaults.GotoBottomStrength
-import hunoia.sideleap.constant.ActionSettingsDefaults.MoveScreenHoverDelayMs
-import hunoia.sideleap.constant.ActionSettingsDefaults.MoveScreenRate
 import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.settings.ActionSettingsDefaults.GotoBottomStrength
+import hunoia.sideleap.settings.ActionSettingsDefaults.MoveScreenHoverDelayMs
+import hunoia.sideleap.settings.ActionSettingsDefaults.MoveScreenRate
 import kotlinx.serialization.Serializable
 
-/**
- * @author DS-Z
- * @since 2025/6/30
- */
 @Serializable
 @Keep
 data class ActionSettings(

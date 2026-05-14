@@ -27,14 +27,14 @@ import android.os.Messenger
 import android.os.PowerManager
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
-import hunoia.sideleap.constant.ActionSettingsDefaults.GotoBottomStrength
+import hunoia.sideleap.settings.ActionSettingsDefaults.GotoBottomStrength
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.action.ActionRegistry
 import hunoia.sideleap.constant.GlobalActions
 
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.MoveScreenData
-import hunoia.sideleap.entity.global.ActionSettings
+import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.ktx.appInfo
 import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
 import hunoia.sideleap.ktx.gotoAppDetailSettings

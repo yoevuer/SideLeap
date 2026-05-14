@@ -8,7 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.LauncherInfo
-import hunoia.sideleap.entity.global.FrozenAppSettings
+import hunoia.sideleap.settings.model.FrozenAppSettings
 import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import kotlinx.coroutines.CancellationException
