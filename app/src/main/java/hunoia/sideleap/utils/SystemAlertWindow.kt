@@ -7,7 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import hunoia.sideleap.ktx.queryIntentActivitiesCompat
+import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import java.util.Locale
 
 object SystemAlertWindow {

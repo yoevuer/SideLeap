@@ -7,7 +7,7 @@ import android.content.pm.PackageManager
 import android.content.res.XmlResourceParser
 import android.net.Uri
 import hunoia.sideleap.entity.LauncherInfo
-import hunoia.sideleap.ktx.queryIntentActivitiesCompat
+import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import org.xmlpull.v1.XmlPullParser
 import java.util.UUID
 

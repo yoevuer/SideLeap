@@ -9,7 +9,7 @@ import android.provider.Settings
 import android.text.TextUtils
 import com.blankj.utilcode.util.AppUtils
 import hunoia.sideleap.R
-import hunoia.sideleap.utils.showToast
+import hunoia.sideleap.system.feedback.showToast
 
 fun Context.gotoIgnoreBatteryOptimizations(): Boolean {
     return try {

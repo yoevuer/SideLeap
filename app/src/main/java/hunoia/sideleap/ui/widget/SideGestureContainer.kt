@@ -52,7 +52,7 @@ import hunoia.sideleap.ktx.takeScreenshot
 import hunoia.sideleap.ktx.tryVibrateForLongSlide
 import hunoia.sideleap.ktx.tryVibrateForSlide
 import hunoia.sideleap.ui.widget.DragGestureHandler
-import hunoia.sideleap.utils.showVersionTooLowToast
+import hunoia.sideleap.system.feedback.showVersionTooLowToast
 import com.blankj.utilcode.util.ConvertUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

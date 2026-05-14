@@ -42,8 +42,8 @@ import hunoia.sideleap.event.WallpaperChangedEvent
 import hunoia.sideleap.ktx.SubscribeEvent
 import hunoia.sideleap.ktx.attachComposeOverlay
 import hunoia.sideleap.ktx.attachGestureButtons
-import hunoia.sideleap.ktx.dispatchMediaKeyEvent
-import hunoia.sideleap.ktx.queryIntentActivitiesCompat
+import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
+import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ktx.removeWindow
 import hunoia.sideleap.ktx.removeWindows
 import hunoia.sideleap.ktx.setFlags
@@ -51,8 +51,8 @@ import hunoia.sideleap.ktx.updateGestureButton
 import java.lang.ref.WeakReference
 import hunoia.sideleap.ktx.updateLayout
 import hunoia.sideleap.ktx.updateMainView
-import hunoia.sideleap.ktx.volumeDown
-import hunoia.sideleap.ktx.volumeUp
+import hunoia.sideleap.system.audio.volumeDown
+import hunoia.sideleap.system.audio.volumeUp
 import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import hunoia.sideleap.ui.widget.SideGestureContainer

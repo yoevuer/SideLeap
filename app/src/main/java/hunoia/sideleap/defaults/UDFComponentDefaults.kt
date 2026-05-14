@@ -6,7 +6,7 @@ import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.component.UDFComponentDefaults
 import com.aaron.compose.component.UiBaseEvent
 import hunoia.sideleap.ktx.LocalNavController
-import hunoia.sideleap.utils.showToast
+import hunoia.sideleap.system.feedback.showToast
 
 /**
  * @author aaronzzxup@gmail.com

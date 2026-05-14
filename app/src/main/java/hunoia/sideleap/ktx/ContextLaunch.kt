@@ -13,8 +13,8 @@ import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.MiniWindowUtils
 import hunoia.sideleap.utils.LauncherDiagnostics
-import hunoia.sideleap.utils.showToast
-import hunoia.sideleap.utils.showVersionTooLowToast
+import hunoia.sideleap.system.feedback.showToast
+import hunoia.sideleap.system.feedback.showVersionTooLowToast
 import kotlinx.coroutines.delay
 
 fun Context.launchAssist(): Boolean {

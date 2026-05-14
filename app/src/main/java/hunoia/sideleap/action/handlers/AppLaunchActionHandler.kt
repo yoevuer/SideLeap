@@ -16,7 +16,7 @@ import hunoia.sideleap.ktx.launchAppActivityWithAutoUnfreeze
 import hunoia.sideleap.ktx.launchAppInPopup
 import hunoia.sideleap.ktx.launchAppWithAutoUnfreeze
 import hunoia.sideleap.ktx.launchOpenAppOrUrl
-import hunoia.sideleap.ktx.queryIntentActivitiesCompat
+import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.widget.ActionPanelState
 import hunoia.sideleap.utils.JsonHelper
 import kotlinx.coroutines.launch

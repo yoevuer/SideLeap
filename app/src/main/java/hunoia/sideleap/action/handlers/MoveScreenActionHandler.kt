@@ -10,7 +10,7 @@ import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.MoveScreenData
 import hunoia.sideleap.entity.global.ActionSettings
-import hunoia.sideleap.utils.AccessibilityUtils
+import hunoia.sideleap.system.accessibility.Accessibility
 import hunoia.sideleap.utils.JsonHelper
 
 object MoveScreenActionHandler : ActionHandler {
@@ -46,13 +46,13 @@ object MoveScreenActionHandler : ActionHandler {
         ) {
             when (data.action) {
                 ActionSettings.MoveScreen.Action.LongPress -> {
-                    AccessibilityUtils.longPress(context.service, data.x, data.y)
+                    Accessibility.longPress(context.service, data.x, data.y)
                 }
                 ActionSettings.MoveScreen.Action.DoubleTap -> {
-                    AccessibilityUtils.doubleTap(context.service, data.x, data.y)
+                    Accessibility.doubleTap(context.service, data.x, data.y)
                 }
                 ActionSettings.MoveScreen.Action.Tap -> {
-                    AccessibilityUtils.click(context.service, data.x, data.y)
+                    Accessibility.click(context.service, data.x, data.y)
                 }
                 else -> Unit
             }
@@ -61,7 +61,7 @@ object MoveScreenActionHandler : ActionHandler {
 
     private fun handleBackToTop(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            AccessibilityUtils.fastVerticalScroll(context.service, true)
+            Accessibility.fastVerticalScroll(context.service, true)
         } else {
             context.showVersionTooLowToast(R.string.action_back_to_top)
         }
@@ -70,7 +70,7 @@ object MoveScreenActionHandler : ActionHandler {
     private fun handleGotoBottom(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val strength = context.actionSettings.gotoBottom.strength
-            AccessibilityUtils.fastVerticalScroll(context.service, false, strength)
+            Accessibility.fastVerticalScroll(context.service, false, strength)
         } else {
             context.showVersionTooLowToast(R.string.action_goto_bottom)
         }

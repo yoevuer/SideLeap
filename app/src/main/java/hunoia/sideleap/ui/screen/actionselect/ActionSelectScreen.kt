@@ -6,7 +6,7 @@ import android.content.Intent.ShortcutIconResource
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import hunoia.sideleap.utils.showToast
+import hunoia.sideleap.system.feedback.showToast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -96,10 +96,10 @@ import hunoia.sideleap.ktx.actionText
 import hunoia.sideleap.ktx.deniedForever
 import hunoia.sideleap.ktx.gotoAppDetailSettings
 import hunoia.sideleap.ktx.icon
-import hunoia.sideleap.ktx.launchUrl
-import hunoia.sideleap.ktx.normalizeOpenAppOrUrl
+import hunoia.sideleap.system.intent.launchUrl
+import hunoia.sideleap.system.intent.normalizeOpenAppOrUrl
 import hunoia.sideleap.ktx.qualifiedName
-import hunoia.sideleap.ktx.queryIntentActivitiesCompat
+import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ktx.rememberGetInstalledAppsPermissionState
 import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.action.definition.ActionCategory
