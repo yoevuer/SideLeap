@@ -57,9 +57,9 @@ import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
-import hunoia.sideleap.entity.ScaleableDefaults.DEFAULT_SCALE
-import hunoia.sideleap.entity.ScaleableDefaults.MAX_SCALE
-import hunoia.sideleap.entity.ScaleableDefaults.MIN_SCALE
+import hunoia.sideleap.launcher.model.ScaleableDefaults.DEFAULT_SCALE
+import hunoia.sideleap.launcher.model.ScaleableDefaults.MAX_SCALE
+import hunoia.sideleap.launcher.model.ScaleableDefaults.MIN_SCALE
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.ItemPadding

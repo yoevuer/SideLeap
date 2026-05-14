@@ -7,8 +7,8 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.entity.LauncherInfo
+import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.launcher.launch.Launcher

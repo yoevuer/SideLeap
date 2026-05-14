@@ -64,7 +64,7 @@ import androidx.compose.ui.unit.sp
 import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.SideGestureService
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.settings.SettingsProvider

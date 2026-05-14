@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 
 /**
  * @author aaronzzxup@gmail.com

@@ -50,7 +50,7 @@ import com.aaron.compose.component.LoadingComponent
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ktx.deniedForever
 import hunoia.sideleap.ktx.gotoAppDetailSettings
 import hunoia.sideleap.ktx.icon

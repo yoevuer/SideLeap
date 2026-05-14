@@ -308,7 +308,7 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
         }
     }
 
-    private fun launchAppWithFrozenSupport(appInfo: hunoia.sideleap.entity.AppInfo, miniWindow: Boolean) {
+    private fun launchAppWithFrozenSupport(appInfo: hunoia.sideleap.launcher.model.AppInfo, miniWindow: Boolean) {
         host.coroutineScope.launch {
             FreezeLaunch.launchWithAutoUnfreeze(
                 context = host,

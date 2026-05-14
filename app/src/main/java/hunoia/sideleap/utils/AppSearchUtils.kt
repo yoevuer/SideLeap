@@ -2,7 +2,7 @@ package hunoia.sideleap.utils
 
 import android.content.Context
 import net.sourceforge.pinyin4j.BasePinyinHelper
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import java.util.LinkedHashMap
 

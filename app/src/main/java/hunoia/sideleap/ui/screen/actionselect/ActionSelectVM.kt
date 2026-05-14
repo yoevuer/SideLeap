@@ -12,11 +12,11 @@ import hunoia.sideleap.constant.Paths
 import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.ui.navigation.ActionSelect
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.launcher.util.IconResizeCache
-import hunoia.sideleap.entity.LauncherInfo
+import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
 import hunoia.sideleap.event.IconResizeEvent

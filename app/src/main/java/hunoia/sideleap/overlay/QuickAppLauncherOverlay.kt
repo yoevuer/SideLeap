@@ -67,7 +67,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ktx.launchAppInfo
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.LauncherDiagnostics

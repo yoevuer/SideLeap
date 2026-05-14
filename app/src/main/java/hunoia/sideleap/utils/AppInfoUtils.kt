@@ -6,8 +6,8 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
-import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.entity.LauncherInfo
+import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.settings.model.FrozenAppSettings
 import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat

@@ -5,9 +5,9 @@ import androidx.compose.runtime.remember
 import hunoia.sideleap.App
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.gesture.GestureActions
-import hunoia.sideleap.entity.LauncherInfo
+import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.utils.JsonHelper
 
 /**

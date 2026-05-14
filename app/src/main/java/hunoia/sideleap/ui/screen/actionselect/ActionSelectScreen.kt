@@ -87,9 +87,9 @@ import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.navigation.IconResize
-import hunoia.sideleap.entity.LauncherInfo
+import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.ktx.actionIcon
 import hunoia.sideleap.ktx.actionText

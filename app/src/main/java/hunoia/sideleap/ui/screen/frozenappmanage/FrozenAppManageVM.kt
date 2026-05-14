@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.App
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.FrozenAppSettings
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.freeze.FreezeAction

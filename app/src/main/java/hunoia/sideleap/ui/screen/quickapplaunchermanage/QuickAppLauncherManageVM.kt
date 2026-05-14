@@ -2,7 +2,7 @@ package hunoia.sideleap.ui.screen.quickapplaunchermanage
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.settings.SettingsProvider

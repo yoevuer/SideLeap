@@ -4,8 +4,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.entity.LauncherInfo
+import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay

@@ -1,7 +1,6 @@
-package hunoia.sideleap.entity
+package hunoia.sideleap.launcher.model
 
 import androidx.annotation.Keep
-import hunoia.sideleap.entity.ScaleableDefaults
 import kotlinx.serialization.Serializable
 
 @Serializable

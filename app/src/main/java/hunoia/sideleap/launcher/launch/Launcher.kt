@@ -10,8 +10,8 @@ import android.os.Build
 import android.net.Uri
 import androidx.annotation.RequiresApi
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.entity.LauncherInfo
+import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.system.feedback.showToast
 import com.blankj.utilcode.util.ScreenUtils

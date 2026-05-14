@@ -14,7 +14,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.drawable.updateBounds
 import androidx.core.graphics.scale
-import hunoia.sideleap.entity.LauncherInfo
+import hunoia.sideleap.launcher.model.LauncherInfo
 import com.blankj.utilcode.util.ConvertUtils
 import kotlin.math.min
 

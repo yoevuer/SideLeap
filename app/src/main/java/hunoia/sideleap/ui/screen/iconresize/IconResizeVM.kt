@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.entity.ScaleableDefaults.DEFAULT_SCALE
+import hunoia.sideleap.launcher.model.ScaleableDefaults.DEFAULT_SCALE
 import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.launcher.util.IconResizeCache
 import hunoia.sideleap.event.IconResizeEvent

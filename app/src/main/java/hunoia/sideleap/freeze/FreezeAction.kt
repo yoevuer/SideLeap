@@ -255,7 +255,7 @@ object FreezeAction {
     }
 
     fun computeOneKeyTargetsInRange(
-        apps: List<hunoia.sideleap.entity.AppInfo>,
+        apps: List<hunoia.sideleap.launcher.model.AppInfo>,
         oneKeyPackageNames: Set<String>,
         protectedPackageNames: Set<String>
     ): List<String> {

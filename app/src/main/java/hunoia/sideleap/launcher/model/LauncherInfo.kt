@@ -1,8 +1,7 @@
-package hunoia.sideleap.entity
+package hunoia.sideleap.launcher.model
 
 import android.graphics.Bitmap
 import androidx.annotation.Keep
-import hunoia.sideleap.entity.ScaleableDefaults.DEFAULT_SCALE
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
@@ -23,7 +22,7 @@ data class LauncherInfo (
         val label: String,
         val iconRes: Int = 0,
         val iconPath: String? = null,
-        val iconScale: Float = DEFAULT_SCALE,
+        val iconScale: Float = ScaleableDefaults.DEFAULT_SCALE,
         val iconBgColor: Int = 0,
         @Transient
         val iconBitmap: Bitmap? = null

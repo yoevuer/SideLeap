@@ -102,7 +102,7 @@ object AppLaunchActionHandler : ActionHandler {
 
     private fun launchAppWithFrozenSupport(
         context: ActionHandlerContext,
-        appInfo: hunoia.sideleap.entity.AppInfo,
+        appInfo: hunoia.sideleap.launcher.model.AppInfo,
         miniWindow: Boolean
     ) {
         context.scope.launch {

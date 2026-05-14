@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.App
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiEvent
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiState
 import hunoia.sideleap.utils.AppInfoUtils
