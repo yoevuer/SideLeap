@@ -1,18 +1,12 @@
 package hunoia.sideleap.utils
 
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import hunoia.sideleap.launcher.model.AppInfo
-import hunoia.sideleap.launcher.model.LauncherInfo
+import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.model.FrozenAppSettings
 import hunoia.sideleap.freeze.FreezeState
-import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
 
 internal fun queryFrozenApplicationsOnIo(context: Context, showSystemApps: Boolean): List<AppInfo> {
     return FreezeState.queryFrozenApplications(context, showSystemApps)
@@ -30,7 +24,7 @@ object AppInfoUtils {
     )
 
     fun queryOneKeyFrozenTargets(context: Context, settings: FrozenAppSettings): List<String> {
-        val normal = queryLauncherActivities(
+        val normal = AppQuery.queryLauncherActivities(
             context = context,
             allowRepeatPackage = false,
             showSystemApps = settings.showSystemAppsInManagePage
@@ -53,7 +47,7 @@ object AppInfoUtils {
         context: Context,
         settings: FrozenAppSettings
     ): FrozenOneKeySnapshot {
-        val normal = queryLauncherActivities(
+        val normal = AppQuery.queryLauncherActivities(
             context = context,
             allowRepeatPackage = false,
             showSystemApps = settings.showSystemAppsInManagePage
@@ -91,62 +85,6 @@ object AppInfoUtils {
 
     fun queryFrozenStateByPackage(context: Context, packageNames: Collection<String>): Map<String, Boolean> {
         return FreezeState.queryFrozenStateByPackage(context, packageNames)
-    }
-
-    fun queryCreateShortcutActivities(context: Context, allowRepeatPackage: Boolean = true): List<LauncherInfo> {
-        val list = mutableListOf<LauncherInfo>()
-        val pkgList = mutableListOf<String>()
-        val packageManager = context.packageManager
-        val intent = Intent().apply {
-            setAction(Intent.ACTION_CREATE_SHORTCUT)
-        }
-        val activities = packageManager.queryIntentActivitiesCompat(intent, PackageManager.MATCH_ALL)
-        for (resolveInfo in activities) {
-            val activityInfo = resolveInfo.activityInfo
-            val packageName = activityInfo?.packageName
-            if (!activityInfo.exported) continue
-            if (packageName.isNullOrEmpty()) continue
-            if (!allowRepeatPackage && packageName in pkgList) continue
-            val item = LauncherInfo(
-                packageName = packageName,
-                className = activityInfo.name,
-                label = activityInfo.loadLabel(packageManager).toString()
-            )
-            list.add(item)
-            pkgList.add(packageName)
-        }
-        return list
-    }
-
-    fun queryLauncherActivities(context: Context, allowRepeatPackage: Boolean = true, showSystemApps: Boolean = true): List<AppInfo> {
-        val list = mutableListOf<AppInfo>()
-        val pkgList = mutableListOf<String>()
-        val packageManager = context.packageManager
-        val intent = Intent().apply {
-            setAction(Intent.ACTION_MAIN)
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
-        val activities = packageManager.queryIntentActivitiesCompat(intent, PackageManager.MATCH_ALL)
-        for (resolveInfo in activities) {
-            val activityInfo = resolveInfo.activityInfo
-            val packageName = activityInfo?.packageName
-            if (packageName.isNullOrEmpty()) continue
-            if (!showSystemApps && isSystemApp(activityInfo.applicationInfo)) continue
-            if (!allowRepeatPackage && packageName in pkgList) continue
-            val item = AppInfo(
-                packageName = packageName,
-                className = activityInfo.name,
-                label = activityInfo.loadLabel(packageManager).toString()
-            )
-            list.add(item)
-            pkgList.add(packageName)
-        }
-        return list
-    }
-
-    private fun isSystemApp(applicationInfo: ApplicationInfo?): Boolean {
-        if (applicationInfo == null) return false
-        return FreezeState.isSystemApp(applicationInfo)
     }
 
     fun queryFrozenApplications(context: Context, showSystemApps: Boolean = true): List<AppInfo> {
@@ -236,39 +174,8 @@ object AppInfoUtils {
         LauncherDiagnostics.d(context,
             "pm_frozen_probe: totalInstalled=${allApps.size} " +
             "disabled=$totalDisabled disabledUser=$totalDisabledUser " +
-            "disabledUntilUsed=$totalDisabledUntilUsed suspended=$totalSuspended " +
+            "disabledUntilUse=$totalDisabledUntilUsed suspended=$totalSuspended " +
             "labelOk=$totalLabelOk iconOk=$totalIconOk"
         )
-    }
-
-    suspend fun findLauncherActivity(context: Context, packageName: String, maxRetries: Int = 5, retryDelayMs: Long = 200): AppInfo? {
-        repeat(maxRetries) { attempt ->
-            if (attempt > 0) {
-                delay(retryDelayMs)
-            }
-            try {
-                val pm = context.packageManager
-                val intent = pm.getLaunchIntentForPackage(packageName)
-                if (intent != null) {
-                    val component = intent.component
-                    if (component != null) {
-                        val ai = pm.getApplicationInfo(packageName, 0)
-                        val label = try { pm.getApplicationLabel(ai).toString() } catch (_: Exception) { packageName }
-                        return AppInfo(packageName, component.className, label)
-                    }
-                }
-                val mainIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-                val resolves = pm.queryIntentActivitiesCompat(mainIntent, 0)
-                for (resolve in resolves) {
-                    if (resolve.activityInfo.packageName == packageName) {
-                        val ai = pm.getApplicationInfo(packageName, 0)
-                        val label = try { pm.getApplicationLabel(ai).toString() } catch (_: Exception) { packageName }
-                        return AppInfo(packageName, resolve.activityInfo.name, label)
-                    }
-                }
-            } catch (e: CancellationException) { throw e } catch (_: Exception) {
-            }
-        }
-        return null
     }
 }

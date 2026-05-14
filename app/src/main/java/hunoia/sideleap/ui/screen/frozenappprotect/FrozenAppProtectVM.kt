@@ -77,7 +77,7 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
             updateUiState { it.copy(refreshing = true) }
             val apps = withContext(Dispatchers.IO) {
                 val context = App.getContext()
-                val normal = hunoia.sideleap.utils.AppInfoUtils.queryLauncherActivities(
+                val normal = hunoia.sideleap.launcher.query.AppQuery.queryLauncherActivities(
                     context = context,
                     allowRepeatPackage = false,
                     showSystemApps = uiState.showSystemApps

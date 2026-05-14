@@ -28,7 +28,7 @@ import hunoia.sideleap.ktx.shortcutInfo
 import hunoia.sideleap.ktx.subscribeEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState
-import hunoia.sideleap.utils.AppInfoUtils
+import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.JsonHelper
 import hunoia.sideleap.freeze.FreezeState
@@ -216,7 +216,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     fun updateShortcutInfos() {
         viewModelScope.launchWithLoading {
             val createLauncherInfos = withContext(Dispatchers.IO) {
-                AppInfoUtils.queryCreateShortcutActivities(App.getContext())
+                AppQuery.queryCreateShortcutActivities(App.getContext())
             }
             val launchLauncherInfos = withContext(Dispatchers.IO) {
                 ShortcutQuery.getAllAppsWithShortcut(App.getContext())
@@ -309,7 +309,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
-                AppInfoUtils.queryLauncherActivities(App.getContext())
+                AppQuery.queryLauncherActivities(App.getContext())
             }
             val frozenApps = FreezeState.queryFrozenApplications(App.getContext(), true)
             // 合并普通应用和冻结应用，普通应用优先，冻结应用只添加不存在的

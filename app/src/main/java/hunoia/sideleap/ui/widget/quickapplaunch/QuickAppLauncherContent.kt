@@ -66,12 +66,12 @@ import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
-import hunoia.sideleap.utils.AppInfoUtils
+import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.LauncherDiagnostics
-import hunoia.sideleap.utils.key
+import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.freeze.FreezeState
-import hunoia.sideleap.utils.sortApps
+import hunoia.sideleap.launcher.query.AppSearch.sortApps
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -106,7 +106,7 @@ internal fun QuickAppLauncherContent(
         val state = kotlinx.coroutines.withContext(Dispatchers.IO) {
             val fa = FreezeState.queryFrozenApplications(context, launcherSettings.showSystemApps)
             val frozenPkgSet = fa.map { it.packageName }.toSet()
-            val la = AppInfoUtils.queryLauncherActivities(context, allowRepeatPackage = false, showSystemApps = launcherSettings.showSystemApps)
+            val la = AppQuery.queryLauncherActivities(context, allowRepeatPackage = false, showSystemApps = launcherSettings.showSystemApps)
             val normalPkgNames = la.map { it.packageName }.toSet()
             val merged = la + fa.filter { it.packageName !in normalPkgNames }
             AppListState(merged, frozenPkgSet)
@@ -235,7 +235,7 @@ val isFrozen = app.packageName in appListState.frozenPkgs
                                                                          LauncherDiagnostics.d(service, "enable_package: request launch pkg=${app.packageName} miniWindow=false")
                                                                          coroutineScope.launch {
                                                                              val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                                                 AppInfoUtils.findLauncherActivity(context, app.packageName)
+                                                                                 AppQuery.findLauncherActivity(context, app.packageName)
                                                                              }
                                                                              if (found != null) {
                                                                                  LauncherDiagnostics.d(service, "enable_package: launcher found pkg=${found.packageName} cls=${found.className}")
@@ -264,7 +264,7 @@ val isFrozen = app.packageName in appListState.frozenPkgs
                                                                            val tResolve = System.currentTimeMillis()
                                                                            coroutineScope.launch {
                                                                                val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                                                   AppInfoUtils.findLauncherActivity(context, app.packageName)
+                                                                                   AppQuery.findLauncherActivity(context, app.packageName)
                                                                                }
                                                                                if (found != null) {
                                                                                    if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: resolve_intent found pkg=${app.packageName} elapsed=${System.currentTimeMillis() - tResolve}ms")
@@ -323,7 +323,7 @@ val isFrozen = app.packageName in appListState.frozenPkgs
                                                              LauncherDiagnostics.d(service, "enable_package: request launch pkg=${app.packageName} miniWindow=false")
                                                              coroutineScope.launch {
                                                                  val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                                     AppInfoUtils.findLauncherActivity(context, app.packageName)
+                                                                     AppQuery.findLauncherActivity(context, app.packageName)
                                                                  }
                                                                  if (found != null) {
                                                                      LauncherDiagnostics.d(service, "enable_package: launcher found pkg=${found.packageName} cls=${found.className}")
@@ -352,7 +352,7 @@ val tFrozenStart = System.currentTimeMillis()
                                                                val tResolve = System.currentTimeMillis()
                                                                coroutineScope.launch {
                                                                    val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                                       AppInfoUtils.findLauncherActivity(context, app.packageName)
+                                                                       AppQuery.findLauncherActivity(context, app.packageName)
                                                                    }
                                                                    if (found != null) {
                                                                        if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: resolve_intent found pkg=${app.packageName} elapsed=${System.currentTimeMillis() - tResolve}ms")

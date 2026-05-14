@@ -8,6 +8,12 @@ import java.util.LinkedHashMap
 
 object AppSearch {
 
+    data class AppSearchIndex(val raw: String, val pinyin: String, val initials: String)
+
+    private val pinyinIndexCache: MutableMap<String, AppSearchIndex> = object : LinkedHashMap<String, AppSearchIndex>(1024, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, AppSearchIndex>?): Boolean = size > 1024
+    }
+
     fun sortApps(context: Context, apps: List<AppInfo>, settings: QuickAppLauncherSettings, tokens: List<String>): List<AppInfo> {
         val matched = if (tokens.isEmpty()) apps else apps.filter { app -> matchesApp(context, app, tokens) }
         return matched.sortedWith(compareByDescending<AppInfo> { prefixRank(context, it, tokens) }
@@ -15,12 +21,6 @@ object AppSearch {
             .thenByDescending { settings.launchCount[it.key()] ?: 0L }
             .thenByDescending { containsRank(context, it, tokens) }
             .thenBy { it.label.lowercase() })
-    }
-
-    private data class AppSearchIndex(val raw: String, val pinyin: String, val initials: String)
-
-    private val pinyinIndexCache: MutableMap<String, AppSearchIndex> = object : LinkedHashMap<String, AppSearchIndex>(1024, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, AppSearchIndex>?): Boolean = size > 1024
     }
 
     private fun matchesApp(context: Context, app: AppInfo, tokens: List<String>): Boolean {
@@ -82,5 +82,5 @@ object AppSearch {
         return false
     }
 
-    private fun AppInfo.key() = "$packageName/$className"
+    fun AppInfo.key() = "$packageName/$className"
 }

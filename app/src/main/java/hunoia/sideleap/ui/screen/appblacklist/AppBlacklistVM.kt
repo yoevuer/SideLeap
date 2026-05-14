@@ -7,7 +7,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiEvent
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiState
-import hunoia.sideleap.utils.AppInfoUtils
+import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
 import kotlinx.coroutines.Dispatchers
@@ -78,7 +78,7 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
-                AppInfoUtils
+                AppQuery
                     .queryLauncherActivities(App.getContext())
                     .filter {
                         it.packageName != App.getContext().packageName

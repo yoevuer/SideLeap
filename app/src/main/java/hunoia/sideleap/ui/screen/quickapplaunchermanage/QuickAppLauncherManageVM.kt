@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
-import hunoia.sideleap.utils.AppInfoUtils
+import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.freeze.FreezeState
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +21,7 @@ class QuickAppLauncherManageVM : BaseComposeVM<QuickAppLauncherManageVM.UiState,
         val context = hunoia.sideleap.App.getContext()
         val (settings, normalApps, frozenApps) = withContext(Dispatchers.IO) {
             val s = SettingsProvider.getQuickAppLauncherSettings()
-            val normal = AppInfoUtils.queryLauncherActivities(context, false, s.showSystemApps)
+            val normal = AppQuery.queryLauncherActivities(context, false, s.showSystemApps)
             val frozen = FreezeState.queryFrozenApplications(context, s.showSystemApps)
             Triple(s, normal, frozen)
         }
