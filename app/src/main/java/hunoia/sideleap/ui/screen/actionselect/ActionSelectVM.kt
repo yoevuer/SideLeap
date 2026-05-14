@@ -9,6 +9,7 @@ import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.Paths
+import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.entity.AppInfo
@@ -469,7 +470,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
 
     private fun assembleData() {
         updateUiState {
-            val allActions = actionMetaList.map { it.action }.toMutableList().apply {
+            val allActions = ActionCatalog.definitions.map { it.toAction() }.toMutableList().apply {
                 if (it.selectSingle) {
                     removeAll { action ->
                         action.value == GlobalActions.MOVE_SCREEN
