@@ -76,9 +76,11 @@ object BackupHelper {
                         FileUtils.createFileByDeleteOldFile(it)
                         it.appendBytes(input)
                     }
+                    var restored = false
                     ZipUtils.unzipFile(restoreFile, restoreDirFile).forEach { file ->
                         if (file.name == ZIP_BACKUP) {
                             restoreBackupFromBytes(context, file.readBytes())
+                            restored = true
                         } else if (file.name == ZIP_IMAGES) {
                             FileUtils.deleteAllInDir(Paths.Image)
                             FileUtils.createOrExistsDir(Paths.Image)
@@ -88,6 +90,7 @@ object BackupHelper {
                             }
                         }
                     }
+                    if (!restored) throw IllegalStateException("restore failed: no backup entry found in zip")
                 }
             }
         } catch (ex: Exception) {

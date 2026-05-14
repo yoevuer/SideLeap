@@ -143,7 +143,7 @@ fun HomeScreen(
                     val appName = context.getString(context.applicationInfo.labelRes)
                     val timestamp = System.currentTimeMillis()
                     val date = TimeUtils.millis2String(timestamp, "yyyyMMdd_HHmmss")
-                    val fileName = "${appName}_$date"
+                    val fileName = "${appName}_$date.zip"
                     createFileLauncher.launch(fileName)
                 },
                 onRestoreRequest = {
