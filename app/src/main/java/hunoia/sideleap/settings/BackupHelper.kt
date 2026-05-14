@@ -65,33 +65,35 @@ object BackupHelper {
         try {
             context.contentResolver.openInputStream(restoreFrom)!!.use { inputStream ->
                 val input = inputStream.readBytes()
-                try {
-                    restoreBackupFromBytes(context, input)
-                    FileUtils.deleteAllInDir(Paths.Image)
-                } catch (ignored: Exception) {
-                    val restoreDirFile = File(restoreDir).also {
-                        FileUtils.createOrExistsDir(it)
-                    }
-                    val restoreFile = File(restoreFilePath).also {
-                        FileUtils.createFileByDeleteOldFile(it)
-                        it.appendBytes(input)
-                    }
-                    var restored = false
-                    ZipUtils.unzipFile(restoreFile, restoreDirFile).forEach { file ->
-                        if (file.name == ZIP_BACKUP) {
+                val restoreDirFile = File(restoreDir).also {
+                    FileUtils.createOrExistsDir(it)
+                }
+                val restoreFile = File(restoreFilePath).also {
+                    FileUtils.createFileByDeleteOldFile(it)
+                    it.appendBytes(input)
+                }
+                val extracted = ZipUtils.unzipFile(restoreFile, restoreDirFile)
+                var restored = false
+                var imagesRestored = false
+                for (file in extracted) {
+                    when (file.name) {
+                        ZIP_BACKUP -> {
                             restoreBackupFromBytes(context, file.readBytes())
                             restored = true
-                        } else if (file.name == ZIP_IMAGES) {
+                        }
+                        ZIP_IMAGES -> {
                             FileUtils.deleteAllInDir(Paths.Image)
                             FileUtils.createOrExistsDir(Paths.Image)
                             ZipUtils.unzipFile(file, restoreDirFile).forEach { imageFile ->
                                 val destFile = File("${Paths.Image}/${imageFile.name}")
                                 FileUtils.copy(imageFile, destFile)
                             }
+                            imagesRestored = true
                         }
                     }
-                    if (!restored) throw IllegalStateException("restore failed: no backup entry found in zip")
                 }
+                if (!restored) throw IllegalStateException("restore failed: no backup entry found in zip")
+                if (!imagesRestored) throw IllegalStateException("restore failed: no images entry found in zip")
             }
         } catch (ex: Exception) {
             throw ex
