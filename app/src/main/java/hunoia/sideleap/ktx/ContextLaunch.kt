@@ -10,12 +10,11 @@ import hunoia.sideleap.R
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.LauncherInfo
 import hunoia.sideleap.action.OpenAppOrUrlData
-import hunoia.sideleap.utils.AppInfoUtils
+import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.system.feedback.showToast
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
-import kotlinx.coroutines.delay
 
 fun Context.launchAssist(): Boolean {
     return try {
@@ -58,49 +57,7 @@ fun Context.launchAppInfo(appInfo: AppInfo, miniWindow: Boolean = appInfo.miniWi
 }
 
 fun Context.launchApp(packageName: String, className: String, miniWindow: Boolean = false): Boolean {
-    val ctx = this
-    LauncherDiagnostics.d(ctx, "launchApp: pkg=$packageName cls=$className miniWindow=$miniWindow")
-    return try {
-        var launchMiniWindowSucceed = false
-        if (miniWindow) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                launchMiniWindowSucceed = launchAppInPopup(packageName, className)
-            } else {
-                showVersionTooLowToast(ctx)
-            }
-        }
-        if (!launchMiniWindowSucceed) {
-            if (className.isEmpty()) {
-                packageManager.getLaunchIntentForPackage(packageName)?.apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    LauncherDiagnostics.d(ctx, "launchApp: using launchIntent for frozen app flags=$flags")
-                    startActivity(this)
-                } ?: throw Exception("No activity found")
-            } else {
-                val intent = Intent().apply {
-                    setClassName(packageName, className)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                if (intent.resolveActivity(packageManager) == null) {
-                    packageManager.getLaunchIntentForPackage(packageName)?.apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        LauncherDiagnostics.d(ctx, "launchApp: using launchIntent flags=$flags")
-                        startActivity(this)
-                    } ?: throw Exception("No activity found")
-                } else {
-                    LauncherDiagnostics.d(this, "launchApp: using direct intent flags=${intent.flags}")
-                    startActivity(intent)
-                }
-            }
-        }
-        true
-    } catch (e: Exception) {
-        LauncherDiagnostics.d(this, "launchApp: failed pkg=$packageName cls=$className")
-        if (!miniWindow) {
-            showToast(R.string.launch_app_failed)
-        }
-        false
-    }
+    return Launcher.launchApp(this, packageName, className, miniWindow)
 }
 
 suspend fun Context.launchAppWithAutoUnfreeze(
@@ -109,15 +66,7 @@ suspend fun Context.launchAppWithAutoUnfreeze(
     miniWindow: Boolean = false,
     unfreezePackage: suspend (context: Context, packageName: String) -> Boolean = { _, _ -> true }
 ): Boolean {
-    if (AppInfoUtils.isFrozenDisabledUser(this, packageName)) {
-        val unfrozen = unfreezePackage(this, packageName)
-        if (!unfrozen) {
-            showToast(R.string.enable_frozen_app_failed)
-            return false
-        }
-        delay(100)
-    }
-    return launchApp(packageName, className, miniWindow)
+    return FreezeLaunch.launchWithAutoUnfreeze(this, packageName, className, miniWindow, unfreezePackage)
 }
 
 suspend fun Context.launchAppActivityWithAutoUnfreeze(
@@ -125,15 +74,7 @@ suspend fun Context.launchAppActivityWithAutoUnfreeze(
     className: String,
     unfreezePackage: suspend (context: Context, packageName: String) -> Boolean = { _, _ -> true }
 ): Boolean {
-    if (AppInfoUtils.isFrozenDisabledUser(this, packageName)) {
-        val unfrozen = unfreezePackage(this, packageName)
-        if (!unfrozen) {
-            showToast(R.string.enable_frozen_app_failed)
-            return false
-        }
-        delay(100)
-    }
-    return launchAppActivity(packageName, className)
+    return FreezeLaunch.launchActivityWithAutoUnfreeze(this, packageName, className, unfreezePackage)
 }
 
 @RequiresApi(Build.VERSION_CODES.N)

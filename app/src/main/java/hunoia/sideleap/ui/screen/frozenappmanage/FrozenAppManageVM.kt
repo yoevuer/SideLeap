@@ -7,11 +7,9 @@ import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.global.FrozenAppSettings
-import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.DataStoreHolder
-import hunoia.sideleap.utils.FrozenAppActionUtils
-import hunoia.sideleap.utils.ShizukuUtils
-import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
+import hunoia.sideleap.freeze.FreezeAction
+import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.ui.widget.showComposeToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -76,23 +74,21 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             updateUiState { it.copy(refreshing = true) }
             val apps = withContext(Dispatchers.IO) {
                 val context = App.getContext()
-                val normal = AppInfoUtils.queryLauncherActivities(
+                val normal = hunoia.sideleap.utils.AppInfoUtils.queryLauncherActivities(
                     context = context,
                     allowRepeatPackage = false,
                     showSystemApps = uiState.showSystemApps
                 )
-                val frozen = queryFrozenApplicationsOnIo(context, uiState.showSystemApps)
+                val frozen = FreezeState.queryFrozenApplications(context, uiState.showSystemApps)
                 val normalPackageNames = normal.map { it.packageName }.toSet()
                 normal + frozen.filter { it.packageName !in normalPackageNames }
             }
             val frozenStateByPackage = withContext(Dispatchers.IO) {
                 val context = App.getContext()
                 val packageNames = apps.asSequence().map { it.packageName }.distinct().toList()
-                AppInfoUtils.queryFrozenStateByPackage(context, packageNames)
+                FreezeState.queryFrozenStateByPackage(context, packageNames)
             }
-            val shizukuReady = withContext(Dispatchers.IO) {
-                ShizukuUtils.isUsableForFrozenAppActions()
-            }
+            val shizukuReady = FreezeAction.isShizukuReady()
             updateUiState {
                 it.copy(
                     apps = apps,
@@ -110,18 +106,12 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
         viewModelScope.launch {
             updateUiState { it.copy(runningPackageActions = it.runningPackageActions + packageName) }
             val wasFrozen = uiState.frozenStateByPackage[packageName] == true
-            withContext(Dispatchers.IO) {
-                val context = App.getContext()
-                if (wasFrozen) {
-                    ShizukuUtils.enablePackageForFrozenApp(context, packageName)
-                } else {
-                    ShizukuUtils.disablePackageForFrozenApp(context, packageName)
-                }
+            val result = if (wasFrozen) {
+                FreezeAction.checkAndUnfreeze(App.getContext(), packageName)
+            } else {
+                FreezeAction.checkAndFreeze(App.getContext(), packageName)
             }
-            delay(100)
-            val nowFrozen = withContext(Dispatchers.IO) {
-                AppInfoUtils.isFrozenDisabledUser(App.getContext(), packageName)
-            }
+            val nowFrozen = result.nowFrozen
             val expectedFrozen = !wasFrozen
             if (nowFrozen == expectedFrozen) {
                 showComposeToast(if (nowFrozen) R.string.frozen_success else R.string.unfrozen_success)
@@ -142,14 +132,12 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
         if (!uiState.shizukuReady || uiState.bulkActionRunning) return
         viewModelScope.launch {
             updateUiState { it.copy(bulkActionRunning = true) }
-            val result = withContext(Dispatchers.IO) {
-                FrozenAppActionUtils.oneKeyFreeze(App.getContext())
-            }
+            val result = FreezeAction.oneKeyFreeze(App.getContext())
             showComposeToast(App.getContext().getString(R.string.bulk_frozen_count, result.successCount))
-            val refreshedFrozenState = withContext(Dispatchers.IO) {
-                val packageNames = uiState.apps.asSequence().map { it.packageName }.distinct().toList()
-                AppInfoUtils.queryFrozenStateByPackage(App.getContext(), packageNames)
-            }
+            val refreshedFrozenState = FreezeState.queryFrozenStateByPackage(
+                App.getContext(),
+                uiState.apps.asSequence().map { it.packageName }.distinct().toList()
+            )
             updateUiState {
                 it.copy(
                     frozenStateByPackage = refreshedFrozenState,
@@ -166,16 +154,9 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             val targets = currentOneKeyTargetsInRange()
             if (targets.isEmpty()) return@launch
             updateUiState { it.copy(bulkActionRunning = true) }
-            val beforeState = uiState.frozenStateByPackage
-            val candidates = targets.filter { beforeState[it] == true }
-            withContext(Dispatchers.IO) {
-                ShizukuUtils.executeFrozenBatch(App.getContext(), candidates, disable = false)
-            }
-            delay(100)
-            val latestState = withContext(Dispatchers.IO) {
-                AppInfoUtils.queryFrozenStateByPackage(App.getContext(), targets)
-            }
-            val successCount = candidates.count { latestState[it] != true }
+            val result = FreezeAction.oneKeyUnfreeze(App.getContext(), targets)
+            val successCount = result.successCount
+            val latestState = FreezeState.queryFrozenStateByPackage(App.getContext(), targets)
             showComposeToast(App.getContext().getString(R.string.bulk_unfrozen_count, successCount))
             updateUiState {
                 it.copy(
@@ -188,15 +169,9 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
     }
 
     private fun currentOneKeyTargetsInRange(): List<String> {
-        val protectedSet = uiState.protectedPackageNames
-        val oneKeySet = uiState.oneKeyPackageNames
-        return uiState.apps
-            .asSequence()
-            .map { it.packageName }
-            .filter { it !in protectedSet }
-            .distinct()
-            .filter { it in oneKeySet }
-            .toList()
+        return FreezeAction.computeOneKeyTargetsInRange(
+            uiState.apps, uiState.oneKeyPackageNames, uiState.protectedPackageNames
+        )
     }
 
     private fun recompute() {

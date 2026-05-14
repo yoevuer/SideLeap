@@ -7,10 +7,9 @@ import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.global.FrozenAppSettings
-import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.DataStoreHolder
-import hunoia.sideleap.utils.ShizukuUtils
-import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
+import hunoia.sideleap.freeze.FreezeAction
+import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.ui.widget.showComposeToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -78,23 +77,21 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
             updateUiState { it.copy(refreshing = true) }
             val apps = withContext(Dispatchers.IO) {
                 val context = App.getContext()
-                val normal = AppInfoUtils.queryLauncherActivities(
+                val normal = hunoia.sideleap.utils.AppInfoUtils.queryLauncherActivities(
                     context = context,
                     allowRepeatPackage = false,
                     showSystemApps = uiState.showSystemApps
                 )
-                val frozen = queryFrozenApplicationsOnIo(context, uiState.showSystemApps)
+                val frozen = FreezeState.queryFrozenApplications(context, uiState.showSystemApps)
                 val normalPackageNames = normal.map { it.packageName }.toSet()
                 normal + frozen.filter { it.packageName !in normalPackageNames }
             }
             val frozenStateByPackage = withContext(Dispatchers.IO) {
                 val context = App.getContext()
                 val packageNames = apps.asSequence().map { it.packageName }.distinct().toList()
-                AppInfoUtils.queryFrozenStateByPackage(context, packageNames)
+                FreezeState.queryFrozenStateByPackage(context, packageNames)
             }
-            val shizukuReady = withContext(Dispatchers.IO) {
-                ShizukuUtils.isUsableForFrozenAppActions()
-            }
+            val shizukuReady = FreezeAction.isShizukuReady()
             updateUiState {
                 it.copy(
                     apps = apps,
@@ -112,13 +109,8 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
         if (!uiState.shizukuReady || !isFrozen || packageName in uiState.runningPackageActions) return
         viewModelScope.launch {
             updateUiState { it.copy(runningPackageActions = it.runningPackageActions + packageName) }
-            withContext(Dispatchers.IO) {
-                ShizukuUtils.enablePackageForFrozenApp(App.getContext(), packageName)
-            }
-            delay(100)
-            val nowFrozen = withContext(Dispatchers.IO) {
-                AppInfoUtils.isFrozenDisabledUser(App.getContext(), packageName)
-            }
+            val result = FreezeAction.checkAndUnfreeze(App.getContext(), packageName)
+            val nowFrozen = result.nowFrozen
             if (!nowFrozen) {
                 showComposeToast(R.string.unfrozen_success)
             } else {

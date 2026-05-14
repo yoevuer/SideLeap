@@ -6,7 +6,7 @@ import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.QuickAppLauncherSettings
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.DataStoreHolder
-import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
+import hunoia.sideleap.freeze.FreezeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -22,7 +22,7 @@ class QuickAppLauncherManageVM : BaseComposeVM<QuickAppLauncherManageVM.UiState,
         val (settings, normalApps, frozenApps) = withContext(Dispatchers.IO) {
             val s = DataStoreHolder.quickAppLauncherSettings.data.first()
             val normal = AppInfoUtils.queryLauncherActivities(context, false, s.showSystemApps)
-            val frozen = queryFrozenApplicationsOnIo(context, s.showSystemApps)
+            val frozen = FreezeState.queryFrozenApplications(context, s.showSystemApps)
             Triple(s, normal, frozen)
         }
         val normalPackageNames = normalApps.map { it.packageName }.toSet()

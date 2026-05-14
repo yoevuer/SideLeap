@@ -9,18 +9,15 @@ import android.os.Build
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.LauncherInfo
 import hunoia.sideleap.entity.global.FrozenAppSettings
+import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 
 internal fun queryFrozenApplicationsOnIo(context: Context, showSystemApps: Boolean): List<AppInfo> {
-    return AppInfoUtils.queryFrozenApplications(context, showSystemApps)
+    return FreezeState.queryFrozenApplications(context, showSystemApps)
 }
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/2
- */
 object AppInfoUtils {
 
     data class FrozenOneKeySnapshot(
@@ -38,7 +35,7 @@ object AppInfoUtils {
             allowRepeatPackage = false,
             showSystemApps = settings.showSystemAppsInManagePage
         )
-        val frozen = queryFrozenApplications(
+        val frozen = FreezeState.queryFrozenApplications(
             context = context,
             showSystemApps = settings.showSystemAppsInManagePage
         )
@@ -61,7 +58,7 @@ object AppInfoUtils {
             allowRepeatPackage = false,
             showSystemApps = settings.showSystemAppsInManagePage
         )
-        val frozen = queryFrozenApplications(
+        val frozen = FreezeState.queryFrozenApplications(
             context = context,
             showSystemApps = settings.showSystemAppsInManagePage
         )
@@ -75,7 +72,7 @@ object AppInfoUtils {
         val oneKeySet = settings.oneKeyPackageNames
         val protectedSet = settings.protectedPackageNames
         val targets = inScope.filter { it in oneKeySet && it !in protectedSet }
-        val frozenState = queryFrozenStateByPackage(context, targets)
+        val frozenState = FreezeState.queryFrozenStateByPackage(context, targets)
         val candidates = targets.filter { frozenState[it] != true }
 
         return FrozenOneKeySnapshot(
@@ -89,20 +86,11 @@ object AppInfoUtils {
     }
 
     fun isFrozenDisabledUser(context: Context, packageName: String): Boolean {
-        val pm = context.packageManager
-        val enabledSetting = runCatching { pm.getApplicationEnabledSetting(packageName) }.getOrNull()
-        return enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+        return FreezeState.isFrozen(context, packageName)
     }
 
     fun queryFrozenStateByPackage(context: Context, packageNames: Collection<String>): Map<String, Boolean> {
-        if (packageNames.isEmpty()) return emptyMap()
-        val pm = context.packageManager
-        val result = LinkedHashMap<String, Boolean>(packageNames.size)
-        packageNames.forEach { packageName ->
-            val enabledSetting = runCatching { pm.getApplicationEnabledSetting(packageName) }.getOrNull()
-            result[packageName] = enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
-        }
-        return result
+        return FreezeState.queryFrozenStateByPackage(context, packageNames)
     }
 
     fun queryCreateShortcutActivities(context: Context, allowRepeatPackage: Boolean = true): List<LauncherInfo> {
@@ -158,65 +146,11 @@ object AppInfoUtils {
 
     private fun isSystemApp(applicationInfo: ApplicationInfo?): Boolean {
         if (applicationInfo == null) return false
-        val flags = applicationInfo.flags
-        return (flags and ApplicationInfo.FLAG_SYSTEM) != 0 || (flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+        return FreezeState.isSystemApp(applicationInfo)
     }
 
     fun queryFrozenApplications(context: Context, showSystemApps: Boolean = true): List<AppInfo> {
-        val pm = context.packageManager
-        val allApps = try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                pm.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0))
-            } else {
-                @Suppress("DEPRECATION")
-                pm.getInstalledApplications(0)
-            }
-        } catch (e: Exception) {
-            return emptyList()
-        }
-
-        val result = mutableListOf<AppInfo>()
-        val pkgNames = mutableSetOf<String>()
-        for (app in allApps) {
-            val pkgName = app.packageName
-            if (pkgName.isBlank()) continue
-            if (!showSystemApps && isSystemApp(app)) continue
-
-            val enabledSetting = try {
-                pm.getApplicationEnabledSetting(pkgName)
-            } catch (e: Exception) {
-                continue
-            }
-
-            val suspended = if (Build.VERSION.SDK_INT >= 24) {
-                runCatching { pm.isPackageSuspended(pkgName) }.getOrDefault(false)
-            } else {
-                false
-            }
-
-            if (enabledSetting != PackageManager.COMPONENT_ENABLED_STATE_DISABLED &&
-                enabledSetting != PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER &&
-                enabledSetting != PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED &&
-                app.enabled &&
-                !suspended
-            ) continue
-
-            val label = try {
-                app.loadLabel(pm).toString()
-            } catch (e: Exception) {
-                pkgName
-            }
-
-            if (pkgName in pkgNames) continue
-            pkgNames.add(pkgName)
-
-            result.add(AppInfo(
-                packageName = pkgName,
-                className = "",
-                label = label
-            ))
-        }
-        return result
+        return FreezeState.queryFrozenApplications(context, showSystemApps)
     }
 
     fun inspectDisabledAppsByPackageManager(context: Context) {
@@ -265,7 +199,7 @@ object AppInfoUtils {
             val labelOk = label.isNotBlank()
             val iconOk = runCatching { pm.getApplicationIcon(pkgName) }.isSuccess
 
-            val isSystem = isSystemApp(app)
+            val isSystem = FreezeState.isSystemApp(app)
 
             when (enabledSetting) {
                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED -> totalDisabled++

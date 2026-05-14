@@ -31,7 +31,7 @@ import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState
 import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.DataStoreHolder
 import hunoia.sideleap.utils.JsonHelper
-import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
+import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.launcher.query.ShortcutQuery
 import com.blankj.utilcode.util.FileUtils
 import kotlinx.coroutines.Dispatchers
@@ -311,9 +311,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
             val appInfos = withContext(Dispatchers.IO) {
                 AppInfoUtils.queryLauncherActivities(App.getContext())
             }
-            val frozenApps = withContext(Dispatchers.IO) {
-                queryFrozenApplicationsOnIo(App.getContext(), true)
-            }
+            val frozenApps = FreezeState.queryFrozenApplications(App.getContext(), true)
             // 合并普通应用和冻结应用，普通应用优先，冻结应用只添加不存在的
             val normalPackageNames = appInfos.map { it.packageName }.toSet()
             val filteredFrozenApps = frozenApps.filter { it.packageName !in normalPackageNames }

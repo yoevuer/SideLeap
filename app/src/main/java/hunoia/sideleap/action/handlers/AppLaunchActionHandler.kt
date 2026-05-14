@@ -10,11 +10,10 @@ import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.OpenAppOrUrlData
+import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.ktx.appInfo
 import hunoia.sideleap.ktx.isMiniWindow
-import hunoia.sideleap.ktx.launchAppActivityWithAutoUnfreeze
 import hunoia.sideleap.ktx.launchAppInPopup
-import hunoia.sideleap.ktx.launchAppWithAutoUnfreeze
 import hunoia.sideleap.ktx.launchOpenAppOrUrl
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.widget.ActionPanelState
@@ -87,8 +86,10 @@ object AppLaunchActionHandler : ActionHandler {
             when (data.type) {
                 OpenAppOrUrlData.TYPE_ACTIVITY -> {
                     context.scope.launch {
-                        context.appContext.launchAppActivityWithAutoUnfreeze(
-                            data.packageName, data.activityClassName
+                        FreezeLaunch.launchActivityWithAutoUnfreeze(
+                            context = context.appContext,
+                            packageName = data.packageName,
+                            className = data.activityClassName
                         ) { _, pkg ->
                             suspendEnablePackageViaBridge(context.service, pkg)
                         }
@@ -105,7 +106,8 @@ object AppLaunchActionHandler : ActionHandler {
         miniWindow: Boolean
     ) {
         context.scope.launch {
-            context.appContext.launchAppWithAutoUnfreeze(
+            FreezeLaunch.launchWithAutoUnfreeze(
+                context = context.appContext,
                 packageName = appInfo.packageName,
                 className = appInfo.className,
                 miniWindow = miniWindow
@@ -118,7 +120,7 @@ object AppLaunchActionHandler : ActionHandler {
     private suspend fun suspendEnablePackageViaBridge(
         service: hunoia.sideleap.SideGestureService,
         packageName: String
-    ): Boolean = suspendCancellableCoroutine { cont ->
+    ): Boolean = kotlinx.coroutines.suspendCancellableCoroutine { cont ->
         service.requestEnableFrozenPackage(packageName) { success ->
             cont.resume(success)
         }

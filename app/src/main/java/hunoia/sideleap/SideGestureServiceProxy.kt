@@ -44,8 +44,7 @@ import hunoia.sideleap.ktx.launchOpenAppOrUrl
 import hunoia.sideleap.system.intent.launchAssist
 import hunoia.sideleap.ktx.launchShortcutInfo
 import hunoia.sideleap.system.intent.launchUrl
-import hunoia.sideleap.ktx.launchAppWithAutoUnfreeze
-import hunoia.sideleap.ktx.launchAppActivityWithAutoUnfreeze
+import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ktx.shortcutInfo
 import hunoia.sideleap.system.audio.toggleMute
@@ -311,7 +310,8 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
 
     private fun launchAppWithFrozenSupport(appInfo: hunoia.sideleap.entity.AppInfo, miniWindow: Boolean) {
         host.coroutineScope.launch {
-            host.launchAppWithAutoUnfreeze(
+            FreezeLaunch.launchWithAutoUnfreeze(
+                context = host,
                 packageName = appInfo.packageName,
                 className = appInfo.className,
                 miniWindow = miniWindow

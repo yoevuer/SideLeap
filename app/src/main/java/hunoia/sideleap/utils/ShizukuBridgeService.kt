@@ -7,6 +7,8 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Messenger
+import hunoia.sideleap.freeze.FreezeAction
+import hunoia.sideleap.system.shizuku.ShizukuCommand
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,7 +26,7 @@ class ShizukuBridgeService : Service() {
                     val packageName = msg.data.getString(EXTRA_PACKAGE_NAME, "")
                     val replyTo = msg.replyTo
                     scope.launch {
-                        val result = ShizukuUtils.enablePackageForLauncher(this@ShizukuBridgeService, packageName)
+                        val result = ShizukuCommand.enablePackageForLauncher(this@ShizukuBridgeService, packageName)
                         val reply = Message.obtain(null, MSG_ENABLE_PACKAGE_RESULT)
                         reply.data.putBoolean(EXTRA_SUCCESS, result.success)
                         reply.data.putString(EXTRA_PACKAGE_NAME, result.packageName)
@@ -42,7 +44,7 @@ class ShizukuBridgeService : Service() {
                     val replyTo = msg.replyTo
                     scope.launch {
                         try {
-                            val result = FrozenAppActionUtils.oneKeyFreeze(this@ShizukuBridgeService)
+                            val result = FreezeAction.oneKeyFreeze(this@ShizukuBridgeService)
                             val reply = Message.obtain(null, MSG_FREEZE_BATCH_RESULT)
                             reply.data.putInt(EXTRA_SUCCESS_COUNT, result.successCount)
                             try { replyTo?.send(reply) } catch (_: Exception) {}
