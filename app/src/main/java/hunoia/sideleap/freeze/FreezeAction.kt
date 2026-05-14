@@ -5,13 +5,12 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import hunoia.sideleap.entity.global.FrozenAppSettings
 import hunoia.sideleap.system.shizuku.ShizukuCommand
 import hunoia.sideleap.system.shizuku.ShizukuRuntime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.Dispatchers
 
 data class FreezeResult(
     val success: Boolean,
@@ -113,7 +112,7 @@ object FreezeAction {
         )
     }
 
-    suspend fun oneKeyFreeze(context: Context): OneKeyFreezeResult {
+    suspend fun oneKeyFreeze(context: Context): OneKeyFreezeResult = withContext(Dispatchers.IO) {
         val settings = hunoia.sideleap.utils.DataStoreHolder.frozenAppSettings.data.first()
         val showSystemApps = settings.showSystemAppsInManagePage
         val oneKeySet = settings.oneKeyPackageNames
@@ -153,7 +152,7 @@ object FreezeAction {
             Log.e("OneKeyFreeze", "candidates=$candidates but all still not frozen after batch")
         }
 
-        return OneKeyFreezeResult(
+        OneKeyFreezeResult(
             oneKeyCount = oneKeySet.size,
             protectedCount = protectedSet.size,
             targetCount = installedTargets.size,
@@ -162,7 +161,7 @@ object FreezeAction {
         )
     }
 
-    suspend fun oneKeyUnfreeze(context: Context, targets: List<String>): OneKeyFreezeResult {
+    suspend fun oneKeyUnfreeze(context: Context, targets: List<String>): OneKeyFreezeResult = withContext(Dispatchers.IO) {
         val frozenState = FreezeState.queryFrozenStateByPackage(context, targets)
         val candidates = targets.filter { frozenState[it] == true }
 
@@ -174,7 +173,7 @@ object FreezeAction {
         val latestState = FreezeState.queryFrozenStateByPackage(context, candidates)
         val successCount = candidates.count { latestState[it] != true }
 
-        return OneKeyFreezeResult(
+        OneKeyFreezeResult(
             oneKeyCount = targets.size,
             protectedCount = 0,
             targetCount = targets.size,

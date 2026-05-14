@@ -7,8 +7,6 @@ import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.freeze.FreezeAction
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 object FreezeAppsActionHandler : ActionHandler {
 

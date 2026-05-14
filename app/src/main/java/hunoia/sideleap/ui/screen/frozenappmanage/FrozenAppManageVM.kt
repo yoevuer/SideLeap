@@ -134,10 +134,12 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             updateUiState { it.copy(bulkActionRunning = true) }
             val result = FreezeAction.oneKeyFreeze(App.getContext())
             showComposeToast(App.getContext().getString(R.string.bulk_frozen_count, result.successCount))
-            val refreshedFrozenState = FreezeState.queryFrozenStateByPackage(
-                App.getContext(),
-                uiState.apps.asSequence().map { it.packageName }.distinct().toList()
-            )
+            val refreshedFrozenState = withContext(Dispatchers.IO) {
+                FreezeState.queryFrozenStateByPackage(
+                    App.getContext(),
+                    uiState.apps.asSequence().map { it.packageName }.distinct().toList()
+                )
+            }
             updateUiState {
                 it.copy(
                     frozenStateByPackage = refreshedFrozenState,
@@ -156,7 +158,9 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             updateUiState { it.copy(bulkActionRunning = true) }
             val result = FreezeAction.oneKeyUnfreeze(App.getContext(), targets)
             val successCount = result.successCount
-            val latestState = FreezeState.queryFrozenStateByPackage(App.getContext(), targets)
+            val latestState = withContext(Dispatchers.IO) {
+                FreezeState.queryFrozenStateByPackage(App.getContext(), targets)
+            }
             showComposeToast(App.getContext().getString(R.string.bulk_unfrozen_count, successCount))
             updateUiState {
                 it.copy(
