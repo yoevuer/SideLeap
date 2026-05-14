@@ -10,7 +10,7 @@ import rikka.shizuku.Shizuku.UserServiceArgs
 import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.IShizukuCommandService
 import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
-import hunoia.sideleap.utils.ShizukuCommandService
+import hunoia.sideleap.system.shizuku.ShizukuCommandService
 import java.util.concurrent.atomic.AtomicBoolean
 
 data class PackageCommandResult(

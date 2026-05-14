@@ -49,8 +49,7 @@ import hunoia.sideleap.ui.widget.ActionPanelState.TriggerType
 
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
-import hunoia.sideleap.utils.ShizukuBridgeService
-import hunoia.sideleap.utils.ShizukuUtils
+import hunoia.sideleap.freeze.ShizukuBridgeService
 import hunoia.sideleap.system.feedback.showToast
 import hunoia.sideleap.system.feedback.showToastLong
 import hunoia.sideleap.system.feedback.showVersionTooLowToast as showVersionTooLowToastUtil

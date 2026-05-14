@@ -1,4 +1,4 @@
-package hunoia.sideleap.utils
+package hunoia.sideleap.system.shizuku
 
 import android.os.IBinder
 import hunoia.sideleap.BuildConfig

@@ -1,4 +1,4 @@
-package hunoia.sideleap.utils
+package hunoia.sideleap.freeze
 
 import android.app.Service
 import android.content.Intent
@@ -7,7 +7,6 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Messenger
-import hunoia.sideleap.freeze.FreezeAction
 import hunoia.sideleap.system.shizuku.ShizukuCommand
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -66,7 +66,7 @@ import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.core.event.Events
 import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 import hunoia.sideleap.overlay.QuickAppLauncherOverlay
-import hunoia.sideleap.utils.ShizukuBridgeService
+import hunoia.sideleap.freeze.ShizukuBridgeService
 import com.blankj.utilcode.util.ScreenUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
