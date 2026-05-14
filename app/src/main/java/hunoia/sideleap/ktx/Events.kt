@@ -5,7 +5,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import hunoia.sideleap.utils.Events
+import hunoia.sideleap.core.event.Events
 import kotlin.reflect.KClass
 
 /**

@@ -7,6 +7,7 @@ import android.os.IBinder
 import rikka.shizuku.Shizuku
 import rikka.shizuku.Shizuku.UserServiceArgs
 import hunoia.sideleap.IShizukuCommandService
+import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 import java.util.concurrent.atomic.AtomicBoolean
 
 object ShizukuUtils {

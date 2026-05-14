@@ -55,7 +55,7 @@ import hunoia.sideleap.system.window.updateGestureButton
 import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
 import hunoia.sideleap.ui.widget.GestureView
-import hunoia.sideleap.utils.MotionEventDispatcher
+import hunoia.sideleap.gesture.input.MotionEventDispatcher
 import java.lang.ref.WeakReference
 import hunoia.sideleap.system.audio.volumeDown
 import hunoia.sideleap.system.audio.volumeUp
@@ -63,8 +63,8 @@ import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import hunoia.sideleap.ui.widget.SideGestureContainer
 import hunoia.sideleap.settings.SettingsProvider
-import hunoia.sideleap.utils.Events
-import hunoia.sideleap.utils.LauncherDiagnostics
+import hunoia.sideleap.core.event.Events
+import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 import hunoia.sideleap.overlay.QuickAppLauncherOverlay
 import hunoia.sideleap.utils.ShizukuBridgeService
 import com.blankj.utilcode.util.ScreenUtils

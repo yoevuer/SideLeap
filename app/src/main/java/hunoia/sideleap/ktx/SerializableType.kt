@@ -2,7 +2,7 @@ package hunoia.sideleap.ktx
 
 import android.os.Bundle
 import androidx.navigation.NavType
-import hunoia.sideleap.utils.JsonHelper
+import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass

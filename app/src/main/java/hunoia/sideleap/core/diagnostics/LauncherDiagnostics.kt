@@ -1,4 +1,4 @@
-package hunoia.sideleap.utils
+package hunoia.sideleap.core.diagnostics
 
 import android.content.Context
 

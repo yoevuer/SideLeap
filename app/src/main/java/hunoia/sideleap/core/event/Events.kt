@@ -1,4 +1,4 @@
-package hunoia.sideleap.utils
+package hunoia.sideleap.core.event
 
 import android.os.Looper
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -7,10 +7,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/22
- */
 object Events {
 
     private val map: MutableMap<KClass<out Any>, MutableList<(Any) -> Unit>> = mutableMapOf()

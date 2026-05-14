@@ -1,7 +1,7 @@
 package hunoia.sideleap.ktx
 
 import androidx.lifecycle.ViewModel
-import hunoia.sideleap.utils.Events
+import hunoia.sideleap.core.event.Events
 import kotlin.reflect.KClass
 
 /**

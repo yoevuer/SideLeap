@@ -1,12 +1,10 @@
-package hunoia.sideleap.utils
+package hunoia.sideleap.core.serialization
 
+import androidx.annotation.Keep
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/24
- */
+@Keep
 object JsonHelper {
 
     val globalJson = Json {

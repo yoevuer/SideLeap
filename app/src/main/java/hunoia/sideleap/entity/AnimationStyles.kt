@@ -1,7 +1,7 @@
 package hunoia.sideleap.entity
 
 import androidx.annotation.Keep
-import hunoia.sideleap.utils.JsonHelper
+import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 

@@ -47,8 +47,8 @@ import hunoia.sideleap.system.audio.volumeDown
 import hunoia.sideleap.system.audio.volumeUp
 import hunoia.sideleap.ui.widget.ActionPanelState.TriggerType
 
-import hunoia.sideleap.utils.JsonHelper
-import hunoia.sideleap.utils.LauncherDiagnostics
+import hunoia.sideleap.core.serialization.JsonHelper
+import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 import hunoia.sideleap.utils.ShizukuBridgeService
 import hunoia.sideleap.utils.ShizukuUtils
 import hunoia.sideleap.system.feedback.showToast

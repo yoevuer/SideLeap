@@ -15,7 +15,7 @@ import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.widget.ActionPanelState
-import hunoia.sideleap.utils.JsonHelper
+import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume

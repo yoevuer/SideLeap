@@ -1,11 +1,7 @@
-package hunoia.sideleap.utils
+package hunoia.sideleap.gesture.input
 
 import android.view.MotionEvent
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/18
- */
 object MotionEventDispatcher {
 
     private val listeners = mutableListOf<OnMotionEventListener>()

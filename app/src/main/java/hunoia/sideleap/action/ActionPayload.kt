@@ -3,7 +3,7 @@ package hunoia.sideleap.action
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
-import hunoia.sideleap.utils.JsonHelper
+import hunoia.sideleap.core.serialization.JsonHelper
 
 val Action.appInfo: AppInfo? get() {
     if (value == GlobalActions.EXTRA_LAUNCH_APP) {

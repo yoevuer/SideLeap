@@ -68,7 +68,7 @@ import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.SettingsProvider
-import hunoia.sideleap.utils.LauncherDiagnostics
+import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.launcher.query.AppSearch.sortApps

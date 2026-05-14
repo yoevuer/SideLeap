@@ -118,7 +118,7 @@ import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
 import hunoia.sideleap.ui.widget.ActionSettingsDialog
 import hunoia.sideleap.ui.widget.MySnackbarHost
 import hunoia.sideleap.ui.widget.TopBar
-import hunoia.sideleap.utils.JsonHelper
+import hunoia.sideleap.core.serialization.JsonHelper
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted

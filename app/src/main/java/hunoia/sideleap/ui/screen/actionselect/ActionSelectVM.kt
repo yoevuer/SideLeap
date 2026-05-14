@@ -30,7 +30,7 @@ import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState
 import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.SettingsProvider
-import hunoia.sideleap.utils.JsonHelper
+import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.launcher.query.ShortcutQuery
 import com.blankj.utilcode.util.FileUtils

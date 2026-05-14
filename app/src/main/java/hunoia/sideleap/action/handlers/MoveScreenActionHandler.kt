@@ -11,7 +11,7 @@ import hunoia.sideleap.action.Action
 import hunoia.sideleap.entity.MoveScreenData
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.system.accessibility.Accessibility
-import hunoia.sideleap.utils.JsonHelper
+import hunoia.sideleap.core.serialization.JsonHelper
 
 object MoveScreenActionHandler : ActionHandler {
 
