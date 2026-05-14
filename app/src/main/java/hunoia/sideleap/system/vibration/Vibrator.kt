@@ -7,8 +7,6 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.annotation.RequiresPermission
-import hunoia.sideleap.settings.model.VibrationEffects
-import hunoia.sideleap.settings.model.Vibrations
 
 @RequiresPermission(VIBRATE)
 fun vibrate(context: Context, vibrations: Vibrations) {

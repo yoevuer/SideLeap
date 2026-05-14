@@ -68,7 +68,7 @@ import hunoia.sideleap.action.Action
 import hunoia.sideleap.settings.model.ActionPanelStyle
 import hunoia.sideleap.settings.model.ArcStyle
 import hunoia.sideleap.gesture.Position
-import hunoia.sideleap.settings.model.Vibrations
+import hunoia.sideleap.system.vibration.Vibrations
 import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.action.appInfo

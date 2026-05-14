@@ -1,4 +1,4 @@
-package hunoia.sideleap.settings.model
+package hunoia.sideleap.system.vibration
 
 import androidx.annotation.Keep
 import hunoia.sideleap.constant.GlobalSettings

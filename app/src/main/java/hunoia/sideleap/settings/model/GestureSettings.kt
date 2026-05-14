@@ -10,7 +10,8 @@ import hunoia.sideleap.settings.GestureSettingsDefaults.LongSlideTriggerDelayMs
 import hunoia.sideleap.settings.GestureSettingsDefaults.LongSlideTriggerDistance
 import hunoia.sideleap.settings.GestureSettingsDefaults.LongSlideTriggerImmediately
 import hunoia.sideleap.settings.GestureSettingsDefaults.SlideTriggerDistance
-import hunoia.sideleap.settings.GestureSettingsDefaults.Vibrations
+import hunoia.sideleap.settings.GestureSettingsDefaults.Vibrations as DefaultVibrations
+import hunoia.sideleap.system.vibration.Vibrations
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -23,6 +24,6 @@ data class GestureSettings(
     val longSlideTriggerImmediately: Boolean = LongSlideTriggerImmediately,
     val longSlideTriggerDelayMs: Long = LongSlideTriggerDelayMs,
     val isCustomVibration: Boolean = IsCustomVibration,
-    val vibrations: Vibrations = Vibrations,
+    val vibrations: Vibrations = DefaultVibrations,
     val isPreciseSlideType: Boolean = IsPreciseSlideType
 )

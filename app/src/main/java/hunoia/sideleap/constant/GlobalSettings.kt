@@ -5,7 +5,7 @@ import androidx.compose.ui.res.stringResource
 import hunoia.sideleap.R
 import com.blankj.utilcode.util.ConvertUtils
 import hunoia.sideleap.settings.model.DayNightMode
-import hunoia.sideleap.settings.model.VibrationEffects
+import hunoia.sideleap.system.vibration.VibrationEffects
 
 /**
  * @author aaronzzxup@gmail.com

@@ -5,6 +5,7 @@ package hunoia.sideleap.settings
 import hunoia.sideleap.settings.model.ActionPanelStyles
 import hunoia.sideleap.settings.model.AnimationStyles
 import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.system.vibration.Vibrations as VibrationModel
 
 object AdvancedSettingsDefaults {
 
@@ -36,7 +37,7 @@ object GestureSettingsDefaults {
     const val LongSlideTriggerDelayMs = 100L
     const val IsCustomVibration = false
     const val IsPreciseSlideType = true
-    val Vibrations = hunoia.sideleap.settings.model.Vibrations()
+    val Vibrations = VibrationModel()
 }
 
 object InitialSettingsDefaults {

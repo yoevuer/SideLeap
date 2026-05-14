@@ -49,7 +49,7 @@ import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.SectionPadding
-import hunoia.sideleap.settings.model.VibrationEffects
+import hunoia.sideleap.system.vibration.VibrationEffects
 import hunoia.sideleap.ui.widget.MyColumn
 import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.TextActionButton
