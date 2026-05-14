@@ -1,4 +1,4 @@
-package hunoia.sideleap.ktx
+package hunoia.sideleap.action.display
 
 import android.content.Context
 import androidx.compose.material.icons.Icons
@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import hunoia.sideleap.launcher.ext.icon
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Splitscreen
@@ -42,18 +41,17 @@ import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.Window
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
+import hunoia.sideleap.App
 import hunoia.sideleap.R
-import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.action.shortcutInfo
+import hunoia.sideleap.constant.GlobalActions
+import hunoia.sideleap.gesture.GestureActions
+import hunoia.sideleap.launcher.ext.icon
 import hunoia.sideleap.ui.theme.icons.PlayPause
-
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/29
- */
 
 private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.BACK to R.string.action_back,
@@ -180,4 +178,47 @@ fun actionIcon(action: Action): Any? = when (action.value) {
     GlobalActions.EXTRA_LAUNCH_APP -> action.appInfo?.icon ?: Icons.Default.Android
     GlobalActions.EXTRA_LAUNCH_SHORTCUT -> action.shortcutInfo?.icon ?: Icons.Default.Android
     else -> actionIconMap[action.value]
+}
+
+@Composable
+fun GestureActions.actionTextCompose(): String {
+    var text = ""
+    val centerText = center.actionTextCompose(true)
+    if (centerText.isNotEmpty()) {
+        text += centerText
+    }
+    val upText = up.actionTextCompose(true)
+    if (upText.isNotEmpty()) {
+        text += if (text.isEmpty()) {
+            upText
+        } else {
+            ",$upText"
+        }
+    }
+    val downText = down.actionTextCompose(true)
+    if (downText.isNotEmpty()) {
+        text += if (text.isEmpty()) {
+            downText
+        } else {
+            ",$downText"
+        }
+    }
+    return text
+}
+
+@Composable
+fun List<Action>.actionTextCompose(emptyIfNone: Boolean = false): String {
+    if (size <= 1) {
+        val value = firstOrNull() ?: Action.NONE
+        return actionText(value, emptyIfNone)
+    }
+    return remember(this, emptyIfNone) {
+        this
+            .filter {
+                it.value.isNotEmpty() && it.value != GlobalActions.NONE
+            }
+            .joinToString(separator = ",") {
+                App.getContext().actionText(it, emptyIfNone)
+            }
+    }
 }

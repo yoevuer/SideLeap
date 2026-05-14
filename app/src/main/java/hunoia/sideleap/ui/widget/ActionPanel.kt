@@ -68,8 +68,8 @@ import hunoia.sideleap.entity.ActionPanelStyle
 import hunoia.sideleap.entity.ArcStyle
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.entity.Vibrations
-import hunoia.sideleap.ktx.actionIcon
-import hunoia.sideleap.ktx.actionText
+import hunoia.sideleap.action.display.actionIcon
+import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.ktx.isMiniWindow
 import hunoia.sideleap.action.shortcutInfo

@@ -91,8 +91,8 @@ import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.action.OpenAppOrUrlData
-import hunoia.sideleap.ktx.actionIcon
-import hunoia.sideleap.ktx.actionText
+import hunoia.sideleap.action.display.actionIcon
+import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.ktx.deniedForever
 import hunoia.sideleap.ktx.gotoAppDetailSettings
 import hunoia.sideleap.launcher.ext.icon

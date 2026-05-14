@@ -53,7 +53,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.ktx.actionText
+import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.ui.theme.DialogTitleFontSize
 import hunoia.sideleap.ui.theme.DialogTitlePadding
 import hunoia.sideleap.ui.theme.ItemPadding
