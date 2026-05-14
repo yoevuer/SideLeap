@@ -49,8 +49,8 @@ import hunoia.sideleap.ktx.find
 import hunoia.sideleap.gesture.getTriggerDirection
 import hunoia.sideleap.gesture.isEmptyOrNone
 import hunoia.sideleap.ktx.takeScreenshot
-import hunoia.sideleap.ktx.tryVibrateForLongSlide
-import hunoia.sideleap.ktx.tryVibrateForSlide
+import hunoia.sideleap.system.vibration.tryVibrateForLongSlide
+import hunoia.sideleap.system.vibration.tryVibrateForSlide
 import hunoia.sideleap.ui.widget.DragGestureHandler
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
 import com.blankj.utilcode.util.ConvertUtils

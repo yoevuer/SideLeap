@@ -16,6 +16,9 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.gesture.GestureButton
+import hunoia.sideleap.system.window.setBasic
+import hunoia.sideleap.system.window.updateGestureButton
+import hunoia.sideleap.system.window.updateMainView
 import hunoia.sideleap.ui.widget.GestureView
 import hunoia.sideleap.utils.MotionEventDispatcher
 import com.blankj.utilcode.util.ScreenUtils

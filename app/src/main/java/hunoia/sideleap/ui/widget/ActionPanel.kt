@@ -74,7 +74,7 @@ import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.ktx.isMiniWindow
 import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.ktx.toIntOffset
-import hunoia.sideleap.ktx.tryVibrateForActionPanel
+import hunoia.sideleap.system.vibration.tryVibrateForActionPanel
 import hunoia.sideleap.ui.theme.RootPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

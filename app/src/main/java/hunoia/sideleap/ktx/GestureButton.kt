@@ -9,6 +9,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.action.display.actionTextCompose
 import hunoia.sideleap.gesture.Position
+import hunoia.sideleap.system.window.rootSize
 
 /**
  * @author aaronzzxup@gmail.com

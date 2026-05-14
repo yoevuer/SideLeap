@@ -46,11 +46,11 @@ import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ktx.removeWindow
 import hunoia.sideleap.ktx.removeWindows
-import hunoia.sideleap.ktx.setFlags
-import hunoia.sideleap.ktx.updateGestureButton
-import java.lang.ref.WeakReference
+import hunoia.sideleap.system.window.setFlags
+import hunoia.sideleap.system.window.updateGestureButton
+import hunoia.sideleap.system.window.updateMainView
 import hunoia.sideleap.ktx.updateLayout
-import hunoia.sideleap.ktx.updateMainView
+import java.lang.ref.WeakReference
 import hunoia.sideleap.system.audio.volumeDown
 import hunoia.sideleap.system.audio.volumeUp
 import hunoia.sideleap.BuildConfig

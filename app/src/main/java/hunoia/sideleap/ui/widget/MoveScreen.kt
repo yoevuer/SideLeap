@@ -60,7 +60,7 @@ import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.DoubleTap
 import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.LongPress
 import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.Tap
 import hunoia.sideleap.settings.model.GestureSettings
-import hunoia.sideleap.ktx.tryVibrateForMoveScreen
+import hunoia.sideleap.system.vibration.tryVibrateForMoveScreen
 import hunoia.sideleap.utils.JsonHelper
 import com.blankj.utilcode.util.ScreenUtils
 import kotlinx.coroutines.CoroutineScope

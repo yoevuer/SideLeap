@@ -1,4 +1,4 @@
-package hunoia.sideleap.ktx
+package hunoia.sideleap.system.window
 
 import android.annotation.SuppressLint
 import android.graphics.PixelFormat
@@ -10,10 +10,8 @@ import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
 import com.blankj.utilcode.util.ScreenUtils
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/20
- */
+val rootSize: IntSize
+    get() = IntSize(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenHeight())
 
 fun WindowManager.LayoutParams.updateMainView() {
     val rootSize = rootSize
@@ -28,11 +26,11 @@ fun WindowManager.LayoutParams.updateGestureButton(button: GestureButton) {
     when (button.position) {
         Position.Left, Position.Right -> {
             width = button.width
-            height = (windowHeight * button.fraction).toInt()
+            height = (windowHeight * (button.end - button.start)).toInt()
             y = (windowHeight * button.start).toInt()
         }
         Position.Bottom -> {
-            width = (windowWidth * button.fraction).toInt()
+            width = (windowWidth * (button.end - button.start)).toInt()
             height = button.width
             x = (windowWidth * button.start).toInt()
             y = windowHeight - button.width
@@ -73,6 +71,3 @@ fun WindowManager.LayoutParams.setFlags(touchEnabled: Boolean) {
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
     }
 }
-
-val rootSize: IntSize
-    get() = IntSize(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenHeight())
