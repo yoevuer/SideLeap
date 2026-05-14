@@ -100,14 +100,14 @@ object SettingsProvider {
     )
 
     suspend fun restoreAll(backup: Backup) {
-        backup.initialSettings?.let { _initialSettings.updateData { it } }
-        backup.advancedSettings?.let { _advancedSettings.updateData { it } }
-        backup.gestureSettings?.let { _gestureSettings.updateData { it } }
-        backup.actionSettings?.let { _actionSettings.updateData { it } }
-        backup.gestureButtons?.let { _sideGestureButtons.updateData { it } }
-        backup.bottomGestureButtons?.let { _bottomGestureButtons.updateData { it } }
-        backup.quickAppLauncherSettings?.let { _quickAppLauncherSettings.updateData { it } }
-        backup.frozenAppSettings?.let { _frozenAppSettings.updateData { it } }
+        backup.initialSettings?.let { value -> _initialSettings.updateData { value } }
+        backup.advancedSettings?.let { value -> _advancedSettings.updateData { value } }
+        backup.gestureSettings?.let { value -> _gestureSettings.updateData { value } }
+        backup.actionSettings?.let { value -> _actionSettings.updateData { value } }
+        backup.gestureButtons?.let { value -> _sideGestureButtons.updateData { value } }
+        backup.bottomGestureButtons?.let { value -> _bottomGestureButtons.updateData { value } }
+        backup.quickAppLauncherSettings?.let { value -> _quickAppLauncherSettings.updateData { value } }
+        backup.frozenAppSettings?.let { value -> _frozenAppSettings.updateData { value } }
     }
 
     suspend fun resetAll() {

@@ -111,6 +111,13 @@ object BackupHelper {
     private suspend fun restoreBackupFromBytes(context: Context, bytes: ByteArray) {
         val decoded = EncodeUtils.base64Decode(bytes)
         val backup = JsonHelper.decodeFromString<Backup>(String(decoded))
+        if (backup.initialSettings == null && backup.advancedSettings == null &&
+            backup.gestureSettings == null && backup.actionSettings == null &&
+            backup.gestureButtons == null && backup.bottomGestureButtons == null &&
+            backup.quickAppLauncherSettings == null && backup.frozenAppSettings == null
+        ) {
+            throw IllegalStateException("restore failed: backup contains no settings")
+        }
         val installedPackages = queryInstalledPackageNames(context)
         val sanitizedFrozenSettings = sanitizeFrozenAppSettings(
             backup.frozenAppSettings,
@@ -122,6 +129,10 @@ object BackupHelper {
             backup
         }
         SettingsProvider.restoreAll(modifiedBackup)
+        val verified = SettingsProvider.snapshotAll()
+        if (verified.initialSettings != modifiedBackup.initialSettings) {
+            throw IllegalStateException("restore failed: initialSettings mismatch after restoreAll")
+        }
     }
 
     private fun sanitizeFrozenAppSettings(
