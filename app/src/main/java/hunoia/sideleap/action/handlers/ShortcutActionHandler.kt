@@ -1,5 +1,6 @@
 package hunoia.sideleap.action.handlers
 
+import hunoia.sideleap.action.ActionExecutionResult
 import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
@@ -11,7 +12,7 @@ object ShortcutActionHandler : ActionHandler {
 
     override val supportedActions = setOf(GlobalActions.EXTRA_LAUNCH_SHORTCUT)
 
-    override suspend fun handle(action: Action, context: ActionHandlerContext): Boolean {
+    override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
             GlobalActions.EXTRA_LAUNCH_SHORTCUT -> {
                 val shortcutInfo = action.shortcutInfo
@@ -19,8 +20,8 @@ object ShortcutActionHandler : ActionHandler {
                     context.appContext.launchShortcutInfo(shortcutInfo)
                 }
             }
-            else -> return false
+            else -> return ActionExecutionResult.Ignored
         }
-        return true
+        return ActionExecutionResult.Success
     }
 }

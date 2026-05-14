@@ -3,11 +3,11 @@ package hunoia.sideleap.action.handlers
 import android.content.ClipData
 import android.content.ClipboardManager
 import hunoia.sideleap.R
+import hunoia.sideleap.action.ActionExecutionResult
 import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.utils.showToast
 
 object RandomNameActionHandler : ActionHandler {
 
@@ -43,7 +43,7 @@ object RandomNameActionHandler : ActionHandler {
 
     private var lastRandomName: String? = null
 
-    override suspend fun handle(action: Action, context: ActionHandlerContext): Boolean {
+    override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
             GlobalActions.RANDOM_NAME -> {
                 val name = generateRandomName()
@@ -52,17 +52,17 @@ object RandomNameActionHandler : ActionHandler {
                         val clipboard = context.appContext
                             .getSystemService(ClipboardManager::class.java)
                         clipboard?.setPrimaryClip(ClipData.newPlainText(null, name))
-                        showToast(name)
+                        context.showToast(name)
                     } catch (_: Exception) {
-                        showToast(R.string.random_name_copy_failed)
+                        context.showToast(context.appContext.getString(R.string.random_name_copy_failed))
                     }
                 } else {
-                    showToast(R.string.random_name_generate_failed)
+                    context.showToast(context.appContext.getString(R.string.random_name_generate_failed))
                 }
             }
-            else -> return false
+            else -> return ActionExecutionResult.Ignored
         }
-        return true
+        return ActionExecutionResult.Success
     }
 
     private fun generateRandomName(): String? {

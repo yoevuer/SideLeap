@@ -60,7 +60,7 @@ import hunoia.sideleap.utils.ShizukuBridgeService
 import hunoia.sideleap.utils.ShizukuUtils
 import hunoia.sideleap.utils.showToast
 import hunoia.sideleap.utils.showToastLong
-import hunoia.sideleap.utils.showVersionTooLowToast
+import hunoia.sideleap.utils.showVersionTooLowToast as showVersionTooLowToastUtil
 import com.blankj.utilcode.util.FlashlightUtils
 import com.blankj.utilcode.util.PermissionUtils
 import com.blankj.utilcode.util.ScreenUtils
@@ -176,18 +176,18 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                     val packageName = event.packageName?.toString()
                     val className = event.className?.toString()
 
-                    if (isActivity(packageName, className)) {
-                        currActivityName = className
+                    if (this@SideGestureServiceProxy.isActivity(packageName, className)) {
+                        this@SideGestureServiceProxy.currActivityName = className
                     }
                     val prevAppExcludePkgNames = host.actionSettings?.previousApp?.packageNames ?: emptyList()
                     if (packageName !in prevAppExcludePkgNames &&
-                        hasLaunchIntent(packageName) &&
-                        currPackageName != packageName
+                        this@SideGestureServiceProxy.hasLaunchIntent(packageName) &&
+                        this@SideGestureServiceProxy.currPackageName != packageName
                     ) {
-                        prevPackageName = currPackageName
-                        currPackageName = packageName
-                        if (prevPackageName == null) {
-                            prevPackageName = currPackageName
+                        this@SideGestureServiceProxy.prevPackageName = this@SideGestureServiceProxy.currPackageName
+                        this@SideGestureServiceProxy.currPackageName = packageName
+                        if (this@SideGestureServiceProxy.prevPackageName == null) {
+                            this@SideGestureServiceProxy.prevPackageName = this@SideGestureServiceProxy.currPackageName
                         }
                     }
 
@@ -198,89 +198,79 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
     }
 
     fun onAction(action: Action) {
-        host.onAction(action)
-    }
-
-    private fun SideGestureService.onAction(action: Action) {
-        if (ActionRegistry.isRegistered(action.value)) {
-            coroutineScope.launch {
-                ActionRegistry.handle(action, ActionHandlerContext(
-                    service = this@onAction,
-                    appContext = this@onAction,
-                    scope = coroutineScope,
-                    actionSettings = actionSettings ?: ActionSettings(),
-                    showToast = { showToast(it) },
-                    showLongToast = { showToastLong(it) },
-                    currentPackageName = { currPackageName },
-                    toggleKeepScreenOn = {
-                        if (wakeLock != null) {
-                            safeReleaseWakeLock()
-                            showToast(R.string.disable_keep_screen_on)
-                        } else {
-                            val pm = this@onAction.getSystemService(Context.POWER_SERVICE) as PowerManager
-                            wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "gulugulu:KeepScreenOn")
-                            wakeLock?.setReferenceCounted(false)
-                            wakeLock?.acquire(KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS)
-                            showToast(R.string.enable_keep_screen_on)
-                        }
-                    },
-                ))
-            }
-            return
-        }
-        when (action.value) {
-            GlobalActions.PREVIOUS_APP -> {
-                previousApp()
-            }
+        host.coroutineScope.launch {
+            ActionRegistry.execute(action, ActionHandlerContext(
+                service = host,
+                appContext = host,
+                scope = host.coroutineScope,
+                actionSettings = host.actionSettings ?: ActionSettings(),
+                showToast = { showToast(it) },
+                showLongToast = { showToastLong(it) },
+                currentPackageName = { currPackageName },
+                toggleKeepScreenOn = {
+                    if (wakeLock != null) {
+                        safeReleaseWakeLock()
+                        showToast(R.string.disable_keep_screen_on)
+                    } else {
+                        val pm = host.getSystemService(Context.POWER_SERVICE) as PowerManager
+                        wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "gulugulu:KeepScreenOn")
+                        wakeLock?.setReferenceCounted(false)
+                        wakeLock?.acquire(KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS)
+                        showToast(R.string.enable_keep_screen_on)
+                    }
+                },
+                showVersionTooLowToast = { resId ->
+                    showVersionTooLowToastUtil(host, resId)
+                },
+                previousApp = {
+                    previousApp()
+                },
+            ))
         }
     }
 
-    private fun AccessibilityService.previousApp() {
+    private suspend fun previousApp() {
         val prevPkgName = prevPackageName
         val curPkgName = currPackageName
         if (prevPkgName.isNullOrEmpty() || curPkgName.isNullOrEmpty()) {
             return
         }
         if (currPackageNameError()) {
-            host.coroutineScope.launch {
-                queryLaunchIntentAndStart(curPkgName)
-            }
+            queryLaunchIntentAndStart(curPkgName)
             return
         }
         if (prevPkgName == curPkgName) return
-        host.coroutineScope.launch {
-            if (queryLaunchIntentAndStart(prevPkgName)) {
-                prevPackageName = curPkgName
-                currPackageName = prevPkgName
-            }
+        if (queryLaunchIntentAndStart(prevPkgName)) {
+            prevPackageName = curPkgName
+            currPackageName = prevPkgName
         }
     }
 
-    private suspend fun AccessibilityService.queryLaunchIntentAndStart(packageName: String?): Boolean {
+    private suspend fun queryLaunchIntentAndStart(packageName: String?): Boolean {
         if (packageName.isNullOrEmpty()) {
             return false
         }
         val intent = withContext(Dispatchers.IO) {
-            packageManager.getLaunchIntentForPackage(packageName)
+            host.packageManager.getLaunchIntentForPackage(packageName)
         } ?: return false
         return try {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
+            host.startActivity(intent)
             true
         } catch (ignored: Exception) {
             false
         }
     }
 
-    private fun AccessibilityService.currPackageNameError(): Boolean {
-        val pkgName = rootInActiveWindow?.packageName?.toString()
+    private fun currPackageNameError(): Boolean {
+        val pkgName = host.rootInActiveWindow?.packageName?.toString()
         return pkgName != currPackageName
     }
 
-    private fun AccessibilityService.hasLaunchIntent(packageName: String?): Boolean {
+    private fun hasLaunchIntent(packageName: String?): Boolean {
         val key = packageName ?: return false
         launchablePackageCache[key]?.let { return it }
-        val result = packageManager.getLaunchIntentForPackage(key) != null
+        val result = host.packageManager.getLaunchIntentForPackage(key) != null
         launchablePackageCache[key] = result
         return result
     }

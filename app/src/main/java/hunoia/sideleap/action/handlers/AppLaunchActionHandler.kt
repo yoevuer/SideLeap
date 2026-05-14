@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import hunoia.sideleap.R
+import hunoia.sideleap.action.ActionExecutionResult
 import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
@@ -18,7 +19,6 @@ import hunoia.sideleap.ktx.launchOpenAppOrUrl
 import hunoia.sideleap.ktx.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.widget.ActionPanelState
 import hunoia.sideleap.utils.JsonHelper
-import hunoia.sideleap.utils.showVersionTooLowToast
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -32,15 +32,15 @@ object AppLaunchActionHandler : ActionHandler {
         GlobalActions.POPUP_SCREEN,
     )
 
-    override suspend fun handle(action: Action, context: ActionHandlerContext): Boolean {
+    override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
             GlobalActions.EXTRA_LAUNCH_APP -> handleExtraLaunchApp(action, context)
             GlobalActions.OPEN_APP_OR_URL -> handleOpenAppOrUrl(action, context)
             GlobalActions.QUICK_APP_LAUNCHER -> context.service.quickAppLauncherOverlay.toggle()
             GlobalActions.POPUP_SCREEN -> handlePopupScreen(context)
-            else -> return false
+            else -> return ActionExecutionResult.Ignored
         }
-        return true
+        return ActionExecutionResult.Success
     }
 
     private fun handlePopupScreen(context: ActionHandlerContext) {
@@ -62,7 +62,7 @@ object AppLaunchActionHandler : ActionHandler {
                 context.appContext.launchAppInPopup(curPkgName, className)
             }
         } else {
-            showVersionTooLowToast(context.appContext, R.string.action_popup_screen)
+            context.showVersionTooLowToast(R.string.action_popup_screen)
         }
     }
 

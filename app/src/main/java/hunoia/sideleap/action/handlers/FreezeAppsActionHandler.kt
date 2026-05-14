@@ -10,6 +10,7 @@ import android.os.Looper
 import android.os.Message
 import android.os.Messenger
 import hunoia.sideleap.R
+import hunoia.sideleap.action.ActionExecutionResult
 import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
@@ -25,7 +26,7 @@ object FreezeAppsActionHandler : ActionHandler {
 
     override val supportedActions = setOf(GlobalActions.ONE_KEY_FREEZE_APPS)
 
-    override suspend fun handle(action: Action, context: ActionHandlerContext): Boolean {
+    override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
             GlobalActions.ONE_KEY_FREEZE_APPS -> {
                 val successCount = withContext(Dispatchers.IO) {
@@ -39,9 +40,9 @@ object FreezeAppsActionHandler : ActionHandler {
                     context.showToast("冻结功能暂不可用")
                 }
             }
-            else -> return false
+            else -> return ActionExecutionResult.Ignored
         }
-        return true
+        return ActionExecutionResult.Success
     }
 
     private fun bridgeOneKeyFreeze(context: Context): Int {

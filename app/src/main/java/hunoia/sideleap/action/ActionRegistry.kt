@@ -40,19 +40,16 @@ object ActionRegistry {
 
     fun isRegistered(actionId: String): Boolean = actionId in handlerMap
 
-    suspend fun handle(action: Action, context: ActionHandlerContext): Boolean {
+    suspend fun execute(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         val handler = handlerMap[action.value]
         if (handler == null) {
-            if (BuildConfig.DEBUG) {
-                check(false) { "Unregistered actionId: ${action.value}" }
-            }
-            return false
+            return ActionExecutionResult.Ignored
         }
         return runCatching {
             handler.handle(action, context)
         }.getOrElse { e ->
             e.printStackTrace()
-            false
+            ActionExecutionResult.Failed(e.message)
         }
     }
 }
