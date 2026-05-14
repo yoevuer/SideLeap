@@ -6,10 +6,6 @@ import hunoia.sideleap.constant.ScaleableDefaults.DEFAULT_SCALE
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
-/**
- * @author DS-Z
- * @since 2025/6/26
- */
 @Serializable
 @Keep
 data class LauncherInfo (

@@ -4,10 +4,6 @@ import androidx.annotation.Keep
 import hunoia.sideleap.constant.ScaleableDefaults
 import kotlinx.serialization.Serializable
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/2
- */
 @Serializable
 @Keep
 data class AppInfo(

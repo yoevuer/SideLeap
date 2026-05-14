@@ -11,7 +11,7 @@ import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.entity.LauncherInfo
 import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.utils.AppInfoUtils
-import hunoia.sideleap.utils.MiniWindowUtils
+import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.utils.LauncherDiagnostics
 import hunoia.sideleap.system.feedback.showToast
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
@@ -138,9 +138,13 @@ suspend fun Context.launchAppActivityWithAutoUnfreeze(
 
 @RequiresApi(Build.VERSION_CODES.N)
 fun Context.launchAppInPopup(packageName: String, className: String): Boolean {
-    val componentName = ComponentName.createRelative(packageName, className)
-    return MiniWindowUtils.startActivity(this, componentName)
-}
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return Launcher.launchAppInPopup(this, packageName, className)
+        } else {
+            showVersionTooLowToast(this, R.string.action_popup_screen)
+            return false
+        }
+    }
 
 fun Context.launchAppActivity(packageName: String, className: String): Boolean {
     return try {

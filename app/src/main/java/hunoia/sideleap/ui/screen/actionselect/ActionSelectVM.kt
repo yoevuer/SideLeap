@@ -15,7 +15,7 @@ import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.entity.AppInfo
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.navigation.IconResize
-import hunoia.sideleap.utils.IconResizeCache
+import hunoia.sideleap.launcher.util.IconResizeCache
 import hunoia.sideleap.entity.LauncherInfo
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
@@ -32,7 +32,7 @@ import hunoia.sideleap.utils.AppInfoUtils
 import hunoia.sideleap.utils.DataStoreHolder
 import hunoia.sideleap.utils.JsonHelper
 import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
-import hunoia.sideleap.utils.ShortcutUtils
+import hunoia.sideleap.launcher.query.ShortcutQuery
 import com.blankj.utilcode.util.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -219,7 +219,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
                 AppInfoUtils.queryCreateShortcutActivities(App.getContext())
             }
             val launchLauncherInfos = withContext(Dispatchers.IO) {
-                ShortcutUtils.getAllAppsWithShortcut(App.getContext())
+                ShortcutQuery.getAllAppsWithShortcut(App.getContext())
             }
             if (uiState.selectSingle) {
                 updateUiState {
