@@ -64,7 +64,6 @@ import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.settings.SettingsProvider
-import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 import hunoia.sideleap.launcher.launch.QuickAppLaunch
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.launcher.query.AppSearch.sortApps
@@ -145,7 +144,7 @@ internal fun QuickAppLauncherContent(
             miniWindow = miniWindow,
             debugPrefix = debugPrefix,
             requestEnableFrozenPackage = service::requestEnableFrozenPackage,
-            log = { message -> LauncherDiagnostics.d(service, message) },
+            log = { message -> android.util.Log.d("SideLeapLauncher", message) },
             onLaunch = onLaunch,
             onLaunched = closeAnimated
         )

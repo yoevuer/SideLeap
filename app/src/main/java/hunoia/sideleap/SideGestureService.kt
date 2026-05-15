@@ -38,7 +38,6 @@ import java.lang.ref.WeakReference
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import hunoia.sideleap.ui.widget.SideGestureContainer
 import hunoia.sideleap.settings.SettingsProvider
-import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 import hunoia.sideleap.overlay.QuickAppLauncherOverlay
 import hunoia.sideleap.freeze.FrozenPackageEnabler
 import com.blankj.utilcode.util.ScreenUtils
@@ -97,7 +96,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
     private val frozenPackageEnabler = FrozenPackageEnabler(
         context = this,
         scopeProvider = { coroutineScope },
-        log = { message -> LauncherDiagnostics.d(this, message) }
+        log = { message -> android.util.Log.d("SideLeapLauncher", message) }
     )
     private val wallpaperChangeObserver = WallpaperChangeObserver(this)
     private val lockScreenVolumeKeyHandler = LockScreenVolumeKeyHandler(
