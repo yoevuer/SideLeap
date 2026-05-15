@@ -28,6 +28,7 @@
 - `ActionRegistry` 将配置后的动作分发给对应 handler。
 - `SystemActionHandler`、`AppLaunchActionHandler`、`FreezeAppsActionHandler`、`ShortcutActionHandler`、`NavigationActionHandler` 是当前主要执行器。
 - `ActionHandlerContext` 由 `service/SideGestureServiceProxyActionCoordinator.kt` 统一构造。
+- `ActionHandlerContext` 只暴露 action 执行所需的能力、settings 快照和回调，不依赖 `SideGestureService` 具体类型。
 
 ## 依赖边界
 

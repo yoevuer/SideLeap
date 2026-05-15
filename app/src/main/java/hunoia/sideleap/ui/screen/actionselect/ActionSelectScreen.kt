@@ -91,7 +91,7 @@ import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.launcher.query.LauncherIconQuery
-import hunoia.sideleap.action.OpenAppOrUrlData
+import hunoia.sideleap.launcher.model.OpenAppOrUrlData
 import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.ui.permission.deniedForever

@@ -9,7 +9,7 @@ import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.action.OpenAppOrUrlData
+import hunoia.sideleap.launcher.model.OpenAppOrUrlData
 import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.launcher.launch.Launcher
@@ -33,7 +33,7 @@ object AppLaunchActionHandler : ActionHandler {
         when (action.value) {
             GlobalActions.EXTRA_LAUNCH_APP -> handleExtraLaunchApp(action, context)
             GlobalActions.OPEN_APP_OR_URL -> handleOpenAppOrUrl(action, context)
-            GlobalActions.QUICK_APP_LAUNCHER -> context.service.quickAppLauncherOverlay.toggle()
+            GlobalActions.QUICK_APP_LAUNCHER -> context.toggleQuickAppLauncher()
             GlobalActions.POPUP_SCREEN -> handlePopupScreen(context)
             else -> return ActionExecutionResult.Ignored
         }
@@ -43,7 +43,7 @@ object AppLaunchActionHandler : ActionHandler {
     private fun handlePopupScreen(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val curPkgName = context.currentPackageName()
-            if (context.runtime.nowInLauncher() || curPkgName.isNullOrEmpty()) {
+            if (context.nowInLauncher() || curPkgName.isNullOrEmpty()) {
                 return
             }
             val intent = Intent().apply {
@@ -64,7 +64,7 @@ object AppLaunchActionHandler : ActionHandler {
     }
 
     private fun handleExtraLaunchApp(action: Action, context: ActionHandlerContext) {
-        val advancedSettings = context.service.advancedSettings ?: return
+        val advancedSettings = context.advancedSettings
         val appInfo = action.appInfo
         if (appInfo != null) {
             val longPressLaunchPopup = advancedSettings.actionPanelAppLongPressLaunchPopup
@@ -94,7 +94,7 @@ object AppLaunchActionHandler : ActionHandler {
                             packageName = data.packageName,
                             className = data.activityClassName
                         ) { _, pkg ->
-                            suspendEnablePackageViaBridge(context.runtime, pkg)
+                            suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
                         }
                     }
                 }
@@ -115,16 +115,16 @@ object AppLaunchActionHandler : ActionHandler {
                 className = appInfo.className,
                 miniWindow = miniWindow
             ) { _, pkg ->
-                suspendEnablePackageViaBridge(context.runtime, pkg)
+                suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
             }
         }
     }
 
     private suspend fun suspendEnablePackageViaBridge(
-        runtime: hunoia.sideleap.service.SideGestureRuntime,
+        requestEnableFrozenPackage: (String, (Boolean) -> Unit) -> Unit,
         packageName: String
     ): Boolean = kotlinx.coroutines.suspendCancellableCoroutine { cont ->
-        runtime.requestEnableFrozenPackage(packageName) { success ->
+        requestEnableFrozenPackage(packageName) { success ->
             cont.resume(success)
         }
     }

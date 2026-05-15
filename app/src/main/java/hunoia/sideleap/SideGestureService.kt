@@ -20,6 +20,7 @@ import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
+import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.core.event.WallpaperChangedEvent
 import hunoia.sideleap.launcher.query.LauncherEnvironment
 import hunoia.sideleap.service.SideGestureServiceProxy
@@ -39,7 +40,11 @@ import hunoia.sideleap.ui.theme.SideGestureTheme
 import hunoia.sideleap.ui.widget.SideGestureContainer
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.overlay.QuickAppLauncherOverlay
+import hunoia.sideleap.overlay.QuickAppLauncherOverlayHost
 import hunoia.sideleap.freeze.FrozenPackageEnabler
+import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
+import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
 import com.blankj.utilcode.util.ScreenUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -50,7 +55,7 @@ import kotlinx.coroutines.launch
  * @author aaronzzxup@gmail.com
  * @since 2024/11/14
  */
-class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
+class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, QuickAppLauncherOverlayHost {
 
     companion object {
         private var currentRef: WeakReference<SideGestureService>? = null
@@ -60,6 +65,9 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
     }
 
     private val proxy = SideGestureServiceProxy(this)
+    override val context: android.content.Context
+        get() = this
+
     val quickAppLauncherOverlay by lazy {
         QuickAppLauncherOverlay(this).apply {
             onAppLaunchRequested = { app ->
@@ -72,7 +80,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
         }
     }
     internal val overlayLifecycle = SideGestureOverlayLifecycle(this)
-    val coroutineScope = MainScope()
+    override val coroutineScope = MainScope()
     private val windowController = SideGestureWindowController(this)
     private val buttonRefreshCoordinator = SideGestureButtonRefreshCoordinator(
         host = this,
@@ -133,7 +141,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
 
     var initialSettings: InitialSettings? = null
         private set
-    var advancedSettings: AdvancedSettings? = null
+    override var advancedSettings: AdvancedSettings? = null
         private set
     var gestureSettings: GestureSettings? = null
         private set
@@ -268,6 +276,35 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
 
     override fun requestEnableFrozenPackage(packageName: String, onResult: (Boolean) -> Unit) {
         frozenPackageEnabler.request(packageName, onResult)
+    }
+
+    @Composable
+    override fun RenderQuickAppLauncherContent(
+        initialSettings: QuickAppLauncherSettings,
+        quickLauncherAppLongPressLaunchPopup: Boolean,
+        onCloseAnimated: () -> Unit,
+        onToggleAdjust: () -> Unit,
+        onLaunch: (AppInfo, Boolean) -> Boolean,
+        onRegisterCloseAnimated: ((() -> Unit) -> Unit)?,
+    ) {
+        SideGestureTheme {
+            QuickAppLauncherContent(
+                initialSettings = initialSettings,
+                quickLauncherAppLongPressLaunchPopup = quickLauncherAppLongPressLaunchPopup,
+                requestEnableFrozenPackage = ::requestEnableFrozenPackage,
+                onCloseAnimated = onCloseAnimated,
+                onToggleAdjust = onToggleAdjust,
+                onLaunch = onLaunch,
+                onRegisterCloseAnimated = onRegisterCloseAnimated,
+            )
+        }
+    }
+
+    @Composable
+    override fun RenderQuickAppLauncherAdjustPanel(onSettingsChanged: (QuickAppLauncherSettings) -> Unit) {
+        SideGestureTheme {
+            QuickAppLauncherAdjustPanel(onSettingsChanged = onSettingsChanged)
+        }
     }
 }
 

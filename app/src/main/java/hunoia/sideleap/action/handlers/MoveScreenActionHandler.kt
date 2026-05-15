@@ -36,7 +36,7 @@ object MoveScreenActionHandler : ActionHandler {
             context.showVersionTooLowToast(R.string.action_move_screen)
             return
         }
-        if (context.service.gestureSettings?.longSlideTriggerImmediately != true) {
+        if (!context.gestureSettings.longSlideTriggerImmediately) {
             context.showToast(context.appContext.getString(R.string.move_screen_disabled_cause_long_slide_trigger_immediately))
             return
         }
@@ -46,13 +46,13 @@ object MoveScreenActionHandler : ActionHandler {
         ) {
             when (data.action) {
                 ActionSettings.MoveScreen.Action.LongPress -> {
-                    Accessibility.longPress(context.service, data.x, data.y)
+                    Accessibility.longPress(context.accessibilityService, data.x, data.y)
                 }
                 ActionSettings.MoveScreen.Action.DoubleTap -> {
-                    Accessibility.doubleTap(context.service, data.x, data.y)
+                    Accessibility.doubleTap(context.accessibilityService, data.x, data.y)
                 }
                 ActionSettings.MoveScreen.Action.Tap -> {
-                    Accessibility.click(context.service, data.x, data.y)
+                    Accessibility.click(context.accessibilityService, data.x, data.y)
                 }
                 else -> Unit
             }
@@ -61,7 +61,7 @@ object MoveScreenActionHandler : ActionHandler {
 
     private fun handleBackToTop(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Accessibility.fastVerticalScroll(context.service, true)
+            Accessibility.fastVerticalScroll(context.accessibilityService, true)
         } else {
             context.showVersionTooLowToast(R.string.action_back_to_top)
         }
@@ -70,7 +70,7 @@ object MoveScreenActionHandler : ActionHandler {
     private fun handleGotoBottom(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val strength = context.actionSettings.gotoBottom.strength
-            Accessibility.fastVerticalScroll(context.service, false, strength)
+            Accessibility.fastVerticalScroll(context.accessibilityService, false, strength)
         } else {
             context.showVersionTooLowToast(R.string.action_goto_bottom)
         }

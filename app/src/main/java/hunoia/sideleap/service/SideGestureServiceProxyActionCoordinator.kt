@@ -74,14 +74,20 @@ internal class SideGestureServiceProxyActionCoordinator(
 
     private fun buildActionHandlerContext(): ActionHandlerContext {
         return ActionHandlerContext(
-            service = host,
-            runtime = host,
+            accessibilityService = host,
             appContext = host.applicationContext,
             scope = scopeProvider(),
             actionSettings = host.actionSettings ?: ActionSettings(),
+            advancedSettings = host.advancedSettings ?: hunoia.sideleap.settings.model.AdvancedSettings(),
+            gestureSettings = host.gestureSettings ?: hunoia.sideleap.settings.model.GestureSettings(),
             showToast = { showToast(it) },
             showLongToast = { showToastLong(it) },
             currentPackageName = { currPackageName },
+            nowInLauncher = { host.nowInLauncher() },
+            requestEnableFrozenPackage = { packageName, onResult ->
+                host.requestEnableFrozenPackage(packageName, onResult)
+            },
+            toggleQuickAppLauncher = { host.quickAppLauncherOverlay.toggle() },
             toggleKeepScreenOn = {
                 if (wakeLock != null) {
                     safeReleaseWakeLock()

@@ -1,40 +1,9 @@
 package hunoia.sideleap.gesture
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.res.stringResource
-import hunoia.sideleap.R
-import hunoia.sideleap.action.display.actionTextCompose
 import hunoia.sideleap.system.window.rootSize
-
-@Composable
-fun GestureButton.buttonTextCompose(): String {
-    return when (position) {
-        Position.Left -> stringResource(id = R.string.left_gesture_button)
-        Position.Right -> stringResource(id = R.string.right_gesture_button)
-        Position.Bottom -> stringResource(id = R.string.bottom_gesture_button)
-    }
-}
-
-@Composable
-fun GestureButton.actionTextCompose(): String {
-    var text = ""
-    val slideActionText = slideActions.actionTextCompose()
-    if (slideActionText.isNotEmpty()) {
-        text += slideActionText
-    }
-    val longSlideActionText = longSlideActions.actionTextCompose()
-    if (longSlideActionText.isNotEmpty()) {
-        text += if (text.isEmpty()) {
-            longSlideActionText
-        } else {
-            ",$longSlideActionText"
-        }
-    }
-    return text
-}
 
 fun List<GestureButton>.find(offset: Offset, imePadding: Int = 0): GestureButton? {
     return find { it.contains(offset, imePadding) }

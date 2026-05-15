@@ -24,11 +24,11 @@ object NavigationActionHandler : ActionHandler {
 
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
-            GlobalActions.BACK -> context.service.performGlobalAction(GLOBAL_ACTION_BACK)
-            GlobalActions.HOME -> context.service.performGlobalAction(GLOBAL_ACTION_HOME)
-            GlobalActions.RECENT -> context.service.performGlobalAction(GLOBAL_ACTION_RECENTS)
-            GlobalActions.OPEN_NOTIFICATION_PANEL -> context.service.performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
-            GlobalActions.OPEN_QUICK_PANEL -> context.service.performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
+            GlobalActions.BACK -> context.accessibilityService.performGlobalAction(GLOBAL_ACTION_BACK)
+            GlobalActions.HOME -> context.accessibilityService.performGlobalAction(GLOBAL_ACTION_HOME)
+            GlobalActions.RECENT -> context.accessibilityService.performGlobalAction(GLOBAL_ACTION_RECENTS)
+            GlobalActions.OPEN_NOTIFICATION_PANEL -> context.accessibilityService.performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
+            GlobalActions.OPEN_QUICK_PANEL -> context.accessibilityService.performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
             GlobalActions.PREVIOUS_APP -> {
                 context.previousApp()
                 return ActionExecutionResult.Success

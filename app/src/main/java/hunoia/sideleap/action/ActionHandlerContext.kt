@@ -1,20 +1,25 @@
 package hunoia.sideleap.action
 
+import android.accessibilityservice.AccessibilityService
 import android.content.Context
-import hunoia.sideleap.SideGestureService
-import hunoia.sideleap.service.SideGestureRuntime
 import hunoia.sideleap.settings.model.ActionSettings
+import hunoia.sideleap.settings.model.AdvancedSettings
+import hunoia.sideleap.settings.model.GestureSettings
 import kotlinx.coroutines.CoroutineScope
 
 data class ActionHandlerContext(
-    val service: SideGestureService,
-    val runtime: SideGestureRuntime,
+    val accessibilityService: AccessibilityService,
     val appContext: Context,
     val scope: CoroutineScope,
     val actionSettings: ActionSettings,
+    val advancedSettings: AdvancedSettings,
+    val gestureSettings: GestureSettings,
     val showToast: (String) -> Unit,
     val showLongToast: (String) -> Unit,
     val currentPackageName: () -> String? = { null },
+    val nowInLauncher: () -> Boolean = { false },
+    val requestEnableFrozenPackage: (String, (Boolean) -> Unit) -> Unit = { _, onResult -> onResult(false) },
+    val toggleQuickAppLauncher: () -> Unit = {},
     val toggleKeepScreenOn: () -> Unit = {},
     val showVersionTooLowToast: (Int) -> Unit = {},
     val previousApp: suspend () -> Unit = {},

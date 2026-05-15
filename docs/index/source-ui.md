@@ -11,6 +11,7 @@
 - Dialog 与权限辅助：`ui/dialog/*`、`ui/permission/Permissions.kt`
 - 主题与样式：`ui/theme/*`
 - UI 事件与 ViewModel 基类：`ui/event/*`、`ui/UDFComponentDefaultsImpl.kt`
+- 手势展示扩展：`ui/gesture/*`
 
 ## 主要源码路径
 
@@ -27,6 +28,7 @@
 | `ui/screen/iconresize/*` | 图标尺寸设置页 |
 | `ui/widget/*` | 按钮、面板、弹层、拖拽等通用组件 |
 | `ui/theme/*` | 主题与配色 |
+| `ui/gesture/GestureButtonDisplay.kt` | GestureButton 的 Compose 文案展示 |
 
 ## 关键入口
 

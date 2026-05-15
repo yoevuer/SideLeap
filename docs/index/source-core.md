@@ -16,7 +16,7 @@
 | `App.kt` | 应用入口，持有 `applicationScope` |
 | `MainActivity.kt` | 主 Activity |
 | `QuickAppLauncherActivity.kt` | 快捷启动器 Activity |
-| `SideGestureService.kt` | 无障碍服务入口（~280 行） |
+| `SideGestureService.kt` | 无障碍服务入口（~320 行） |
 | `core/serialization/JsonHelper.kt` | JSON 辅助 |
 | `core/crash/CrashHandler.kt` | 崩溃处理 |
 | `core/event/Events.kt` | 事件总线（ConcurrentHashMap + CopyOnWriteArrayList） |

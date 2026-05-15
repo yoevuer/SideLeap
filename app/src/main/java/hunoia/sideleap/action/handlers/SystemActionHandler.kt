@@ -34,7 +34,7 @@ object SystemActionHandler : ActionHandler {
 
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
-            GlobalActions.POWER_BUTTON -> context.service.performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
+            GlobalActions.POWER_BUTTON -> context.accessibilityService.performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
             GlobalActions.LOCK_SCREEN -> handleLockScreen(context)
             GlobalActions.FLASHLIGHT -> handleFlashlight(context)
             GlobalActions.SPLIT_SCREEN -> handleSplitScreen(context)
@@ -48,7 +48,7 @@ object SystemActionHandler : ActionHandler {
 
     private fun handleLockScreen(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            context.service.performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+            context.accessibilityService.performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
         } else {
             context.showVersionTooLowToast(R.string.action_lock_screen)
         }
@@ -90,7 +90,7 @@ object SystemActionHandler : ActionHandler {
 
     private fun handleSplitScreen(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            context.service.performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN)
+            context.accessibilityService.performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN)
         } else {
             context.showVersionTooLowToast(R.string.action_split_screen)
         }
@@ -100,7 +100,7 @@ object SystemActionHandler : ActionHandler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             context.scope.launch {
                 delay(500)
-                context.service.performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
+                context.accessibilityService.performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
             }
         } else {
             context.showVersionTooLowToast(R.string.action_screenshot)

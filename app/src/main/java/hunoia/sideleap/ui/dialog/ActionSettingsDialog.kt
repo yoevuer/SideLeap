@@ -69,7 +69,7 @@ import hunoia.sideleap.ui.widget.MyTextSlider
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.platform.LocalContext
-import hunoia.sideleap.action.OpenAppOrUrlData
+import hunoia.sideleap.launcher.model.OpenAppOrUrlData
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.system.feedback.showToast
 

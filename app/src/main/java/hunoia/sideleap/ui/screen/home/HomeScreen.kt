@@ -56,9 +56,9 @@ import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
 import hunoia.sideleap.settings.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.gesture.actionTextCompose
 import hunoia.sideleap.gesture.bounds
-import hunoia.sideleap.gesture.buttonTextCompose
+import hunoia.sideleap.ui.gesture.actionTextCompose
+import hunoia.sideleap.ui.gesture.buttonTextCompose
 import hunoia.sideleap.system.intent.gotoAccessibilitySettings
 import hunoia.sideleap.system.intent.gotoIgnoreBatteryOptimizations
 import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent

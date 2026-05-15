@@ -9,7 +9,7 @@
 
 ### SideGestureService 瘦身
 
-从 ~670 行缩减至 ~280 行，拆出服务协作对象：
+从 ~670 行缩减至 ~320 行，拆出服务协作对象：
 
 | 协作者 | 文件 | 职责 |
 |---|---|---|
@@ -39,6 +39,7 @@
   - `LauncherEnvironment.kt` — 判断当前包是否为桌面启动器
   - `OpenAppOrUrlQuery.kt` — 打开应用/URL 的查询入口
 - `launcher/query/QuickAppLauncherBaseQuery.kt` 提供不含冻结业务的快捷启动器基础应用列表
+- `launcher/model/OpenAppOrUrlData.kt` 承载打开应用/URL 的 launcher payload 模型
 - `freeze/FrozenQuickAppLauncherQuery.kt` 合并冻结应用与普通 launcher 应用列表
 - `launcher/launch/` 新增 `QuickAppLaunch.kt` — 快捷启动器冻结后启动流程
 - UI 不再直接调用 `PackageManager` 读取图标和 shortcut resource
@@ -47,6 +48,12 @@
 ### freeze 边界收敛
 
 - `FrozenPackageEnabler.kt` 封装 Shizuku 解冻单包流程，从 `SideGestureService` 移出
+
+### action / overlay 边界收敛
+
+- `ActionHandlerContext` 不再暴露 `SideGestureService` / `SideGestureRuntime` 具体类型，改为注入无障碍服务能力、settings 快照和回调
+- `QuickAppLauncherOverlay` 通过 `QuickAppLauncherOverlayHost` 获取宿主能力，具体 Compose 内容由 service 装配
+- `GestureButton` 的 Compose 展示扩展迁至 `ui/gesture/GestureButtonDisplay.kt`
 
 ### 协程安全
 

@@ -1,4 +1,4 @@
-package hunoia.sideleap.action
+package hunoia.sideleap.launcher.model
 
 import androidx.annotation.Keep
 import kotlinx.serialization.Serializable

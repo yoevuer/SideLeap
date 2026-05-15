@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.blankj.utilcode.util.ScreenUtils
-import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.freeze.FrozenQuickAppLauncherQuery
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
@@ -77,9 +76,9 @@ import kotlin.math.roundToInt
 
 @Composable
 internal fun QuickAppLauncherContent(
-    service: SideGestureService,
     initialSettings: QuickAppLauncherSettings,
     quickLauncherAppLongPressLaunchPopup: Boolean,
+    requestEnableFrozenPackage: (String, (Boolean) -> Unit) -> Unit,
     onCloseAnimated: () -> Unit,
     onToggleAdjust: () -> Unit,
     onLaunch: (AppInfo, Boolean) -> Boolean,
@@ -143,7 +142,7 @@ internal fun QuickAppLauncherContent(
             isFrozen = isFrozen,
             miniWindow = miniWindow,
             debugPrefix = debugPrefix,
-            requestEnableFrozenPackage = service::requestEnableFrozenPackage,
+            requestEnableFrozenPackage = requestEnableFrozenPackage,
             log = { message -> android.util.Log.d("SideLeapLauncher", message) },
             onLaunch = onLaunch,
             onLaunched = closeAnimated
