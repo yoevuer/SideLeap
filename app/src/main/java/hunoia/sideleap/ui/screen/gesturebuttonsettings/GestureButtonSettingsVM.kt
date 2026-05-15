@@ -9,13 +9,13 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.constant.GlobalSettings.MinGestureButtonLength
-import hunoia.sideleap.entity.GestureButton
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
-import hunoia.sideleap.ktx.fraction
-import hunoia.sideleap.ktx.rootSize
+import hunoia.sideleap.gesture.fraction
+import hunoia.sideleap.system.window.rootSize
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsVM.UiState
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import com.blankj.utilcode.util.ConvertUtils
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -61,7 +61,7 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         viewModelScope.launch {
             loadDataJob?.cancel()
             if (gestureButtonSettings.isSideButton) {
-                DataStoreHolder.sideGestureButtons.updateData {
+                SettingsProvider.updateSideGestureButtons {
                     it.toMutableList().apply {
                         removeAll { item ->
                             item.id == uiState.gestureButton?.id
@@ -69,7 +69,7 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
                     }
                 }
             } else {
-                DataStoreHolder.bottomGestureButtons.updateData {
+                SettingsProvider.updateBottomGestureButtons {
                     it.toMutableList().apply {
                         removeAll { item ->
                             item.id == uiState.gestureButton?.id
@@ -251,11 +251,11 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         viewModelScope.launch {
             launch {
                 if (gestureButtonSettings.isSideButton) {
-                    DataStoreHolder.sideGestureButtons.updateData {
+                    SettingsProvider.updateSideGestureButtons {
                         uiState.gestureButtons
                     }
                 } else {
-                    DataStoreHolder.bottomGestureButtons.updateData {
+                    SettingsProvider.updateBottomGestureButtons {
                         uiState.gestureButtons
                     }
                 }
@@ -276,9 +276,8 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
             }
             launch {
                 if (gestureButtonSettings.isSideButton) {
-                    DataStoreHolder
+                    SettingsProvider
                         .sideGestureButtons
-                        .data
                         .collectLatest { items ->
                             val button = items.find {
                                 it.id == gestureButtonSettings.buttonId &&
@@ -292,9 +291,8 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
                             }
                         }
                 } else {
-                    DataStoreHolder
+                    SettingsProvider
                         .bottomGestureButtons
-                        .data
                         .collectLatest { items ->
                             updateUiState {
                                 it.copy(gestureButtons = items)

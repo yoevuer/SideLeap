@@ -4,10 +4,10 @@ import android.os.Build
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.DayNightMode
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsVM.UiState
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.model.DayNightMode
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -124,7 +124,7 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun clearQuickAppLauncherStats() {
         viewModelScope.launch {
-            DataStoreHolder.quickAppLauncherSettings.updateData {
+            SettingsProvider.updateQuickAppLauncherSettings {
                 it.copy(recentLaunchTime = emptyMap(), launchCount = emptyMap())
             }
         }
@@ -137,7 +137,7 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun saveSettings() {
         viewModelScope.launch {
-            DataStoreHolder.advancedSettings.updateData {
+            SettingsProvider.updateAdvancedSettings {
                 val uiState = uiState
                 it.copy(
                     animationStyles = it.animationStyles.copy(isAnimationEnabled = uiState.showAnimation),
@@ -159,7 +159,7 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun saveQuickAppSettings() {
         viewModelScope.launch {
-            DataStoreHolder.quickAppLauncherSettings.updateData {
+            SettingsProvider.updateQuickAppLauncherSettings {
                 it.copy(showSystemApps = uiState.showSystemApps)
             }
         }
@@ -167,9 +167,8 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun loadData() {
         viewModelScope.launch {
-            DataStoreHolder
+            SettingsProvider
                 .advancedSettings
-                .data
                 .take(1)
                 .collectLatest { item ->
                     updateUiState {
@@ -191,7 +190,7 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                 }
         }
         viewModelScope.launch {
-            DataStoreHolder.quickAppLauncherSettings.data.take(1).collectLatest { item ->
+            SettingsProvider.quickAppLauncherSettings.take(1).collectLatest { item ->
                 updateUiState { it.copy(showSystemApps = item.showSystemApps) }
             }
         }

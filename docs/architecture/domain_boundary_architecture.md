@@ -443,3 +443,12 @@ DataStore / 备份 / 默认值 -> settings
 - 不违反依赖方向白名单。
 - 不让旧 `entity/`、`utils/`、`ktx/` 以新名字继续存在。
 - 不为了当前实现方便牺牲长期边界。
+
+## 8. 当前状态摘要
+
+截至当前分支状态：
+
+- `ktx/`、`utils/`、`entity/` 已无 `.kt` 文件。
+- `docs/index/` 已重写为当前领域索引，不再把旧包作为主入口。
+- 代码主边界已稳定为 `ui`、`gesture`、`action`、`settings`、`launcher`、`freeze`、`overlay`、`system`、`core`。
+- `SideGestureService` 的内部协作已拆成 runtime、overlay lifecycle、button refresh 和 action coordinator。

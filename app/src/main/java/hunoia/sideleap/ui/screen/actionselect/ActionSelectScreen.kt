@@ -6,7 +6,7 @@ import android.content.Intent.ShortcutIconResource
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import hunoia.sideleap.utils.showToast
+import hunoia.sideleap.system.feedback.showToast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -86,21 +86,23 @@ import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings
-import hunoia.sideleap.entity.Action
-import hunoia.sideleap.entity.AppInfo
+import hunoia.sideleap.action.Action
+import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.navigation.IconResize
-import hunoia.sideleap.entity.LauncherInfo
-import hunoia.sideleap.entity.OpenAppOrUrlData
-import hunoia.sideleap.ktx.actionIcon
-import hunoia.sideleap.ktx.actionText
-import hunoia.sideleap.ktx.deniedForever
-import hunoia.sideleap.ktx.gotoAppDetailSettings
-import hunoia.sideleap.ktx.icon
-import hunoia.sideleap.ktx.launchUrl
-import hunoia.sideleap.ktx.normalizeOpenAppOrUrl
-import hunoia.sideleap.ktx.qualifiedName
-import hunoia.sideleap.ktx.queryIntentActivitiesCompat
-import hunoia.sideleap.ktx.rememberGetInstalledAppsPermissionState
+import hunoia.sideleap.launcher.model.LauncherInfo
+import hunoia.sideleap.action.OpenAppOrUrlData
+import hunoia.sideleap.action.display.actionIcon
+import hunoia.sideleap.action.display.actionText
+import hunoia.sideleap.ui.permission.deniedForever
+import hunoia.sideleap.system.intent.gotoAppDetailSettings
+import hunoia.sideleap.launcher.ext.icon
+import hunoia.sideleap.system.intent.launchUrl
+import hunoia.sideleap.system.intent.normalizeOpenAppOrUrl
+import hunoia.sideleap.launcher.ext.qualifiedName
+import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
+import hunoia.sideleap.ui.permission.rememberGetInstalledAppsPermissionState
+import hunoia.sideleap.action.definition.ActionCatalog
+import hunoia.sideleap.action.definition.ActionCategory
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
@@ -116,7 +118,7 @@ import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
 import hunoia.sideleap.ui.widget.ActionSettingsDialog
 import hunoia.sideleap.ui.widget.MySnackbarHost
 import hunoia.sideleap.ui.widget.TopBar
-import hunoia.sideleap.utils.JsonHelper
+import hunoia.sideleap.core.serialization.JsonHelper
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
@@ -346,7 +348,6 @@ private fun ActionPage(
     var selectedCategory by rememberSaveable { mutableStateOf<ActionCategory?>(null) }
     var selectedType by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
-    val metaByValue = remember { actionMetaList.associateBy { it.action.value } }
     val categoryChips = remember {
         listOf<Pair<Any?, String>>(
             null to context.getString(R.string.all_categories),
@@ -365,7 +366,7 @@ private fun ActionPage(
             var result = actions
             if (selectedCategory != null) {
                 result = result.filter { action ->
-                    val cat = metaByValue[action.value]?.category ?: ActionCategory.TOOL
+                    val cat = ActionCatalog.byId(action.value)?.category ?: ActionCategory.TOOL
                     when (selectedCategory) {
                         ActionCategory.NONE -> cat == ActionCategory.NONE || cat == ActionCategory.NAVIGATION
                         else -> cat == selectedCategory
@@ -379,7 +380,7 @@ private fun ActionPage(
             var result = actions
             if (selectedCategory != null) {
                 result = result.filter { action ->
-                    val cat = metaByValue[action.value]?.category ?: ActionCategory.TOOL
+                    val cat = ActionCatalog.byId(action.value)?.category ?: ActionCategory.TOOL
                     when (selectedCategory) {
                         ActionCategory.NONE -> cat == ActionCategory.NONE || cat == ActionCategory.NAVIGATION
                         else -> cat == selectedCategory
@@ -392,7 +393,7 @@ private fun ActionPage(
     val grouped = remember(filteredActions) {
         val map = LinkedHashMap<ActionCategory, MutableList<Action>>()
         filteredActions.forEach { action ->
-            val category = metaByValue[action.value]?.category ?: ActionCategory.TOOL
+            val category = ActionCatalog.byId(action.value)?.category ?: ActionCategory.TOOL
             map.getOrPut(category) { mutableListOf() }.add(action)
         }
         map
@@ -576,7 +577,7 @@ private fun ActionPage(
                             onSelect = { selected ->
                                 onSelect(item, selected)
                             },
-                            showSettings = actionMetaByValue[item.value]?.hasSettings == true,
+                            showSettings = ActionCatalog.hasConfig(item.value),
                             onSettingsClick = {
                                 onSettingsClick(item)
                             }
@@ -637,16 +638,7 @@ private fun ActionPage(
     }
 }
 
-private val ActionCategory.displayName: String
-    get() = when (this) {
-        ActionCategory.NONE -> "默认"
-        ActionCategory.NAVIGATION -> "导航"
-        ActionCategory.MEDIA -> "媒体"
-        ActionCategory.SYSTEM -> "系统"
-        ActionCategory.WINDOW -> "窗口"
-        ActionCategory.LAUNCHER -> "启动"
-        ActionCategory.TOOL -> "工具"
-    }
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -660,9 +652,9 @@ private fun ActionItem(
     showSettings: Boolean = false,
     onSettingsClick: (() -> Unit)? = null
 ) {
-    val meta = actionMetaByValue[action.value]
+    val def = ActionCatalog.byId(action.value)
     val coroutineScope = rememberCoroutineScope()
-    val settingHintText = meta?.settingHintRes?.let { stringResource(it) }
+    val settingHintText = def?.let { actionSettingHintResMap[it.configKind]?.let { res -> stringResource(res) } }
     Row(
         modifier = Modifier
             .graphicsLayer {
@@ -677,7 +669,7 @@ private fun ActionItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         val context = LocalContext.current
-        val icon = actionMetaByValue[action.value]?.icon ?: actionIcon(action)
+        val icon = actionIcon(action)
         Box(
             modifier = Modifier
                 .padding(start = ContentPaddingHorizontal * 2)
@@ -745,9 +737,10 @@ private fun ActionItem(
                     }
                 }
             }
-            if (meta?.descRes != null) {
+            val descRes = def?.let { actionDescResMap[it.titleKey] }
+            if (descRes != null) {
                 Text(
-                    text = stringResource(meta!!.descRes),
+                    text = stringResource(descRes),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,

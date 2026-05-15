@@ -2,12 +2,12 @@ package hunoia.sideleap.ui.screen.animationstyle.wave
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.entity.AnimationStyles
-import hunoia.sideleap.entity.WaveStyle
+import hunoia.sideleap.settings.model.AnimationStyles
+import hunoia.sideleap.settings.model.WaveStyle
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleVM.UiEvent
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleVM.UiState
-import hunoia.sideleap.utils.DataStoreHolder
-import hunoia.sideleap.utils.JsonHelper
+import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -88,7 +88,7 @@ class WaveStyleVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun saveSettings() {
         viewModelScope.launch {
-            DataStoreHolder.advancedSettings.updateData {
+            SettingsProvider.updateAdvancedSettings {
                 it.copy(
                     animationStyles = it.animationStyles.copy(
                         type = AnimationStyles.TYPE_WAVE,
@@ -101,9 +101,8 @@ class WaveStyleVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun loadData() {
         viewModelScope.launch {
-            DataStoreHolder
+            SettingsProvider
                 .advancedSettings
-                .data
                 .take(1)
                 .collectLatest { advancedSettings ->
                     updateUiState {

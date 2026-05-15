@@ -28,8 +28,8 @@ import coil.compose.AsyncImage
 import coil.imageLoader
 import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.ktx.icon
+import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.launcher.ext.icon
 
 @Composable
 fun FrozenAppSearchField(

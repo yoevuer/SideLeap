@@ -1,8 +1,8 @@
 package hunoia.sideleap.ui.navigation
 
 import androidx.annotation.Keep
-import hunoia.sideleap.entity.Position
-import hunoia.sideleap.entity.TriggerDirection
+import hunoia.sideleap.gesture.Position
+import hunoia.sideleap.gesture.TriggerDirection
 import kotlinx.serialization.Serializable
 
 /**

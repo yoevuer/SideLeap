@@ -62,8 +62,8 @@ import hunoia.sideleap.constant.GlobalSettings.MaxMoveScreenRate
 import hunoia.sideleap.constant.GlobalSettings.MinGotoBottomStrength
 import hunoia.sideleap.constant.GlobalSettings.MinMoveScreenHover
 import hunoia.sideleap.constant.GlobalSettings.MinMoveScreenRate
-import hunoia.sideleap.ktx.normalizeOpenAppOrUrl
-import hunoia.sideleap.ktx.queryIntentActivitiesCompat
+import hunoia.sideleap.system.intent.normalizeOpenAppOrUrl
+import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.SubMinInteractiveSize
@@ -72,9 +72,9 @@ import hunoia.sideleap.ui.widget.MyTextSlider
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.platform.LocalContext
-import hunoia.sideleap.entity.OpenAppOrUrlData
-import hunoia.sideleap.utils.JsonHelper
-import hunoia.sideleap.utils.showToast
+import hunoia.sideleap.action.OpenAppOrUrlData
+import hunoia.sideleap.core.serialization.JsonHelper
+import hunoia.sideleap.system.feedback.showToast
 
 /**
  * @author DS-Z
@@ -83,7 +83,7 @@ import hunoia.sideleap.utils.showToast
 
 @Composable
 fun OpenAppOrUrlSettingsContent(
-    action: hunoia.sideleap.entity.Action,
+    action: hunoia.sideleap.action.Action,
     onConfirm: (String) -> Unit
 ) {
     val context = LocalContext.current

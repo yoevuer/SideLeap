@@ -20,8 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class hunoia.sideleap.utils.ShizukuCommandService { *; }
--keep class hunoia.sideleap.utils.ShizukuBridgeService { *; }
+-keep class hunoia.sideleap.system.shizuku.ShizukuCommandService { *; }
+-keep class hunoia.sideleap.freeze.ShizukuBridgeService { *; }
 -keep class hunoia.sideleap.IShizukuCommandService { *; }
 
 # Keep serialization entry points while allowing model obfuscation/shrinking.

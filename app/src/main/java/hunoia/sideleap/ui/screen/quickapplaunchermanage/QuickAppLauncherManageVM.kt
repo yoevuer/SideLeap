@@ -2,11 +2,11 @@ package hunoia.sideleap.ui.screen.quickapplaunchermanage
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.entity.QuickAppLauncherSettings
-import hunoia.sideleap.utils.AppInfoUtils
-import hunoia.sideleap.utils.DataStoreHolder
-import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
+import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.settings.model.QuickAppLauncherSettings
+import hunoia.sideleap.launcher.query.AppQuery
+import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.freeze.FreezeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -20,9 +20,9 @@ class QuickAppLauncherManageVM : BaseComposeVM<QuickAppLauncherManageVM.UiState,
     fun load() = viewModelScope.launch {
         val context = hunoia.sideleap.App.getContext()
         val (settings, normalApps, frozenApps) = withContext(Dispatchers.IO) {
-            val s = DataStoreHolder.quickAppLauncherSettings.data.first()
-            val normal = AppInfoUtils.queryLauncherActivities(context, false, s.showSystemApps)
-            val frozen = queryFrozenApplicationsOnIo(context, s.showSystemApps)
+            val s = SettingsProvider.getQuickAppLauncherSettings()
+            val normal = AppQuery.queryLauncherActivities(context, false, s.showSystemApps)
+            val frozen = FreezeState.queryFrozenApplications(context, s.showSystemApps)
             Triple(s, normal, frozen)
         }
         val normalPackageNames = normalApps.map { it.packageName }.toSet()
@@ -33,14 +33,14 @@ class QuickAppLauncherManageVM : BaseComposeVM<QuickAppLauncherManageVM.UiState,
         updateUiState { it.copy(apps = mergedApps, settings = settings) }
     }
     fun setHidden(app: AppInfo, hide: Boolean) = viewModelScope.launch {
-        DataStoreHolder.quickAppLauncherSettings.updateData {
+        SettingsProvider.updateQuickAppLauncherSettings {
             it.copy(hiddenApps = if (hide) it.hiddenApps + app.key() else it.hiddenApps - app.key())
         }
         load()
     }
 
     fun clearStats() = viewModelScope.launch {
-        DataStoreHolder.quickAppLauncherSettings.updateData { it.copy(recentLaunchTime = emptyMap(), launchCount = emptyMap()) }
+        SettingsProvider.updateQuickAppLauncherSettings { it.copy(recentLaunchTime = emptyMap(), launchCount = emptyMap()) }
         load()
     }
     private fun AppInfo.key() = "$packageName/$className"

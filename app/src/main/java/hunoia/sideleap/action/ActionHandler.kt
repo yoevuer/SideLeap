@@ -1,8 +1,8 @@
 package hunoia.sideleap.action
 
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 
 interface ActionHandler {
     val supportedActions: Set<String>
-    suspend fun handle(action: Action, context: ActionHandlerContext): Boolean
+    suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult
 }

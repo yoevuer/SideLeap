@@ -1,6 +1,6 @@
 package hunoia.sideleap.constant
 
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.Action
 
 /**
  * @author aaronzzxup@gmail.com

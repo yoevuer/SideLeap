@@ -6,8 +6,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.geometry.Offset
-import hunoia.sideleap.utils.MotionEventDispatcher
-import hunoia.sideleap.utils.OnMotionEventListener
+import hunoia.sideleap.gesture.input.MotionEventDispatcher
+import hunoia.sideleap.gesture.input.OnMotionEventListener
 
 @Composable
 fun DragGestureHandler(

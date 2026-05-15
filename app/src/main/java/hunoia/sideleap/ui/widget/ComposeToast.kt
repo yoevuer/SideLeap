@@ -1,8 +1,5 @@
-@file:OptIn(DelicateCoroutinesApi::class)
-
 package hunoia.sideleap.ui.widget
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,16 +23,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aaron.compose.ktx.clipToBackground
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
+import hunoia.sideleap.system.feedback.ToastData
+import hunoia.sideleap.system.feedback.channel
 import kotlinx.coroutines.withTimeoutOrNull
-
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/4
- */
 
 @Composable
 fun ComposeToast(modifier: Modifier = Modifier) {
@@ -89,44 +79,3 @@ fun ComposeToast(modifier: Modifier = Modifier) {
         }
     }
 }
-
-fun showComposeToast(@StringRes resId: Int, duration: ToastDuration = ToastDuration.Short) {
-    GlobalScope.launch {
-        channel.send(ToastData(resId = resId, duration = getTimeMillis(duration)))
-    }
-}
-
-fun showComposeToast(text: String, duration: ToastDuration = ToastDuration.Short) {
-    GlobalScope.launch {
-        channel.send(ToastData(text = text, duration = getTimeMillis(duration)))
-    }
-}
-
-private fun getTimeMillis(duration: ToastDuration): Long {
-    return when (duration) {
-        ToastDuration.Short -> TOAST_SHORT
-        ToastDuration.Long -> TOAST_LONG
-    }
-}
-
-enum class ToastDuration {
-
-    Short, Long
-}
-
-private class ToastData(
-    @StringRes val resId: Int = 0,
-    val text: String = "",
-    val duration: Long = TOAST_SHORT
-) {
-    companion object {
-        val None = ToastData()
-    }
-
-    val isEmpty: Boolean = resId == 0 && text.isEmpty()
-}
-
-private const val TOAST_SHORT = 2000L
-private const val TOAST_LONG = 3500L
-
-private val channel = Channel<ToastData>()

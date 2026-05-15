@@ -9,29 +9,30 @@ import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.Paths
-import hunoia.sideleap.entity.Action
+import hunoia.sideleap.action.definition.ActionCatalog
+import hunoia.sideleap.action.Action
 import hunoia.sideleap.ui.navigation.ActionSelect
-import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.entity.GestureButton
+import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.navigation.IconResize
-import hunoia.sideleap.utils.IconResizeCache
-import hunoia.sideleap.entity.LauncherInfo
-import hunoia.sideleap.entity.Position
-import hunoia.sideleap.entity.TriggerDirection
+import hunoia.sideleap.launcher.util.IconResizeCache
+import hunoia.sideleap.launcher.model.LauncherInfo
+import hunoia.sideleap.gesture.Position
+import hunoia.sideleap.gesture.TriggerDirection
 import hunoia.sideleap.event.IconResizeEvent
-import hunoia.sideleap.ktx.appInfo
-import hunoia.sideleap.ktx.getIcon
-import hunoia.sideleap.ktx.qualifiedName
-import hunoia.sideleap.ktx.qualifiedNameWithIntents
-import hunoia.sideleap.ktx.shortcutInfo
-import hunoia.sideleap.ktx.subscribeEvent
+import hunoia.sideleap.action.appInfo
+import hunoia.sideleap.launcher.ext.getIcon
+import hunoia.sideleap.launcher.ext.qualifiedName
+import hunoia.sideleap.launcher.ext.qualifiedNameWithIntents
+import hunoia.sideleap.action.shortcutInfo
+import hunoia.sideleap.ui.event.subscribeEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState
-import hunoia.sideleap.utils.AppInfoUtils
-import hunoia.sideleap.utils.DataStoreHolder
-import hunoia.sideleap.utils.JsonHelper
-import hunoia.sideleap.utils.queryFrozenApplicationsOnIo
-import hunoia.sideleap.utils.ShortcutUtils
+import hunoia.sideleap.launcher.query.AppQuery
+import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.core.serialization.JsonHelper
+import hunoia.sideleap.freeze.FreezeState
+import hunoia.sideleap.launcher.query.ShortcutQuery
 import com.blankj.utilcode.util.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -215,10 +216,10 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     fun updateShortcutInfos() {
         viewModelScope.launchWithLoading {
             val createLauncherInfos = withContext(Dispatchers.IO) {
-                AppInfoUtils.queryCreateShortcutActivities(App.getContext())
+                AppQuery.queryCreateShortcutActivities(App.getContext())
             }
             val launchLauncherInfos = withContext(Dispatchers.IO) {
-                ShortcutUtils.getAllAppsWithShortcut(App.getContext())
+                ShortcutQuery.getAllAppsWithShortcut(App.getContext())
             }
             if (uiState.selectSingle) {
                 updateUiState {
@@ -308,11 +309,9 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
-                AppInfoUtils.queryLauncherActivities(App.getContext())
+                AppQuery.queryLauncherActivities(App.getContext())
             }
-            val frozenApps = withContext(Dispatchers.IO) {
-                queryFrozenApplicationsOnIo(App.getContext(), true)
-            }
+            val frozenApps = FreezeState.queryFrozenApplications(App.getContext(), true)
             // 合并普通应用和冻结应用，普通应用优先，冻结应用只添加不存在的
             val normalPackageNames = appInfos.map { it.packageName }.toSet()
             val filteredFrozenApps = frozenApps.filter { it.packageName !in normalPackageNames }
@@ -419,14 +418,13 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     private fun loadData() {
         viewModelScope.launch {
             val buttons = if (actionSelect.isSideButton) {
-                DataStoreHolder.sideGestureButtons
+                SettingsProvider.sideGestureButtons
             } else {
-                DataStoreHolder.bottomGestureButtons
+                SettingsProvider.bottomGestureButtons
             }
-            DataStoreHolder
+            SettingsProvider
                 .gestureSettings
-                .data
-                .combine(buttons.data) { f1, f2 ->
+                .combine(buttons) { f1, f2 ->
                     f1 to f2
                 }
                 .take(1)
@@ -469,7 +467,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
 
     private fun assembleData() {
         updateUiState {
-            val allActions = actionMetaList.map { it.action }.toMutableList().apply {
+            val allActions = ActionCatalog.definitions.map { it.toAction() }.toMutableList().apply {
                 if (it.selectSingle) {
                     removeAll { action ->
                         action.value == GlobalActions.MOVE_SCREEN
@@ -499,12 +497,12 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
 
     private fun saveSettings() {
         viewModelScope.launch {
-            val buttons = if (actionSelect.isSideButton) {
-                DataStoreHolder.sideGestureButtons
+            val buttonsUpdater = if (actionSelect.isSideButton) {
+                SettingsProvider::updateSideGestureButtons
             } else {
-                DataStoreHolder.bottomGestureButtons
+                SettingsProvider::updateBottomGestureButtons
             }
-            buttons.updateData { list ->
+            buttonsUpdater { list ->
                 val mutableList = list.toMutableList()
                 val actionSelect = actionSelect
                 var button: GestureButton? = null
@@ -520,7 +518,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
                     }
                 }
                 if (button == null) {
-                    return@updateData mutableList
+                    return@buttonsUpdater mutableList
                 }
                 val selectedRecord = uiState.selectedRecord
                 val selectedList = selectedRecord.list.map { obj ->

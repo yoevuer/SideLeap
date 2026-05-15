@@ -5,7 +5,7 @@ import android.app.Application
 import android.content.Context
 import com.aaron.compose.component.UDFComponentDefaults
 import hunoia.sideleap.defaults.UDFComponentDefaultsImpl
-import hunoia.sideleap.utils.CrashHandler
+import hunoia.sideleap.core.crash.CrashHandler
 import me.weishu.reflection.Reflection
 import rikka.shizuku.ShizukuProvider
 

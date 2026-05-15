@@ -3,12 +3,12 @@ package hunoia.sideleap.ui.screen.gestureangles
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.GestureAngle
-import hunoia.sideleap.entity.GestureAngles
-import hunoia.sideleap.entity.Position
+import hunoia.sideleap.gesture.GestureAngle
+import hunoia.sideleap.gesture.GestureAngles
+import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesVM.UiEvent
 import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesVM.UiState
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.SettingsProvider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -55,7 +55,7 @@ class GestureAnglesVM : BaseComposeVM<UiState, UiEvent>() {
     fun saveSettings() {
         viewModelScope.launch {
             launch {
-                DataStoreHolder.gestureSettings.updateData {
+                SettingsProvider.updateGestureSettings {
                     it.copy(
                         angles = GestureAngles(
                             left = getGestureAngle(Position.Left),
@@ -78,7 +78,7 @@ class GestureAnglesVM : BaseComposeVM<UiState, UiEvent>() {
     fun reset() {
         viewModelScope.launch {
             launch {
-                DataStoreHolder.gestureSettings.updateData {
+                SettingsProvider.updateGestureSettings {
                     it.copy(angles = GestureAngles())
                 }
             }
@@ -93,9 +93,8 @@ class GestureAnglesVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun loadData() {
         viewModelScope.launch {
-            DataStoreHolder
+            SettingsProvider
                 .gestureSettings
-                .data
                 .take(1)
                 .collectLatest { item ->
                     leftAngle = item.angles.left

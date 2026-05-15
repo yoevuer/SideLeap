@@ -3,9 +3,9 @@ package hunoia.sideleap.constant
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import hunoia.sideleap.R
-import hunoia.sideleap.entity.DayNightMode
-import hunoia.sideleap.entity.VibrationEffects
 import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.settings.model.DayNightMode
+import hunoia.sideleap.system.vibration.VibrationEffects
 
 /**
  * @author aaronzzxup@gmail.com

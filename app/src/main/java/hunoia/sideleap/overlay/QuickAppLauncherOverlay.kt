@@ -67,17 +67,16 @@ import hunoia.sideleap.R
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
-import hunoia.sideleap.entity.AppInfo
-import hunoia.sideleap.ktx.launchAppInfo
-import hunoia.sideleap.utils.DataStoreHolder
-import hunoia.sideleap.utils.LauncherDiagnostics
-import hunoia.sideleap.utils.updateQuickAppLauncherStats
+import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.launcher.launch.Launcher
+import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 import com.blankj.utilcode.util.ScreenUtils
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import hunoia.sideleap.entity.QuickAppLauncherSettings
+import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -130,9 +129,21 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
         }
     }
 
+    fun closeImmediately() {
+        if (overlayView == null) {
+            return
+        }
+        isShowing = false
+        isHiding = true
+        lastCloseMs = System.currentTimeMillis()
+        LauncherDiagnostics.d(service, "closeImmediately: removing overlay")
+        removeOverlayView()
+    }
+
     private fun removeOverlayView() {
         LauncherDiagnostics.d(service,"removeOverlayView: removing overlay")
         overlayView?.let {
+            it.animate().cancel()
             val wm = ContextCompat.getSystemService(service, WindowManager::class.java)!!
             runCatching { wm.removeView(it) }
         }
@@ -163,7 +174,7 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
 
         service.coroutineScope.launch {
             val initialSettings = kotlinx.coroutines.withContext(Dispatchers.IO) {
-                DataStoreHolder.quickAppLauncherSettings.data.first()
+                SettingsProvider.getQuickAppLauncherSettings()
             }
             kotlinx.coroutines.withContext(Dispatchers.Main.immediate) {
             val wm = ContextCompat.getSystemService(service, WindowManager::class.java)!!
@@ -210,10 +221,10 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
                                 val now = System.currentTimeMillis()
                                 val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
                                 LauncherDiagnostics.d(service,"appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
-                                val success = service.launchAppInfo(appInfo, miniWindow)
+                                val success = Launcher.launchAppInfo(service, appInfo, miniWindow)
                                 LauncherDiagnostics.d(service,"appClick: ${appInfo.label} launchResult=$success")
                                 if (success) {
-                                    service.updateQuickAppLauncherStats(appInfo)
+                                    updateQuickAppLauncherStats(appInfo)
                                 }
                                 success
                             },
@@ -354,8 +365,19 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
         }
     }
 
+    private fun updateQuickAppLauncherStats(app: AppInfo) {
+        CoroutineScope(Dispatchers.IO).launch {
+            SettingsProvider.updateQuickAppLauncherSettings { old ->
+                val key = app.packageName
+                old.copy(
+                    recentLaunchTime = old.recentLaunchTime + (key to System.currentTimeMillis()),
+                    launchCount = old.launchCount + (key to ((old.launchCount[key] ?: 0L) + 1L))
+                )
+            }
+        }
+    }
+
 }
 
 private fun Int.dpToPx(density: Float) = (this * density).roundToInt()
-
 

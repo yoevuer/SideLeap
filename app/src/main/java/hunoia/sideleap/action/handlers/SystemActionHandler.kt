@@ -9,14 +9,13 @@ import android.os.Build
 import com.blankj.utilcode.util.FlashlightUtils
 import com.blankj.utilcode.util.PermissionUtils
 import hunoia.sideleap.R
+import hunoia.sideleap.action.ActionExecutionResult
 import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.entity.Action
-import hunoia.sideleap.ktx.gotoAppDetailSettings
-import hunoia.sideleap.ktx.launchAssist
-import hunoia.sideleap.utils.showToast
-import hunoia.sideleap.utils.showVersionTooLowToast
+import hunoia.sideleap.action.Action
+import hunoia.sideleap.system.intent.launchAssist
+import hunoia.sideleap.system.intent.gotoAppDetailSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,7 +32,7 @@ object SystemActionHandler : ActionHandler {
         GlobalActions.KEEP_SCREEN_ON,
     )
 
-    override suspend fun handle(action: Action, context: ActionHandlerContext): Boolean {
+    override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
             GlobalActions.POWER_BUTTON -> context.service.performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
             GlobalActions.LOCK_SCREEN -> handleLockScreen(context)
@@ -42,16 +41,16 @@ object SystemActionHandler : ActionHandler {
             GlobalActions.ASSIST_APP -> context.appContext.launchAssist()
             GlobalActions.SCREENSHOT -> handleScreenshot(context)
             GlobalActions.KEEP_SCREEN_ON -> context.toggleKeepScreenOn()
-            else -> return false
+            else -> return ActionExecutionResult.Ignored
         }
-        return true
+        return ActionExecutionResult.Success
     }
 
     private fun handleLockScreen(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             context.service.performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
         } else {
-            showVersionTooLowToast(context.appContext, R.string.action_lock_screen)
+            context.showVersionTooLowToast(R.string.action_lock_screen)
         }
     }
 
@@ -71,21 +70,21 @@ object SystemActionHandler : ActionHandler {
             if (PermissionUtils.isGranted(Manifest.permission.CAMERA)) {
                 block()
             } else {
-                showToast(R.string.grant_camera_permission)
+                context.showToast(context.appContext.getString(R.string.grant_camera_permission))
                 PermissionUtils
                     .permission(Manifest.permission.CAMERA)
                     .callback { isAllGranted, _, _, deniedForever ->
                         if (isAllGranted) {
                             block()
                         } else if (deniedForever.isNotEmpty()) {
-                            showToast(R.string.goto_grant_camera_permission)
+                            context.showToast(context.appContext.getString(R.string.goto_grant_camera_permission))
                             context.appContext.gotoAppDetailSettings()
                         }
                     }
                     .request()
             }
         } else {
-            showToast(R.string.flashlight_failed)
+            context.showToast(context.appContext.getString(R.string.flashlight_failed))
         }
     }
 
@@ -93,7 +92,7 @@ object SystemActionHandler : ActionHandler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             context.service.performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN)
         } else {
-            showVersionTooLowToast(context.appContext, R.string.action_split_screen)
+            context.showVersionTooLowToast(R.string.action_split_screen)
         }
     }
 
@@ -104,7 +103,7 @@ object SystemActionHandler : ActionHandler {
                 context.service.performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
             }
         } else {
-            showVersionTooLowToast(context.appContext, R.string.action_screenshot)
+            context.showVersionTooLowToast(R.string.action_screenshot)
         }
     }
 }

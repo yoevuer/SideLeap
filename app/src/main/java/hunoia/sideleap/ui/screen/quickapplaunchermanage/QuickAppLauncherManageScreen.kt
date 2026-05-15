@@ -48,7 +48,7 @@ import hunoia.sideleap.ui.widget.quickapplaunch.rememberAppIconAsync
 fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageVM = viewModel()) {
     UDFComponent(component = vm.udfComponent, onEvent = {}) { uiState ->
         val context = LocalContext.current
-        val keyOf = remember { { app: hunoia.sideleap.entity.AppInfo -> "${app.packageName}/${app.className}" } }
+        val keyOf = remember { { app: hunoia.sideleap.launcher.model.AppInfo -> "${app.packageName}/${app.className}" } }
         var searchQuery by remember { mutableStateOf("") }
         val filteredApps = remember(searchQuery, uiState.apps) {
             if (searchQuery.isBlank()) uiState.apps

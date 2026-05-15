@@ -79,7 +79,7 @@
         </service>
 
         <service
-            android:name=".utils.ShizukuBridgeService"
+            android:name=".freeze.ShizukuBridgeService"
             android:exported="false" />
 
         <provider

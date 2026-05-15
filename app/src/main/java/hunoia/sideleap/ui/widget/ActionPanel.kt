@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
@@ -63,18 +64,17 @@ import com.aaron.compose.ktx.toPx
 
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.constant.GlobalSettings.DimAlpha
-import hunoia.sideleap.entity.Action
-import hunoia.sideleap.entity.ActionPanelStyle
-import hunoia.sideleap.entity.ArcStyle
-import hunoia.sideleap.entity.Position
-import hunoia.sideleap.entity.Vibrations
-import hunoia.sideleap.ktx.actionIcon
-import hunoia.sideleap.ktx.actionText
-import hunoia.sideleap.ktx.appInfo
-import hunoia.sideleap.ktx.isMiniWindow
-import hunoia.sideleap.ktx.shortcutInfo
-import hunoia.sideleap.ktx.toIntOffset
-import hunoia.sideleap.ktx.tryVibrateForActionPanel
+import hunoia.sideleap.action.TriggerType
+import hunoia.sideleap.action.Action
+import hunoia.sideleap.settings.model.ActionPanelStyle
+import hunoia.sideleap.settings.model.ArcStyle
+import hunoia.sideleap.gesture.Position
+import hunoia.sideleap.system.vibration.Vibrations
+import hunoia.sideleap.action.display.actionIcon
+import hunoia.sideleap.action.display.actionText
+import hunoia.sideleap.action.appInfo
+import hunoia.sideleap.action.shortcutInfo
+import hunoia.sideleap.system.vibration.tryVibrateForActionPanel
 import hunoia.sideleap.ui.theme.RootPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -338,11 +338,17 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                                 animateEnterExit(
                                     enter = scaleIn(spring(stiffness = stiffness)) +
                                             slideIn(animationSpec = spring(stiffness = stiffness)) {
-                                                -targetAnimOffset.toIntOffset()
+                                                IntOffset(
+                                                    x = -targetAnimOffset.x.toInt(),
+                                                    y = -targetAnimOffset.y.toInt()
+                                                )
                                             },
                                     exit = scaleOut(spring(stiffness = stiffness)) +
                                             slideOut(animationSpec = spring(stiffness = stiffness)) {
-                                                -targetAnimOffset.toIntOffset()
+                                                IntOffset(
+                                                    x = -targetAnimOffset.x.toInt(),
+                                                    y = -targetAnimOffset.y.toInt()
+                                                )
                                             }
                                 )
                             }
@@ -468,8 +474,4 @@ class ActionPanelState(private val coroutineScope: CoroutineScope) : LongSlideSt
     /**
      * 用于实现短按和长按
      */
-    enum class TriggerType {
-
-        Press, LongPress
-    }
 }

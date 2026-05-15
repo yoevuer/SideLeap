@@ -7,13 +7,13 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.SideGestureService
-import hunoia.sideleap.entity.GestureButton
-import hunoia.sideleap.ktx.isAccessibilitySettingsOn
-import hunoia.sideleap.ktx.isIgnoringBatteryOptimizations
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent
 import hunoia.sideleap.ui.screen.home.HomeVM.UiState
-import hunoia.sideleap.utils.BackupHelper
-import hunoia.sideleap.utils.DataStoreHolder
+import hunoia.sideleap.settings.BackupHelper
+import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.system.permission.isAccessibilitySettingsOn
+import hunoia.sideleap.system.permission.isIgnoringBatteryOptimizations
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -65,7 +65,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             return
         }
         viewModelScope.launch {
-            DataStoreHolder.bottomGestureButtons.updateData {
+            SettingsProvider.updateBottomGestureButtons {
                 it.toMutableList().apply {
                     add(GestureButton.createBottom())
                 }
@@ -81,7 +81,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             return
         }
         viewModelScope.launch {
-            DataStoreHolder.sideGestureButtons.updateData {
+            SettingsProvider.updateSideGestureButtons {
                 it.toMutableList().apply {
                     addAll(GestureButton.createSidePair())
                 }
@@ -181,7 +181,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     fun updatePermissionState() {
         viewModelScope.launch {
             val app = App.getContext()
-            val isGestureEnabled = DataStoreHolder.initialSettings.data.first().gestureEnabled
+            val isGestureEnabled = SettingsProvider.getInitialSettings().gestureEnabled
             val isAccessibilityEnabled = app.isAccessibilitySettingsOn(SideGestureService::class.java)
             val isIgnoringBatteryOptimizations = app.isIgnoringBatteryOptimizations()
             updateUiState {
@@ -196,24 +196,24 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun reset() {
         viewModelScope.launch {
-            DataStoreHolder.resetAll()
+            SettingsProvider.resetAll()
         }
     }
 
     private fun saveSettings() {
         viewModelScope.launch {
             launch {
-                DataStoreHolder.initialSettings.updateData {
+                SettingsProvider.updateInitialSettings {
                     it.copy(gestureEnabled = uiState.isGestureEnabled)
                 }
             }
             launch {
-                DataStoreHolder.sideGestureButtons.updateData {
+                SettingsProvider.updateSideGestureButtons {
                     uiState.sideGestureButtons
                 }
             }
             launch {
-                DataStoreHolder.bottomGestureButtons.updateData {
+                SettingsProvider.updateBottomGestureButtons {
                     uiState.bottomGestureButtons
                 }
             }
@@ -223,21 +223,21 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     private fun loadData() {
         viewModelScope.launch {
             launch {
-                DataStoreHolder.initialSettings.data.collectLatest { initialSettings ->
+                SettingsProvider.initialSettings.collectLatest { initialSettings ->
                     updateUiState {
                         it.copy(isGestureEnabled = initialSettings.gestureEnabled)
                     }
                 }
             }
             launch {
-                DataStoreHolder.sideGestureButtons.data.collectLatest { buttons ->
+                SettingsProvider.sideGestureButtons.collectLatest { buttons ->
                     updateUiState {
                         it.copy(sideGestureButtons = buttons.sortedBy { b -> b.id })
                     }
                 }
             }
             launch {
-                DataStoreHolder.bottomGestureButtons.data.collectLatest { buttons ->
+                SettingsProvider.bottomGestureButtons.collectLatest { buttons ->
                     updateUiState {
                         it.copy(bottomGestureButtons = buttons.sortedBy { b -> b.id })
                     }

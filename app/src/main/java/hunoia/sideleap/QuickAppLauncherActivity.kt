@@ -3,7 +3,7 @@ package hunoia.sideleap
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import hunoia.sideleap.utils.LauncherDiagnostics
+import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 
 class QuickAppLauncherActivity : Activity() {
 

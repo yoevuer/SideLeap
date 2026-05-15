@@ -7,14 +7,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.constant.ScaleableDefaults.DEFAULT_SCALE
+import hunoia.sideleap.launcher.model.ScaleableDefaults.DEFAULT_SCALE
 import hunoia.sideleap.ui.navigation.IconResize
-import hunoia.sideleap.utils.IconResizeCache
+import hunoia.sideleap.launcher.util.IconResizeCache
 import hunoia.sideleap.event.IconResizeEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiState
-import hunoia.sideleap.utils.DataStoreHolder
-import hunoia.sideleap.utils.Events
+import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.core.event.Events
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -109,7 +109,7 @@ class IconResizeVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState, 
             val uiState = uiState
             val ids = uiState.ids
             val scaleFactors = uiState.scaleFactors
-            DataStoreHolder.advancedSettings.updateData {
+            SettingsProvider.updateAdvancedSettings {
                 val newClipApps = it.clipApps.toMutableMap()
                 val newClipShortcuts = it.clipShortcuts.toMutableMap()
                 ids.forEach { id ->
@@ -141,9 +141,8 @@ class IconResizeVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState, 
 
     private fun loadData() {
         viewModelScope.launch {
-            DataStoreHolder
+            SettingsProvider
                 .advancedSettings
-                .data
                 .take(1)
                 .collectLatest { advancedSettings ->
                     val clipApps = advancedSettings.clipApps

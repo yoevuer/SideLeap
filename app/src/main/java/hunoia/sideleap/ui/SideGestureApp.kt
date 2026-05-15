@@ -35,7 +35,6 @@ import hunoia.sideleap.ui.navigation.Home
 import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.ui.navigation.Unlock
 import hunoia.sideleap.ui.navigation.WaveAnimationStyle
-import hunoia.sideleap.ktx.LocalNavController
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectScreen
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsScreen
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleScreen
@@ -50,6 +49,7 @@ import hunoia.sideleap.ui.screen.iconresize.IconResizeScreen
 import hunoia.sideleap.ui.screen.quickapplaunchermanage.QuickAppLauncherManageScreen
 import hunoia.sideleap.ui.screen.unlock.UnlockScreen
 import hunoia.sideleap.ui.theme.SideGestureTheme
+import hunoia.sideleap.ui.navigation.LocalNavController
 import kotlin.reflect.KType
 
 /**
