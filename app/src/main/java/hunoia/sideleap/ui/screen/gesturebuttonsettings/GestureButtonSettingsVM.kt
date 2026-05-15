@@ -1,7 +1,7 @@
 package hunoia.sideleap.ui.screen.gesturebuttonsettings
 
 import android.os.Build
-import android.util.Log
+
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
@@ -229,7 +229,6 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
                             val center = b.start + (b.fraction / 2f)
                             val st = center - half
                             val ed = center + half
-                            Log.d("zzx", "${ed - st}, $maxFraction")
                             Pair(st, ed)
                         } else {
                             Pair(b.start, b.end)
