@@ -31,14 +31,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
-import androidx.core.view.postDelayed
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.aaron.composeaccessibility.ComponentAccessibilityService
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.GestureSettings
@@ -49,11 +47,10 @@ import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.system.window.removeWindow
 import hunoia.sideleap.system.window.removeWindows
 import hunoia.sideleap.system.window.setBasic
-import hunoia.sideleap.system.window.setFlags
 import hunoia.sideleap.system.window.updateGestureButton
 import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
-import hunoia.sideleap.service.GestureButtonRefreshState
+import hunoia.sideleap.service.SideGestureButtonRefreshCoordinator
 import hunoia.sideleap.service.SideGestureOverlayLifecycle
 import hunoia.sideleap.service.SideGestureRuntime
 import hunoia.sideleap.service.SideGestureRuntimeState
@@ -115,6 +112,22 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
     private val proxy = SideGestureServiceProxy(this)
     val quickAppLauncherOverlay by lazy { QuickAppLauncherOverlay(this) }
     internal val overlayLifecycle = SideGestureOverlayLifecycle(this)
+    private val buttonRefreshCoordinator = SideGestureButtonRefreshCoordinator(
+        host = this,
+        scopeProvider = { coroutineScope },
+        initialSettingsProvider = { SettingsProvider.getInitialSettings() },
+        advancedSettingsProvider = { advancedSettings },
+        buttonViewsProvider = { buttonViews },
+        runtimeStateProvider = {
+            SideGestureRuntimeState(
+                currentPackageName = getCurrentPackageName(),
+                isNowInLockScreenPage = isNowInLockScreenPage,
+                isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE,
+                isInLauncher = nowInLauncher(),
+                imePadding = imeInsetObserver.flow.value,
+            )
+        },
+    )
 
     private val imeInsetObserver = ImeInsetObserver(this) { mainView }
     private var mainView: View? = null
@@ -464,67 +477,12 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
         updateGestureButtons()
     }
 
+    internal fun updateWindowLayout(view: View, lp: WindowManager.LayoutParams) {
+        updateLayout(view, lp)
+    }
+
     private fun updateGestureButtons() {
-        coroutineScope.launch {
-            val initialSettings = SettingsProvider.getInitialSettings()
-            val advancedSettings = advancedSettings ?: return@launch
-            val runtimeState = captureGestureButtonRuntimeState()
-            val refreshState = GestureButtonRefreshState(
-                initialSettings = initialSettings,
-                advancedSettings = advancedSettings,
-                runtimeState = runtimeState
-            )
-            val buttonViews = buttonViews
-            buttonViews?.forEach { view ->
-                val button = view.tag as? GestureButton ?: return@forEach
-                val lp = (view.layoutParams as WindowManager.LayoutParams).apply {
-                    applyGestureButtonState(this, view, button, refreshState)
-                }
-                updateLayout(view, lp)
-            }
-        }
-    }
-
-    private fun applyGestureButtonState(
-        lp: WindowManager.LayoutParams,
-        view: View,
-        button: GestureButton,
-        state: GestureButtonRefreshState
-    ) {
-        lp.updateGestureButton(button)
-        if (button.position != Position.Bottom) {
-            lp.y += -state.runtimeState.imePadding
-        }
-        updateTemporaryHideClickListener(view, state.advancedSettings.hideTemporary)
-        lp.setFlags(state.shouldShow(button))
-    }
-
-    private fun updateTemporaryHideClickListener(view: View, enabled: Boolean) {
-        if (enabled) {
-            view.setOnClickListener { v ->
-                val lp = v.layoutParams as WindowManager.LayoutParams
-                lp.setFlags(false)
-                updateLayout(v, lp)
-                v.postDelayed(1000) {
-                    val lp2 = v.layoutParams as WindowManager.LayoutParams
-                    val gestureButton = (view.tag as? GestureButton)?.enabled == true
-                    lp2.setFlags(gestureButton)
-                    updateLayout(v, lp2)
-                }
-            }
-        } else {
-            view.setOnClickListener(null)
-        }
-    }
-
-    private fun captureGestureButtonRuntimeState(): SideGestureRuntimeState {
-        return SideGestureRuntimeState(
-            currentPackageName = getCurrentPackageName(),
-            isNowInLockScreenPage = isNowInLockScreenPage,
-            isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE,
-            isInLauncher = nowInLauncher(),
-            imePadding = imeInsetObserver.flow.value,
-        )
+        buttonRefreshCoordinator.refresh()
     }
 
     fun getCurrentPackageName(): String {

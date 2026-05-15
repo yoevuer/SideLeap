@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.PowerManager
 import android.view.accessibility.AccessibilityEvent
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.action.ActionExecutionResult
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.action.ActionRegistry
 import hunoia.sideleap.settings.model.ActionSettings
@@ -67,16 +66,7 @@ internal class SideGestureServiceProxyActionCoordinator(
     fun onAction(action: Action) {
         val scope = scopeProvider()
         scope.launch {
-            val result = ActionRegistry.execute(action, buildActionHandlerContext())
-            handleActionResult(result)
-        }
-    }
-
-    private fun handleActionResult(result: ActionExecutionResult) {
-        when (result) {
-            ActionExecutionResult.Success,
-            ActionExecutionResult.Ignored -> Unit
-            is ActionExecutionResult.Failed -> Unit
+            ActionRegistry.execute(action, buildActionHandlerContext())
         }
     }
 
