@@ -1,6 +1,6 @@
 package hunoia.sideleap.core.crash
 
-import hunoia.sideleap.constant.Paths
+import hunoia.sideleap.core.Paths
 import com.blankj.utilcode.util.FileIOUtils
 import com.blankj.utilcode.util.FileUtils
 import com.blankj.utilcode.util.TimeUtils

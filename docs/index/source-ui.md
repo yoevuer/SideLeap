@@ -10,7 +10,7 @@
 - 共享组件：`ui/widget/*`
 - Dialog 与权限辅助：`ui/dialog/*`、`ui/permission/Permissions.kt`
 - 主题与样式：`ui/theme/*`
-- UI 事件与 ViewModel 基类：`ui/event/*`
+- UI 事件与 ViewModel 基类：`ui/event/*`、`ui/UDFComponentDefaultsImpl.kt`
 
 ## 主要源码路径
 

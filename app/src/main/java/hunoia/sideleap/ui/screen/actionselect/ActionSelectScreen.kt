@@ -84,8 +84,8 @@ import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.onClick
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
-import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.constant.GlobalSettings
+import hunoia.sideleap.action.GlobalActions
+import hunoia.sideleap.settings.SettingsUiDefaults
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.navigation.IconResize
@@ -658,7 +658,7 @@ private fun ActionItem(
     Row(
         modifier = Modifier
             .graphicsLayer {
-                alpha = if (enabled) 1f else GlobalSettings.DisabledAlpha
+                alpha = if (enabled) 1f else SettingsUiDefaults.DisabledAlpha
             }
             .fillMaxWidth()
             .heightIn(min = MinInteractiveSize)
@@ -1076,7 +1076,7 @@ private fun AppItem(
     Row(
         modifier = Modifier
             .graphicsLayer {
-                alpha = if (enabled) 1f else GlobalSettings.DisabledAlpha
+                alpha = if (enabled) 1f else SettingsUiDefaults.DisabledAlpha
             }
             .fillMaxWidth()
             .combinedClickable(
@@ -1156,7 +1156,7 @@ private fun LauncherInfoItem(
         modifier = Modifier
             .graphicsLayer {
                 alpha =
-                    if (canLauncherInfoEnabled(launcherInfo)) 1f else GlobalSettings.DisabledAlpha
+                    if (canLauncherInfoEnabled(launcherInfo)) 1f else SettingsUiDefaults.DisabledAlpha
             }
             .fillMaxWidth()
     ) {

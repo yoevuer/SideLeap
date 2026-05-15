@@ -6,7 +6,7 @@
 
 - 应用与服务入口：`App.kt`、`MainActivity.kt`、`QuickAppLauncherActivity.kt`、`SideGestureService.kt`
 - 底层基础设施：`core/serialization/*`、`core/crash/*`、`core/diagnostics/*`、`core/event/*`
-- 跨领域常量与默认值：`constant/*`、`defaults/*`、`event/*`
+- 跨领域基础能力：`core/Paths.kt`、`core/event/Events.kt`、`core/event/WallpaperChangedEvent.kt`
 - 服务内部协作只保留在 `service/*`，不回塞进 `core`。
 
 ## 主要源码路径

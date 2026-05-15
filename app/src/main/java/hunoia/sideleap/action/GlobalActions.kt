@@ -1,4 +1,4 @@
-package hunoia.sideleap.constant
+package hunoia.sideleap.action
 
 import hunoia.sideleap.action.Action
 

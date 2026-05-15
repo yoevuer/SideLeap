@@ -32,7 +32,7 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.aaron.compose.ktx.onSingleClick
-import hunoia.sideleap.constant.GlobalSettings
+import hunoia.sideleap.settings.SettingsUiDefaults
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.DividerHeight
@@ -212,4 +212,4 @@ fun LabeledSwitch(
     }
 }
 
-private const val DISABLED_ALPHA = GlobalSettings.DisabledAlpha
+private const val DISABLED_ALPHA = SettingsUiDefaults.DisabledAlpha

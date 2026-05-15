@@ -41,7 +41,7 @@ import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
-import hunoia.sideleap.event.WallpaperChangedEvent
+import hunoia.sideleap.core.event.WallpaperChangedEvent
 import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.system.window.removeWindow

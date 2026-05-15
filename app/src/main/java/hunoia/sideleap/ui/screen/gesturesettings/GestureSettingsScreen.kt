@@ -32,17 +32,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
-import hunoia.sideleap.constant.GlobalSettings.MaxLongPressTriggerDelayMs
-import hunoia.sideleap.constant.GlobalSettings.MaxLongSlideTriggerDelayMs
-import hunoia.sideleap.constant.GlobalSettings.MaxLongSlideTriggerDistance
-import hunoia.sideleap.constant.GlobalSettings.MaxSlideTriggerDistance
-import hunoia.sideleap.constant.GlobalSettings.MaxVibrationDurationMs
-import hunoia.sideleap.constant.GlobalSettings.MinLongPressTriggerDelayMs
-import hunoia.sideleap.constant.GlobalSettings.MinLongSlideTriggerDelayMs
-import hunoia.sideleap.constant.GlobalSettings.MinLongSlideTriggerDistance
-import hunoia.sideleap.constant.GlobalSettings.MinSlideTriggerDistance
-import hunoia.sideleap.constant.GlobalSettings.MinVibrationDurationMs
-import hunoia.sideleap.constant.GlobalSettings.getPredefinedVibrationEffectText
+import hunoia.sideleap.settings.SettingsUiDefaults.MaxLongPressTriggerDelayMs
+import hunoia.sideleap.settings.SettingsUiDefaults.MaxLongSlideTriggerDelayMs
+import hunoia.sideleap.settings.SettingsUiDefaults.MaxLongSlideTriggerDistance
+import hunoia.sideleap.settings.SettingsUiDefaults.MaxSlideTriggerDistance
+import hunoia.sideleap.settings.SettingsUiDefaults.MinLongPressTriggerDelayMs
+import hunoia.sideleap.settings.SettingsUiDefaults.MinLongSlideTriggerDelayMs
+import hunoia.sideleap.settings.SettingsUiDefaults.MinLongSlideTriggerDistance
+import hunoia.sideleap.settings.SettingsUiDefaults.MinSlideTriggerDistance
+import hunoia.sideleap.system.vibration.VibrationDefaults.MaxCustomVibrationMs
+import hunoia.sideleap.system.vibration.VibrationDefaults.MinCustomVibrationMs
+import hunoia.sideleap.settings.SettingsUiDefaults.getPredefinedVibrationEffectText
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiEvent
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
@@ -255,7 +255,7 @@ fun GestureSettingsScreen(
                                     onValueChangeFinished = { vm.saveSettings() },
                                     text = stringResource(id = R.string.vibration_strength),
                                     sliderValueHint = stringResource(id = R.string.low) to stringResource(id = R.string.high),
-                                    valueRange = MinVibrationDurationMs.toFloat()..MaxVibrationDurationMs.toFloat()
+                                    valueRange = MinCustomVibrationMs.toFloat()..MaxCustomVibrationMs.toFloat()
                                 )
                             }
                         }
@@ -266,7 +266,7 @@ fun GestureSettingsScreen(
                             onValueChangeFinished = { vm.saveSettings() },
                             text = stringResource(id = R.string.vibration_strength),
                             sliderValueHint = stringResource(id = R.string.low) to stringResource(id = R.string.high),
-                            valueRange = MinVibrationDurationMs.toFloat()..MaxVibrationDurationMs.toFloat()
+                            valueRange = MinCustomVibrationMs.toFloat()..MaxCustomVibrationMs.toFloat()
                         )
                     }
                 }

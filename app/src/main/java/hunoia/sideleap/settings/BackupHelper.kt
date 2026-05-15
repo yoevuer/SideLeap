@@ -3,7 +3,7 @@ package hunoia.sideleap.settings
 import android.content.Context
 import android.net.Uri
 import hunoia.sideleap.BuildConfig
-import hunoia.sideleap.constant.Paths
+import hunoia.sideleap.core.Paths
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.settings.model.Backup
 import com.blankj.utilcode.util.EncodeUtils

@@ -2,7 +2,7 @@ package hunoia.sideleap.gesture
 
 import androidx.annotation.Keep
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.constant.GlobalActions
+import hunoia.sideleap.action.GlobalActions
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 

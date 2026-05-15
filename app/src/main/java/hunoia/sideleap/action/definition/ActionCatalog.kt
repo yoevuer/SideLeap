@@ -1,7 +1,7 @@
 package hunoia.sideleap.action.definition
 
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.constant.GlobalActions
+import hunoia.sideleap.action.GlobalActions
 
 object ActionCatalog {
 

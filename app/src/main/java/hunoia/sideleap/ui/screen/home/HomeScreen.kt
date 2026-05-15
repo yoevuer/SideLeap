@@ -54,7 +54,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
-import hunoia.sideleap.constant.GlobalSettings.GestureButtonColorAlpha
+import hunoia.sideleap.settings.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.actionTextCompose
 import hunoia.sideleap.gesture.bounds

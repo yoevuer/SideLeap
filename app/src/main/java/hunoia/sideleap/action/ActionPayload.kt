@@ -1,6 +1,6 @@
 package hunoia.sideleap.action
 
-import hunoia.sideleap.constant.GlobalActions
+import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.core.serialization.JsonHelper

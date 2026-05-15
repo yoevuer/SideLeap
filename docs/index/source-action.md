@@ -6,6 +6,7 @@
 
 - 动作核心模型：`action/Action.kt`、`action/ActionPayload.kt`、`action/ActionExecutionResult.kt`
 - 动作定义与分类：`action/definition/*`
+- 动作常量：`action/GlobalActions.kt`
 - 动作分发：`action/ActionRegistry.kt`、`action/ActionHandler.kt`、`action/ActionHandlerContext.kt`
 - 动作处理器：`action/handlers/*`
 - 动作展示：`action/display/*`

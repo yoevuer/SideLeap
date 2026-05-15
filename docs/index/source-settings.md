@@ -6,6 +6,7 @@
 
 - 配置入口与 provider：`settings/SettingsProvider.kt`
 - 默认值：`settings/SettingsDefaults.kt`
+- UI 相关设置边界：`settings/SettingsUiDefaults.kt`
 - DataStore 访问：`settings/internal/DataStore.kt`
 - 备份恢复：`settings/BackupHelper.kt`
 - 文件与键名常量：`settings/DataStoreFiles.kt`

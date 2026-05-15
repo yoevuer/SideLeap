@@ -8,7 +8,7 @@ import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_RECENTS
 import hunoia.sideleap.action.ActionExecutionResult
 import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
-import hunoia.sideleap.constant.GlobalActions
+import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
 
 object NavigationActionHandler : ActionHandler {

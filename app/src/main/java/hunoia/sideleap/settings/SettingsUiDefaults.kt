@@ -1,17 +1,15 @@
-package hunoia.sideleap.constant
+@file:Suppress("ConstPropertyName")
+
+package hunoia.sideleap.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import hunoia.sideleap.R
 import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.R
 import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.system.vibration.VibrationEffects
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/25
- */
-object GlobalSettings {
+object SettingsUiDefaults {
 
     val MinGestureButtonWidth = ConvertUtils.dp2px(1f)
     val MaxGestureButtonWidth = ConvertUtils.dp2px(60f)
@@ -40,8 +38,6 @@ object GlobalSettings {
     const val MaxLongSlideTriggerDelayMs = 250L
     const val MinLongPressTriggerDelayMs = 100L
     const val MaxLongPressTriggerDelayMs = 1000L
-    const val MinVibrationDurationMs = 0L
-    const val MaxVibrationDurationMs = 100L
     const val GestureButtonColorAlpha = 0.36f
     const val DisabledAlpha = 0.36f
     const val DimAlpha = 0.5f

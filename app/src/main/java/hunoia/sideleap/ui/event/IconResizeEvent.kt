@@ -1,4 +1,4 @@
-package hunoia.sideleap.event
+package hunoia.sideleap.ui.event
 
 /**
  * @author aaronzzxup@gmail.com

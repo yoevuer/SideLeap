@@ -3,7 +3,7 @@ package hunoia.sideleap.action.handlers
 import hunoia.sideleap.action.ActionExecutionResult
 import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
-import hunoia.sideleap.constant.GlobalActions
+import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.action.shortcutInfo

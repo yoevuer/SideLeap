@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.SideGestureService
-import hunoia.sideleap.constant.GlobalActions
+import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.settings.model.ActionPanelStyle
 import hunoia.sideleap.settings.model.ActionPanelStyles
