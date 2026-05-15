@@ -461,24 +461,40 @@ class SideGestureService : ComponentAccessibilityService() {
 
     private fun updateGestureButtons() {
         coroutineScope.launch {
+            val initialSettings = SettingsProvider.getInitialSettings()
             val advancedSettings = advancedSettings ?: return@launch
+            val refreshState = GestureButtonRefreshState(
+                initialSettings = initialSettings,
+                advancedSettings = advancedSettings,
+                currentPackageName = getCurrentPackageName(),
+                isNowInLockScreenPage = isNowInLockScreenPage,
+                isLandscape = ScreenUtils.isLandscape(),
+                isInLauncher = nowInLauncher(),
+                imePadding = imeInsetObserver.flow.value
+            )
             val buttonViews = buttonViews
             buttonViews?.forEach { view ->
                 val button = view.tag as? GestureButton ?: return@forEach
                 val lp = (view.layoutParams as WindowManager.LayoutParams).apply {
-                    updateGestureButton(button)
-                    if (button.position != Position.Bottom) {
-                        val imePadding = imeInsetObserver.flow.value
-                        y += -imePadding
-                    }
-
-                    updateTemporaryHideClickListener(view, advancedSettings.hideTemporary)
-
-                    setFlags(shouldShowGestureButton(button, advancedSettings))
+                    applyGestureButtonState(this, view, button, refreshState)
                 }
                 updateLayout(view, lp)
             }
         }
+    }
+
+    private fun applyGestureButtonState(
+        lp: WindowManager.LayoutParams,
+        view: View,
+        button: GestureButton,
+        state: GestureButtonRefreshState
+    ) {
+        lp.updateGestureButton(button)
+        if (button.position != Position.Bottom) {
+            lp.y += -state.imePadding
+        }
+        updateTemporaryHideClickListener(view, state.advancedSettings.hideTemporary)
+        lp.setFlags(state.shouldShow(button))
     }
 
     private fun updateTemporaryHideClickListener(view: View, enabled: Boolean) {
@@ -499,14 +515,23 @@ class SideGestureService : ComponentAccessibilityService() {
         }
     }
 
-    private suspend fun shouldShowGestureButton(button: GestureButton, advancedSettings: AdvancedSettings): Boolean {
-        val initialSettings = SettingsProvider.getInitialSettings()
-        return initialSettings.gestureEnabled &&
-            !(advancedSettings.hideLandscape && ScreenUtils.isLandscape()) &&
-            !(advancedSettings.hideHomeScreen && nowInLauncher()) &&
-            !(advancedSettings.hideScreenLock && isNowInLockScreenPage) &&
-            getCurrentPackageName() !in advancedSettings.excludeApps &&
-            button.enabled
+    private data class GestureButtonRefreshState(
+        val initialSettings: InitialSettings,
+        val advancedSettings: AdvancedSettings,
+        val currentPackageName: String,
+        val isNowInLockScreenPage: Boolean,
+        val isLandscape: Boolean,
+        val isInLauncher: Boolean,
+        val imePadding: Int,
+    ) {
+        fun shouldShow(button: GestureButton): Boolean {
+            return initialSettings.gestureEnabled &&
+                !(advancedSettings.hideLandscape && isLandscape) &&
+                !(advancedSettings.hideHomeScreen && isInLauncher) &&
+                !(advancedSettings.hideScreenLock && isNowInLockScreenPage) &&
+                currentPackageName !in advancedSettings.excludeApps &&
+                button.enabled
+        }
     }
 
     fun getCurrentPackageName(): String {
