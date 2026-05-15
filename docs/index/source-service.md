@@ -10,11 +10,17 @@
 - 手势按钮刷新协作：`service/SideGestureButtonRefreshCoordinator.kt`
 - Action 编排协作：`service/SideGestureServiceProxyActionCoordinator.kt`
 - 服务代理协作：`service/SideGestureServiceProxy.kt`
+- 窗口管理协作：`service/SideGestureWindowController.kt`
+- 设置观察协作：`service/SideGestureSettingsObserver.kt`
+- 壁纸变化监听：`service/WallpaperChangeObserver.kt`
+- 锁屏状态监听：`service/ScreenLockObserver.kt`
+- 锁屏音量键切歌：`service/LockScreenVolumeKeyHandler.kt`
+- 软键盘 inset 监听：`service/ImeInsetObserver.kt`
 
 ## 关键入口
 
-- `SideGestureService` 仍是入口层，负责持有这些协作对象并转发生命周期与运行时请求。
-- helper 只做编排，不承载独立业务规则。
+- `SideGestureService`（~260 行）是入口层，负责持有这些协作对象并转发生命周期与运行时请求。
+- 协作对象只做编排，不承载独立业务规则。
 
 ## 依赖边界
 

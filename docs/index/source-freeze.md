@@ -8,6 +8,7 @@
 - 冻结启动与执行：`freeze/FreezeLaunch.kt`
 - 冻结状态：`freeze/FreezeState.kt`
 - Shizuku 桥接服务：`freeze/ShizukuBridgeService.kt`
+- 冻结包 enabled / disabled：`freeze/FrozenPackageEnabler.kt`
 
 ## 主要源码路径
 
@@ -17,6 +18,7 @@
 | `freeze/FreezeLaunch.kt` | 冻结执行入口 |
 | `freeze/FreezeState.kt` | 冻结状态模型 |
 | `freeze/ShizukuBridgeService.kt` | Shizuku 桥接服务 |
+| `freeze/FrozenPackageEnabler.kt` | 通过 Shizuku 解冻包的能力 |
 
 ## 关键入口
 
@@ -24,6 +26,7 @@
 - `FreezeLaunch` 负责冻结流程组织。
 - `FreezeState` 表示当前冻结态与名单态。
 - `ShizukuBridgeService` 负责与底层桥接能力协作。
+- `FrozenPackageEnabler` 封装 Shizuku 解冻单包流程，供 Service 调用。
 
 ## 依赖边界
 
