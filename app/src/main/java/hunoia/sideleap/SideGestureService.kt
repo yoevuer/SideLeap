@@ -53,6 +53,8 @@ import hunoia.sideleap.system.window.setFlags
 import hunoia.sideleap.system.window.updateGestureButton
 import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
+import hunoia.sideleap.service.GestureButtonRefreshState
+import hunoia.sideleap.service.SideGestureRuntimeState
 import hunoia.sideleap.ui.event.SubscribeEvent
 import hunoia.sideleap.ui.widget.GestureView
 import hunoia.sideleap.gesture.input.MotionEventDispatcher
@@ -463,14 +465,11 @@ class SideGestureService : ComponentAccessibilityService() {
         coroutineScope.launch {
             val initialSettings = SettingsProvider.getInitialSettings()
             val advancedSettings = advancedSettings ?: return@launch
+            val runtimeState = captureGestureButtonRuntimeState()
             val refreshState = GestureButtonRefreshState(
                 initialSettings = initialSettings,
                 advancedSettings = advancedSettings,
-                currentPackageName = getCurrentPackageName(),
-                isNowInLockScreenPage = isNowInLockScreenPage,
-                isLandscape = ScreenUtils.isLandscape(),
-                isInLauncher = nowInLauncher(),
-                imePadding = imeInsetObserver.flow.value
+                runtimeState = runtimeState
             )
             val buttonViews = buttonViews
             buttonViews?.forEach { view ->
@@ -491,7 +490,7 @@ class SideGestureService : ComponentAccessibilityService() {
     ) {
         lp.updateGestureButton(button)
         if (button.position != Position.Bottom) {
-            lp.y += -state.imePadding
+            lp.y += -state.runtimeState.imePadding
         }
         updateTemporaryHideClickListener(view, state.advancedSettings.hideTemporary)
         lp.setFlags(state.shouldShow(button))
@@ -515,23 +514,14 @@ class SideGestureService : ComponentAccessibilityService() {
         }
     }
 
-    private data class GestureButtonRefreshState(
-        val initialSettings: InitialSettings,
-        val advancedSettings: AdvancedSettings,
-        val currentPackageName: String,
-        val isNowInLockScreenPage: Boolean,
-        val isLandscape: Boolean,
-        val isInLauncher: Boolean,
-        val imePadding: Int,
-    ) {
-        fun shouldShow(button: GestureButton): Boolean {
-            return initialSettings.gestureEnabled &&
-                !(advancedSettings.hideLandscape && isLandscape) &&
-                !(advancedSettings.hideHomeScreen && isInLauncher) &&
-                !(advancedSettings.hideScreenLock && isNowInLockScreenPage) &&
-                currentPackageName !in advancedSettings.excludeApps &&
-                button.enabled
-        }
+    private fun captureGestureButtonRuntimeState(): SideGestureRuntimeState {
+        return SideGestureRuntimeState(
+            currentPackageName = getCurrentPackageName(),
+            isNowInLockScreenPage = isNowInLockScreenPage,
+            isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE,
+            isInLauncher = nowInLauncher(),
+            imePadding = imeInsetObserver.flow.value,
+        )
     }
 
     fun getCurrentPackageName(): String {
