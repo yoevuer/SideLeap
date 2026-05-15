@@ -129,9 +129,21 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
         }
     }
 
+    fun closeImmediately() {
+        if (overlayView == null) {
+            return
+        }
+        isShowing = false
+        isHiding = true
+        lastCloseMs = System.currentTimeMillis()
+        LauncherDiagnostics.d(service, "closeImmediately: removing overlay")
+        removeOverlayView()
+    }
+
     private fun removeOverlayView() {
         LauncherDiagnostics.d(service,"removeOverlayView: removing overlay")
         overlayView?.let {
+            it.animate().cancel()
             val wm = ContextCompat.getSystemService(service, WindowManager::class.java)!!
             runCatching { wm.removeView(it) }
         }
@@ -368,5 +380,4 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
 }
 
 private fun Int.dpToPx(density: Float) = (this * density).roundToInt()
-
 
