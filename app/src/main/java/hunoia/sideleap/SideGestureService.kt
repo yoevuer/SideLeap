@@ -64,7 +64,9 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
         QuickAppLauncherOverlay(this).apply {
             onAppLaunchRequested = { app ->
                 coroutineScope.launch(Dispatchers.IO) {
-                    SettingsProvider.recordQuickAppLaunch("${app.packageName}/${app.className}")
+                    recordQuickAppLaunchIfSuccess(true, "${app.packageName}/${app.className}") {
+                        SettingsProvider.recordQuickAppLaunch(it)
+                    }
                 }
             }
         }
@@ -266,5 +268,15 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
 
     override fun requestEnableFrozenPackage(packageName: String, onResult: (Boolean) -> Unit) {
         frozenPackageEnabler.request(packageName, onResult)
+    }
+}
+
+internal suspend fun recordQuickAppLaunchIfSuccess(
+    success: Boolean,
+    appKey: String,
+    record: suspend (String) -> Unit,
+) {
+    if (success) {
+        record(appKey)
     }
 }

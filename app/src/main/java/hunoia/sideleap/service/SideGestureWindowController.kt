@@ -84,8 +84,18 @@ class SideGestureWindowController(private val host: SideGestureService) {
 }
 
 internal fun WindowManager.LayoutParams.updateGestureButton(button: GestureButton) {
-    val rootWidth = ScreenUtils.getScreenWidth()
-    val rootHeight = ScreenUtils.getScreenHeight()
+    updateGestureButton(
+        button = button,
+        rootWidth = ScreenUtils.getScreenWidth(),
+        rootHeight = ScreenUtils.getScreenHeight()
+    )
+}
+
+internal fun WindowManager.LayoutParams.updateGestureButton(
+    button: GestureButton,
+    rootWidth: Int,
+    rootHeight: Int,
+) {
     when (button.position) {
         Position.Left, Position.Right -> {
             width = button.width
