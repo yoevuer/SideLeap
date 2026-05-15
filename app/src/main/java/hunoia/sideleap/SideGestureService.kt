@@ -219,130 +219,152 @@ class SideGestureService : ComponentAccessibilityService() {
 
     override fun onSetOverlay() {
         current = this
-        registerScreenLockReceiver()
-        registerWallpaperChangedReceiver()
-        registerImeInsetObserver()
+        registerRuntimeObservers()
 
         val mainView = mainView
         if (mainView != null) {
             removeWindow(mainView)
         }
-        this.mainView = attachComposeOverlay {
-            var key by remember { mutableStateOf(Any()) }
-            SubscribeEvent(eventClass = WallpaperChangedEvent::class) {
-                key = Any()
-            }
-            key(key) {
-                SideGestureTheme {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        val sideButtons by SettingsProvider
-                            .sideGestureButtons
-                            .collectAsStateWithLifecycle(initialValue = emptyList())
-                        val bottomButtons by SettingsProvider
-                            .bottomGestureButtons
-                            .collectAsStateWithLifecycle(initialValue = emptyList())
-                        val advancedSettings by SettingsProvider
-                            .advancedSettings
-                            .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
-                        val gestureSettings by SettingsProvider
-                            .gestureSettings
-                            .collectAsStateWithLifecycle(initialValue = GestureSettings())
-                        val imePadding by imeInsetObserver
-                            .flow
-                            .collectAsStateWithLifecycle()
-                        val actionSettings by SettingsProvider
-                            .actionSettings
-                            .collectAsStateWithLifecycle(initialValue = ActionSettings())
-                        SideGestureContainer(
-                            modifier = Modifier.matchParentSize(),
-                            buttons = sideButtons + bottomButtons,
-                            imePadding = imePadding,
-                            animationStyle = when (advancedSettings.animationStyles.isAnimationEnabled) {
-                                true -> advancedSettings.animationStyles.value
-                                else -> null
-                            },
-                            onAction = { action ->
-                                proxy.onAction(action)
-                            },
-                            actionSettings = actionSettings,
-                            advancedSettings = advancedSettings,
-                            gestureSettings = gestureSettings
-                        )
-                    }
+        this.mainView = attachComposeOverlay { renderMainOverlay() }
+        observeSettings()
+    }
+
+    private fun registerRuntimeObservers() {
+        registerScreenLockReceiver()
+        registerWallpaperChangedReceiver()
+        registerImeInsetObserver()
+    }
+
+    @Composable
+    private fun renderMainOverlay() {
+        var key by remember { mutableStateOf(Any()) }
+        SubscribeEvent(eventClass = WallpaperChangedEvent::class) {
+            key = Any()
+        }
+        key(key) {
+            SideGestureTheme {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    val sideButtons by SettingsProvider
+                        .sideGestureButtons
+                        .collectAsStateWithLifecycle(initialValue = emptyList())
+                    val bottomButtons by SettingsProvider
+                        .bottomGestureButtons
+                        .collectAsStateWithLifecycle(initialValue = emptyList())
+                    val advancedSettings by SettingsProvider
+                        .advancedSettings
+                        .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
+                    val gestureSettings by SettingsProvider
+                        .gestureSettings
+                        .collectAsStateWithLifecycle(initialValue = GestureSettings())
+                    val imePadding by imeInsetObserver
+                        .flow
+                        .collectAsStateWithLifecycle()
+                    val actionSettings by SettingsProvider
+                        .actionSettings
+                        .collectAsStateWithLifecycle(initialValue = ActionSettings())
+                    SideGestureContainer(
+                        modifier = Modifier.matchParentSize(),
+                        buttons = sideButtons + bottomButtons,
+                        imePadding = imePadding,
+                        animationStyle = when (advancedSettings.animationStyles.isAnimationEnabled) {
+                            true -> advancedSettings.animationStyles.value
+                            else -> null
+                        },
+                        onAction = { action ->
+                            proxy.onAction(action)
+                        },
+                        actionSettings = actionSettings,
+                        advancedSettings = advancedSettings,
+                        gestureSettings = gestureSettings
+                    )
                 }
             }
         }
+    }
 
+    private fun observeSettings() {
         coroutineScope.launch(Dispatchers.Main.immediate) {
-            // 监听全局配置修改
-            launch {
-                SettingsProvider
-                    .initialSettings
-                    .collectLatest {
-                        initialSettings = it
-                    }
-            }
-            launch {
-                SettingsProvider
-                    .advancedSettings
-                    .collectLatest {
-                        advancedSettings = it
-                    }
-            }
-            launch {
-                SettingsProvider
-                    .gestureSettings
-                    .collectLatest {
-                        gestureSettings = it
-                    }
-            }
-            launch {
-                SettingsProvider
-                    .actionSettings
-                    .collectLatest {
-                        actionSettings = it
-                    }
-            }
-
-            // 监听触钮修改
-            launch {
-                SettingsProvider
-                    .sideGestureButtons
-                    .combine(SettingsProvider.bottomGestureButtons) { l1, l2 ->
-                        l1 + l2
-                    }
-                    .collectLatest { buttons ->
-                        val buttonViews = buttonViews
-                        if (buttonViews != null) {
-                            removeWindows(buttonViews)
-                        }
-                        this@SideGestureService.buttonViews = attachGestureButtons(buttons)
-                        updateGestureButtons()
-                    }
-            }
-            // 监听手势开关
-            launch {
-                SettingsProvider
-                    .initialSettings
-                    .distinctUntilChangedBy {
-                        it.gestureEnabled
-                    }
-                    .collectLatest {
-                        updateGestureButtons()
-                    }
-            }
-            // 监听手势临时隐藏
-            launch {
-                SettingsProvider
-                    .advancedSettings
-                    .distinctUntilChangedBy {
-                        it.hideTemporary
-                    }
-                    .collectLatest {
-                        updateGestureButtons()
-                    }
-            }
+            observeLatestSettings()
+            observeGestureButtonChanges()
+            observeGestureVisibilityChanges()
+            observeTemporaryHideChanges()
         }
+    }
+
+    private suspend fun kotlinx.coroutines.CoroutineScope.observeLatestSettings() {
+        launch {
+            SettingsProvider
+                .initialSettings
+                .collectLatest {
+                    initialSettings = it
+                }
+        }
+        launch {
+            SettingsProvider
+                .advancedSettings
+                .collectLatest {
+                    advancedSettings = it
+                }
+        }
+        launch {
+            SettingsProvider
+                .gestureSettings
+                .collectLatest {
+                    gestureSettings = it
+                }
+        }
+        launch {
+            SettingsProvider
+                .actionSettings
+                .collectLatest {
+                    actionSettings = it
+                }
+        }
+    }
+
+    private suspend fun kotlinx.coroutines.CoroutineScope.observeGestureButtonChanges() {
+        launch {
+            SettingsProvider
+                .sideGestureButtons
+                .combine(SettingsProvider.bottomGestureButtons) { l1, l2 ->
+                    l1 + l2
+                }
+                .collectLatest { buttons ->
+                    replaceGestureButtons(buttons)
+                }
+        }
+    }
+
+    private suspend fun kotlinx.coroutines.CoroutineScope.observeGestureVisibilityChanges() {
+        launch {
+            SettingsProvider
+                .initialSettings
+                .distinctUntilChangedBy {
+                    it.gestureEnabled
+                }
+                .collectLatest {
+                    updateGestureButtons()
+                }
+        }
+    }
+
+    private suspend fun kotlinx.coroutines.CoroutineScope.observeTemporaryHideChanges() {
+        launch {
+            SettingsProvider
+                .advancedSettings
+                .distinctUntilChangedBy {
+                    it.hideTemporary
+                }
+                .collectLatest {
+                    updateGestureButtons()
+                }
+        }
+    }
+
+    private fun replaceGestureButtons(buttons: Collection<GestureButton>) {
+        buttonViews?.let { removeWindows(it) }
+        buttonViews = attachGestureButtons(buttons)
+        updateGestureButtons()
     }
 
     private fun registerScreenLockReceiver() {
@@ -450,42 +472,41 @@ class SideGestureService : ComponentAccessibilityService() {
                         y += -imePadding
                     }
 
-                    if (advancedSettings.hideTemporary) {
-                        view.setOnClickListener { v ->
-                            val lp = v.layoutParams as WindowManager.LayoutParams
-                            lp.setFlags(false)
-                            updateLayout(v, lp)
-                            v.postDelayed(1000) {
-                                val lp2 = v.layoutParams as WindowManager.LayoutParams
-                                val enabled = (view.tag as? GestureButton)?.enabled == true
-                                lp2.setFlags(enabled)
-                                updateLayout(v, lp2)
-                            }
-                        }
-                    } else {
-                        view.setOnClickListener(null)
-                    }
+                    updateTemporaryHideClickListener(view, advancedSettings.hideTemporary)
 
-                    val initialSettings = SettingsProvider.getInitialSettings()
-                    if (!initialSettings.gestureEnabled) {
-                        setFlags(false)
-                    } else {
-                        if (advancedSettings.hideLandscape && ScreenUtils.isLandscape()) {
-                            setFlags(false)
-                        } else if (advancedSettings.hideHomeScreen && nowInLauncher()) {
-                            setFlags(false)
-                        } else if (advancedSettings.hideScreenLock && isNowInLockScreenPage) {
-                            setFlags(false)
-                        } else if (getCurrentPackageName() in advancedSettings.excludeApps) {
-                            setFlags(false)
-                        } else {
-                            setFlags(button.enabled)
-                        }
-                    }
+                    setFlags(shouldShowGestureButton(button, advancedSettings))
                 }
                 updateLayout(view, lp)
             }
         }
+    }
+
+    private fun updateTemporaryHideClickListener(view: View, enabled: Boolean) {
+        if (enabled) {
+            view.setOnClickListener { v ->
+                val lp = v.layoutParams as WindowManager.LayoutParams
+                lp.setFlags(false)
+                updateLayout(v, lp)
+                v.postDelayed(1000) {
+                    val lp2 = v.layoutParams as WindowManager.LayoutParams
+                    val gestureButton = (view.tag as? GestureButton)?.enabled == true
+                    lp2.setFlags(gestureButton)
+                    updateLayout(v, lp2)
+                }
+            }
+        } else {
+            view.setOnClickListener(null)
+        }
+    }
+
+    private suspend fun shouldShowGestureButton(button: GestureButton, advancedSettings: AdvancedSettings): Boolean {
+        val initialSettings = SettingsProvider.getInitialSettings()
+        return initialSettings.gestureEnabled &&
+            !(advancedSettings.hideLandscape && ScreenUtils.isLandscape()) &&
+            !(advancedSettings.hideHomeScreen && nowInLauncher()) &&
+            !(advancedSettings.hideScreenLock && isNowInLockScreenPage) &&
+            getCurrentPackageName() !in advancedSettings.excludeApps &&
+            button.enabled
     }
 
     fun getCurrentPackageName(): String {
