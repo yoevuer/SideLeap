@@ -184,10 +184,15 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
 
     fun onAction(action: Action) {
         host.coroutineScope.launch {
-            ActionRegistry.execute(action, ActionHandlerContext(
+            ActionRegistry.execute(action, buildActionHandlerContext())
+        }
+    }
+
+    private fun buildActionHandlerContext(): ActionHandlerContext {
+        return ActionHandlerContext(
                 service = host,
                 runtime = host,
-                appContext = host,
+                appContext = host.applicationContext,
                 scope = host.coroutineScope,
                 actionSettings = host.actionSettings ?: ActionSettings(),
                 showToast = { showToast(it) },
@@ -211,8 +216,7 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                 previousApp = {
                     previousApp()
                 },
-            ))
-        }
+        )
     }
 
     private suspend fun previousApp() {

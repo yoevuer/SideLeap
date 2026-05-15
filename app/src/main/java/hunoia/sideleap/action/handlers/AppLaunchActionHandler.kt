@@ -51,7 +51,7 @@ object AppLaunchActionHandler : ActionHandler {
                 setAction(Intent.ACTION_MAIN)
                 addCategory(Intent.CATEGORY_LAUNCHER)
             }
-            val resolveInfo = context.service.packageManager
+            val resolveInfo = context.appContext.packageManager
                 .queryIntentActivitiesCompat(intent, PackageManager.MATCH_ALL)
                 .firstOrNull()
             val className = resolveInfo?.activityInfo?.name
@@ -115,7 +115,7 @@ object AppLaunchActionHandler : ActionHandler {
                 className = appInfo.className,
                 miniWindow = miniWindow
             ) { _, pkg ->
-                suspendEnablePackageViaBridge(context.service, pkg)
+                suspendEnablePackageViaBridge(context.runtime, pkg)
             }
         }
     }
