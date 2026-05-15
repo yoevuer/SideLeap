@@ -7,8 +7,8 @@ import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.App
 import hunoia.sideleap.R
-import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.constant.Paths
+import hunoia.sideleap.action.GlobalActions
+import hunoia.sideleap.core.Paths
 import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.ui.navigation.ActionSelect
@@ -19,7 +19,7 @@ import hunoia.sideleap.launcher.util.IconResizeCache
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
-import hunoia.sideleap.event.IconResizeEvent
+import hunoia.sideleap.ui.event.IconResizeEvent
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.launcher.ext.getIcon
 import hunoia.sideleap.launcher.ext.qualifiedName

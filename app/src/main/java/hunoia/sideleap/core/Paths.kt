@@ -1,4 +1,4 @@
-package hunoia.sideleap.constant
+package hunoia.sideleap.core
 
 import com.blankj.utilcode.util.PathUtils
 

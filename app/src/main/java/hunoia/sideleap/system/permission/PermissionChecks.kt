@@ -19,7 +19,6 @@ fun Context.isAccessibilitySettingsOn(clazz: Class<out AccessibilityService?>): 
             Settings.Secure.ACCESSIBILITY_ENABLED
         ) == 1
     } catch (e: Settings.SettingNotFoundException) {
-        e.printStackTrace()
     }
     val splitter = TextUtils.SimpleStringSplitter(':')
     if (accessibilityEnabled) {

@@ -1,4 +1,4 @@
-package hunoia.sideleap.defaults
+package hunoia.sideleap.ui
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle

@@ -93,3 +93,4 @@ object FreezeState {
             (flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
     }
 }
+

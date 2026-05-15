@@ -1,14 +1,14 @@
 package hunoia.sideleap.ui.screen.gesturebuttonsettings
 
 import android.os.Build
-import android.util.Log
+
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.constant.GlobalSettings.MinGestureButtonLength
+import hunoia.sideleap.settings.SettingsUiDefaults.MinGestureButtonLength
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.gesture.fraction
@@ -229,7 +229,6 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
                             val center = b.start + (b.fraction / 2f)
                             val st = center - half
                             val ed = center + half
-                            Log.d("zzx", "${ed - st}, $maxFraction")
                             Pair(st, ed)
                         } else {
                             Pair(b.start, b.end)

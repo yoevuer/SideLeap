@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
@@ -69,8 +70,8 @@ import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.launch.Launcher
+import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.settings.SettingsProvider
-import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 import com.blankj.utilcode.util.ScreenUtils
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -78,7 +79,6 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.ui.theme.SideGestureTheme
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.collectLatest
@@ -105,7 +105,7 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
     private var lastCloseMs: Long = 0L
 
     fun toggle() {
-        LauncherDiagnostics.d(service,"toggle: overlayView=${overlayView != null}")
+        Log.d("SideLeapLauncher","toggle: overlayView=${overlayView != null}")
         if (overlayView != null) {
             close()
         } else {
@@ -115,13 +115,13 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
 
     fun close() {
         if (isHiding || overlayView == null) {
-            LauncherDiagnostics.d(service,"close: skipped (isHiding=$isHiding overlayView=${overlayView != null})")
+            Log.d("SideLeapLauncher","close: skipped (isHiding=$isHiding overlayView=${overlayView != null})")
             return
         }
         val reason = "explicit close"
         isHiding = true
         lastCloseMs = System.currentTimeMillis()
-        LauncherDiagnostics.d(service,"close: reason=$reason hasAnimation=${triggerCloseAnimated != null}")
+        Log.d("SideLeapLauncher","close: reason=$reason hasAnimation=${triggerCloseAnimated != null}")
         if (triggerCloseAnimated != null) {
             triggerCloseAnimated?.invoke()
         } else {
@@ -136,12 +136,12 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
         isShowing = false
         isHiding = true
         lastCloseMs = System.currentTimeMillis()
-        LauncherDiagnostics.d(service, "closeImmediately: removing overlay")
+        Log.d("SideLeapLauncher", "closeImmediately: removing overlay")
         removeOverlayView()
     }
 
     private fun removeOverlayView() {
-        LauncherDiagnostics.d(service,"removeOverlayView: removing overlay")
+        Log.d("SideLeapLauncher","removeOverlayView: removing overlay")
         overlayView?.let {
             it.animate().cancel()
             val wm = ContextCompat.getSystemService(service, WindowManager::class.java)!!
@@ -157,7 +157,7 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
     fun show() {
         val now = System.currentTimeMillis()
         val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
-        LauncherDiagnostics.d(service,"show: isShowing=$isShowing isHiding=$isHiding overlayView=${overlayView != null} intervalSinceLastClose=${interval}ms")
+        Log.d("SideLeapLauncher","show: isShowing=$isShowing isHiding=$isHiding overlayView=${overlayView != null} intervalSinceLastClose=${interval}ms")
         if (isShowing || isHiding || overlayView != null) return
         isShowing = true
 
@@ -189,12 +189,12 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
                     val now = System.currentTimeMillis()
                     if (event.action == MotionEvent.ACTION_OUTSIDE) {
                         lastCloseMs = now
-                        LauncherDiagnostics.d(service,"touch: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
+                        Log.d("SideLeapLauncher","touch: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
                         close()
                         v.performClick()
                         true
                     } else {
-                        LauncherDiagnostics.d(service,"touch: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
+                        Log.d("SideLeapLauncher","touch: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
                         false
                     }
                 }
@@ -206,23 +206,21 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
                             service = service,
                             initialSettings = initialSettings,
                             quickLauncherAppLongPressLaunchPopup = quickLauncherPopup,
-                            onClose = { close() },
                             onCloseAnimated = { 
                                 isShowing = false
                                 isHiding = true
                                 val now = System.currentTimeMillis()
                                 lastCloseMs = now
-                                LauncherDiagnostics.d(service,"closeAnimated: triggered")
+                                Log.d("SideLeapLauncher","closeAnimated: triggered")
                                 removeOverlayView()
                             },
-                            onSettingsChanged = { settings -> updateLayout(settings) },
                             onToggleAdjust = { toggleAdjustPanel() },
                             onLaunch = { appInfo, miniWindow ->
                                 val now = System.currentTimeMillis()
                                 val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
-                                LauncherDiagnostics.d(service,"appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
+                                Log.d("SideLeapLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
                                 val success = Launcher.launchAppInfo(service, appInfo, miniWindow)
-                                LauncherDiagnostics.d(service,"appClick: ${appInfo.label} launchResult=$success")
+                                Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
                                 if (success) {
                                     updateQuickAppLauncherStats(appInfo)
                                 }
@@ -288,12 +286,12 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
             setViewTreeSavedStateRegistryOwner(service)
             setOnTouchListener { v, event ->
                 if (event.action == MotionEvent.ACTION_OUTSIDE) {
-                    LauncherDiagnostics.d(service,"adjustTouch: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
+                    Log.d("SideLeapLauncher","adjustTouch: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
                     closeAdjustPanel()
                     v.performClick()
                     true
                 } else {
-                    LauncherDiagnostics.d(service,"adjustTouch: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
+                    Log.d("SideLeapLauncher","adjustTouch: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
                     false
                 }
             }
@@ -366,18 +364,11 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
     }
 
     private fun updateQuickAppLauncherStats(app: AppInfo) {
-        CoroutineScope(Dispatchers.IO).launch {
-            SettingsProvider.updateQuickAppLauncherSettings { old ->
-                val key = app.packageName
-                old.copy(
-                    recentLaunchTime = old.recentLaunchTime + (key to System.currentTimeMillis()),
-                    launchCount = old.launchCount + (key to ((old.launchCount[key] ?: 0L) + 1L))
-                )
-            }
+        service.coroutineScope.launch(Dispatchers.IO) {
+            SettingsProvider.recordQuickAppLaunch(app.key())
         }
     }
 
 }
 
 private fun Int.dpToPx(density: Float) = (this * density).roundToInt()
-

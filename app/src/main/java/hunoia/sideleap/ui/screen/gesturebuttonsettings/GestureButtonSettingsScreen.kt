@@ -31,11 +31,11 @@ import androidx.core.graphics.red
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
-import hunoia.sideleap.constant.GlobalSettings.GestureButtonColorAlpha
-import hunoia.sideleap.constant.GlobalSettings.MaxGestureButtonPosition
-import hunoia.sideleap.constant.GlobalSettings.MaxGestureButtonWidth
-import hunoia.sideleap.constant.GlobalSettings.MinGestureButtonPosition
-import hunoia.sideleap.constant.GlobalSettings.MinGestureButtonWidth
+import hunoia.sideleap.settings.SettingsUiDefaults.GestureButtonColorAlpha
+import hunoia.sideleap.settings.SettingsUiDefaults.MaxGestureButtonPosition
+import hunoia.sideleap.settings.SettingsUiDefaults.MaxGestureButtonWidth
+import hunoia.sideleap.settings.SettingsUiDefaults.MinGestureButtonPosition
+import hunoia.sideleap.settings.SettingsUiDefaults.MinGestureButtonWidth
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position

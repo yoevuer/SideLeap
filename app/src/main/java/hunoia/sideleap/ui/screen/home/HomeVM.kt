@@ -35,8 +35,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun backup(context: Context, saveTo: Uri) {
         viewModelScope.launchWithLoading(
-            Dispatchers.IO + CoroutineExceptionHandler { _, ex ->
-                ex.printStackTrace()
+            Dispatchers.IO + CoroutineExceptionHandler { _, _ ->
                 toast(R.string.backup_failed)
             },
             cancelable = false
@@ -48,8 +47,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun restore(context: Context, restoreFrom: Uri) {
         viewModelScope.launchWithLoading(
-            Dispatchers.IO + CoroutineExceptionHandler { _, ex ->
-                ex.printStackTrace()
+            Dispatchers.IO + CoroutineExceptionHandler { _, _ ->
                 toast(R.string.restore_failed)
             },
             cancelable = false

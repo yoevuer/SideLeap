@@ -4,7 +4,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.action.ActionExecutionResult
 import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
-import hunoia.sideleap.constant.GlobalActions
+import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.freeze.FreezeAction
 

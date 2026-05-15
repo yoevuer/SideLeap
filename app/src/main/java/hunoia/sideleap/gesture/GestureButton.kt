@@ -27,14 +27,14 @@ object GestureButtonDefaults {
             position = Position.Left,
             start = 0.0f,
             end = 1.0f,
-            slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.constant.GlobalActions.BACK))
+            slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.action.GlobalActions.BACK))
         ),
         GestureButton(
             id = ID_DEFAULT,
             position = Position.Right,
             start = 0.0f,
             end = 1.0f,
-            slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.constant.GlobalActions.BACK))
+            slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.action.GlobalActions.BACK))
         )
     )
     val BottomDefaults = listOf(
@@ -44,8 +44,8 @@ object GestureButtonDefaults {
             enabled = false,
             start = 0.0f,
             end = 1.0f,
-            slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.constant.GlobalActions.HOME)),
-            longSlideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.constant.GlobalActions.RECENT))
+            slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.action.GlobalActions.HOME)),
+            longSlideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.action.GlobalActions.RECENT))
         )
     )
 }

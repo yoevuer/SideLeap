@@ -4,9 +4,9 @@
 
 ## 当前职责
 
-- 应用与服务入口：`App.kt`、`MainActivity.kt`、`QuickAppLauncherActivity.kt`、`SideGestureService.kt`、`SideGestureServiceProxy.kt`
+- 应用与服务入口：`App.kt`、`MainActivity.kt`、`QuickAppLauncherActivity.kt`、`SideGestureService.kt`
 - 底层基础设施：`core/serialization/*`、`core/crash/*`、`core/diagnostics/*`、`core/event/*`
-- 跨领域常量与默认值：`constant/*`、`defaults/*`、`event/*`
+- 跨领域基础能力：`core/Paths.kt`、`core/event/Events.kt`、`core/event/WallpaperChangedEvent.kt`
 - 服务内部协作只保留在 `service/*`，不回塞进 `core`。
 
 ## 主要源码路径
@@ -17,7 +17,6 @@
 | `MainActivity.kt` | 主 Activity |
 | `QuickAppLauncherActivity.kt` | 快捷启动器 Activity |
 | `SideGestureService.kt` | 无障碍服务入口 |
-| `SideGestureServiceProxy.kt` | 服务代理入口 |
 | `core/serialization/JsonHelper.kt` | JSON 辅助 |
 | `core/crash/CrashHandler.kt` | 崩溃处理 |
 | `core/diagnostics/LauncherDiagnostics.kt` | 诊断辅助 |
@@ -25,7 +24,7 @@
 
 ## 关键入口
 
-- 上层运行入口集中在根包。
+- 上层运行入口集中在根包，服务协作下沉到 `service/`。
 - `CrashHandler`、`JsonHelper`、`LauncherDiagnostics`、`Events` 是当前基础设施核心。
 
 ## 依赖边界

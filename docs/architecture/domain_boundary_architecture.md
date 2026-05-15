@@ -292,6 +292,8 @@ Shizuku 只是 system 提供的底层能力。冻结业务规则必须留在 `fr
 
 `core` 只放真正跨领域的基础设施。
 
+根包只保留 Android / App 入口类，服务协作下沉到 `service/`。
+
 `core` 可以放：
 
 - 日志封装。

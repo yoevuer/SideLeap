@@ -62,8 +62,8 @@ import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.toDp
 import com.aaron.compose.ktx.toPx
 
-import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.constant.GlobalSettings.DimAlpha
+import hunoia.sideleap.action.GlobalActions
+import hunoia.sideleap.settings.SettingsUiDefaults.DimAlpha
 import hunoia.sideleap.action.TriggerType
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.settings.model.ActionPanelStyle

@@ -84,12 +84,13 @@ import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.onClick
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
-import hunoia.sideleap.constant.GlobalActions
-import hunoia.sideleap.constant.GlobalSettings
+import hunoia.sideleap.action.GlobalActions
+import hunoia.sideleap.settings.SettingsUiDefaults
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.launcher.model.LauncherInfo
+import hunoia.sideleap.launcher.query.LauncherIconQuery
 import hunoia.sideleap.action.OpenAppOrUrlData
 import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
@@ -99,7 +100,6 @@ import hunoia.sideleap.launcher.ext.icon
 import hunoia.sideleap.system.intent.launchUrl
 import hunoia.sideleap.system.intent.normalizeOpenAppOrUrl
 import hunoia.sideleap.launcher.ext.qualifiedName
-import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.permission.rememberGetInstalledAppsPermissionState
 import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.action.definition.ActionCategory
@@ -132,7 +132,7 @@ import kotlinx.coroutines.withContext
 import android.os.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import net.sourceforge.pinyin4j.BasePinyinHelper
 
 
@@ -238,9 +238,7 @@ fun ActionSelectScreen(
                                         val label = result.data?.shortcutStringExtraCompat(shortcutNameExtraKey()).orEmpty()
                                         val iconRes = if (shortcutIconRes != null) {
                                             withContext(Dispatchers.IO) {
-                                                val res = context.packageManager.getResourcesForApplication(shortcutIconRes.packageName)
-                                                @Suppress("DiscouragedApi")
-                                                res.getIdentifier(shortcutIconRes.resourceName, null, null)
+                                                LauncherIconQuery.resolveShortcutIconResourceId(context, shortcutIconRes)
                                             }
                                         } else 0
                                         val shortcutInfo = LauncherInfo.ShortcutInfo(
@@ -624,7 +622,7 @@ private fun ActionPage(
                 Surface(onClick = onOpenAppOrUrl, shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = ContentPaddingHorizontal * 2, vertical = 8.dp)) {
                     Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.OpenInNew, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(MinIconSize))
+                        Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(MinIconSize))
                         Column(modifier = Modifier.padding(start = 12.dp).weight(1f)) {
                             Text(stringResource(R.string.open_app_or_url_card_title), style = MaterialTheme.typography.bodyLarge)
                             Text(stringResource(R.string.open_app_or_url_card_desc), style = MaterialTheme.typography.bodySmall,
@@ -658,7 +656,7 @@ private fun ActionItem(
     Row(
         modifier = Modifier
             .graphicsLayer {
-                alpha = if (enabled) 1f else GlobalSettings.DisabledAlpha
+                alpha = if (enabled) 1f else SettingsUiDefaults.DisabledAlpha
             }
             .fillMaxWidth()
             .heightIn(min = MinInteractiveSize)
@@ -1076,7 +1074,7 @@ private fun AppItem(
     Row(
         modifier = Modifier
             .graphicsLayer {
-                alpha = if (enabled) 1f else GlobalSettings.DisabledAlpha
+                alpha = if (enabled) 1f else SettingsUiDefaults.DisabledAlpha
             }
             .fillMaxWidth()
             .combinedClickable(
@@ -1156,7 +1154,7 @@ private fun LauncherInfoItem(
         modifier = Modifier
             .graphicsLayer {
                 alpha =
-                    if (canLauncherInfoEnabled(launcherInfo)) 1f else GlobalSettings.DisabledAlpha
+                    if (canLauncherInfoEnabled(launcherInfo)) 1f else SettingsUiDefaults.DisabledAlpha
             }
             .fillMaxWidth()
     ) {

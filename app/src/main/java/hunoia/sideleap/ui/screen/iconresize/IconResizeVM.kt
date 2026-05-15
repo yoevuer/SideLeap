@@ -10,7 +10,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.launcher.model.ScaleableDefaults.DEFAULT_SCALE
 import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.launcher.util.IconResizeCache
-import hunoia.sideleap.event.IconResizeEvent
+import hunoia.sideleap.ui.event.IconResizeEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiState
 import hunoia.sideleap.settings.SettingsProvider

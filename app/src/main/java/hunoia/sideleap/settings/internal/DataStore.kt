@@ -1,6 +1,7 @@
 package hunoia.sideleap.settings.internal
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.MultiProcessDataStoreFactory
 import androidx.datastore.core.Serializer
@@ -22,8 +23,8 @@ inline fun <reified T> Context.dataStore(fileName: String, defValue: T): DataSto
             return try {
                 val string = input.readBytes().decodeToString()
                 JsonHelper.decodeFromString<T>(string)
-            } catch (ingored: Exception) {
-                // TODO: Exception
+            } catch (e: Exception) {
+                Log.e("DataStore", "read $fileName failed: ${e::class.simpleName} ${e.message}")
                 defaultValue
             }
         }
@@ -32,8 +33,8 @@ inline fun <reified T> Context.dataStore(fileName: String, defValue: T): DataSto
             try {
                 val string = JsonHelper.encodeToString(t)
                 output.write(string.encodeToByteArray())
-            } catch (ignored: Exception) {
-                // TODO: Exception
+            } catch (e: Exception) {
+                Log.e("DataStore", "write $fileName failed: ${e::class.simpleName} ${e.message}")
             }
         }
     }

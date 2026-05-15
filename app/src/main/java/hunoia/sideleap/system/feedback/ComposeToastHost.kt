@@ -1,9 +1,7 @@
-@file:OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
-
 package hunoia.sideleap.system.feedback
 
 import androidx.annotation.StringRes
-import kotlinx.coroutines.GlobalScope
+import hunoia.sideleap.App
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
@@ -19,19 +17,19 @@ private fun getTimeMillis(duration: ToastDuration): Long {
 }
 
 fun showComposeToast(@StringRes resId: Int, duration: ToastDuration = ToastDuration.Short) {
-    GlobalScope.launch {
+    App.applicationScope.launch {
         channel.send(ToastData(resId = resId, duration = getTimeMillis(duration)))
     }
 }
 
 fun showComposeToast(text: String, duration: ToastDuration = ToastDuration.Short) {
-    GlobalScope.launch {
+    App.applicationScope.launch {
         channel.send(ToastData(text = text, duration = getTimeMillis(duration)))
     }
 }
 
 class ToastData(
-    @StringRes val resId: Int = 0,
+    @param:StringRes val resId: Int = 0,
     val text: String = "",
     val duration: Long = TOAST_SHORT
 ) {

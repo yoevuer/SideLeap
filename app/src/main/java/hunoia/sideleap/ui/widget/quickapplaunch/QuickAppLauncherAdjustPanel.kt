@@ -32,6 +32,10 @@ internal fun QuickAppLauncherAdjustPanel(onSettingsChanged: (QuickAppLauncherSet
     val settings by SettingsProvider.quickAppLauncherSettings.collectAsState(initial = QuickAppLauncherSettings())
     val coroutineScope = rememberCoroutineScope()
     var activeLabel by remember { mutableStateOf<String?>(null) }
+    fun updateLayout(next: QuickAppLauncherSettings) {
+        onSettingsChanged(next)
+        coroutineScope.launch { SettingsProvider.updateQuickAppLauncherLayout(next) }
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -40,48 +44,39 @@ internal fun QuickAppLauncherAdjustPanel(onSettingsChanged: (QuickAppLauncherSet
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             AdjustSlider("位置高度", settings.panelHeightFraction, 0.05f, 0.9f, activeLabel, { activeLabel = it }) { value ->
-                val next = settings.copy(panelHeightFraction = value)
-                onSettingsChanged(next)
-                coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
+                updateLayout(settings.copy(panelHeightFraction = value))
             }
             Spacer(modifier = Modifier.height(12.dp))
             AdjustSlider("内部高度", settings.contentHeightFraction, 0.35f, 0.9f, activeLabel, { activeLabel = it }) { value ->
-                val next = settings.copy(contentHeightFraction = value)
-                onSettingsChanged(next)
-                coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
+                updateLayout(settings.copy(contentHeightFraction = value))
             }
             Spacer(modifier = Modifier.height(12.dp))
             AdjustSlider("宽度", settings.panelWidthFraction, 0.65f, 1.0f, activeLabel, { activeLabel = it }) { value ->
-                val next = settings.copy(panelWidthFraction = value)
-                onSettingsChanged(next)
-                coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
+                updateLayout(settings.copy(panelWidthFraction = value))
             }
             Spacer(modifier = Modifier.height(12.dp))
             AdjustSlider("水平位置", settings.panelHorizontalBias, 0.0f, 1.0f, activeLabel, { activeLabel = it }) { value ->
-                val next = settings.copy(panelHorizontalBias = value)
-                onSettingsChanged(next)
-                coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
+                updateLayout(settings.copy(panelHorizontalBias = value))
             }
             Spacer(modifier = Modifier.height(12.dp))
             AdjustSlider("候选应用行数", settings.candidateRows.toFloat(), 1f, 3f, activeLabel, { activeLabel = it }, valueFormatter = { it.roundToInt().toString() }) { value ->
-                val next = settings.copy(candidateRows = value.roundToInt().coerceIn(1, 3))
-                onSettingsChanged(next)
-                coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
+                updateLayout(settings.copy(candidateRows = value.roundToInt().coerceIn(1, 3)))
             }
             if (activeLabel == null) {
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(
                     modifier = Modifier.align(Alignment.End),
                     onClick = {
+                        val defaults = QuickAppLauncherSettings()
                         val next = settings.copy(
-                            panelHeightFraction = 0.52f,
-                            contentHeightFraction = 0.52f,
-                            candidateRows = 1,
-                            panelWidthFraction = 1.0f,
-                            panelHorizontalBias = 0.5f,
+                            panelHeightFraction = defaults.panelHeightFraction,
+                            contentHeightFraction = defaults.contentHeightFraction,
+                            candidateRows = defaults.candidateRows,
+                            panelWidthFraction = defaults.panelWidthFraction,
+                            panelHorizontalBias = defaults.panelHorizontalBias,
                         )
                         onSettingsChanged(next)
-                        coroutineScope.launch { SettingsProvider.updateQuickAppLauncherSettings { next } }
+                        coroutineScope.launch { SettingsProvider.resetQuickAppLauncherLayout() }
                     }
                 ) {
                     Text("重置布局", color = MaterialTheme.colorScheme.onSurface)
