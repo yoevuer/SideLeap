@@ -69,6 +69,7 @@ import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.launch.Launcher
+import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
 import com.blankj.utilcode.util.ScreenUtils
@@ -78,7 +79,6 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.ui.theme.SideGestureTheme
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.collectLatest
@@ -206,7 +206,6 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
                             service = service,
                             initialSettings = initialSettings,
                             quickLauncherAppLongPressLaunchPopup = quickLauncherPopup,
-                            onClose = { close() },
                             onCloseAnimated = { 
                                 isShowing = false
                                 isHiding = true
@@ -215,7 +214,6 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
                                 LauncherDiagnostics.d(service,"closeAnimated: triggered")
                                 removeOverlayView()
                             },
-                            onSettingsChanged = { settings -> updateLayout(settings) },
                             onToggleAdjust = { toggleAdjustPanel() },
                             onLaunch = { appInfo, miniWindow ->
                                 val now = System.currentTimeMillis()
@@ -366,18 +364,11 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
     }
 
     private fun updateQuickAppLauncherStats(app: AppInfo) {
-        CoroutineScope(Dispatchers.IO).launch {
-            SettingsProvider.updateQuickAppLauncherSettings { old ->
-                val key = app.packageName
-                old.copy(
-                    recentLaunchTime = old.recentLaunchTime + (key to System.currentTimeMillis()),
-                    launchCount = old.launchCount + (key to ((old.launchCount[key] ?: 0L) + 1L))
-                )
-            }
+        service.coroutineScope.launch(Dispatchers.IO) {
+            SettingsProvider.recordQuickAppLaunch(app.key())
         }
     }
 
 }
 
 private fun Int.dpToPx(density: Float) = (this * density).roundToInt()
-

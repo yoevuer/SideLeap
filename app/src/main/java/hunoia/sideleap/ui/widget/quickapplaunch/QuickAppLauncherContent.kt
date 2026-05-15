@@ -22,9 +22,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -53,8 +53,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -62,21 +60,20 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.blankj.utilcode.util.ScreenUtils
-import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
-import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
+import hunoia.sideleap.launcher.launch.QuickAppLaunch
 import hunoia.sideleap.launcher.query.AppSearch.key
-import hunoia.sideleap.freeze.FreezeState
 import hunoia.sideleap.launcher.query.AppSearch.sortApps
+import hunoia.sideleap.launcher.query.QuickAppLauncherAppList
+import hunoia.sideleap.launcher.query.QuickAppLauncherQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collectLatest
-import kotlin.math.max
 import kotlin.math.roundToInt
 
 @Composable
@@ -84,9 +81,7 @@ internal fun QuickAppLauncherContent(
     service: SideGestureService,
     initialSettings: QuickAppLauncherSettings,
     quickLauncherAppLongPressLaunchPopup: Boolean,
-    onClose: () -> Unit,
     onCloseAnimated: () -> Unit,
-    onSettingsChanged: (QuickAppLauncherSettings) -> Unit,
     onToggleAdjust: () -> Unit,
     onLaunch: (AppInfo, Boolean) -> Boolean,
     onRegisterCloseAnimated: ((() -> Unit) -> Unit)? = null,
@@ -94,7 +89,7 @@ internal fun QuickAppLauncherContent(
     val context = LocalContext.current
     val view = LocalView.current
     val coroutineScope = rememberCoroutineScope()
-    var appListState by remember { mutableStateOf(AppListState(emptyList(), emptySet())) }
+    var appListState by remember { mutableStateOf(QuickAppLauncherAppList(emptyList(), emptySet())) }
     var tokens by remember { mutableStateOf(emptyList<String>()) }
     var launcherSettings by remember { mutableStateOf(initialSettings) }
     var keyboardExpanded by remember { mutableStateOf(true) }
@@ -104,12 +99,7 @@ internal fun QuickAppLauncherContent(
     }
     LaunchedEffect(launcherSettings.showSystemApps) {
         val state = kotlinx.coroutines.withContext(Dispatchers.IO) {
-            val fa = FreezeState.queryFrozenApplications(context, launcherSettings.showSystemApps)
-            val frozenPkgSet = fa.map { it.packageName }.toSet()
-            val la = AppQuery.queryLauncherActivities(context, allowRepeatPackage = false, showSystemApps = launcherSettings.showSystemApps)
-            val normalPkgNames = la.map { it.packageName }.toSet()
-            val merged = la + fa.filter { it.packageName !in normalPkgNames }
-            AppListState(merged, frozenPkgSet)
+            QuickAppLauncherQuery.queryApps(context, launcherSettings.showSystemApps)
         }
         appListState = state
     }
@@ -130,12 +120,10 @@ internal fun QuickAppLauncherContent(
     }
     val density = LocalDensity.current
     val screenWidthPx = ScreenUtils.getScreenWidth()
-    val screenHeightPx = ScreenUtils.getScreenHeight()
     val panelWidthDp = with(density) { (screenWidthPx * launcherSettings.panelWidthFraction).toDp() }
     val panelAlpha by animateFloatAsState(if (panelVisible) 1f else 0f, animationSpec = tween(200), label = "panelAlpha")
     val panelShiftY by animateFloatAsState(if (panelVisible) 0f else 18f, animationSpec = tween(180), label = "panelShiftY")
     LaunchedEffect(Unit) { panelVisible = true }
-    var panelBounds by remember { mutableStateOf<androidx.compose.ui.geometry.Rect?>(null) }
     var gridAtTop by remember { mutableStateOf(true) }
     var closing by remember { mutableStateOf(false) }
     val closeAnimated = {
@@ -147,6 +135,20 @@ internal fun QuickAppLauncherContent(
                 onCloseAnimated()
             }
         }
+    }
+    val launchApp = { app: AppInfo, isFrozen: Boolean, miniWindow: Boolean, debugPrefix: String? ->
+        QuickAppLaunch.launch(
+            context = context,
+            coroutineScope = coroutineScope,
+            app = app,
+            isFrozen = isFrozen,
+            miniWindow = miniWindow,
+            debugPrefix = debugPrefix,
+            requestEnableFrozenPackage = service::requestEnableFrozenPackage,
+            log = { message -> LauncherDiagnostics.d(service, message) },
+            onLaunch = onLaunch,
+            onLaunched = closeAnimated
+        )
     }
     LaunchedEffect(Unit) { onRegisterCloseAnimated?.invoke(closeAnimated) }
     val gridState = rememberLazyGridState()
@@ -181,226 +183,241 @@ internal fun QuickAppLauncherContent(
             }
         }
     }
-        Box(modifier = Modifier.width(panelWidthDp)) {
-            Box(modifier = Modifier.fillMaxWidth().graphicsLayer { alpha = panelAlpha; translationY = panelShiftY }) {
-            Column(modifier = Modifier.fillMaxWidth().nestedScroll(expandFromTopConnection).pointerInput(key1 = keyboardExpanded, key2 = gridAtTop) {
+    Box(modifier = Modifier.width(panelWidthDp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    alpha = panelAlpha
+                    translationY = panelShiftY
+                }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .nestedScroll(expandFromTopConnection)
+                    .pointerInput(key1 = keyboardExpanded, key2 = gridAtTop) {
+                        var totalDrag = 0f
+                        detectVerticalDragGestures(
+                            onDragStart = { totalDrag = 0f },
+                            onVerticalDrag = { change, dragAmount ->
+                                change.consume()
+                                totalDrag += dragAmount
+                                if (keyboardExpanded && totalDrag < -32f) keyboardExpanded = false
+                                if (!keyboardExpanded && gridAtTop && totalDrag > 32f) keyboardExpanded = true
+                            }
+                        )
+                    }
+            ) {
+                Card(
+                    modifier = Modifier.width(panelWidthDp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+                        val contentHeightFraction = launcherSettings.contentHeightFraction
+                        val candidateRows = launcherSettings.candidateRows.coerceIn(1, 3)
+                        val chunkedApps = remember(filteredApps, candidateRows) { filteredApps.chunked(candidateRows) }
+                        val candidateHeight = candidateHeightFor(contentHeightFraction, candidateRows)
+                        AnimatedContent(
+                            targetState = keyboardExpanded,
+                            transitionSpec = {
+                                fadeIn(animationSpec = tween(120)) togetherWith fadeOut(animationSpec = tween(90)) using SizeTransform(clip = false)
+                            },
+                            label = "keyboardExpand"
+                        ) { expanded ->
+                            if (expanded) {
+                                Column {
+                                    CandidateAppRows(
+                                        chunkedApps = chunkedApps,
+                                        frozenPkgs = appListState.frozenPkgs,
+                                        candidateHeight = candidateHeight,
+                                        onClick = { app, isFrozen ->
+                                            launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
+                                        },
+                                        onLongPress = { app, isFrozen ->
+                                            launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress")
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    KeyboardRow(
+                                        view,
+                                        listOf("QW" to "qw", "ER" to "er", "TY" to "ty", "UI" to "ui", "OP" to "op"),
+                                        keyHeight = keyHeightFor(contentHeightFraction)
+                                    ) { token -> tokens = tokens + token }
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    KeyboardRow(
+                                        view,
+                                        listOf("AS" to "as", "DF" to "df", "GH" to "gh", "JK" to "jk", "L" to "l"),
+                                        keyHeight = keyHeightFor(contentHeightFraction)
+                                    ) { token -> tokens = tokens + token }
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    KeyboardRow(
+                                        view,
+                                        listOf("调整" to null, "ZX" to "zx", "CV" to "cv", "BN" to "bn", "M" to "m", "删除" to null),
+                                        onDelete = { tokens = tokens.dropLast(1) },
+                                        onClear = { tokens = emptyList() },
+                                        onAdjust = onToggleAdjust,
+                                        keyHeight = keyHeightFor(contentHeightFraction)
+                                    ) { token -> tokens = tokens + token }
+                                }
+                            } else {
+                                AppGrid(
+                                    apps = filteredApps,
+                                    frozenPkgs = appListState.frozenPkgs,
+                                    gridState = gridState,
+                                    gridAtTop = gridAtTop,
+                                    keyboardExpanded = keyboardExpanded,
+                                    contentHeightFraction = contentHeightFraction,
+                                    onExpandKeyboard = { keyboardExpanded = true },
+                                    onClick = { app, isFrozen ->
+                                        launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
+                                    },
+                                    onLongPress = { app, isFrozen ->
+                                        launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress_grid")
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+        }
+    }
+}
+}
+
+@Composable
+private fun CandidateAppRows(
+    chunkedApps: List<List<AppInfo>>,
+    frozenPkgs: Set<String>,
+    candidateHeight: Dp,
+    onClick: (AppInfo, Boolean) -> Unit,
+    onLongPress: (AppInfo, Boolean) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(candidateHeight)
+    ) {
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(chunkedApps, key = { chunk -> chunk.firstOrNull()?.key() ?: "empty" }) { columnApps ->
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier.width(64.dp)
+                ) {
+                    columnApps.forEach { app ->
+                        key(app.key()) {
+                            val isFrozen = app.packageName in frozenPkgs
+                            AppItem(
+                                app = app,
+                                isFrozen = isFrozen,
+                                onClick = { onClick(app, isFrozen) },
+                                onLongPress = { _, _ -> onLongPress(app, isFrozen) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppGrid(
+    apps: List<AppInfo>,
+    frozenPkgs: Set<String>,
+    gridState: LazyGridState,
+    gridAtTop: Boolean,
+    keyboardExpanded: Boolean,
+    contentHeightFraction: Float,
+    onExpandKeyboard: () -> Unit,
+    onClick: (AppInfo, Boolean) -> Unit,
+    onLongPress: (AppInfo, Boolean) -> Unit
+) {
+    val view = LocalView.current
+
+    Box(
+        modifier = Modifier
+            .height(gridHeightFor(contentHeightFraction))
+            .fillMaxWidth()
+            .pointerInput(gridAtTop) {
                 var totalDrag = 0f
                 detectVerticalDragGestures(
                     onDragStart = { totalDrag = 0f },
                     onVerticalDrag = { change, dragAmount ->
-                        change.consume()
-                        totalDrag += dragAmount
-                        if (keyboardExpanded && totalDrag < -32f) {
-                            keyboardExpanded = false
-                        }
-                        if (!keyboardExpanded && gridAtTop && totalDrag > 32f) {
-                            keyboardExpanded = true
+                        if (gridAtTop && dragAmount > 0f) {
+                            change.consume()
+                            totalDrag += dragAmount
+                            if (totalDrag > 32f) onExpandKeyboard()
                         }
                     }
                 )
-            }) {
-            Card(modifier = Modifier.width(panelWidthDp).onGloballyPositioned { panelBounds = it.boundsInWindow() }, shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-                Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
-                    val contentHeightFraction = launcherSettings.contentHeightFraction
-                    val candidateRows = launcherSettings.candidateRows.coerceIn(1, 3)
-                    val chunkedApps = remember(filteredApps, candidateRows) { filteredApps.chunked(candidateRows) }
-                    val candidateHeight = candidateHeightFor(contentHeightFraction, candidateRows)
-                    AnimatedContent(
-                        targetState = keyboardExpanded,
-                        transitionSpec = {
-                            fadeIn(animationSpec = tween(120)) togetherWith fadeOut(animationSpec = tween(90)) using SizeTransform(clip = false)
-                        },
-                        label = "keyboardExpand"
-                    ) { expanded ->
-                        if (expanded) {
-                            Column {
-Box(modifier = Modifier.fillMaxWidth().height(candidateHeight)) {
-                                      val columnCount = maxOf(1, (filteredApps.size + candidateRows - 1) / candidateRows)
-                                      LazyRow(
-                                          horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                          modifier = Modifier.fillMaxSize()
-                                      ) {
-                                          items(chunkedApps, key = { chunk -> chunk.firstOrNull()?.key() ?: "empty" }) { columnApps ->
-Column(
-                                                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                                                    modifier = Modifier.width(64.dp)
-                                                ) {
-columnApps.forEach { app ->
-                                                              key(app.key()) {
-val isFrozen = app.packageName in appListState.frozenPkgs
-                                                          AppItem(app = app, isFrozen = isFrozen, onClick = {
-                                                             if (isFrozen) {
-                                                                 service.requestEnableFrozenPackage(app.packageName) { success ->
-                                                                     if (success) {
-                                                                         LauncherDiagnostics.d(service, "enable_package: request launch pkg=${app.packageName} miniWindow=false")
-                                                                         coroutineScope.launch {
-                                                                             val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                                                 AppQuery.findLauncherActivity(context, app.packageName)
-                                                                             }
-                                                                             if (found != null) {
-                                                                                 LauncherDiagnostics.d(service, "enable_package: launcher found pkg=${found.packageName} cls=${found.className}")
-                                                                                 val result = onLaunch(found, !quickLauncherAppLongPressLaunchPopup)
-                                                                                 LauncherDiagnostics.d(service, "enable_package: launch after enable result=$result pkg=${app.packageName}")
-                                                                                 if (result) closeAnimated()
-                                                                             } else {
-                                                                                 LauncherDiagnostics.d(service, "enable_package: launcher activity not found pkg=${app.packageName}")
-                                                                             }
-                                                                         }
-                                                                     }
-                                                                 }
-                                                             } else if (onLaunch(app, !quickLauncherAppLongPressLaunchPopup)) closeAnimated()
-}, onLongPress = { _, _ ->
-                                                   if (isFrozen) {
-                                                       val tFrozenStart = System.currentTimeMillis()
-                                                        if (BuildConfig.DEBUG) {
-                                                                       val beforeState = runCatching { context.packageManager.getApplicationEnabledSetting(app.packageName) }.getOrDefault(-1)
-                                                                       android.util.Log.d("LauncherPerf", "longPress: frozen start pkg=${app.packageName} beforeEnable=$beforeState")
-                                                                   }
-                                                                   service.requestEnableFrozenPackage(app.packageName) { success ->
-                                                                       if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: enable_end pkg=${app.packageName} success=$success elapsed=${System.currentTimeMillis() - tFrozenStart}ms")
-                                                                       if (success) {
-                                                                           LauncherDiagnostics.d(service, "enable_package: request launch pkg=${app.packageName} miniWindow=true")
-                                                                           if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: resolve_intent start pkg=${app.packageName}")
-                                                                           val tResolve = System.currentTimeMillis()
-                                                                           coroutineScope.launch {
-                                                                               val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                                                   AppQuery.findLauncherActivity(context, app.packageName)
-                                                                               }
-                                                                               if (found != null) {
-                                                                                   if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: resolve_intent found pkg=${app.packageName} elapsed=${System.currentTimeMillis() - tResolve}ms")
-                                                                                   LauncherDiagnostics.d(service, "enable_package: launcher found pkg=${found.packageName} cls=${found.className}")
-                                                                                   val tLaunch = System.currentTimeMillis()
-                                                                                   val result = onLaunch(found, quickLauncherAppLongPressLaunchPopup)
-                                                                                   if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: startActivity pkg=${app.packageName} result=$result elapsed=${System.currentTimeMillis() - tLaunch}ms total=${System.currentTimeMillis() - tFrozenStart}ms")
-                                                                                   LauncherDiagnostics.d(service, "enable_package: launch after enable result=$result pkg=${app.packageName}")
-                                                                                   if (result) closeAnimated()
-                                                                               } else {
-                                                                                   if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: resolve_intent not_found pkg=${app.packageName} elapsed=${System.currentTimeMillis() - tResolve}ms total=${System.currentTimeMillis() - tFrozenStart}ms")
-                                                                                   LauncherDiagnostics.d(service, "enable_package: launcher activity not found pkg=${app.packageName}")
-                                                                               }
-                                                                           }
-                                                                       } else {
-                                                                           if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress: enable_failed pkg=${app.packageName} total=${System.currentTimeMillis() - tFrozenStart}ms")
-                                                                       }
-                                                                   }
-} else if (onLaunch(app, quickLauncherAppLongPressLaunchPopup)) closeAnimated()
-                                                            })
-                                                      }
-                                                  }
-                                              }
-                                            }
-                                        }
-                                    }
-                                  Spacer(modifier = Modifier.height(8.dp))
-                                  KeyboardRow(view, listOf("QW" to "qw", "ER" to "er", "TY" to "ty", "UI" to "ui", "OP" to "op"), keyHeight = keyHeightFor(contentHeightFraction)) { token -> tokens = tokens + token }
-                                  Spacer(modifier = Modifier.height(6.dp))
-                                  KeyboardRow(view, listOf("AS" to "as", "DF" to "df", "GH" to "gh", "JK" to "jk", "L" to "l"), keyHeight = keyHeightFor(contentHeightFraction)) { token -> tokens = tokens + token }
-                                  Spacer(modifier = Modifier.height(6.dp))
-                                  KeyboardRow(view, listOf("调整" to null, "ZX" to "zx", "CV" to "cv", "BN" to "bn", "M" to "m", "删除" to null), onDelete = { tokens = tokens.dropLast(1) }, onClear = { tokens = emptyList() }, onAdjust = onToggleAdjust, keyHeight = keyHeightFor(contentHeightFraction)) { token -> tokens = tokens + token }
-                              }
-                          } else {
-                              Box(modifier = Modifier.height(gridHeightFor(contentHeightFraction)).fillMaxWidth().nestedScroll(expandFromTopConnection).pointerInput(gridAtTop) {
-                                 var totalDrag = 0f
-                                 detectVerticalDragGestures(
-                                     onDragStart = { totalDrag = 0f },
-                                     onVerticalDrag = { change, dragAmount ->
-                                         if (gridAtTop && dragAmount > 0f) {
-                                             change.consume()
-                                             totalDrag += dragAmount
-                                             if (totalDrag > 32f) keyboardExpanded = true
-                                         }
-                                     }
-                                 )
-                             }) {
-                                     LazyVerticalGrid(state = gridState, columns = GridCells.Adaptive(minSize = 64.dp), verticalArrangement = Arrangement.spacedBy(4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), contentPadding = PaddingValues(bottom = 36.dp), modifier = Modifier.fillMaxSize()) {
-                                         if (filteredApps.isEmpty()) item { Box(modifier = Modifier.height(88.dp).fillMaxWidth()) }
-                                         items(filteredApps, key = { it.key() }) { app ->
-                                             val isFrozen = app.packageName in appListState.frozenPkgs
-                                             AppItem(app = app, isFrozen = isFrozen, onClick = {
-                                                 if (isFrozen) {
-                                                     service.requestEnableFrozenPackage(app.packageName) { success ->
-                                                         if (success) {
-                                                             LauncherDiagnostics.d(service, "enable_package: request launch pkg=${app.packageName} miniWindow=false")
-                                                             coroutineScope.launch {
-                                                                 val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                                     AppQuery.findLauncherActivity(context, app.packageName)
-                                                                 }
-                                                                 if (found != null) {
-                                                                     LauncherDiagnostics.d(service, "enable_package: launcher found pkg=${found.packageName} cls=${found.className}")
-                                                                     val result = onLaunch(found, !quickLauncherAppLongPressLaunchPopup)
-                                                                     LauncherDiagnostics.d(service, "enable_package: launch after enable result=$result pkg=${app.packageName}")
-                                                                     if (result) closeAnimated()
-                                                                 } else {
-                                                                     LauncherDiagnostics.d(service, "enable_package: launcher activity not found pkg=${app.packageName}")
-                                                                 }
-                                                             }
-                                                         }
-                                                     }
-                                                 } else if (onLaunch(app, !quickLauncherAppLongPressLaunchPopup)) closeAnimated()
-}, onLongPress = { _, _ ->
-                                                  if (isFrozen) {
-val tFrozenStart = System.currentTimeMillis()
-                                                       if (BuildConfig.DEBUG) {
-                                                           val beforeState = runCatching { context.packageManager.getApplicationEnabledSetting(app.packageName) }.getOrDefault(-1)
-                                                           android.util.Log.d("LauncherPerf", "longPress_grid: frozen start pkg=${app.packageName} beforeEnable=$beforeState")
-                                                       }
-                                                       service.requestEnableFrozenPackage(app.packageName) { success ->
-                                                           if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: enable_end pkg=${app.packageName} success=$success elapsed=${System.currentTimeMillis() - tFrozenStart}ms")
-                                                           if (success) {
-                                                               LauncherDiagnostics.d(service, "enable_package: request launch pkg=${app.packageName} miniWindow=true")
-                                                               if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: resolve_intent start pkg=${app.packageName}")
-                                                               val tResolve = System.currentTimeMillis()
-                                                               coroutineScope.launch {
-                                                                   val found = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                                       AppQuery.findLauncherActivity(context, app.packageName)
-                                                                   }
-                                                                   if (found != null) {
-                                                                       if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: resolve_intent found pkg=${app.packageName} elapsed=${System.currentTimeMillis() - tResolve}ms")
-                                                                       LauncherDiagnostics.d(service, "enable_package: launcher found pkg=${found.packageName} cls=${found.className}")
-                                                                       val tLaunch = System.currentTimeMillis()
-                                                                       val result = onLaunch(found, quickLauncherAppLongPressLaunchPopup)
-                                                                       if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: startActivity pkg=${app.packageName} result=$result elapsed=${System.currentTimeMillis() - tLaunch}ms total=${System.currentTimeMillis() - tFrozenStart}ms")
-                                                                       LauncherDiagnostics.d(service, "enable_package: launch after enable result=$result pkg=${app.packageName}")
-                                                                       if (result) closeAnimated()
-                                                                   } else {
-                                                                       if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: resolve_intent not_found pkg=${app.packageName} elapsed=${System.currentTimeMillis() - tResolve}ms total=${System.currentTimeMillis() - tFrozenStart}ms")
-                                                                       LauncherDiagnostics.d(service, "enable_package: launcher activity not found pkg=${app.packageName}")
-                                                                   }
-                                                               }
-                                                           } else {
-                                                               if (BuildConfig.DEBUG) android.util.Log.d("LauncherPerf", "longPress_grid: enable_failed pkg=${app.packageName} total=${System.currentTimeMillis() - tFrozenStart}ms")
-                                                           }
-                                                       }
-                                                   } else if (onLaunch(app, quickLauncherAppLongPressLaunchPopup)) closeAnimated()
-                                              })
-                                         }
-                                     }
-                                 Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().pointerInput(keyboardExpanded) {
-                                     var totalDrag = 0f
-                                     detectVerticalDragGestures(
-                                         onDragStart = { totalDrag = 0f },
-                                         onVerticalDrag = { change, dragAmount ->
-                                             change.consume()
-                                             totalDrag += dragAmount
-                                             if (!keyboardExpanded && totalDrag > 32f) keyboardExpanded = true
-                                         }
-                                     )
-                                 }, contentAlignment = Alignment.Center) {
-                                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(vertical = 6.dp).clickable { view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); keyboardExpanded = true }) {
-                                         Box(modifier = Modifier.width(44.dp).height(5.dp).clip(RoundedCornerShape(99.dp)).background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)))
-                                         Spacer(modifier = Modifier.height(4.dp))
-                                         Text(text = "⌨", fontSize = 18.sp)
-                                     }
-                                 }
-                             }
-                         }
-                     }
-                 }
-             }
-             }
-             }
-         }
-     }
+            }
+    ) {
+        LazyVerticalGrid(
+            state = gridState,
+            columns = GridCells.Adaptive(minSize = 64.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            contentPadding = PaddingValues(bottom = 36.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (apps.isEmpty()) {
+                item { Box(modifier = Modifier.height(88.dp).fillMaxWidth()) }
+            }
+            items(apps, key = { it.key() }) { app ->
+                val isFrozen = app.packageName in frozenPkgs
+                AppItem(
+                    app = app,
+                    isFrozen = isFrozen,
+                    onClick = { onClick(app, isFrozen) },
+                    onLongPress = { _, _ -> onLongPress(app, isFrozen) }
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .pointerInput(keyboardExpanded) {
+                    var totalDrag = 0f
+                    detectVerticalDragGestures(
+                        onDragStart = { totalDrag = 0f },
+                        onVerticalDrag = { change, dragAmount ->
+                            change.consume()
+                            totalDrag += dragAmount
+                            if (!keyboardExpanded && totalDrag > 32f) onExpandKeyboard()
+                        }
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(vertical = 6.dp)
+                    .clickable {
+                        view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                        onExpandKeyboard()
+                    }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(44.dp)
+                        .height(5.dp)
+                        .clip(RoundedCornerShape(99.dp))
+                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = "⌨", fontSize = 18.sp)
+            }
+        }
+    }
+}
 
 private fun keyHeightFor(panelHeightFraction: Float) = when {
     panelHeightFraction < 0.5f -> 34.dp
@@ -422,5 +439,3 @@ private fun gridHeightFor(panelHeightFraction: Float) = when {
     panelHeightFraction < 0.75f -> 220.dp
     else -> 260.dp
 }
-
-private data class AppListState(val apps: List<AppInfo>, val frozenPkgs: Set<String>)

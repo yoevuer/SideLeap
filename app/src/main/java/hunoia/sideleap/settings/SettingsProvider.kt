@@ -82,6 +82,36 @@ object SettingsProvider {
     suspend fun updateQuickAppLauncherSettings(transform: suspend (QuickAppLauncherSettings) -> QuickAppLauncherSettings) {
         _quickAppLauncherSettings.updateData(transform)
     }
+    suspend fun updateQuickAppLauncherLayout(layout: QuickAppLauncherSettings) {
+        _quickAppLauncherSettings.updateData { old ->
+            old.copy(
+                panelHeightFraction = layout.panelHeightFraction,
+                contentHeightFraction = layout.contentHeightFraction,
+                candidateRows = layout.candidateRows,
+                panelWidthFraction = layout.panelWidthFraction,
+                panelHorizontalBias = layout.panelHorizontalBias
+            )
+        }
+    }
+    suspend fun resetQuickAppLauncherLayout() {
+        _quickAppLauncherSettings.updateData { old ->
+            old.copy(
+                panelHeightFraction = QuickAppLauncherSettings().panelHeightFraction,
+                contentHeightFraction = QuickAppLauncherSettings().contentHeightFraction,
+                candidateRows = QuickAppLauncherSettings().candidateRows,
+                panelWidthFraction = QuickAppLauncherSettings().panelWidthFraction,
+                panelHorizontalBias = QuickAppLauncherSettings().panelHorizontalBias
+            )
+        }
+    }
+    suspend fun recordQuickAppLaunch(appKey: String) {
+        _quickAppLauncherSettings.updateData { old ->
+            old.copy(
+                recentLaunchTime = old.recentLaunchTime + (appKey to System.currentTimeMillis()),
+                launchCount = old.launchCount + (appKey to ((old.launchCount[appKey] ?: 0L) + 1L))
+            )
+        }
+    }
     suspend fun updateFrozenAppSettings(transform: suspend (FrozenAppSettings) -> FrozenAppSettings) {
         _frozenAppSettings.updateData(transform)
     }

@@ -1,20 +1,20 @@
 package hunoia.sideleap.core.event
 
 import android.os.Looper
-import kotlinx.coroutines.DelicateCoroutinesApi
+import hunoia.sideleap.App
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 
 object Events {
 
-    private val map: MutableMap<KClass<out Any>, MutableList<(Any) -> Unit>> = mutableMapOf()
+    private val subscribers = ConcurrentHashMap<KClass<out Any>, CopyOnWriteArrayList<(Any) -> Unit>>()
 
     fun post(event: Any, postOnUiThread: Boolean = true) {
         if (postOnUiThread && Looper.myLooper() != Looper.getMainLooper()) {
-            @OptIn(DelicateCoroutinesApi::class)
-            GlobalScope.launch(Dispatchers.Main) {
+            App.applicationScope.launch(Dispatchers.Main) {
                 dispatch(event)
             }
         } else {
@@ -23,28 +23,20 @@ object Events {
     }
 
     fun <T : Any> subscribe(eventClass: KClass<T>, subscriber: (T) -> Unit) {
-        var list = map[eventClass]
-        if (list == null) {
-            list = mutableListOf<(Any) -> Unit>().apply {
-                map[eventClass] = this
-            }
-        }
-        list.add(subscriber as (Any) -> Unit)
+        @Suppress("UNCHECKED_CAST")
+        subscribers.computeIfAbsent(eventClass) { CopyOnWriteArrayList() }.add(subscriber as (Any) -> Unit)
     }
 
     fun <T : Any> unsubscribe(eventClass: KClass<T>, subscriber: (T) -> Unit) {
-        val map = map
-        val list = map[eventClass]
-        if (!list.isNullOrEmpty()) {
-            list.remove(subscriber)
-            if (list.isEmpty()) {
-                map.remove(eventClass)
-            }
+        val list = subscribers[eventClass] ?: return
+        list.remove(subscriber)
+        if (list.isEmpty()) {
+            subscribers.remove(eventClass, list)
         }
     }
 
     private fun dispatch(event: Any) {
-        map[event::class]?.forEach {
+        subscribers[event::class]?.forEach {
             it(event)
         }
     }

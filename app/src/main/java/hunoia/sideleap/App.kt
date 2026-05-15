@@ -6,6 +6,9 @@ import android.content.Context
 import com.aaron.compose.component.UDFComponentDefaults
 import hunoia.sideleap.ui.UDFComponentDefaultsImpl
 import hunoia.sideleap.core.crash.CrashHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import me.weishu.reflection.Reflection
 import rikka.shizuku.ShizukuProvider
 
@@ -18,6 +21,8 @@ class App : Application() {
     companion object {
         @SuppressLint("StaticFieldLeak")
         private lateinit var context: Context
+
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
         fun getContext(): Context {
             return context

@@ -1,8 +1,5 @@
 package hunoia.sideleap.ui.dialog
 
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -62,8 +59,8 @@ import hunoia.sideleap.settings.SettingsUiDefaults.MaxMoveScreenRate
 import hunoia.sideleap.settings.SettingsUiDefaults.MinGotoBottomStrength
 import hunoia.sideleap.settings.SettingsUiDefaults.MinMoveScreenHover
 import hunoia.sideleap.settings.SettingsUiDefaults.MinMoveScreenRate
+import hunoia.sideleap.launcher.query.OpenAppOrUrlQuery
 import hunoia.sideleap.system.intent.normalizeOpenAppOrUrl
-import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.SubMinInteractiveSize
@@ -87,7 +84,7 @@ fun OpenAppOrUrlSettingsContent(
     onConfirm: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val launcherApps = remember(context) { queryLauncherApps(context) }
+    val launcherApps = remember(context) { OpenAppOrUrlQuery.queryLauncherApps(context) }
     val existingData = remember {
         runCatching { JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data) }.getOrNull()
     }
@@ -121,7 +118,7 @@ fun OpenAppOrUrlSettingsContent(
     }
     val activityOptions = remember(selectedApp) {
         val app = selectedApp
-        if (app != null) queryActivityOptions(
+        if (app != null) OpenAppOrUrlQuery.queryActivityOptions(
             context = context,
             packageName = app.packageName,
             selectedActivityClassName = "",
@@ -130,7 +127,7 @@ fun OpenAppOrUrlSettingsContent(
     }
     val filteredActivities = activityOptions.filter {
         activityQuery.isBlank() ||
-        formatActivityOptionText(it, selectedApp?.packageName ?: "").contains(activityQuery, ignoreCase = true) ||
+        OpenAppOrUrlQuery.formatActivityOptionText(it, selectedApp?.packageName ?: "").contains(activityQuery, ignoreCase = true) ||
         it.className.contains(activityQuery, ignoreCase = true)
     }
     val normalizedUrl = remember(urlInput) {
@@ -218,7 +215,7 @@ fun OpenAppOrUrlSettingsContent(
                                 ) {
                                     AsyncImage(
                                         modifier = Modifier.size(SubMinInteractiveSize),
-                                        model = runCatching { context.packageManager.getApplicationIcon(item.packageName) }.getOrNull(),
+                                        model = OpenAppOrUrlQuery.loadApplicationIcon(context, item.packageName),
                                         contentDescription = null,
                                         contentScale = ContentScale.Fit
                                     )
@@ -301,7 +298,7 @@ fun OpenAppOrUrlSettingsContent(
                                     )
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = formatActivityOptionText(activity, app.packageName),
+                                            text = OpenAppOrUrlQuery.formatActivityOptionText(activity, app.packageName),
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -364,100 +361,6 @@ fun OpenAppOrUrlSettingsContent(
             }
         }
     }
-}
-
-private data class LauncherAppOption(
-    val packageName: String,
-    val launcherClassName: String,
-    val label: String
-)
-
-private data class ActivityOption(
-    val className: String,
-    val label: String
-)
-
-private fun queryLauncherApps(context: android.content.Context): List<LauncherAppOption> {
-    val packageManager = context.packageManager
-    val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-    val result = mutableListOf<LauncherAppOption>()
-    val seenPackages = mutableSetOf<String>()
-    for (resolveInfo in packageManager.queryIntentActivitiesCompat(intent, PackageManager.MATCH_ALL)) {
-        val activityInfo = resolveInfo.activityInfo ?: continue
-        val packageName = activityInfo.packageName ?: continue
-        if (!seenPackages.add(packageName)) continue
-        result += LauncherAppOption(
-            packageName = packageName,
-            launcherClassName = activityInfo.name,
-            label = activityInfo.loadLabel(packageManager).toString()
-        )
-    }
-    return result.sortedWith(compareBy<LauncherAppOption> { it.label }.thenBy { it.packageName })
-}
-
-private fun queryActivityOptions(
-    context: android.content.Context,
-    packageName: String,
-    selectedActivityClassName: String,
-    launcherClassName: String?
-): List<ActivityOption> {
-    if (packageName.isBlank()) return emptyList()
-    val packageManager = context.packageManager
-    val exportedActivities = try {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            packageManager.getPackageInfo(
-                packageName,
-                PackageManager.PackageInfoFlags.of(PackageManager.GET_ACTIVITIES.toLong())
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
-        }
-    } catch (_: Exception) {
-        null
-    }?.activities
-        ?.filter { it.exported }
-        ?.map {
-            ActivityOption(
-                className = it.name,
-                label = it.loadLabel(packageManager).toString()
-            )
-        }
-        .orEmpty()
-
-    return if (exportedActivities.isNotEmpty()) {
-        exportedActivities
-            .distinctBy { it.className }
-            .sortedWith(compareBy<ActivityOption> { it.label }.thenBy { it.className })
-    } else {
-        listOfNotNull(
-            selectedActivityClassName.takeIf { it.isNotBlank() }?.let { ActivityOption(it, it) },
-            launcherClassName?.takeIf { it.isNotBlank() }?.let { ActivityOption(it, it) }
-        ).distinctBy { it.className }
-    }
-}
-
-private fun formatActivityOptionText(option: ActivityOption, packageName: String): String {
-    val shortClassName = if (packageName.isNotBlank() && option.className.startsWith("$packageName.")) {
-        option.className.removePrefix("$packageName.")
-    } else {
-        option.className
-    }
-    return shortClassName
-}
-
-private fun resolveInitialActivityClassName(
-    context: android.content.Context,
-    packageName: String,
-    selectedActivityClassName: String,
-    launcherClassName: String?
-): String {
-    return queryActivityOptions(
-        context = context,
-        packageName = packageName,
-        selectedActivityClassName = selectedActivityClassName,
-        launcherClassName = launcherClassName
-    ).firstOrNull()?.className ?: ""
 }
 
 @Composable
