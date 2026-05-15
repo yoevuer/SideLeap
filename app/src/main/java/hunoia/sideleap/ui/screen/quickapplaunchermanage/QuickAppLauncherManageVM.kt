@@ -5,7 +5,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.settings.SettingsProvider
-import hunoia.sideleap.freeze.QuickAppLauncherQuery
+import hunoia.sideleap.freeze.FrozenQuickAppLauncherQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -20,7 +20,7 @@ class QuickAppLauncherManageVM : BaseComposeVM<QuickAppLauncherManageVM.UiState,
         val context = hunoia.sideleap.App.getContext()
         val (settings, mergedApps) = withContext(Dispatchers.IO) {
             val s = SettingsProvider.getQuickAppLauncherSettings()
-            val appList = QuickAppLauncherQuery.queryApps(context, s.showSystemApps)
+            val appList = FrozenQuickAppLauncherQuery.queryApps(context, s.showSystemApps)
             s to appList.apps
         }
         updateUiState { it.copy(apps = mergedApps, settings = settings) }

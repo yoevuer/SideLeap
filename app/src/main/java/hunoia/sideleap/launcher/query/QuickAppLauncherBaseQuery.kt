@@ -8,7 +8,7 @@ data class QuickAppLauncherAppList(
     val frozenPkgs: Set<String>
 )
 
-object QuickAppLauncherQuery {
+object QuickAppLauncherBaseQuery {
     fun queryApps(context: Context, showSystemApps: Boolean): QuickAppLauncherAppList {
         val launcherApps = AppQuery.queryLauncherActivities(
             context = context,

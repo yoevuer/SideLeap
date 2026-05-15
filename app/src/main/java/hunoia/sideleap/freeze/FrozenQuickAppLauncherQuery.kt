@@ -4,7 +4,7 @@ import android.content.Context
 import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.launcher.query.QuickAppLauncherAppList
 
-object QuickAppLauncherQuery {
+object FrozenQuickAppLauncherQuery {
     fun queryApps(context: Context, showSystemApps: Boolean): QuickAppLauncherAppList {
         val frozenApps = FreezeState.queryFrozenApplications(context, showSystemApps)
         val frozenPkgSet = frozenApps.map { it.packageName }.toSet()

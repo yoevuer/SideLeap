@@ -62,7 +62,7 @@ import androidx.compose.ui.unit.sp
 import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.launcher.model.AppInfo
-import hunoia.sideleap.freeze.QuickAppLauncherQuery
+import hunoia.sideleap.freeze.FrozenQuickAppLauncherQuery
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.launcher.launch.QuickAppLaunch
@@ -98,7 +98,7 @@ internal fun QuickAppLauncherContent(
     }
     LaunchedEffect(launcherSettings.showSystemApps) {
         val state = kotlinx.coroutines.withContext(Dispatchers.IO) {
-            QuickAppLauncherQuery.queryApps(context, launcherSettings.showSystemApps)
+            FrozenQuickAppLauncherQuery.queryApps(context, launcherSettings.showSystemApps)
         }
         appListState = state
     }
