@@ -1,49 +1,37 @@
 # SideLeap 代码索引
 
-## 当前状态
+SideLeap 采用单模块领域分包结构。当前索引只描述真实可维护结构，不再把 `ktx/`、`utils/`、`entity/` 作为当前源码入口。
 
-SideLeap 采用单模块领域分包结构，当前主领域为：
+## 当前领域
 
-- `ui`
-- `gesture`
-- `action`
-- `settings`
-- `launcher`
-- `freeze`
-- `overlay`
-- `system`
-- `core`
-
-`ktx/`、`utils/`、`entity/` 已完成清理，不再作为活跃源码包。
+| 领域 | 说明 |
+|---|---|
+| `ui` | 页面、组件、导航、UI 状态 |
+| `gesture` | 手势模型、输入识别、手势语义 |
+| `action` | 动作定义、展示、payload、执行分发 |
+| `settings` | 配置模型、DataStore、默认值、备份恢复 |
+| `launcher` | 应用/Shortcut/图标/启动能力 |
+| `freeze` | 冻结业务、名单策略、Shizuku 冻结链路 |
+| `overlay` | 快捷启动器浮窗 |
+| `system` | Android 底层能力封装 |
+| `core` | 跨领域基础设施与入口类 |
 
 ## 索引入口
 
 | 索引页 | 说明 |
 |---|---|
-| `source-ui.md` | UI、导航、页面、VM |
-| `source-action.md` | 动作定义、执行、展示 |
-| `source-core.md` | 应用入口与顶层服务/Activity |
-| `source-misc.md` | 常量、事件、浮窗等辅助包 |
-| `source-ktx.md` | 历史归档页 |
-| `source-utils.md` | 历史归档页 |
-| `source-entity.md` | 历史归档页 |
-| `resources.md` | 资源索引 |
+| `source-ui.md` | UI、导航、页面、组件、主题 |
+| `source-gesture.md` | 手势模型与输入识别 |
+| `source-action.md` | 动作定义、展示、执行分发 |
+| `source-settings.md` | 配置、DataStore、备份恢复 |
+| `source-launcher.md` | 应用、Shortcut、图标、启动能力 |
+| `source-freeze.md` | 冻结业务与名单策略 |
+| `source-overlay.md` | 快捷启动器浮窗 |
+| `source-system.md` | 系统能力封装 |
+| `source-core.md` | 应用入口与基础设施 |
 
-## 领域摘要
+## 使用原则
 
-| 领域 | 说明 |
-|---|---|
-| `ui` | 页面、组件、导航、UI ViewModel |
-| `gesture` | 手势按钮、方向、识别语义 |
-| `action` | 动作定义、payload、执行分发 |
-| `settings` | 默认值、DataStore、备份恢复 |
-| `launcher` | 应用/Shortcut/图标/启动能力 |
-| `freeze` | 冻结业务规则与 Shizuku 冻结链路 |
-| `overlay` | 快捷启动器浮窗表现 |
-| `system` | Android 底层能力封装 |
-| `core` | 跨领域基础设施 |
-
-## 归档说明
-
-- `source-ktx.md`、`source-utils.md`、`source-entity.md` 仅保留历史迁移记录。
-- 这些页面顶部均已标记 `archived`，不应再被视为当前结构说明。
+- 以代码当前结构为准。
+- 旧迁移细节只保留在相关领域页的简短说明里，不再作为主索引主体。
+- 后续 agent 先看这里，再进入对应领域页。

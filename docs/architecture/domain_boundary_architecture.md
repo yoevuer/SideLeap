@@ -449,6 +449,6 @@ DataStore / 备份 / 默认值 -> settings
 截至当前分支状态：
 
 - `ktx/`、`utils/`、`entity/` 已无 `.kt` 文件。
-- 旧索引 `docs/index/source-ktx.md`、`source-utils.md`、`source-entity.md` 已标记为 archived。
+- `docs/index/` 已重写为当前领域索引，不再把旧包作为主入口。
 - 代码主边界已稳定为 `ui`、`gesture`、`action`、`settings`、`launcher`、`freeze`、`overlay`、`system`、`core`。
 - 仍值得后续单独拆分的候选主要是 `SideGestureService` 本体和 `ContextSettings` 聚合 helper。

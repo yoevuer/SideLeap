@@ -1,112 +1,33 @@
-# SideLeap 源码索引 — action/
-## 包路径：hunoia.sideleap.action
+# SideLeap 源码索引 - action/
 
-### hunoia/sideleap/action/ActionHandler.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/ActionHandler.kt`
-- **行数**: 8
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: ActionHandler
+`action/` 承载动作定义、展示元信息、payload、执行分发和 handler 边界。
 
-### hunoia/sideleap/action/ActionHandlerContext.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/ActionHandlerContext.kt`
-- **行数**: 17
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: ActionHandlerContext
+## 当前职责
 
-### hunoia/sideleap/action/ActionRegistry.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/ActionRegistry.kt`
-- **行数**: 58
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: ActionRegistry
+- 动作核心模型：`action/Action.kt`、`action/ActionPayload.kt`、`action/ActionExecutionResult.kt`
+- 动作定义与分类：`action/definition/*`
+- 动作分发：`action/ActionRegistry.kt`、`action/ActionHandler.kt`、`action/ActionHandlerContext.kt`
+- 动作处理器：`action/handlers/*`
+- 动作展示：`action/display/*`
+- 位置移动数据：`action/MoveScreenData.kt`
 
-### hunoia/sideleap/action/handlers/AppLaunchActionHandler.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/handlers/AppLaunchActionHandler.kt`
-- **行数**: 126
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action.handlers`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: AppLaunchActionHandler
+## 主要源码路径
 
-### hunoia/sideleap/action/handlers/FreezeAppsActionHandler.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/handlers/FreezeAppsActionHandler.kt`
-- **行数**: 90
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action.handlers`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: FreezeAppsActionHandler
+| 路径 | 作用 |
+|---|---|
+| `action/definition/*` | 动作目录、分类、配置类型 |
+| `action/handlers/*` | 各动作执行器 |
+| `action/display/*` | 动作图标与展示素材 |
+| `action/ActionRegistry.kt` | 动作注册与分发 |
+| `action/ActionPayload.kt` | 动作载荷 |
 
-### hunoia/sideleap/action/handlers/MediaActionHandler.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/handlers/MediaActionHandler.kt`
-- **行数**: 36
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action.handlers`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: MediaActionHandler
+## 关键入口
 
-### hunoia/sideleap/action/handlers/MoveScreenActionHandler.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/handlers/MoveScreenActionHandler.kt`
-- **行数**: 79
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action.handlers`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: MoveScreenActionHandler
+- `ActionCatalog` 和 `ActionDefinition` 定义有哪些动作。
+- `ActionRegistry` 将配置后的动作分发给对应 handler。
+- `SystemActionHandler`、`AppLaunchActionHandler`、`FreezeAppsActionHandler`、`ShortcutActionHandler`、`NavigationActionHandler` 是当前主要执行器。
 
-### hunoia/sideleap/action/handlers/NavigationActionHandler.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/handlers/NavigationActionHandler.kt`
-- **行数**: 33
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action.handlers`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: NavigationActionHandler
+## 依赖边界
 
-### hunoia/sideleap/action/handlers/RandomNameActionHandler.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/handlers/RandomNameActionHandler.kt`
-- **行数**: 107
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action.handlers`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: RandomNameActionHandler
-
-### hunoia/sideleap/action/handlers/ShortcutActionHandler.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/handlers/ShortcutActionHandler.kt`
-- **行数**: 26
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action.handlers`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: ShortcutActionHandler
-
-### hunoia/sideleap/action/handlers/SystemActionHandler.kt
-- **文件路径**: `app/src/main/java/hunoia/sideleap/action/handlers/SystemActionHandler.kt`
-- **行数**: 110
-- **文件类型**: Kotlin 源码
-- **所属包路径**: `hunoia.sideleap.action.handlers`
-- **职责标签**: 动作体系
-- **是否入口**: 否
-- **入口类型**: 非入口文件
-- **主要类、函数或 Composable**: SystemActionHandler
+- `action` 可以依赖 `settings`、`launcher`、`freeze`、`system`。
+- `action` 不负责手势识别，不直接读写配置，不让 UI 自己维护动作事实源。
