@@ -224,6 +224,9 @@ object FreezeAction {
 
         val successCount = result.get().coerceAtLeast(0)
         Log.i("OneKeyFreeze", "bridge result successCount=$successCount")
+        if (successCount > 0) {
+            FreezeState.invalidateFrozenCache()
+        }
         OneKeyFreezeResult(
             oneKeyCount = successCount,
             protectedCount = 0,
@@ -244,6 +247,10 @@ object FreezeAction {
         delay(100)
         val latestState = FreezeState.queryFrozenStateByPackage(context, candidates)
         val successCount = candidates.count { latestState[it] != true }
+
+        if (successCount > 0) {
+            FreezeState.invalidateFrozenCache()
+        }
 
         OneKeyFreezeResult(
             oneKeyCount = targets.size,
