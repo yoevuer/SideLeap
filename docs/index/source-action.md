@@ -26,7 +26,7 @@
 - `ActionCatalog` 和 `ActionDefinition` 定义有哪些动作。
 - `ActionRegistry` 将配置后的动作分发给对应 handler。
 - `SystemActionHandler`、`AppLaunchActionHandler`、`FreezeAppsActionHandler`、`ShortcutActionHandler`、`NavigationActionHandler` 是当前主要执行器。
-- `ActionHandlerContext` 由 `SideGestureServiceProxyActionCoordinator` 统一构造。
+- `ActionHandlerContext` 由 `service/SideGestureServiceProxyActionCoordinator.kt` 统一构造。
 
 ## 依赖边界
 

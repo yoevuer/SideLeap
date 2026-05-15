@@ -1,10 +1,12 @@
-package hunoia.sideleap
+package hunoia.sideleap.service
 
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.PowerManager
 import android.view.accessibility.AccessibilityEvent
+import hunoia.sideleap.R
+import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.action.ActionRegistry

@@ -8,7 +8,8 @@
 - Runtime snapshot：`service/SideGestureRuntimeState.kt`
 - Overlay 生命周期协作：`service/SideGestureOverlayLifecycle.kt`
 - 手势按钮刷新协作：`service/SideGestureButtonRefreshCoordinator.kt`
-- Action 编排协作：`SideGestureServiceProxyActionCoordinator.kt`
+- Action 编排协作：`service/SideGestureServiceProxyActionCoordinator.kt`
+- 服务代理协作：`service/SideGestureServiceProxy.kt`
 
 ## 关键入口
 

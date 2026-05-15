@@ -50,6 +50,7 @@ import hunoia.sideleap.system.window.setBasic
 import hunoia.sideleap.system.window.updateGestureButton
 import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
+import hunoia.sideleap.service.SideGestureServiceProxy
 import hunoia.sideleap.service.SideGestureButtonRefreshCoordinator
 import hunoia.sideleap.service.SideGestureOverlayLifecycle
 import hunoia.sideleap.service.SideGestureRuntime

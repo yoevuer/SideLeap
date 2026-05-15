@@ -1,5 +1,6 @@
-package hunoia.sideleap
+package hunoia.sideleap.service
 
+import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.action.Action
 
 /**
