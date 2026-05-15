@@ -54,6 +54,7 @@ import hunoia.sideleap.system.window.updateGestureButton
 import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
 import hunoia.sideleap.service.GestureButtonRefreshState
+import hunoia.sideleap.service.SideGestureOverlayLifecycle
 import hunoia.sideleap.service.SideGestureRuntime
 import hunoia.sideleap.service.SideGestureRuntimeState
 import hunoia.sideleap.ui.event.SubscribeEvent
@@ -113,6 +114,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
 
     private val proxy = SideGestureServiceProxy(this)
     val quickAppLauncherOverlay by lazy { QuickAppLauncherOverlay(this) }
+    internal val overlayLifecycle = SideGestureOverlayLifecycle(this)
 
     private val imeInsetObserver = ImeInsetObserver(this) { mainView }
     private var mainView: View? = null
@@ -143,7 +145,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == Intent.ACTION_SCREEN_OFF) {
                 isNowInLockScreenPage = true
-                quickAppLauncherOverlay.close()
+                overlayLifecycle.onScreenLocked()
             } else if (intent?.action == Intent.ACTION_USER_PRESENT) {
                 isNowInLockScreenPage = false
             }
@@ -212,7 +214,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
     override fun onDestroy() {
         super.onDestroy()
         if (current === this) currentRef = null
-        quickAppLauncherOverlay.close()
+        overlayLifecycle.onDestroy()
         coroutineScope.cancel()
         proxy.onRelease()
         unregisterReceiver(screenLockReceiver)

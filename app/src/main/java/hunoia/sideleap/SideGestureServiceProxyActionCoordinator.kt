@@ -36,7 +36,6 @@ internal class SideGestureServiceProxyActionCoordinator(
     private var wakeLock: PowerManager.WakeLock? = null
 
     fun onRelease() {
-        host.quickAppLauncherOverlay.close()
         safeReleaseWakeLock()
         launchablePackageCache.clear()
         activityExistsCache.clear()
