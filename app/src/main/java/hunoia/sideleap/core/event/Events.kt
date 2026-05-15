@@ -35,7 +35,7 @@ object Events {
         }
     }
 
-    private fun dispatch(event: Any) {
+    internal fun dispatch(event: Any) {
         subscribers[event::class]?.forEach {
             it(event)
         }
