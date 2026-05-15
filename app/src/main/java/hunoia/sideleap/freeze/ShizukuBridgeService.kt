@@ -7,6 +7,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Messenger
+import hunoia.sideleap.freeze.FreezeAction
 import hunoia.sideleap.system.shizuku.ShizukuCommand
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +58,7 @@ class ShizukuBridgeService : Service() {
                         }
                     }
                 }
+
             }
         }
     }
