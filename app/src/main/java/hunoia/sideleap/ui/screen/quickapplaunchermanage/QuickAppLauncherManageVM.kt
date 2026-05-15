@@ -4,9 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
-import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.SettingsProvider
-import hunoia.sideleap.freeze.FreezeState
+import hunoia.sideleap.freeze.QuickAppLauncherQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -19,17 +18,11 @@ class QuickAppLauncherManageVM : BaseComposeVM<QuickAppLauncherManageVM.UiState,
     init { load() }
     fun load() = viewModelScope.launch {
         val context = hunoia.sideleap.App.getContext()
-        val (settings, normalApps, frozenApps) = withContext(Dispatchers.IO) {
+        val (settings, mergedApps) = withContext(Dispatchers.IO) {
             val s = SettingsProvider.getQuickAppLauncherSettings()
-            val normal = AppQuery.queryLauncherActivities(context, false, s.showSystemApps)
-            val frozen = FreezeState.queryFrozenApplications(context, s.showSystemApps)
-            Triple(s, normal, frozen)
+            val appList = QuickAppLauncherQuery.queryApps(context, s.showSystemApps)
+            s to appList.apps
         }
-        val normalPackageNames = normalApps.map { it.packageName }.toSet()
-        val filteredFrozenApps = frozenApps.filter { it.packageName !in normalPackageNames }
-        val mergedApps = mutableListOf<AppInfo>()
-        mergedApps.addAll(normalApps)
-        mergedApps.addAll(filteredFrozenApps)
         updateUiState { it.copy(apps = mergedApps, settings = settings) }
     }
     fun setHidden(app: AppInfo, hide: Boolean) = viewModelScope.launch {

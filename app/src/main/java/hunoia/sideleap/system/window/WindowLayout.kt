@@ -6,8 +6,6 @@ import android.os.Build
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.ui.unit.IntSize
-import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.gesture.Position
 import com.blankj.utilcode.util.ScreenUtils
 
 val rootSize: IntSize
@@ -17,31 +15,6 @@ fun WindowManager.LayoutParams.updateMainView() {
     val rootSize = rootSize
     width = rootSize.width
     height = rootSize.height
-}
-
-fun WindowManager.LayoutParams.updateGestureButton(button: GestureButton) {
-    val rootSize = rootSize
-    val windowWidth = rootSize.width
-    val windowHeight = rootSize.height
-    when (button.position) {
-        Position.Left, Position.Right -> {
-            width = button.width
-            height = (windowHeight * (button.end - button.start)).toInt()
-            y = (windowHeight * button.start).toInt()
-        }
-        Position.Bottom -> {
-            width = (windowWidth * (button.end - button.start)).toInt()
-            height = button.width
-            x = (windowWidth * button.start).toInt()
-            y = windowHeight - button.width
-        }
-    }
-    @SuppressLint("RtlHardcoded")
-    gravity = when (button.position) {
-        Position.Left -> Gravity.LEFT or Gravity.TOP
-        Position.Right -> Gravity.RIGHT or Gravity.TOP
-        Position.Bottom -> Gravity.LEFT or Gravity.TOP
-    }
 }
 
 fun WindowManager.LayoutParams.setBasic(touchEnabled: Boolean) {

@@ -103,6 +103,7 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
     private var isHiding = false
     private var triggerCloseAnimated: (() -> Unit)? = null
     private var lastCloseMs: Long = 0L
+    var onAppLaunchRequested: ((AppInfo) -> Unit)? = null
 
     fun toggle() {
         Log.d("SideLeapLauncher","toggle: overlayView=${overlayView != null}")
@@ -222,7 +223,7 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
                                 val success = Launcher.launchAppInfo(service, appInfo, miniWindow)
                                 Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
                                 if (success) {
-                                    updateQuickAppLauncherStats(appInfo)
+                                    onAppLaunchRequested?.invoke(appInfo)
                                 }
                                 success
                             },
@@ -360,12 +361,6 @@ class QuickAppLauncherOverlay(private val service: SideGestureService) {
         runCatching {
             val wm = ContextCompat.getSystemService(service, WindowManager::class.java)!!
             wm.updateViewLayout(view, lp)
-        }
-    }
-
-    private fun updateQuickAppLauncherStats(app: AppInfo) {
-        service.coroutineScope.launch(Dispatchers.IO) {
-            SettingsProvider.recordQuickAppLaunch(app.key())
         }
     }
 

@@ -62,13 +62,13 @@ import androidx.compose.ui.unit.sp
 import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.freeze.QuickAppLauncherQuery
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.launcher.launch.QuickAppLaunch
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.launcher.query.AppSearch.sortApps
 import hunoia.sideleap.launcher.query.QuickAppLauncherAppList
-import hunoia.sideleap.launcher.query.QuickAppLauncherQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

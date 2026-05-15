@@ -9,7 +9,6 @@ import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.system.window.setFlags
-import hunoia.sideleap.system.window.updateGestureButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

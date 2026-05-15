@@ -41,8 +41,10 @@ import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.overlay.QuickAppLauncherOverlay
 import hunoia.sideleap.freeze.FrozenPackageEnabler
 import com.blankj.utilcode.util.ScreenUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 /**
  * @author aaronzzxup@gmail.com
@@ -58,7 +60,15 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
     }
 
     private val proxy = SideGestureServiceProxy(this)
-    val quickAppLauncherOverlay by lazy { QuickAppLauncherOverlay(this) }
+    val quickAppLauncherOverlay by lazy {
+        QuickAppLauncherOverlay(this).apply {
+            onAppLaunchRequested = { app ->
+                coroutineScope.launch(Dispatchers.IO) {
+                    SettingsProvider.recordQuickAppLaunch("${app.packageName}/${app.className}")
+                }
+            }
+        }
+    }
     internal val overlayLifecycle = SideGestureOverlayLifecycle(this)
     val coroutineScope = MainScope()
     private val windowController = SideGestureWindowController(this)

@@ -11,14 +11,15 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.gesture.GestureButton
+import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.input.MotionEventDispatcher
 import hunoia.sideleap.system.window.removeWindow
 import hunoia.sideleap.system.window.removeWindows
 import hunoia.sideleap.system.window.setBasic
-import hunoia.sideleap.system.window.updateGestureButton
 import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
 import hunoia.sideleap.ui.widget.GestureView
+import com.blankj.utilcode.util.ScreenUtils
 
 class SideGestureWindowController(private val host: SideGestureService) {
     var mainView: View? = null
@@ -79,5 +80,29 @@ class SideGestureWindowController(private val host: SideGestureService) {
         }
         wm.addView(view, lp)
         return view
+    }
+}
+
+internal fun WindowManager.LayoutParams.updateGestureButton(button: GestureButton) {
+    val rootWidth = ScreenUtils.getScreenWidth()
+    val rootHeight = ScreenUtils.getScreenHeight()
+    when (button.position) {
+        Position.Left, Position.Right -> {
+            width = button.width
+            height = (rootHeight * (button.end - button.start)).toInt()
+            y = (rootHeight * button.start).toInt()
+        }
+        Position.Bottom -> {
+            width = (rootWidth * (button.end - button.start)).toInt()
+            height = button.width
+            x = (rootWidth * button.start).toInt()
+            y = rootHeight - button.width
+        }
+    }
+    @android.annotation.SuppressLint("RtlHardcoded")
+    gravity = when (button.position) {
+        Position.Left -> android.view.Gravity.LEFT or android.view.Gravity.TOP
+        Position.Right -> android.view.Gravity.RIGHT or android.view.Gravity.TOP
+        Position.Bottom -> android.view.Gravity.LEFT or android.view.Gravity.TOP
     }
 }
