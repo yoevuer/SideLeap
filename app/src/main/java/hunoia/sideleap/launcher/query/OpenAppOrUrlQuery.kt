@@ -3,7 +3,6 @@ package hunoia.sideleap.launcher.query
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import android.os.Build
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 
@@ -38,9 +37,7 @@ object OpenAppOrUrlQuery {
         return result.sortedWith(compareBy<LauncherAppOption> { it.label }.thenBy { it.packageName })
     }
 
-    fun loadApplicationIcon(context: Context, packageName: String): Drawable? {
-        return runCatching { context.packageManager.getApplicationIcon(packageName) }.getOrNull()
-    }
+    fun loadApplicationIcon(context: Context, packageName: String) = LauncherIconQuery.loadApplicationIcon(context, packageName)
 
     fun queryActivityOptions(
         context: Context,
