@@ -13,7 +13,7 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
         private val regexThreeConsonants = Regex("[bcdfghjklmnpqrstvwxz]{3}")
     }
 
-    private val actionCoordinator = SideGestureServiceProxyActionCoordinator(host, host.coroutineScope)
+    private val actionCoordinator = SideGestureServiceProxyActionCoordinator(host) { host.coroutineScope }
 
     private var lastRandomName: String? = null
 

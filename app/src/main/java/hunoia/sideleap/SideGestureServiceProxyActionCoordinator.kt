@@ -20,7 +20,7 @@ import kotlinx.coroutines.withContext
 
 internal class SideGestureServiceProxyActionCoordinator(
     private val host: SideGestureService,
-    private val scope: CoroutineScope,
+    private val scopeProvider: () -> CoroutineScope,
 ) {
     private companion object {
         const val KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS = 2 * 60 * 1000L
@@ -66,6 +66,7 @@ internal class SideGestureServiceProxyActionCoordinator(
     }
 
     fun onAction(action: Action) {
+        val scope = scopeProvider()
         scope.launch {
             val result = ActionRegistry.execute(action, buildActionHandlerContext())
             handleActionResult(result)
@@ -85,7 +86,7 @@ internal class SideGestureServiceProxyActionCoordinator(
             service = host,
             runtime = host,
             appContext = host.applicationContext,
-            scope = scope,
+            scope = scopeProvider(),
             actionSettings = host.actionSettings ?: ActionSettings(),
             showToast = { showToast(it) },
             showLongToast = { showToastLong(it) },
