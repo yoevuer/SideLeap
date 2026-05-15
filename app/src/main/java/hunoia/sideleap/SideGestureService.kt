@@ -54,6 +54,7 @@ import hunoia.sideleap.system.window.updateGestureButton
 import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
 import hunoia.sideleap.service.GestureButtonRefreshState
+import hunoia.sideleap.service.SideGestureRuntime
 import hunoia.sideleap.service.SideGestureRuntimeState
 import hunoia.sideleap.ui.event.SubscribeEvent
 import hunoia.sideleap.ui.widget.GestureView
@@ -101,7 +102,7 @@ import java.util.concurrent.TimeUnit
  * @author aaronzzxup@gmail.com
  * @since 2024/11/14
  */
-class SideGestureService : ComponentAccessibilityService() {
+class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime {
 
     companion object {
         private var currentRef: WeakReference<SideGestureService>? = null
@@ -528,7 +529,7 @@ class SideGestureService : ComponentAccessibilityService() {
         return rootInActiveWindow?.packageName?.toString() ?: ""
     }
 
-    fun nowInLauncher(): Boolean {
+    override fun nowInLauncher(): Boolean {
         val pkgName = getCurrentPackageName()
         val launcherIntent = Intent().apply {
             setAction(Intent.ACTION_MAIN)
@@ -545,7 +546,7 @@ class SideGestureService : ComponentAccessibilityService() {
     private var enablePackageInFlight: String? = null
     private val enablePackageLock = Any()
 
-    fun requestEnableFrozenPackage(packageName: String, onResult: (Boolean) -> Unit) {
+    override fun requestEnableFrozenPackage(packageName: String, onResult: (Boolean) -> Unit) {
         synchronized(enablePackageLock) {
             if (enablePackageInFlight != null) {
                 LauncherDiagnostics.d(this, "enable_package: in-flight ${enablePackageInFlight}, ignoring $packageName")

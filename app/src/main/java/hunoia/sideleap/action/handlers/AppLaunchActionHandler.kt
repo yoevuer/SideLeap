@@ -43,7 +43,7 @@ object AppLaunchActionHandler : ActionHandler {
     private fun handlePopupScreen(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val curPkgName = context.currentPackageName()
-            if (context.service.nowInLauncher() || curPkgName.isNullOrEmpty()) {
+            if (context.runtime.nowInLauncher() || curPkgName.isNullOrEmpty()) {
                 return
             }
             val intent = Intent().apply {
@@ -94,7 +94,7 @@ object AppLaunchActionHandler : ActionHandler {
                             packageName = data.packageName,
                             className = data.activityClassName
                         ) { _, pkg ->
-                            suspendEnablePackageViaBridge(context.service, pkg)
+                            suspendEnablePackageViaBridge(context.runtime, pkg)
                         }
                     }
                 }
@@ -121,10 +121,10 @@ object AppLaunchActionHandler : ActionHandler {
     }
 
     private suspend fun suspendEnablePackageViaBridge(
-        service: hunoia.sideleap.SideGestureService,
+        runtime: hunoia.sideleap.service.SideGestureRuntime,
         packageName: String
     ): Boolean = kotlinx.coroutines.suspendCancellableCoroutine { cont ->
-        service.requestEnableFrozenPackage(packageName) { success ->
+        runtime.requestEnableFrozenPackage(packageName) { success ->
             cont.resume(success)
         }
     }

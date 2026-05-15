@@ -2,11 +2,13 @@ package hunoia.sideleap.action
 
 import android.content.Context
 import hunoia.sideleap.SideGestureService
+import hunoia.sideleap.service.SideGestureRuntime
 import hunoia.sideleap.settings.model.ActionSettings
 import kotlinx.coroutines.CoroutineScope
 
 data class ActionHandlerContext(
     val service: SideGestureService,
+    val runtime: SideGestureRuntime,
     val appContext: Context,
     val scope: CoroutineScope,
     val actionSettings: ActionSettings,

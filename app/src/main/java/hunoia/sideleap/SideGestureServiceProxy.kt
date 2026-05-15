@@ -16,7 +16,6 @@ import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
@@ -37,7 +36,6 @@ import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
 
-import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.action.MoveScreenData
@@ -49,7 +47,6 @@ import hunoia.sideleap.system.audio.volumeUp
 
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.core.diagnostics.LauncherDiagnostics
-import hunoia.sideleap.freeze.ShizukuBridgeService
 import hunoia.sideleap.system.feedback.showToast
 import hunoia.sideleap.system.feedback.showToastLong
 import hunoia.sideleap.system.feedback.showVersionTooLowToast as showVersionTooLowToastUtil
@@ -62,10 +59,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * @author aaronzzxup@gmail.com
@@ -193,6 +186,7 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
         host.coroutineScope.launch {
             ActionRegistry.execute(action, ActionHandlerContext(
                 service = host,
+                runtime = host,
                 appContext = host,
                 scope = host.coroutineScope,
                 actionSettings = host.actionSettings ?: ActionSettings(),
@@ -300,63 +294,6 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
                 // Ignore defensively.
             }
         }
-    }
-
-    private fun launchAppWithFrozenSupport(appInfo: hunoia.sideleap.launcher.model.AppInfo, miniWindow: Boolean) {
-        host.coroutineScope.launch {
-            FreezeLaunch.launchWithAutoUnfreeze(
-                context = host,
-                packageName = appInfo.packageName,
-                className = appInfo.className,
-                miniWindow = miniWindow
-            ) { _, pkg ->
-                suspendEnablePackageViaBridge(pkg)
-            }
-        }
-    }
-
-    private fun bridgeOneKeyFreeze(context: Context): Int {
-        val intent = Intent(context, ShizukuBridgeService::class.java)
-        val latch = CountDownLatch(1)
-        val result = AtomicInteger(-1)
-
-        val conn = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-                if (binder == null) { latch.countDown(); return }
-                try {
-                    val messenger = Messenger(binder)
-                    val replyHandler = object : Handler(Looper.getMainLooper()) {
-                        override fun handleMessage(msg: Message) {
-                            if (msg.what == ShizukuBridgeService.MSG_FREEZE_BATCH_RESULT) {
-                                result.set(msg.data.getInt(ShizukuBridgeService.EXTRA_SUCCESS_COUNT, -1))
-                                latch.countDown()
-                            }
-                        }
-                    }
-                    val replyMessenger = Messenger(replyHandler)
-                    val msg = Message.obtain(null, ShizukuBridgeService.MSG_FREEZE_BATCH)
-                    msg.replyTo = replyMessenger
-                    messenger.send(msg)
-                } catch (e: Exception) {
-                    latch.countDown()
-                }
-            }
-
-            override fun onServiceDisconnected(name: ComponentName?) {}
-        }
-
-        try {
-            context.bindService(intent, conn, Context.BIND_AUTO_CREATE)
-            if (!latch.await(2, TimeUnit.SECONDS)) {
-                result.set(-2)
-            }
-        } catch (e: Exception) {
-            result.set(-3)
-        } finally {
-            try { context.unbindService(conn) } catch (_: Exception) {}
-        }
-
-        return result.get()
     }
 
     private suspend fun suspendEnablePackageViaBridge(packageName: String): Boolean = suspendCancellableCoroutine { cont ->
