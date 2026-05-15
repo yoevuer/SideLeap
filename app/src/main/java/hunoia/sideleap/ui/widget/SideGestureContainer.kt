@@ -433,10 +433,7 @@ class SideGestureState(
         val fingerY = finger.y + getStickySlideValue(button, false)
         val triggerDirection = triggerDirection
 
-        // 长按直接返回
-        if (triggerDirection == Center2) {
-            return false
-        }
+        if (triggerDirection == Center2) return false
 
         val slideDistance = if (triggerDirection == Up2 || triggerDirection == Down2) {
             when (button.position) {
@@ -450,83 +447,40 @@ class SideGestureState(
                 Position.Bottom -> originY - fingerY
             }
         }
-        // 解决触钮往回滑还能触发的问题
-        if (slideDistance < 0 &&
-            triggerDirection != Up2 &&
-            triggerDirection != Down2
-        ) {
+        if (slideDistance < 0 && triggerDirection != Up2 && triggerDirection != Down2) {
             return false
         }
 
-        var canDistanceTriggered = false
-        if (triggerDirection == Center) {
-            canDistanceTriggered = if (isLongSlide) {
-                slideDistance >= gestureSettings.longSlideTriggerDistance
-            } else {
-                slideDistance >= gestureSettings.slideTriggerDistance
-            }
-            if (!judgeAction) {
-                return canDistanceTriggered
-            }
-            return if (isLongSlide) {
-                canDistanceTriggered && longSlideAction.center.isEmptyOrNone().not()
-            } else {
-                canDistanceTriggered && slideAction.center.isEmptyOrNone().not()
-            }
-        } else if (triggerDirection == Up || triggerDirection == Down) {
-            // 需要计算斜边
-            val edge1 = slideDistance
-            val edge2 = when (button.position) {
-                Position.Left, Position.Right -> abs(fingerY - originY)
-                Position.Bottom -> abs(fingerX - originX)
-            }
-            val hypot = hypot(edge1, edge2)
-            canDistanceTriggered = if (isLongSlide) {
-                hypot >= gestureSettings.longSlideTriggerDistance
-            } else {
-                hypot >= gestureSettings.slideTriggerDistance
-            }
-            if (!judgeAction) {
-                return canDistanceTriggered
-            }
-            return if (isLongSlide) {
-                if (triggerDirection == Up) {
-                    canDistanceTriggered && longSlideAction.up.isEmptyOrNone().not()
-                } else {
-                    canDistanceTriggered && longSlideAction.down.isEmptyOrNone().not()
+        val effectiveDistance = when (triggerDirection) {
+            Center -> slideDistance
+            Up, Down -> {
+                val edge2 = when (button.position) {
+                    Position.Left, Position.Right -> abs(fingerY - originY)
+                    Position.Bottom -> abs(fingerX - originX)
                 }
-            } else { // Slide
-                if (triggerDirection == Up) {
-                    canDistanceTriggered && slideAction.up.isEmptyOrNone().not()
-                } else { // Down
-                    canDistanceTriggered && slideAction.down.isEmptyOrNone().not()
-                }
+                hypot(slideDistance, edge2)
             }
-        } else if (triggerDirection == Up2 || triggerDirection == Down2) {
-            val absDistance = slideDistance.absoluteValue
-            canDistanceTriggered = if (isLongSlide) {
-                absDistance >= gestureSettings.longSlideTriggerDistance
-            } else {
-                absDistance >= gestureSettings.slideTriggerDistance
-            }
-            if (!judgeAction) {
-                return canDistanceTriggered
-            }
-            return if (isLongSlide) {
-                if (triggerDirection == Up2) {
-                    canDistanceTriggered && longSlideAction.up2.isEmptyOrNone().not()
-                } else { // Down2
-                    canDistanceTriggered && longSlideAction.down2.isEmptyOrNone().not()
-                }
-            } else { // Slide
-                if (triggerDirection == Up2) {
-                    canDistanceTriggered && slideAction.up2.isEmptyOrNone().not()
-                } else { // Down2
-                    canDistanceTriggered && slideAction.down2.isEmptyOrNone().not()
-                }
+            Up2, Down2 -> slideDistance.absoluteValue
+            else -> return false
+        }
+
+        val triggerThreshold = if (isLongSlide) gestureSettings.longSlideTriggerDistance
+        else gestureSettings.slideTriggerDistance
+        val canTrigger = effectiveDistance >= triggerThreshold
+
+        if (!judgeAction) return canTrigger
+
+        val actionList = (if (isLongSlide) longSlideAction else slideAction).let { actions ->
+            when (triggerDirection) {
+                Center -> actions.center
+                Up -> actions.up
+                Down -> actions.down
+                Up2 -> actions.up2
+                Down2 -> actions.down2
+                else -> return false
             }
         }
-        return false
+        return canTrigger && actionList.isEmptyOrNone().not()
     }
 
     private fun calcDirection(button: GestureButton): TriggerDirection? {
