@@ -51,7 +51,7 @@ import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.constant.GlobalActions
 import hunoia.sideleap.gesture.GestureActions
 import hunoia.sideleap.launcher.ext.icon
-import hunoia.sideleap.ui.theme.icons.PlayPause
+import hunoia.sideleap.action.display.PlayPause
 
 private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.BACK to R.string.action_back,

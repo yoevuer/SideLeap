@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.theme.icons
+package hunoia.sideleap.action.display
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.materialIcon

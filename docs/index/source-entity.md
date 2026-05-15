@@ -1,5 +1,6 @@
-# SideLeap 源码索引 — entity/
-## 包路径：hunoia.sideleap.entity
+# SideLeap 源码索引 — entity/ (archived)
+## 当前状态：`app/src/main/java/hunoia/sideleap/entity/` 已无 `.kt` 文件
+## 说明：下列条目为历史索引，仅用于迁移审计
 
 ### hunoia/sideleap/entity/ActionPanelStyles.kt
 - **文件路径**: `app/src/main/java/hunoia/sideleap/entity/ActionPanelStyles.kt`

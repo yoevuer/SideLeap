@@ -1,4 +1,6 @@
-# SideLeap 源码索引 — utils/
+# SideLeap 源码索引 — utils/ (archived)
+## 当前状态：`app/src/main/java/hunoia/sideleap/utils/` 已无 `.kt` 文件
+## 说明：下列条目为历史索引，仅用于迁移审计
 
 ### hunoia/sideleap/utils/AccessibilityUtils.kt
 - **文件路径**: `app/src/main/java/hunoia/sideleap/utils/AccessibilityUtils.kt`

@@ -26,7 +26,7 @@ import androidx.compose.material.icons.filled.VolumeDown
 import androidx.compose.material.icons.filled.VolumeMute
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.Window
-import hunoia.sideleap.ui.theme.icons.PlayPause
+import hunoia.sideleap.action.display.PlayPause
 import hunoia.sideleap.R
 import hunoia.sideleap.action.definition.ActionCategory
 import hunoia.sideleap.action.definition.ActionConfigKind
