@@ -16,7 +16,6 @@ import hunoia.sideleap.settings.AdvancedSettingsDefaults.HideLandscape
 import hunoia.sideleap.settings.AdvancedSettingsDefaults.HideScreenLock
 import hunoia.sideleap.settings.AdvancedSettingsDefaults.HideTemporary
 import hunoia.sideleap.settings.AdvancedSettingsDefaults.QuickLauncherAppLongPressLaunchPopup
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.VolumeButtonSwitchSong
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -25,7 +24,6 @@ data class AdvancedSettings(
     val excludeApps: List<String> = ExcludeApps,
     val animationStyles: AnimationStyles = AnimationStyles,
     val actionPanelStyles: ActionPanelStyles = ActionPanelStyles,
-    val volumeButtonSwitchSong: Boolean = VolumeButtonSwitchSong,
     val fitSoftKeyboard: Boolean = FitSoftKeyboard,
     val actionPanelAppLongPressLaunchPopup: Boolean = ActionPanelAppLongPressLaunchPopup,
     val quickLauncherAppLongPressLaunchPopup: Boolean = QuickLauncherAppLongPressLaunchPopup,

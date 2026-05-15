@@ -24,16 +24,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         loadData()
     }
 
-    fun onVolumeButtonSwitchSong(volumeButtonSwitchSong: Boolean) {
-        if (volumeButtonSwitchSong) {
-            toast(R.string.volume_button_switch_song_warning)
-        }
-        updateUiState {
-            it.copy(volumeButtonSwitchSong = volumeButtonSwitchSong)
-        }
-        saveSettings()
-    }
-
     fun onShowAnimation(showAnimation: Boolean) {
         updateUiState {
             it.copy(showAnimation = showAnimation)
@@ -141,7 +131,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                 val uiState = uiState
                 it.copy(
                     animationStyles = it.animationStyles.copy(isAnimationEnabled = uiState.showAnimation),
-                    volumeButtonSwitchSong = uiState.volumeButtonSwitchSong,
                     fitSoftKeyboard = uiState.fitSoftKeyboard,
                     actionPanelAppLongPressLaunchPopup = uiState.actionPanelAppLongPressLaunchPopup,
                     quickLauncherAppLongPressLaunchPopup = uiState.quickLauncherAppLongPressLaunchPopup,
@@ -174,7 +163,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                     updateUiState {
                         it.copy(
                             showAnimation = item.animationStyles.isAnimationEnabled,
-                            volumeButtonSwitchSong = item.volumeButtonSwitchSong,
                             fitSoftKeyboard = item.fitSoftKeyboard,
                             actionPanelAppLongPressLaunchPopup = item.actionPanelAppLongPressLaunchPopup,
                             quickLauncherAppLongPressLaunchPopup = item.quickLauncherAppLongPressLaunchPopup,
@@ -197,7 +185,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
     }
 
     data class UiState(
-        val volumeButtonSwitchSong: Boolean = false,
         val showAnimation: Boolean = false,
         val fitSoftKeyboard: Boolean = false,
         val actionPanelAppLongPressLaunchPopup: Boolean = false,

@@ -139,12 +139,6 @@ fun AdvancedSettingsScreen(
                         text = stringResource(id = R.string.show_system_apps)
                     )
                     LabeledSwitch(
-                        onCheckedChange = { vm.onVolumeButtonSwitchSong(it) },
-                        checked = uiState.volumeButtonSwitchSong,
-                        text = stringResource(id = R.string.volume_button_switch_song),
-                        secondaryText = stringResource(id = R.string.volume_button_switch_song_hint)
-                    )
-                    LabeledSwitch(
                         onCheckedChange = { vm.onExcludeFromRecentsChange(it) },
                         checked = uiState.excludeFromRecents,
                         text = stringResource(id = R.string.exclude_from_recents),

@@ -1,80 +1,19 @@
 # SideLeap 当前架构状态
 
-截至 `refactor/quick-launcher-boundary` 合并到 main 后（2025/2026 年）。
+截至移除音量键切歌功能后。
 
 ## 已完成
 
-- `ktx/`、`utils/`、`entity/` 已无 `.kt` 文件。
-- 代码主边界已稳定为 `ui`、`gesture`、`action`、`settings`、`launcher`、`freeze`、`overlay`、`system`、`core`。
+### 移除音量键切歌功能
 
-### SideGestureService 瘦身
-
-从 ~670 行缩减至 ~320 行，拆出服务协作对象：
-
-| 协作者 | 文件 | 职责 |
-|---|---|---|
-| `SideGestureWindowController` | `service/SideGestureWindowController.kt` | 主 overlay 和手势按钮窗口创建/更新 |
-| `SideGestureSettingsObserver` | `service/SideGestureSettingsObserver.kt` | settings flow 订阅分发 |
-| `WallpaperChangeObserver` | `service/WallpaperChangeObserver.kt` | 壁纸变化广播监听 |
-| `ScreenLockObserver` | `service/ScreenLockObserver.kt` | 锁屏/解锁广播监听 |
-| `LockScreenVolumeKeyHandler` | `service/LockScreenVolumeKeyHandler.kt` | 锁屏音量键切歌/音量回退 |
-| `ImeInsetObserver` | `service/ImeInsetObserver.kt` | 软键盘 inset 监听 |
-| `FrozenPackageEnabler` | `freeze/FrozenPackageEnabler.kt` | Shizuku 解冻单包流程 |
-| `SideGestureServiceProxy` | `service/SideGestureServiceProxy.kt` | Action 编排协作 |
-| `SideGestureServiceProxyActionCoordinator` | `service/SideGestureServiceProxyActionCoordinator.kt` | Action handler 上下文与执行协调 |
-| `SideGestureButtonRefreshCoordinator` | `service/SideGestureButtonRefreshCoordinator.kt` | 手势按钮刷新 |
-| `SideGestureOverlayLifecycle` | `service/SideGestureOverlayLifecycle.kt` | Overlay 生命周期协作 |
-| `SideGestureRuntime` | `service/SideGestureRuntime.kt` | Service runtime bridge |
-| `SideGestureRuntimeState` | `service/SideGestureRuntimeState.kt` | Runtime 状态快照 |
-
-### 配置边界收敛
-
-- `SettingsProvider` 新增 `recordQuickAppLaunch()`、`updateQuickAppLauncherLayout()`、`resetQuickAppLauncherLayout()`
-- Overlay / AdjustPanel 不再直接拼 DataStore 更新
-
-### launcher 边界收敛
-
-- `launcher/query/` 新增：
-  - `LauncherIconQuery.kt` — 应用图标和 Shortcut icon resource 解析
-  - `LauncherEnvironment.kt` — 判断当前包是否为桌面启动器
-  - `OpenAppOrUrlQuery.kt` — 打开应用/URL 的查询入口
-- `launcher/query/QuickAppLauncherBaseQuery.kt` 提供不含冻结业务的快捷启动器基础应用列表
-- `launcher/model/OpenAppOrUrlData.kt` 承载打开应用/URL 的 launcher payload 模型
-- `freeze/FrozenQuickAppLauncherQuery.kt` 合并冻结应用与普通 launcher 应用列表
-- `launcher/launch/` 新增 `QuickAppLaunch.kt` — 快捷启动器冻结后启动流程
-- UI 不再直接调用 `PackageManager` 读取图标和 shortcut resource
-- `ActionSettingsDialog` 的 PackageManager 查询迁至 `launcher/query`
-
-### freeze 边界收敛
-
-- `FrozenPackageEnabler.kt` 封装 Shizuku 解冻单包流程，从 `SideGestureService` 移出
-
-### action / overlay 边界收敛
-
-- `ActionHandlerContext` 不再暴露 `SideGestureService` / `SideGestureRuntime` 具体类型，改为注入无障碍服务能力、settings 快照和回调
-- `QuickAppLauncherOverlay` 通过 `QuickAppLauncherOverlayHost` 获取宿主能力，具体 Compose 内容由 service 装配
-- `GestureButton` 的 Compose 展示扩展迁至 `ui/gesture/GestureButtonDisplay.kt`
-
-### 协程安全
-
-- `App.applicationScope` 替代 `GlobalScope`
-- `Events` 使用 `ConcurrentHashMap + CopyOnWriteArrayList` 替代 `MutableMap + MutableList`
-
-### 清理
-
-- `printStackTrace` 已全部清理（仅保留 CrashHandler 的崩溃文件写入）
-- `LauncherDiagnostics` 已移除（原为空实现）
-
-### 测试
-
-- 共 29 个单元测试
-- 覆盖：`FreezeAction.computeOneKeyTargetsInRange`、`FreezeState.isSystemApp`、`AppInfo.key`、`Events.subscribe/unsubscribe/dispatch`、快捷启动器查询边界、Service 启动统计、窗口布局参数
-- 运行：`./gradlew testDebugUnitTest`
-
-### CI
-
-- `.github/workflows/ci.yml`
-- 在 push/PR 时运行 `testDebugUnitTest` 和 `assembleDebug`
+- 删除 `service/LockScreenVolumeKeyHandler.kt`（75 行）
+- `SideGestureService.kt` 移除 import、实例化、`onKeyEvent` 覆写、`onDestroy` 清理
+- `AdvancedSettings.kt` 移除 `volumeButtonSwitchSong` 字段
+- `SettingsDefaults.kt` 移除 `VolumeButtonSwitchSong` 常量
+- `AdvancedSettingsVM.kt` 移除 `onVolumeButtonSwitchSong`、UI state、save/load 逻辑
+- `AdvancedSettingsScreen.kt` 移除对应开关 UI
+- `strings.xml` 移除 3 条相关字符串
+- `Audio.kt`（`volumeUp`/`volumeDown`/`dispatchMediaKeyEvent`）不受影响，仍被 `MediaActionHandler` 用于手势媒体动作
 
 ## 待办
 

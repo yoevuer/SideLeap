@@ -15,7 +15,6 @@
 - 设置观察协作：`service/SideGestureSettingsObserver.kt`
 - 壁纸变化监听：`service/WallpaperChangeObserver.kt`
 - 锁屏状态监听：`service/ScreenLockObserver.kt`
-- 锁屏音量键切歌：`service/LockScreenVolumeKeyHandler.kt`
 - 软键盘 inset 监听：`service/ImeInsetObserver.kt`
 
 ## 关键入口

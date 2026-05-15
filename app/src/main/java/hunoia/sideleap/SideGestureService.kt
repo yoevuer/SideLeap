@@ -1,7 +1,6 @@
 package hunoia.sideleap
 
 import android.content.res.Configuration
-import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -29,7 +28,6 @@ import hunoia.sideleap.service.SideGestureOverlayLifecycle
 import hunoia.sideleap.service.SideGestureRuntime
 import hunoia.sideleap.service.SideGestureRuntimeState
 import hunoia.sideleap.service.ImeInsetObserver
-import hunoia.sideleap.service.LockScreenVolumeKeyHandler
 import hunoia.sideleap.service.ScreenLockObserver
 import hunoia.sideleap.service.SideGestureSettingsObserver
 import hunoia.sideleap.service.SideGestureWindowController
@@ -119,10 +117,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         log = { message -> android.util.Log.d("SideLeapLauncher", message) }
     )
     private val wallpaperChangeObserver = WallpaperChangeObserver(this)
-    private val lockScreenVolumeKeyHandler = LockScreenVolumeKeyHandler(
-        context = this,
-        scopeProvider = { coroutineScope }
-    )
     private val screenLockObserver = ScreenLockObserver(
         context = this,
         onScreenOff = {
@@ -163,13 +157,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         }
     }
 
-    override fun onKeyEvent(event: KeyEvent?): Boolean {
-        if (lockScreenVolumeKeyHandler.handle(event, advancedSettings?.volumeButtonSwitchSong == true)) {
-            return true
-        }
-        return super.onKeyEvent(event)
-    }
-
     override fun onInterrupt() {
     }
 
@@ -177,7 +164,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         super.onDestroy()
         if (current === this) currentRef = null
         overlayLifecycle.onDestroy()
-        lockScreenVolumeKeyHandler.release()
         frozenPackageEnabler.release()
         coroutineScope.cancel()
         proxy.onRelease()

@@ -12,7 +12,6 @@ object AdvancedSettingsDefaults {
     val ExcludeApps = emptyList<String>()
     val AnimationStyles = AnimationStyles()
     val ActionPanelStyles = ActionPanelStyles()
-    const val VolumeButtonSwitchSong = false
     const val FitSoftKeyboard = true
     const val ActionPanelAppLongPressLaunchPopup = false
     const val QuickLauncherAppLongPressLaunchPopup = false
