@@ -19,10 +19,10 @@
 
 ## 关键入口
 
-- `SideGestureService`（~260 行）是入口层，负责持有这些协作对象并转发生命周期与运行时请求。
+- `SideGestureService`（~280 行）是入口层，负责持有这些协作对象并转发生命周期与运行时请求。
 - 协作对象只做编排，不承载独立业务规则。
 
 ## 依赖边界
 
-- `service/` 可以依赖 `overlay`、`action`、`settings`、`system`。
+- `service/` 可以依赖 `overlay`、`action`、`settings`、`gesture`、`system`、`core` 和必要的 UI 组件入口。
 - `service/` 不应反向成为 UI 或业务决策层。

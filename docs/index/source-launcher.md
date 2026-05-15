@@ -7,6 +7,7 @@
 - 应用与 Shortcut 查询：`launcher/query/*`
 - 应用与 Shortcut 扩展：`launcher/ext/*`
 - 启动入口：`launcher/launch/Launcher.kt`
+- 快捷启动器基础应用列表：`launcher/query/QuickAppLauncherBaseQuery.kt`
 - 快捷启动器启动流程：`launcher/launch/QuickAppLaunch.kt`
 - 启动对象模型：`launcher/model/*`
 - 图标缓存：`launcher/util/IconResizeCache.kt`
@@ -21,7 +22,7 @@
 | `launcher/query/LauncherIconQuery.kt` | 应用图标和 Shortcut icon resource 解析 |
 | `launcher/query/LauncherEnvironment.kt` | 判断当前包是否为桌面启动器 |
 | `launcher/query/OpenAppOrUrlQuery.kt` | 打开应用/URL 的查询入口 |
-| `launcher/query/QuickAppLauncherQuery.kt` | 快捷启动器应用列表合并 |
+| `launcher/query/QuickAppLauncherBaseQuery.kt` | 快捷启动器基础应用列表 |
 | `launcher/ext/AppInfoExt.kt` | 应用信息扩展 |
 | `launcher/ext/ShortcutInfoExt.kt` | Shortcut 信息扩展 |
 | `launcher/launch/Launcher.kt` | 启动能力 |
@@ -35,7 +36,7 @@
 - `Launcher` 是启动能力入口。
 - `AppQuery`、`ShortcutQuery` 负责元数据查询。
 - `LauncherIconQuery`、`LauncherEnvironment`、`OpenAppOrUrlQuery` 负责按需查询。
-- `QuickAppLauncherQuery` 合并冻结应用和应用列表。
+- `QuickAppLauncherBaseQuery` 提供不含冻结业务的快捷启动器基础应用列表。
 - `QuickAppLaunch` 封装快捷启动器的冻结后启动流程。
 - `IconResizeCache` 属于 launcher 侧的图标缓存，不应回流成通用 utils。
 

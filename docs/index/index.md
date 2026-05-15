@@ -28,7 +28,7 @@
 | `source-service.md` | SideGestureService 内部协作结构 |
 | `source-system.md` | 系统能力封装 |
 | `source-core.md` | 应用入口与基础设施 |
-| `doc/status/current_state.md` | 当前架构状态与待办 |
+| `docs/current_state.md` | 当前架构状态与待办 |
 
 ## 使用原则
 

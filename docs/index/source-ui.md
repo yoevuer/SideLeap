@@ -37,4 +37,4 @@
 ## 依赖边界
 
 - `ui` 可以依赖 `gesture`、`action`、`settings`、`launcher`、`freeze`、`overlay`。
-- `ui` 通过 VM、状态和事件调用下游领域，不直接读写 DataStore，不直接调用 PackageManager 或 Shizuku。
+- `ui` 通过 VM、状态和事件调用下游领域，不直接读写 DataStore，不直接调用 Shizuku；PackageManager 查询应通过领域边界，权限辅助中的平台权限探测除外。

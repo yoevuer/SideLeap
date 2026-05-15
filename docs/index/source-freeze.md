@@ -9,6 +9,7 @@
 - 冻结状态：`freeze/FreezeState.kt`
 - Shizuku 桥接服务：`freeze/ShizukuBridgeService.kt`
 - 冻结包 enabled / disabled：`freeze/FrozenPackageEnabler.kt`
+- 快捷启动器冻结应用合并查询：`freeze/FrozenQuickAppLauncherQuery.kt`
 
 ## 主要源码路径
 
@@ -19,6 +20,7 @@
 | `freeze/FreezeState.kt` | 冻结状态模型 |
 | `freeze/ShizukuBridgeService.kt` | Shizuku 桥接服务 |
 | `freeze/FrozenPackageEnabler.kt` | 通过 Shizuku 解冻包的能力 |
+| `freeze/FrozenQuickAppLauncherQuery.kt` | 合并冻结应用与普通 launcher 应用列表 |
 
 ## 关键入口
 
@@ -27,6 +29,7 @@
 - `FreezeState` 表示当前冻结态与名单态。
 - `ShizukuBridgeService` 负责与底层桥接能力协作。
 - `FrozenPackageEnabler` 封装 Shizuku 解冻单包流程，供 Service 调用。
+- `FrozenQuickAppLauncherQuery` 封装快捷启动器需要的冻结应用合并查询。
 
 ## 依赖边界
 

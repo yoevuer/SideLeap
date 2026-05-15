@@ -9,7 +9,7 @@
 
 ### SideGestureService 瘦身
 
-从 ~670 行缩减至 ~260 行，拆出 9 个协作对象：
+从 ~670 行缩减至 ~280 行，拆出服务协作对象：
 
 | 协作者 | 文件 | 职责 |
 |---|---|---|
@@ -21,7 +21,11 @@
 | `ImeInsetObserver` | `service/ImeInsetObserver.kt` | 软键盘 inset 监听 |
 | `FrozenPackageEnabler` | `freeze/FrozenPackageEnabler.kt` | Shizuku 解冻单包流程 |
 | `SideGestureServiceProxy` | `service/SideGestureServiceProxy.kt` | Action 编排协作 |
+| `SideGestureServiceProxyActionCoordinator` | `service/SideGestureServiceProxyActionCoordinator.kt` | Action handler 上下文与执行协调 |
 | `SideGestureButtonRefreshCoordinator` | `service/SideGestureButtonRefreshCoordinator.kt` | 手势按钮刷新 |
+| `SideGestureOverlayLifecycle` | `service/SideGestureOverlayLifecycle.kt` | Overlay 生命周期协作 |
+| `SideGestureRuntime` | `service/SideGestureRuntime.kt` | Service runtime bridge |
+| `SideGestureRuntimeState` | `service/SideGestureRuntimeState.kt` | Runtime 状态快照 |
 
 ### 配置边界收敛
 
@@ -34,7 +38,8 @@
   - `LauncherIconQuery.kt` — 应用图标和 Shortcut icon resource 解析
   - `LauncherEnvironment.kt` — 判断当前包是否为桌面启动器
   - `OpenAppOrUrlQuery.kt` — 打开应用/URL 的查询入口
-  - `QuickAppLauncherQuery.kt` — 快捷启动器应用列表合并
+- `launcher/query/QuickAppLauncherBaseQuery.kt` 提供不含冻结业务的快捷启动器基础应用列表
+- `freeze/FrozenQuickAppLauncherQuery.kt` 合并冻结应用与普通 launcher 应用列表
 - `launcher/launch/` 新增 `QuickAppLaunch.kt` — 快捷启动器冻结后启动流程
 - UI 不再直接调用 `PackageManager` 读取图标和 shortcut resource
 - `ActionSettingsDialog` 的 PackageManager 查询迁至 `launcher/query`
@@ -55,8 +60,8 @@
 
 ### 测试
 
-- 共 24 个单元测试
-- 覆盖：`FreezeAction.computeOneKeyTargetsInRange`、`FreezeState.isSystemApp`、`AppInfo.key`、`Events.subscribe/unsubscribe/dispatch`
+- 共 29 个单元测试
+- 覆盖：`FreezeAction.computeOneKeyTargetsInRange`、`FreezeState.isSystemApp`、`AppInfo.key`、`Events.subscribe/unsubscribe/dispatch`、快捷启动器查询边界、Service 启动统计、窗口布局参数
 - 运行：`./gradlew testDebugUnitTest`
 
 ### CI
