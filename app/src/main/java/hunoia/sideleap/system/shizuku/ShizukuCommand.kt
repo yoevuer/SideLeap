@@ -109,7 +109,6 @@ object ShizukuCommand {
                     }
                 } catch (e: Exception) {
                     Log.e(dt, "onServiceConnected fatal: ${e::class.simpleName} ${e.message}")
-                    e.printStackTrace()
                     packageNames.forEach { pkg ->
                         results += PackageCommandResult(false, pkg, error = "${e::class.simpleName} ${e.message}")
                     }
@@ -142,7 +141,6 @@ object ShizukuCommand {
         } catch (e: Exception) {
             bindException = "${e::class.simpleName} ${e.message}"
             Log.e(dt, "bindUserService exception: $bindException")
-            e.printStackTrace()
             packageNames.forEach { pkg ->
                 results += PackageCommandResult(false, pkg, error = bindException)
             }

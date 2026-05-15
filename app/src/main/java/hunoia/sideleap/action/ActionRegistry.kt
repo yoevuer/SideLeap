@@ -48,7 +48,6 @@ object ActionRegistry {
         return runCatching {
             handler.handle(action, context)
         }.getOrElse { e ->
-            e.printStackTrace()
             ActionExecutionResult.Failed(e.message)
         }
     }

@@ -186,7 +186,6 @@ private object MiniWindow {
                 )
                 method.invoke(it, mode)
             } catch (e: Exception) {
-                e.printStackTrace()
             }
             val screenWidth = ScreenUtils.getScreenWidth()
             val screenHeight = ScreenUtils.getScreenHeight()
