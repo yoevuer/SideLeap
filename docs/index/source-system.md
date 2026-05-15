@@ -6,6 +6,7 @@
 
 - Accessibility：`system/accessibility/*`
 - Intent：`system/intent/*`
+- Permission：`system/permission/*`
 - Window：`system/window/*`
 - Shizuku：`system/shizuku/*`
 - Vibration：`system/vibration/*`
@@ -20,7 +21,7 @@
 | `system/accessibility/Accessibility.kt` | 无障碍能力封装 |
 | `system/accessibility/Screenshot.kt` | 截图能力 |
 | `system/intent/Intents.kt` | Intent 启动封装 |
-| `system/intent/ContextSettings.kt` | Context / settings 辅助 |
+| `system/permission/PermissionChecks.kt` | 权限状态判断 |
 | `system/intent/KeepAliveHelper.kt` | 保活辅助 |
 | `system/window/WindowManager.kt` | Window 能力 |
 | `system/window/WindowLayout.kt` | 窗口布局 |
@@ -32,6 +33,7 @@
 
 - `Accessibility`、`Intents`、`WindowManager`、`ShizukuCommand`、`Vibrator` 是主要能力入口。
 - `system` 只提供能力，不承载业务规则。
+- `ContextSettings.kt` 已删除，Intent 跳转和权限判断已拆到 `system/intent` 与 `system/permission`。
 
 ## 依赖边界
 
