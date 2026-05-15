@@ -87,6 +87,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 import kotlin.math.max
 import androidx.compose.animation.core.animateFloatAsState
@@ -185,90 +186,89 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         if (isShowing || isHiding || overlayView != null) return
         isShowing = true
 
-        // Close any existing overlay before showing new one
-        // Only close immediately if no animation is in progress
-        if (overlayView != null && !isHiding) {
-            overlayView?.let {
-                val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
-                runCatching { wm.removeView(it) }
+        cleanupExistingOverlay()
+
+        host.coroutineScope.launch {
+            val initialSettings = loadSettingsAsync()
+            withContext(Dispatchers.Main.immediate) {
+                showOverlayView(initialSettings)
             }
+        }
+    }
+
+    private suspend fun loadSettingsAsync() = withContext(Dispatchers.IO) {
+        SettingsProvider.getQuickAppLauncherSettings()
+    }
+
+    private fun cleanupExistingOverlay() {
+        if (overlayView != null && !isHiding) {
+            val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+            runCatching { overlayView?.let { wm.removeView(it) } }
             overlayView = null
             overlayParams = null
         }
+    }
 
-        host.coroutineScope.launch {
-            val initialSettings = kotlinx.coroutines.withContext(Dispatchers.IO) {
-                SettingsProvider.getQuickAppLauncherSettings()
-            }
-            kotlinx.coroutines.withContext(Dispatchers.Main.immediate) {
-            val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
-            val lp = createLayoutParams(initialSettings)
-            val composeView = ComposeView(host.context).apply {
-                setBackgroundColor(Color.TRANSPARENT)
-                setViewTreeLifecycleOwner(host)
-                setViewTreeViewModelStoreOwner(host)
-                setViewTreeSavedStateRegistryOwner(host)
-                
-                setOnTouchListener { v, event ->
-                    val now = System.currentTimeMillis()
-                    if (event.action == MotionEvent.ACTION_OUTSIDE) {
-                        lastCloseMs = now
-                        Log.d("SideLeapLauncher","touch: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
-                        close()
-                        v.performClick()
-                        true
-                    } else {
-                        Log.d("SideLeapLauncher","touch: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
-                        false
-                    }
-                }
-                
-                setContent {
-                        val quickLauncherPopup = host.advancedSettings?.quickLauncherAppLongPressLaunchPopup ?: false
-                        host.RenderQuickAppLauncherContent(
-                            initialSettings = initialSettings,
-                            quickLauncherAppLongPressLaunchPopup = quickLauncherPopup,
-                            onCloseAnimated = { 
-                                isShowing = false
-                                isHiding = true
-                                val now = System.currentTimeMillis()
-                                lastCloseMs = now
-                                Log.d("SideLeapLauncher","closeAnimated: triggered")
-                                removeOverlayView()
-                            },
-                            onToggleAdjust = { toggleAdjustPanel() },
-                            onLaunch = { appInfo, miniWindow ->
-                                val now = System.currentTimeMillis()
-                                val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
-                                Log.d("SideLeapLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
-                                val success = Launcher.launchAppInfo(host.context, appInfo, miniWindow)
-                                Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
-                                if (success) {
-                                    onAppLaunchRequested?.invoke(appInfo)
-                                }
-                                success
-                            },
-                            onRegisterCloseAnimated = { callback -> triggerCloseAnimated = callback }
-                        )
+    private fun showOverlayView(initialSettings: QuickAppLauncherSettings) {
+        val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+        val lp = createLayoutParams(initialSettings)
+        val composeView = ComposeView(host.context).apply {
+            setBackgroundColor(Color.TRANSPARENT)
+            setViewTreeLifecycleOwner(host)
+            setViewTreeViewModelStoreOwner(host)
+            setViewTreeSavedStateRegistryOwner(host)
+
+            setOnTouchListener { v, event ->
+                val now = System.currentTimeMillis()
+                if (event.action == MotionEvent.ACTION_OUTSIDE) {
+                    lastCloseMs = now
+                    Log.d("SideLeapLauncher","touch: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
+                    close()
+                    v.performClick()
+                    true
+                } else {
+                    Log.d("SideLeapLauncher","touch: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
+                    false
                 }
             }
-            // Set initial alpha to 0 for fade-in effect
-            composeView.alpha = 0f
-            wm.addView(composeView, lp)
-            overlayView = composeView
-            overlayParams = lp
-            
-            // Start fade-in animation with proper cleanup
-            composeView.animate()
-                .alpha(1f)
-                .setDuration(200L)
-                .setInterpolator(android.view.animation.AccelerateDecelerateInterpolator())
-                .withEndAction {
-                    isShowing = false
-                }
-                .start()
+
+            setContent {
+                val quickLauncherPopup = host.advancedSettings?.quickLauncherAppLongPressLaunchPopup ?: false
+                host.RenderQuickAppLauncherContent(
+                    initialSettings = initialSettings,
+                    quickLauncherAppLongPressLaunchPopup = quickLauncherPopup,
+                    onCloseAnimated = {
+                        isShowing = false
+                        isHiding = true
+                        lastCloseMs = System.currentTimeMillis()
+                        Log.d("SideLeapLauncher","closeAnimated: triggered")
+                        removeOverlayView()
+                    },
+                    onToggleAdjust = { toggleAdjustPanel() },
+                    onLaunch = { appInfo, miniWindow ->
+                        val now = System.currentTimeMillis()
+                        val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
+                        Log.d("SideLeapLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
+                        val success = Launcher.launchAppInfo(host.context, appInfo, miniWindow)
+                        Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
+                        if (success) onAppLaunchRequested?.invoke(appInfo)
+                        success
+                    },
+                    onRegisterCloseAnimated = { callback -> triggerCloseAnimated = callback }
+                )
             }
         }
+        composeView.alpha = 0f
+        wm.addView(composeView, lp)
+        overlayView = composeView
+        overlayParams = lp
+
+        composeView.animate()
+            .alpha(1f)
+            .setDuration(200L)
+            .setInterpolator(android.view.animation.AccelerateDecelerateInterpolator())
+            .withEndAction { isShowing = false }
+            .start()
     }
 
 
