@@ -3,8 +3,8 @@ package hunoia.sideleap.ui.screen.frozenappmanage
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.App
 import hunoia.sideleap.R
+import hunoia.sideleap.core.AppContext
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.FrozenAppSettings
 import hunoia.sideleap.settings.SettingsProvider
@@ -73,7 +73,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
         viewModelScope.launch {
             updateUiState { it.copy(refreshing = true) }
             val apps = withContext(Dispatchers.IO) {
-                val context = App.getContext()
+                val context = AppContext.get()
                 val normal = hunoia.sideleap.launcher.query.AppQuery.queryLauncherActivities(
                     context = context,
                     allowRepeatPackage = false,
@@ -84,7 +84,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
                 normal + frozen.filter { it.packageName !in normalPackageNames }
             }
             val frozenStateByPackage = withContext(Dispatchers.IO) {
-                val context = App.getContext()
+                val context = AppContext.get()
                 val packageNames = apps.asSequence().map { it.packageName }.distinct().toList()
                 FreezeState.queryFrozenStateByPackage(context, packageNames)
             }
@@ -107,9 +107,9 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             updateUiState { it.copy(runningPackageActions = it.runningPackageActions + packageName) }
             val wasFrozen = uiState.frozenStateByPackage[packageName] == true
             val result = if (wasFrozen) {
-                FreezeAction.checkAndUnfreeze(App.getContext(), packageName)
+                FreezeAction.checkAndUnfreeze(AppContext.get(), packageName)
             } else {
-                FreezeAction.checkAndFreeze(App.getContext(), packageName)
+                FreezeAction.checkAndFreeze(AppContext.get(), packageName)
             }
             val nowFrozen = result.nowFrozen
             val expectedFrozen = !wasFrozen
@@ -132,11 +132,11 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
         if (!uiState.shizukuReady || uiState.bulkActionRunning) return
         viewModelScope.launch {
             updateUiState { it.copy(bulkActionRunning = true) }
-            val result = FreezeAction.oneKeyFreeze(App.getContext())
-            showComposeToast(App.getContext().getString(R.string.bulk_frozen_count, result.successCount))
+            val result = FreezeAction.oneKeyFreeze(AppContext.get())
+            showComposeToast(AppContext.get().getString(R.string.bulk_frozen_count, result.successCount))
             val refreshedFrozenState = withContext(Dispatchers.IO) {
                 FreezeState.queryFrozenStateByPackage(
-                    App.getContext(),
+                    AppContext.get(),
                     uiState.apps.asSequence().map { it.packageName }.distinct().toList()
                 )
             }
@@ -156,12 +156,12 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             val targets = currentOneKeyTargetsInRange()
             if (targets.isEmpty()) return@launch
             updateUiState { it.copy(bulkActionRunning = true) }
-            val result = FreezeAction.oneKeyUnfreeze(App.getContext(), targets)
+            val result = FreezeAction.oneKeyUnfreeze(AppContext.get(), targets)
             val successCount = result.successCount
             val latestState = withContext(Dispatchers.IO) {
-                FreezeState.queryFrozenStateByPackage(App.getContext(), targets)
+                FreezeState.queryFrozenStateByPackage(AppContext.get(), targets)
             }
-            showComposeToast(App.getContext().getString(R.string.bulk_unfrozen_count, successCount))
+            showComposeToast(AppContext.get().getString(R.string.bulk_unfrozen_count, successCount))
             updateUiState {
                 it.copy(
                     frozenStateByPackage = it.frozenStateByPackage + latestState,

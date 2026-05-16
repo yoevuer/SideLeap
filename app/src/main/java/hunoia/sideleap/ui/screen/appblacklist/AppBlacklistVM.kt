@@ -2,8 +2,8 @@ package hunoia.sideleap.ui.screen.appblacklist
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.App
 import hunoia.sideleap.R
+import hunoia.sideleap.core.AppContext
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiEvent
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiState
@@ -79,17 +79,17 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
                 AppQuery
-                    .queryLauncherActivities(App.getContext())
+                    .queryLauncherActivities(AppContext.get())
                     .filter {
-                        it.packageName != App.getContext().packageName
+                        it.packageName != AppContext.get().packageName
                     }
             }
             val frozenApps = withContext(Dispatchers.IO) {
-                FreezeState.queryFrozenApplicationsOnIo(App.getContext(), true)
+                FreezeState.queryFrozenApplicationsOnIo(AppContext.get(), true)
             }
             val normalPackageNames = appInfos.map { it.packageName }.toSet()
             val filteredFrozenApps = frozenApps.filter {
-                it.packageName !in normalPackageNames && it.packageName != App.getContext().packageName
+                it.packageName !in normalPackageNames && it.packageName != AppContext.get().packageName
             }
             val mergedApps = mutableListOf<AppInfo>()
             mergedApps.addAll(appInfos)

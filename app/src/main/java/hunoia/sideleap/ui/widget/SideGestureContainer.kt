@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalContext
-import hunoia.sideleap.App
 import hunoia.sideleap.R
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.action.GlobalActions
@@ -259,7 +258,7 @@ class SideGestureState(
 
     private var slideVibrationFlags = false
 
-    private val viewConfiguration = ViewConfiguration.get(App.getContext())
+    private val viewConfiguration = ViewConfiguration.get(hunoia.sideleap.core.AppContext.get())
 
     fun onDragStart(offset: Offset, imePadding: Int) {
         origin = offset

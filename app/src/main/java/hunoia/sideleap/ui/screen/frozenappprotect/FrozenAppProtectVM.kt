@@ -3,8 +3,8 @@ package hunoia.sideleap.ui.screen.frozenappprotect
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.App
 import hunoia.sideleap.R
+import hunoia.sideleap.core.AppContext
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.FrozenAppSettings
 import hunoia.sideleap.settings.SettingsProvider
@@ -76,7 +76,7 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
         viewModelScope.launch {
             updateUiState { it.copy(refreshing = true) }
             val apps = withContext(Dispatchers.IO) {
-                val context = App.getContext()
+                val context = AppContext.get()
                 val normal = hunoia.sideleap.launcher.query.AppQuery.queryLauncherActivities(
                     context = context,
                     allowRepeatPackage = false,
@@ -87,7 +87,7 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
                 normal + frozen.filter { it.packageName !in normalPackageNames }
             }
             val frozenStateByPackage = withContext(Dispatchers.IO) {
-                val context = App.getContext()
+                val context = AppContext.get()
                 val packageNames = apps.asSequence().map { it.packageName }.distinct().toList()
                 FreezeState.queryFrozenStateByPackage(context, packageNames)
             }
@@ -109,7 +109,7 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
         if (!uiState.shizukuReady || !isFrozen || packageName in uiState.runningPackageActions) return
         viewModelScope.launch {
             updateUiState { it.copy(runningPackageActions = it.runningPackageActions + packageName) }
-            val result = FreezeAction.checkAndUnfreeze(App.getContext(), packageName)
+            val result = FreezeAction.checkAndUnfreeze(AppContext.get(), packageName)
             val nowFrozen = result.nowFrozen
             if (!nowFrozen) {
                 showComposeToast(R.string.unfrozen_success)
