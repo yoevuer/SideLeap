@@ -1,4 +1,4 @@
-package hunoia.sideleap.system.permission
+package hunoia.sideleap.system.api
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
@@ -18,7 +18,7 @@ fun Context.isAccessibilitySettingsOn(clazz: Class<out AccessibilityService?>): 
             applicationContext.contentResolver,
             Settings.Secure.ACCESSIBILITY_ENABLED
         ) == 1
-    } catch (e: Settings.SettingNotFoundException) {
+    } catch (_: Settings.SettingNotFoundException) {
     }
     val splitter = TextUtils.SimpleStringSplitter(':')
     if (accessibilityEnabled) {
