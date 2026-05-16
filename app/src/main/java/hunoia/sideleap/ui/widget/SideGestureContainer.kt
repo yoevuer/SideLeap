@@ -8,7 +8,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -21,8 +20,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalContext
 import hunoia.sideleap.R
-import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.action.GlobalActions
+import androidx.compose.runtime.State
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.settings.model.ActionPanelStyle
 import hunoia.sideleap.settings.model.ActionPanelStyles
@@ -47,7 +46,6 @@ import hunoia.sideleap.gesture.bounds
 import hunoia.sideleap.gesture.find
 import hunoia.sideleap.gesture.getTriggerDirection
 import hunoia.sideleap.gesture.isEmptyOrNone
-import hunoia.sideleap.service.takeScreenshot
 import hunoia.sideleap.system.vibration.tryVibrateForLongSlide
 import hunoia.sideleap.system.vibration.tryVibrateForSlide
 import hunoia.sideleap.ui.widget.DragGestureHandler
@@ -77,7 +75,8 @@ fun SideGestureContainer(
     actionPanelStyle: ActionPanelStyle = ArcStyle(),
     actionSettings: ActionSettings = ActionSettings(),
     advancedSettings: AdvancedSettings = AdvancedSettings(),
-    gestureSettings: GestureSettings = GestureSettings()
+    gestureSettings: GestureSettings = GestureSettings(),
+    onTakeScreenshot: (suspend () -> Bitmap?)? = null
 ) {
     val context = LocalContext.current
     val curOnAction by rememberUpdatedState(newValue = onAction)
@@ -180,10 +179,8 @@ fun SideGestureContainer(
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && moveScreenState.visible) {
             val screenshotState: State<Bitmap?> = produceState<Bitmap?>(null) {
-                // 16ms为屏幕一帧，等待一帧防止截到手势
                 delay(20)
-                val service = context as SideGestureService
-                value = service.takeScreenshot()
+                value = onTakeScreenshot?.invoke()
             }
             val screenshot = screenshotState.value
             if (screenshot != null) {

@@ -1,6 +1,7 @@
 package hunoia.sideleap
 
 import android.content.res.Configuration
+import android.os.Build
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -23,6 +24,7 @@ import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.core.event.WallpaperChangedEvent
 import hunoia.sideleap.launcher.query.LauncherEnvironment
 import hunoia.sideleap.service.SideGestureServiceProxy
+import hunoia.sideleap.service.takeScreenshot
 import hunoia.sideleap.service.SideGestureButtonRefreshCoordinator
 import hunoia.sideleap.service.SideGestureOverlayLifecycle
 import hunoia.sideleap.service.SideGestureRuntime
@@ -187,6 +189,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     @Composable
     private fun renderMainOverlay() {
         var key by remember { mutableStateOf(Any()) }
+        val screenshotService = this
         SubscribeEvent(eventClass = WallpaperChangedEvent::class) {
             key = Any()
         }
@@ -221,6 +224,11 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                         },
                         onAction = { action ->
                             proxy.onAction(action)
+                        },
+                        onTakeScreenshot = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                screenshotService.takeScreenshot()
+                            } else null
                         },
                         actionSettings = actionSettings,
                         advancedSettings = advancedSettings,
