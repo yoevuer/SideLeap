@@ -1,33 +1,43 @@
 package hunoia.sideleap.system.vibration
 
 import android.Manifest.permission.VIBRATE
+import android.content.Context
 import androidx.annotation.RequiresPermission
-import hunoia.sideleap.App
+
+private var appContext: Context? = null
+
+fun initVibrationContext(context: Context) {
+    appContext = context
+}
 
 @RequiresPermission(VIBRATE)
 fun Vibrations.tryVibrateForSlide() {
+    val ctx = appContext ?: return
     if (slideEnabled) {
-        vibrate(App.getContext(), this)
+        vibrate(ctx, this)
     }
 }
 
 @RequiresPermission(VIBRATE)
 fun Vibrations.tryVibrateForLongSlide() {
+    val ctx = appContext ?: return
     if (longSlideEnabled) {
-        vibrate(App.getContext(), this)
+        vibrate(ctx, this)
     }
 }
 
 @RequiresPermission(VIBRATE)
 fun Vibrations.tryVibrateForActionPanel() {
+    val ctx = appContext ?: return
     if (actionPanelEnabled) {
-        vibrate(App.getContext(), this)
+        vibrate(ctx, this)
     }
 }
 
 @RequiresPermission(VIBRATE)
 fun Vibrations.tryVibrateForMoveScreen() {
+    val ctx = appContext ?: return
     if (moveScreenEnabled) {
-        vibrate(App.getContext(), this)
+        vibrate(ctx, this)
     }
 }
