@@ -11,8 +11,8 @@ import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.action.ActionRegistry
 import hunoia.sideleap.settings.model.ActionSettings
-import hunoia.sideleap.system.feedback.showToast
-import hunoia.sideleap.system.feedback.showToastLong
+import hunoia.sideleap.system.api.showToast
+import hunoia.sideleap.system.api.showToastLong
 import hunoia.sideleap.system.feedback.showVersionTooLowToast as showVersionTooLowToastUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

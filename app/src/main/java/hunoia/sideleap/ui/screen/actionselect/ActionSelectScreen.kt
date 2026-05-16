@@ -6,7 +6,7 @@ import android.content.Intent.ShortcutIconResource
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import hunoia.sideleap.system.feedback.showToast
+import hunoia.sideleap.system.api.showToast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi

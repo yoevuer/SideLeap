@@ -6,7 +6,7 @@ import android.net.Uri
 import android.provider.Settings
 import com.blankj.utilcode.util.AppUtils
 import hunoia.sideleap.R
-import hunoia.sideleap.system.feedback.showToast
+import hunoia.sideleap.system.api.showToast
 
 fun Context.launchAssist(): Boolean {
     return try {
