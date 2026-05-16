@@ -4,9 +4,26 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import hunoia.sideleap.App
 import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.system.packages.PackageChangeReceiver
 
 object FreezeState {
+
+    private var frozenCache: MutableMap<Boolean, List<AppInfo>>? = null
+    private var receiverRegistered = false
+
+    private fun ensureReceiver() {
+        if (receiverRegistered) return
+        receiverRegistered = true
+        PackageChangeReceiver.register(App.getContext()) {
+            frozenCache?.clear()
+        }
+    }
+
+    fun invalidateFrozenCache() {
+        frozenCache?.clear()
+    }
 
     fun isFrozen(context: Context, packageName: String): Boolean {
         val pm = context.packageManager
@@ -26,6 +43,9 @@ object FreezeState {
     }
 
     fun queryFrozenApplications(context: Context, showSystemApps: Boolean = true): List<AppInfo> {
+        frozenCache?.get(showSystemApps)?.let { return it }
+        ensureReceiver()
+
         val pm = context.packageManager
         val allApps = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -79,6 +99,8 @@ object FreezeState {
                 label = label
             ))
         }
+        val cache = frozenCache ?: mutableMapOf<Boolean, List<AppInfo>>().also { frozenCache = it }
+        cache[showSystemApps] = result
         return result
     }
 

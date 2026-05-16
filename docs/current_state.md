@@ -15,9 +15,23 @@
 - `strings.xml` 移除 3 条相关字符串
 - `Audio.kt`（`volumeUp`/`volumeDown`/`dispatchMediaKeyEvent`）不受影响，仍被 `MediaActionHandler` 用于手势媒体动作
 
+### 手势热路径优化（`perf/gesture-hotpath`）
+
+- `SideGestureState.onDrag()`: `calcDirection()` 除零保护、finger 显示值从 `Animatable` 改为 `mutableStateOf`（消除每帧协程 launch）、`canDistanceTriggered` 合并调用
+- `reset()` 移除弹簧动画协程
+- `AppQuery`: 添加 `launcherCache` + `BroadcastReceiver` 自动失效
+- `FreezeState`: 添加 `frozenCache` + 同步失效（冻结/解冻操作后）
+- 构建+测试通过
+
+### 代码重构清理（`perf/refine`）
+
+- `canDistanceTriggered()`: 3 组方向重复分支平铺为 `when` + 组合函数，-46 行
+- `ShizukuCommand`：提取 `createArgs()` + `runWithBinder()` 模板，消除 110 行重复
+- 合并 `AppQuery`/`FreezeState` 的广播接收器为共享 `PackageChangeReceiver`
+- `QuickAppLauncherOverlay.show()` 拆为 `loadSettingsAsync()` / `cleanupExistingOverlay()` / `showOverlayView()`
+
 ## 待办
 
-- 拆分 `ShizukuCommand`（535 行）
 - 拆分 `ActionSelectScreen`（1326 行）
 - 补充更多单元测试（Shizuku、Backup 等）
 - 定期更新本文档

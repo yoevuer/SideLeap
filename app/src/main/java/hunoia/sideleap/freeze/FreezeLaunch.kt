@@ -3,6 +3,7 @@ package hunoia.sideleap.freeze
 import android.content.Context
 import hunoia.sideleap.R
 import hunoia.sideleap.launcher.launch.Launcher
+import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.system.feedback.showToast
 import kotlinx.coroutines.delay
 
@@ -21,6 +22,8 @@ object FreezeLaunch {
                 showToast(R.string.enable_frozen_app_failed)
                 return false
             }
+            FreezeState.invalidateFrozenCache()
+            AppQuery.invalidateLauncherCache()
             delay(100)
         }
         return launchApp(context, packageName, className, miniWindow)
@@ -38,6 +41,8 @@ object FreezeLaunch {
                 showToast(R.string.enable_frozen_app_failed)
                 return false
             }
+            FreezeState.invalidateFrozenCache()
+            AppQuery.invalidateLauncherCache()
             delay(100)
         }
         return launchAppActivity(context, packageName, className)

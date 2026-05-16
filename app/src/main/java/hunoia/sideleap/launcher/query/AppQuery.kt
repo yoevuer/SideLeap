@@ -4,15 +4,36 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import hunoia.sideleap.App
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
+import hunoia.sideleap.system.packages.PackageChangeReceiver
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 
 object AppQuery {
 
+    private var launcherCache: MutableMap<Pair<Boolean, Boolean>, List<AppInfo>>? = null
+    private var receiverRegistered = false
+
+    private fun ensureReceiver() {
+        if (receiverRegistered) return
+        receiverRegistered = true
+        PackageChangeReceiver.register(App.getContext()) {
+            launcherCache?.clear()
+        }
+    }
+
+    fun invalidateLauncherCache() {
+        launcherCache?.clear()
+    }
+
     fun queryLauncherActivities(context: Context, allowRepeatPackage: Boolean = true, showSystemApps: Boolean = true): List<AppInfo> {
+        val cacheKey = allowRepeatPackage to showSystemApps
+        launcherCache?.get(cacheKey)?.let { return it }
+        ensureReceiver()
+
         val list = mutableListOf<AppInfo>()
         val pkgList = mutableListOf<String>()
         val packageManager = context.packageManager
@@ -35,6 +56,8 @@ object AppQuery {
             list.add(item)
             pkgList.add(packageName)
         }
+        val cache = launcherCache ?: mutableMapOf<Pair<Boolean, Boolean>, List<AppInfo>>().also { launcherCache = it }
+        cache[cacheKey] = list
         return list
     }
 
