@@ -91,7 +91,7 @@ internal fun QuickAppLauncherContent(
     var tokens by remember { mutableStateOf(emptyList<String>()) }
     var launcherSettings by remember { mutableStateOf(initialSettings) }
     var keyboardExpanded by remember { mutableStateOf(true) }
-    var panelVisible by remember { mutableStateOf(false) }
+    var panelVisible by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
         SettingsProvider.quickAppLauncherSettings.collectLatest { launcherSettings = it }
     }
@@ -117,11 +117,10 @@ internal fun QuickAppLauncherContent(
         sortApps(context, visibleApps, launcherSettings, tokens)
     }
     val density = LocalDensity.current
-    val screenWidthPx = ScreenUtils.getScreenWidth()
+    val screenWidthPx = remember { ScreenUtils.getScreenWidth() }
     val panelWidthDp = with(density) { (screenWidthPx * launcherSettings.panelWidthFraction).toDp() }
     val panelAlpha by animateFloatAsState(if (panelVisible) 1f else 0f, animationSpec = tween(200), label = "panelAlpha")
     val panelShiftY by animateFloatAsState(if (panelVisible) 0f else 18f, animationSpec = tween(180), label = "panelShiftY")
-    LaunchedEffect(Unit) { panelVisible = true }
     var gridAtTop by remember { mutableStateOf(true) }
     var closing by remember { mutableStateOf(false) }
     val closeAnimated = {

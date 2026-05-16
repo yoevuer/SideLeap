@@ -2,7 +2,6 @@ package hunoia.sideleap.ui.widget
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -54,7 +53,6 @@ private fun WaveGestureAnimation(
 ) {
     val button = sideGestureState.button ?: return
     val icon = animationStyle.getIcon()
-    val bezierPath = remember { Path() }
     // 贝塞尔偏移值
     val bezierOffset = when (button.position) {
         // 使贝塞尔显示在手指落点上方
@@ -114,8 +112,7 @@ private fun WaveGestureAnimation(
                 }
             }
         )
-        bezierPath.also { path ->
-            path.reset()
+        val bezierPath = Path().also { path ->
 
             val moveToX = when (button.position) {
                 Position.Left -> 0f

@@ -99,7 +99,7 @@ object SystemActionHandler : ActionHandler {
     private fun handleScreenshot(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             context.scope.launch {
-                delay(500)
+                delay(200)
                 context.accessibilityService.performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
             }
         } else {

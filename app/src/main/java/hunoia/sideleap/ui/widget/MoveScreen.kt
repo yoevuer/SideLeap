@@ -267,6 +267,9 @@ class MoveScreenState(
     private val coroutineScope: CoroutineScope
 ) : LongSlideState() {
 
+    private val screenWidth = ScreenUtils.getScreenWidth()
+    private val screenHeight = ScreenUtils.getScreenHeight()
+
     var visible: Boolean by mutableStateOf(false)
         private set
     var offset: Offset by mutableStateOf(Offset.Zero)
@@ -303,8 +306,8 @@ class MoveScreenState(
             return
         }
         val fingerOnScreen = fingerOnScreen
-        if (fingerOnScreen.x.toInt() !in 0..ScreenUtils.getScreenWidth() ||
-            fingerOnScreen.y.toInt() !in 0..ScreenUtils.getScreenHeight()
+        if (fingerOnScreen.x.toInt() !in 0..screenWidth ||
+            fingerOnScreen.y.toInt() !in 0..screenHeight
         ) {
             longPressJob?.cancel()
             this.rect = null
