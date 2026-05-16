@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
+import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.widget.LabeledSwitch
 import hunoia.sideleap.ui.widget.TopBar
 
@@ -179,7 +180,7 @@ fun FrozenAppManageScreen(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 16.dp)
+                    contentPadding = PaddingValues(bottom = ScrollBottomPadding)
                 ) {
                     if (!uiState.hasAnyAppInRange) {
                         item(key = "empty") {
