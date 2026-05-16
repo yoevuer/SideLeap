@@ -1,7 +1,7 @@
 package hunoia.sideleap.core.event
 
 import android.os.Looper
-import hunoia.sideleap.App
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
@@ -10,11 +10,16 @@ import kotlin.reflect.KClass
 
 object Events {
 
+    private var scope: CoroutineScope? = null
     private val subscribers = ConcurrentHashMap<KClass<out Any>, CopyOnWriteArrayList<(Any) -> Unit>>()
+
+    fun initScope(applicationScope: CoroutineScope) {
+        scope = applicationScope
+    }
 
     fun post(event: Any, postOnUiThread: Boolean = true) {
         if (postOnUiThread && Looper.myLooper() != Looper.getMainLooper()) {
-            App.applicationScope.launch(Dispatchers.Main) {
+            scope?.launch(Dispatchers.Main) {
                 dispatch(event)
             }
         } else {
