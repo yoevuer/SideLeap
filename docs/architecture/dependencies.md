@@ -72,7 +72,7 @@ business domain -> 其他领域 internal/impl/data
 | `service` | `gesture.api`, `action.api`, `settings.api`, `launcher.api`, `freeze.api`, `overlay.api`, `system.api`, `core` | — |
 | `gesture` | `action`, `settings.api`, `system.api`, `core` | 读取完整配置仓库、展示 UI、控制浮窗生命周期 |
 | `action` | `settings.api`, `launcher`, `freeze`, `system.api`, `core` | 手势识别、UI 页面展示、浮窗生命周期、设置持久化 |
-| `settings` | `system.api`, `core` | 执行业务动作、调用手势识别、控制浮窗实例、执行冻结、启动应用 |
+| `settings` | `gesture`（仅模型/值引用）, `system.api`, `core` | 执行业务动作、调用手势识别（逻辑依赖）、控制浮窗实例、执行冻结、启动应用 |
 | `launcher` | `settings.api`, `system.api`, `core` | 决定手势如何触发应用、决定动作绑定关系、管理冻结状态、展示完整 UI 页面 |
 | `freeze` | `settings.api`, `launcher.api`, `system.api`, `core` | 手势识别、动作分发框架、应用启动、UI 页面导航、直接持久化全局配置 |
 | `overlay` | `settings.api`, `gesture.api`, `action.api`, `launcher`, `system.api`, `core` | 常规设置页 UI、手势识别算法、动作业务实现、配置持久化、Service 总编排 |
