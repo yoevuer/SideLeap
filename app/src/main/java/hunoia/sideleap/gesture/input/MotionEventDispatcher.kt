@@ -4,7 +4,7 @@ import android.view.MotionEvent
 
 object MotionEventDispatcher {
 
-    private val listeners = mutableListOf<OnMotionEventListener>()
+    private val listeners = java.util.concurrent.CopyOnWriteArrayList<OnMotionEventListener>()
 
     fun addOnMotionEventListener(listener: OnMotionEventListener) {
         listeners.add(listener)
@@ -15,11 +15,7 @@ object MotionEventDispatcher {
     }
 
     fun dispatch(event: MotionEvent) {
-        val listeners = listeners
-        for (index in listeners.indices) {
-            val l = listeners.getOrNull(index)
-            l?.onDispatch(event)
-        }
+        listeners.forEach { it.onDispatch(event) }
     }
 }
 

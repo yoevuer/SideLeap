@@ -48,6 +48,9 @@ keystore.properties
 # Kotlin build cache / error logs
 .kotlin/
 
+# Generated theme files
+/app/src/main/java/hunoia/sideleap/ui/theme/generator/Color.kt
+
 # Local agent instructions
 AGENTS.md
 REQUIREMENTS.md
