@@ -109,7 +109,7 @@ fun ActionPanel(
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .background(color = Color.Black.copy(DimAlpha))
+                    .background(color = MaterialTheme.colorScheme.scrim.copy(alpha = DimAlpha))
             )
 
             val selectedAction = actionPanelState.selectedAction
@@ -147,7 +147,7 @@ fun ActionPanel(
                                 thisModifier.size(width = width, height = height)
                             }
                             .background(
-                                color = Color.White.copy(alpha = 0.35f),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
                                 shape = RoundedCornerShape(8.dp)
                             )
                     )

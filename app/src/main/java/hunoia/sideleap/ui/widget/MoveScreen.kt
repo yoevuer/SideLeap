@@ -103,7 +103,7 @@ fun MoveScreen(
                     }
 
                     if (state.showMoveScreenActionPopup) {
-                        drawRect(color = Color.Black.copy(alpha = DimAlpha))
+                        drawRect(color = colorScheme.scrim.copy(alpha = DimAlpha))
                     }
                 }
                 .displayCutoutPadding()
