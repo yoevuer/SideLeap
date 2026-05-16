@@ -30,6 +30,23 @@
 - 合并 `AppQuery`/`FreezeState` 的广播接收器为共享 `PackageChangeReceiver`
 - `QuickAppLauncherOverlay.show()` 拆为 `loadSettingsAsync()` / `cleanupExistingOverlay()` / `showOverlayView()`
 
+### 架构违规修复（`fix/arch-ui-system` + `fix/arch-violations`）
+
+- 创建 `core/AppContext.kt`，消除 system/ 和 ui/ 对根包 `App` 的依赖
+- `GestureActions` 从 `gesture/` 移到 `action/`
+- `GestureView` 从 `ui/widget/` 移到 `service/`
+- `SideGestureContainer` 截图改为回调注入，消除 ui→service 依赖
+- 更新架构文档（`dependencies.md`、`rules.md`）以匹配实际依赖
+
+### api 包引入（`feat/api-boundaries`）
+
+- `system/api/`: Toast、Vibration、Intent、Permission、Accessibility、Audio、Packages、Shizuku
+- `settings/api/`: SettingsProvider、Defaults、BackupHelper
+- `action/api/`: ActionRegistry、ActionHandler、ActionHandlerContext、ActionExecutionResult
+- `freeze/api/`: FreezeAction、FreezeLaunch、FreezeState
+- `overlay/api/`: QuickAppLauncherOverlay、QuickAppLauncherOverlayHost
+- 所有跨域导入已迁移到对应 `api/` 包
+
 ## 待办
 
 - 拆分 `ActionSelectScreen`（1326 行）
