@@ -4,10 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterExitState.Visible
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -294,10 +295,11 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                         }
                         Offset(x = transX.toFloat(), y = transY.toFloat())
                     }
-                    val selectAnim = remember { Animatable(1f) }
+                    var isHovered by remember { mutableStateOf(false) }
+                    val scale by animateFloatAsState(if (isHovered) 1.15f else 1f, tween(150), label = "actionScale")
 
                     var originBounds by remember { mutableStateOf(Rect.Zero) }
-                    LaunchedEffect(transition, actionPanelState, index, action, selectAnim) {
+                    LaunchedEffect(transition, actionPanelState, index, action) {
                         snapshotFlow { actionPanelState.finger }
                             .filter {
                                 it.isSpecified &&
@@ -308,13 +310,13 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                                 val transFinger = finger - targetAnimOffset
                                 if (originBounds.contains(transFinger)) {
                                     if (!actionPanelState.isSelected(action)) {
-                                        launch { selectAnim.animateTo(1.15f) }
+                                        isHovered = true
                                         actionPanelState.select(index, action)
                                         vibrations?.tryVibrateForActionPanel()
                                     }
                                 } else {
                                     if (actionPanelState.isSelected(action)) {
-                                        launch { selectAnim.animateTo(1f) }
+                                        isHovered = false
                                         actionPanelState.select(index, Action.NONE)
                                     }
                                 }
@@ -330,8 +332,8 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                             .graphicsLayer {
                                 translationX = targetAnimOffset.x
                                 translationY = targetAnimOffset.y
-                                scaleX = selectAnim.value
-                                scaleY = selectAnim.value
+                                scaleX = scale
+                                scaleY = scale
                             }
                             .run animateEnterExit@{
                                 val stiffness = Spring.StiffnessMedium
