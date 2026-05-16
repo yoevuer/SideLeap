@@ -65,6 +65,9 @@ import hunoia.sideleap.freeze.FrozenQuickAppLauncherQuery
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.launcher.launch.QuickAppLaunch
+import hunoia.sideleap.ui.theme.AnimOverlayFade
+import hunoia.sideleap.ui.theme.AnimPanelShift
+import hunoia.sideleap.ui.theme.AnimPostHideDelay
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.launcher.query.AppSearch.sortApps
 import hunoia.sideleap.launcher.query.QuickAppLauncherAppList
@@ -119,8 +122,8 @@ internal fun QuickAppLauncherContent(
     val density = LocalDensity.current
     val screenWidthPx = remember { ScreenUtils.getScreenWidth() }
     val panelWidthDp = with(density) { (screenWidthPx * launcherSettings.panelWidthFraction).toDp() }
-    val panelAlpha by animateFloatAsState(if (panelVisible) 1f else 0f, animationSpec = tween(200), label = "panelAlpha")
-    val panelShiftY by animateFloatAsState(if (panelVisible) 0f else 18f, animationSpec = tween(180), label = "panelShiftY")
+    val panelAlpha by animateFloatAsState(if (panelVisible) 1f else 0f, animationSpec = tween(AnimOverlayFade.toInt()), label = "panelAlpha")
+    val panelShiftY by animateFloatAsState(if (panelVisible) 0f else 18f, animationSpec = tween(AnimPanelShift.toInt()), label = "panelShiftY")
     var gridAtTop by remember { mutableStateOf(true) }
     var closing by remember { mutableStateOf(false) }
     val closeAnimated = {
@@ -128,7 +131,7 @@ internal fun QuickAppLauncherContent(
             closing = true
             panelVisible = false
             coroutineScope.launch {
-                delay(220)
+                delay(AnimPostHideDelay)
                 onCloseAnimated()
             }
         }
