@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.widget
+package hunoia.sideleap.service
 
 import android.annotation.SuppressLint
 import android.content.Context
