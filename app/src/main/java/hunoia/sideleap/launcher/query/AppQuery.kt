@@ -7,8 +7,8 @@ import android.content.pm.PackageManager
 import hunoia.sideleap.App
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
-import hunoia.sideleap.system.packages.PackageChangeReceiver
-import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
+import hunoia.sideleap.system.api.PackageChangeReceiver
+import hunoia.sideleap.system.api.queryIntentActivitiesCompat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 

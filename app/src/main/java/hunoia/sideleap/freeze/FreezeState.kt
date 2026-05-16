@@ -6,7 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import hunoia.sideleap.App
 import hunoia.sideleap.launcher.model.AppInfo
-import hunoia.sideleap.system.packages.PackageChangeReceiver
+import hunoia.sideleap.system.api.PackageChangeReceiver
 
 object FreezeState {
 

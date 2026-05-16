@@ -1,9 +1,12 @@
-package hunoia.sideleap.system.packages
+package hunoia.sideleap.system.api
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+import android.os.Build
 
 object PackageChangeReceiver {
 
@@ -28,5 +31,13 @@ object PackageChangeReceiver {
             addDataScheme("package")
         }
         context.registerReceiver(receiver, filter)
+    }
+}
+
+fun PackageManager.queryIntentActivitiesCompat(intent: Intent, flags: Int): List<ResolveInfo> {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        this.queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(flags.toLong()))
+    } else {
+        this.queryIntentActivities(intent, flags)
     }
 }

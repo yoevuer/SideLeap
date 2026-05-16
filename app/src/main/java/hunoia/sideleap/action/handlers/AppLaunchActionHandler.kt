@@ -13,7 +13,7 @@ import hunoia.sideleap.launcher.model.OpenAppOrUrlData
 import hunoia.sideleap.freeze.FreezeLaunch
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.launcher.launch.Launcher
-import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
+import hunoia.sideleap.system.api.queryIntentActivitiesCompat
 import hunoia.sideleap.action.TriggerType
 import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.coroutines.launch
