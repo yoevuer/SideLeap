@@ -52,7 +52,7 @@ import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.permission.deniedForever
-import hunoia.sideleap.system.intent.gotoAppDetailSettings
+import hunoia.sideleap.system.api.gotoAppDetailSettings
 import hunoia.sideleap.launcher.ext.icon
 import hunoia.sideleap.launcher.ext.qualifiedName
 import hunoia.sideleap.ui.permission.rememberGetInstalledAppsPermissionState

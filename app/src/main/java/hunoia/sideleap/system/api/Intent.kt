@@ -1,4 +1,4 @@
-package hunoia.sideleap.system.intent
+package hunoia.sideleap.system.api
 
 import android.content.Context
 import android.content.Intent
@@ -6,7 +6,10 @@ import android.net.Uri
 import android.provider.Settings
 import com.blankj.utilcode.util.AppUtils
 import hunoia.sideleap.R
-import hunoia.sideleap.system.api.showToast
+
+fun Context.gotoAppDetailSettings() {
+    AppUtils.launchAppDetailsSettings(packageName)
+}
 
 fun Context.launchAssist(): Boolean {
     return try {
@@ -56,10 +59,6 @@ fun Context.gotoOverlaySettings() {
         intent.action = Settings.ACTION_SETTINGS
         startActivity(intent)
     }
-}
-
-fun Context.gotoAppDetailSettings() {
-    AppUtils.launchAppDetailsSettings(packageName)
 }
 
 fun Context.launchUrl(url: String): Boolean {

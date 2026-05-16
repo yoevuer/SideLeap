@@ -60,7 +60,7 @@ import hunoia.sideleap.settings.SettingsUiDefaults.MinGotoBottomStrength
 import hunoia.sideleap.settings.SettingsUiDefaults.MinMoveScreenHover
 import hunoia.sideleap.settings.SettingsUiDefaults.MinMoveScreenRate
 import hunoia.sideleap.launcher.query.OpenAppOrUrlQuery
-import hunoia.sideleap.system.intent.normalizeOpenAppOrUrl
+import hunoia.sideleap.system.api.normalizeOpenAppOrUrl
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.SubMinInteractiveSize

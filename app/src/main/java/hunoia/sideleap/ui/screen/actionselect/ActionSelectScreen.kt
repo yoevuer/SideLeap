@@ -95,10 +95,10 @@ import hunoia.sideleap.launcher.model.OpenAppOrUrlData
 import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.ui.permission.deniedForever
-import hunoia.sideleap.system.intent.gotoAppDetailSettings
+import hunoia.sideleap.system.api.gotoAppDetailSettings
 import hunoia.sideleap.launcher.ext.icon
-import hunoia.sideleap.system.intent.launchUrl
-import hunoia.sideleap.system.intent.normalizeOpenAppOrUrl
+import hunoia.sideleap.system.api.launchUrl
+import hunoia.sideleap.system.api.normalizeOpenAppOrUrl
 import hunoia.sideleap.launcher.ext.qualifiedName
 import hunoia.sideleap.ui.permission.rememberGetInstalledAppsPermissionState
 import hunoia.sideleap.action.definition.ActionCatalog

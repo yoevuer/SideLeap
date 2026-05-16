@@ -14,8 +14,8 @@ import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.system.intent.launchAssist
-import hunoia.sideleap.system.intent.gotoAppDetailSettings
+import hunoia.sideleap.system.api.launchAssist
+import hunoia.sideleap.system.api.gotoAppDetailSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
