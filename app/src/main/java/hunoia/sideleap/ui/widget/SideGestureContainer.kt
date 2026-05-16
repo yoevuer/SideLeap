@@ -48,7 +48,7 @@ import hunoia.sideleap.gesture.bounds
 import hunoia.sideleap.gesture.find
 import hunoia.sideleap.gesture.getTriggerDirection
 import hunoia.sideleap.gesture.isEmptyOrNone
-import hunoia.sideleap.system.accessibility.takeScreenshot
+import hunoia.sideleap.service.takeScreenshot
 import hunoia.sideleap.system.vibration.tryVibrateForLongSlide
 import hunoia.sideleap.system.vibration.tryVibrateForSlide
 import hunoia.sideleap.ui.widget.DragGestureHandler
