@@ -1,17 +1,10 @@
 package hunoia.sideleap.ui.screen.advancedsettings
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +13,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
@@ -28,14 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
-import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
 import hunoia.sideleap.settings.api.SettingsUiDefaults.getDayNightModeText
-import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
-import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.EdgeMenuPadding
-import hunoia.sideleap.ui.theme.ItemPadding
-import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.ui.widget.MyColumn
@@ -152,62 +139,33 @@ fun AdvancedSettingsScreen(
                             secondaryText = stringResource(id = R.string.dynamic_color_hint)
                         )
                     }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = MinItemHeightNoSecondary)
-                            .onSingleClick {
-                                vm.showDayNightModeDropdownMenu(true)
-                            }
-                            .padding(
-                                horizontal = ContentPaddingHorizontal,
-                                vertical = ContentPaddingVerticalWithSection
-                            ),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(ItemPadding)
-                    ) {
-                        Text(
-                            modifier = Modifier.weight(1f),
+                    Box {
+                        TextActionButton(
+                            onClick = { vm.showDayNightModeDropdownMenu(true) },
                             text = stringResource(id = R.string.day_night_mode),
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1
+                            secondaryText = getDayNightModeText(uiState.dayNightMode),
+                            secondaryTextColor = MaterialTheme.colorScheme.primary
                         )
-                        Box {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = getDayNightModeText(uiState.dayNightMode),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    maxLines = 1
-                                )
-                                Icon(
-                                    imageVector = Icons.Default.ArrowDropDown,
-                                    contentDescription = null
-                                )
-                            }
-                            DropdownMenu(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                offset = DpOffset(x = -EdgeMenuPadding, y = 0.dp),
-                                shape = MaterialTheme.shapes.medium,
-                                expanded = uiState.showDayNightModeDropdownMenu,
-                                onDismissRequest = { vm.showDayNightModeDropdownMenu(false) }
-                            ) {
-                                listOf(
-                                    DayNightMode.Auto to getDayNightModeText(DayNightMode.Auto),
-                                    DayNightMode.Day to getDayNightModeText(DayNightMode.Day),
-                                    DayNightMode.Night to getDayNightModeText(DayNightMode.Night),
-                                ).fastForEach { (effectValue, text) ->
-                                    key(effectValue) {
-                                        DropdownMenuItem(
-                                            onClick = {
-                                                vm.onDayNightModeChange(effectValue)
-                                                vm.showDayNightModeDropdownMenu(false)
-                                            },
-                                            text = {
-                                                Text(text = text)
-                                            }
-                                        )
-                                    }
+                        DropdownMenu(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            offset = DpOffset(x = -EdgeMenuPadding, y = 0.dp),
+                            shape = MaterialTheme.shapes.medium,
+                            expanded = uiState.showDayNightModeDropdownMenu,
+                            onDismissRequest = { vm.showDayNightModeDropdownMenu(false) }
+                        ) {
+                            listOf(
+                                DayNightMode.Auto to getDayNightModeText(DayNightMode.Auto),
+                                DayNightMode.Day to getDayNightModeText(DayNightMode.Day),
+                                DayNightMode.Night to getDayNightModeText(DayNightMode.Night),
+                            ).fastForEach { (effectValue, text) ->
+                                key(effectValue) {
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            vm.onDayNightModeChange(effectValue)
+                                            vm.showDayNightModeDropdownMenu(false)
+                                        },
+                                        text = { Text(text = text) }
+                                    )
                                 }
                             }
                         }
