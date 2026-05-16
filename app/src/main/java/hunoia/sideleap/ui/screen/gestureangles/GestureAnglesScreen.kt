@@ -4,7 +4,11 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,6 +20,8 @@ import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -44,9 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
+import com.aaron.compose.component.UiBaseEvent
 import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
@@ -58,10 +64,10 @@ import hunoia.sideleap.gesture.getArcDegrees
 import hunoia.sideleap.gesture.getDegree
 import hunoia.sideleap.gesture.getDegrees
 import hunoia.sideleap.gesture.getKProperty
+import hunoia.sideleap.system.api.showToast
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.widget.MyAlertDialog
-import hunoia.sideleap.ui.widget.TopBar
 import kotlin.math.atan
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -75,11 +81,22 @@ import kotlin.reflect.KProperty0
  */
 
 @Composable
-fun GestureAnglesScreen(
-    onBack: () -> Unit,
+fun GestureAnglesContent(
+    onDismiss: () -> Unit,
     vm: GestureAnglesVM = viewModel()
 ) {
-    UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
+    UDFComponent(
+        component = vm.udfComponent,
+        onEvent = { },
+        onBaseEvent = { baseEvent ->
+            when (baseEvent) {
+                is UiBaseEvent.Finish -> { onDismiss(); true }
+                is UiBaseEvent.ResToast -> { showToast(baseEvent.res); true }
+                is UiBaseEvent.StringToast -> { showToast(baseEvent.text); true }
+                else -> false
+            }
+        }
+    ) { uiState ->
         if (uiState.showResetWarningDialog) {
             MyAlertDialog(
                 onDismissRequest = {
@@ -91,25 +108,20 @@ fun GestureAnglesScreen(
             )
         }
         Box {
-            TopBar(
-                modifier = Modifier.zIndex(1f),
-                onBack = onBack,
-                title = stringResource(id = R.string.gesture_angles),
-                actions = {
-                    IconButton(onClick = { vm.showResetWarningDialog(true) }) {
-                        Icon(
-                            imageVector = Icons.Default.Restore,
-                            contentDescription = "Reset"
-                        )
-                    }
-                    IconButton(onClick = { vm.saveSettings() }) {
-                        Icon(
-                            imageVector = Icons.Default.Done,
-                            contentDescription = "Save"
-                        )
-                    }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = { vm.showResetWarningDialog(true) }) {
+                    Icon(Icons.Default.Restore, contentDescription = "Reset")
                 }
-            )
+                Spacer(modifier = Modifier.weight(1f))
+                TextButton(onClick = { vm.saveSettings() }) {
+                    Icon(Icons.Default.Done, contentDescription = "Save")
+                }
+            }
             AdjustAngle(
                 modifier = Modifier
                     .let { thisModifier ->

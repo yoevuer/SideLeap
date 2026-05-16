@@ -5,7 +5,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -55,7 +54,6 @@ import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.TextActionButton
 import hunoia.sideleap.ui.widget.MyTextSlider
 import hunoia.sideleap.ui.widget.LabeledSwitch
-import hunoia.sideleap.ui.widget.TopBar
 import kotlinx.coroutines.launch
 
 /**
@@ -64,8 +62,8 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun WaveStyleScreen(
-    onBack: () -> Unit,
+fun WaveStyleContent(
+    onDismiss: () -> Unit,
     vm: WaveStyleVM = viewModel()
 ) {
     val scrollState = rememberScrollState()
@@ -98,12 +96,7 @@ fun WaveStyleScreen(
             )
         }
 
-        Column {
-            TopBar(
-                onBack = onBack,
-                title = stringResource(id = R.string.animation_style)
-            )
-            MyColumn(scrollState = scrollState) {
+        MyColumn(scrollState = scrollState) {
                 SectionCard(title = stringResource(id = R.string.color_outline)) {
                     TextActionButton(
                         onClick = {
@@ -252,4 +245,3 @@ fun WaveStyleScreen(
             }
         }
     }
-}

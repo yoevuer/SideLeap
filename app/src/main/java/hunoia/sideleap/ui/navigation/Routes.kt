@@ -22,19 +22,11 @@ data class ActionSelect(
 
 @Keep
 @Serializable
+data class IconResize(val ids: List<String>)
+
+@Keep
+@Serializable
 data object AdvancedSettings
-
-@Keep
-@Serializable
-data object AppBlacklist
-
-@Keep
-@Serializable
-data object QuickAppLauncherHidden
-
-@Keep
-@Serializable
-data object AdjustGestureAngles
 
 @Serializable
 @Keep
@@ -56,20 +48,8 @@ data object Home
 
 @Keep
 @Serializable
-data class IconResize(val ids: List<String>)
-
-@Keep
-@Serializable
 data object Unlock
 
 @Keep
 @Serializable
-data object WaveAnimationStyle
-
-@Keep
-@Serializable
 data object FrozenAppManage
-
-@Keep
-@Serializable
-data object FrozenAppProtect

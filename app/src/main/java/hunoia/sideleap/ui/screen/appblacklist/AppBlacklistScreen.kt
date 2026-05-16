@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
@@ -38,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.util.fastForEach
@@ -48,11 +44,13 @@ import coil.compose.AsyncImage
 import coil.imageLoader
 import com.aaron.compose.component.LoadingComponent
 import com.aaron.compose.component.UDFComponent
+import com.aaron.compose.component.UiBaseEvent
 import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.permission.deniedForever
 import hunoia.sideleap.system.api.gotoAppDetailSettings
+import hunoia.sideleap.system.api.showToast
 import hunoia.sideleap.launcher.ext.icon
 import hunoia.sideleap.launcher.ext.qualifiedName
 import hunoia.sideleap.ui.permission.rememberGetInstalledAppsPermissionState
@@ -65,7 +63,6 @@ import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.theme.TopBarPaddingExtra
 import hunoia.sideleap.ui.widget.MyAlertDialog
 import hunoia.sideleap.ui.widget.MySnackbarHost
-import hunoia.sideleap.ui.widget.TopBar
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.launch
@@ -77,11 +74,22 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun AppBlacklistScreen(
-    onBack: () -> Unit,
+fun AppBlacklistContent(
+    onDismiss: () -> Unit,
     vm: AppBlacklistVM = viewModel()
 ) {
-    UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
+    UDFComponent(
+        component = vm.udfComponent,
+        onEvent = { },
+        onBaseEvent = { baseEvent ->
+            when (baseEvent) {
+                is UiBaseEvent.Finish -> { onDismiss(); true }
+                is UiBaseEvent.ResToast -> { showToast(baseEvent.res); true }
+                is UiBaseEvent.StringToast -> { showToast(baseEvent.text); true }
+                else -> false
+            }
+        }
+    ) { uiState ->
         if (uiState.showResetWarningDialog) {
             MyAlertDialog(
                 onDismissRequest = {
@@ -106,144 +114,119 @@ fun AppBlacklistScreen(
             }
         }
         val snackbarHostState = remember { SnackbarHostState() }
-        Scaffold(
-            topBar = {
-                TopBar(
-                    onBack = onBack,
-                    title = stringResource(id = R.string.exclude_app),
-                    actions = {
-                        if (permissionState.status.isGranted) {
-                            IconButton(onClick = { vm.showResetWarningDialog(true) }) {
-                                Icon(
-                                    imageVector = Icons.Default.Restore,
-                                    contentDescription = "Reset"
-                                )
-                            }
-                            IconButton(onClick = { vm.done() }) {
-                                Icon(
-                                    imageVector = Icons.Default.Done,
-                                    contentDescription = "Done"
-                                )
-                            }
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (permissionState.status.isGranted) {
+                LoadingComponent(
+                    modifier = Modifier.fillMaxSize(),
+                    component = vm.loadingComponent
+                ) {
+                    var searchQuery by remember { mutableStateOf("") }
+                    val selectedFiltered = remember(searchQuery, uiState.selectedAppInfos) {
+                        if (searchQuery.isBlank()) uiState.selectedAppInfos
+                        else uiState.selectedAppInfos.filter {
+                            it.label.contains(searchQuery, ignoreCase = true) ||
+                                    it.packageName.contains(searchQuery, ignoreCase = true)
                         }
                     }
-                )
-            },
-            snackbarHost = {
-                MySnackbarHost(hostState = snackbarHostState)
-            }
-        ) { contentPadding ->
-            Box(modifier = Modifier.padding(top = contentPadding.calculateTopPadding())) {
-                if (permissionState.status.isGranted) {
-                    LoadingComponent(
+                    val unselectedFiltered = remember(searchQuery, uiState.unselectedAppInfos) {
+                        if (searchQuery.isBlank()) uiState.unselectedAppInfos
+                        else uiState.unselectedAppInfos.filter {
+                            it.label.contains(searchQuery, ignoreCase = true) ||
+                                    it.packageName.contains(searchQuery, ignoreCase = true)
+                        }
+                    }
+                    val hasAnyMatch = selectedFiltered.isNotEmpty() || unselectedFiltered.isNotEmpty()
+                    LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        component = vm.loadingComponent
+                        contentPadding = PaddingValues(bottom = ScrollBottomPadding)
                     ) {
-                        var searchQuery by remember { mutableStateOf("") }
-                        val selectedFiltered = remember(searchQuery, uiState.selectedAppInfos) {
-                            if (searchQuery.isBlank()) uiState.selectedAppInfos
-                            else uiState.selectedAppInfos.filter {
-                                it.label.contains(searchQuery, ignoreCase = true) ||
-                                        it.packageName.contains(searchQuery, ignoreCase = true)
-                            }
-                        }
-                        val unselectedFiltered = remember(searchQuery, uiState.unselectedAppInfos) {
-                            if (searchQuery.isBlank()) uiState.unselectedAppInfos
-                            else uiState.unselectedAppInfos.filter {
-                                it.label.contains(searchQuery, ignoreCase = true) ||
-                                        it.packageName.contains(searchQuery, ignoreCase = true)
-                            }
-                        }
-                        val hasAnyMatch = selectedFiltered.isNotEmpty() || unselectedFiltered.isNotEmpty()
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = run {
-                                val direction = LocalLayoutDirection.current
-                                PaddingValues(
-                                    start = contentPadding.calculateStartPadding(direction),
-                                    end = contentPadding.calculateEndPadding(direction),
-                                    bottom = contentPadding.calculateBottomPadding() + ScrollBottomPadding
-                                )
-                            }
-                        ) {
-                            item {
-                                OutlinedTextField(
-                                    value = searchQuery,
-                                    onValueChange = { searchQuery = it },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = ContentPaddingHorizontal, vertical = 4.dp),
-                                    placeholder = { Text(stringResource(R.string.search_app_hint)) },
-                                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                                    trailingIcon = {
-                                        if (searchQuery.isNotEmpty()) {
-                                            IconButton(onClick = { searchQuery = "" }) {
-                                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.search_clear_cd))
-                                            }
-                                        }
-                                    },
-                                    singleLine = true
-                                )
-                            }
-                            if (!hasAnyMatch && searchQuery.isNotBlank()) {
-                                item {
-                                    Text(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 24.dp),
-                                        text = stringResource(R.string.no_matching_results),
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                            listOf(selectedFiltered, unselectedFiltered).fastForEach { list ->
-                                items(
-                                    items = list,
-                                    key = { it.qualifiedName }
-                                ) { item ->
-                                    AppBlacklistItem(
-                                        appInfo = item,
-                                        selected = item.packageName in uiState.excludeApps,
-                                        onSelect = { selected ->
-                                            vm.selectApp(item, selected)
-                                        }
-                                    )
+                        item(key = "actions") {
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                Row(modifier = Modifier.align(Alignment.CenterEnd)) {
+                                    IconButton(onClick = { vm.showResetWarningDialog(true) }) {
+                                        Icon(Icons.Default.Restore, contentDescription = "Reset")
+                                    }
+                                    IconButton(onClick = { vm.done() }) {
+                                        Icon(Icons.Default.Done, contentDescription = "Done")
+                                    }
                                 }
                             }
                         }
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        val context = LocalContext.current
-                        val coroutineScope = rememberCoroutineScope()
-                        TextButton(
-                            onClick = {
-                                if (permissionState.status.deniedForever) {
-                                    coroutineScope.launch {
-                                        val result = snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.goto_grant_get_apps_permission),
-                                            actionLabel = context.getString(R.string.goto_enable_settings),
-                                            withDismissAction = true
-                                        )
-                                        if (result == SnackbarResult.ActionPerformed) {
-                                            context.gotoAppDetailSettings()
+
+                        item {
+                            OutlinedTextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(horizontal = ContentPaddingHorizontal, vertical = 4.dp),
+                                placeholder = { Text(stringResource(R.string.search_app_hint)) },
+                                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                                trailingIcon = {
+                                    if (searchQuery.isNotEmpty()) {
+                                        IconButton(onClick = { searchQuery = "" }) {
+                                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.search_clear_cd))
                                         }
                                     }
-                                } else {
-                                    permissionState.launchPermissionRequest()
-                                }
+                                },
+                                singleLine = true
+                            )
+                        }
+                        if (!hasAnyMatch && searchQuery.isNotBlank()) {
+                            item {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                                    text = stringResource(R.string.no_matching_results),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
-                        ) {
-                            Text(text = stringResource(id = R.string.request_get_apps_permission))
+                        }
+                        listOf(selectedFiltered, unselectedFiltered).fastForEach { list ->
+                            items(
+                                items = list,
+                                key = { it.qualifiedName }
+                            ) { item ->
+                                AppBlacklistItem(
+                                    appInfo = item,
+                                    selected = item.packageName in uiState.excludeApps,
+                                    onSelect = { selected ->
+                                        vm.selectApp(item, selected)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
+            } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                            ) {
+                                val context = LocalContext.current
+                                val coroutineScope = rememberCoroutineScope()
+                                TextButton(
+                                    onClick = {
+                                        if (permissionState.status.deniedForever) {
+                                            coroutineScope.launch {
+                                                val result = snackbarHostState.showSnackbar(
+                                                    message = context.getString(R.string.goto_grant_get_apps_permission),
+                                                    actionLabel = context.getString(R.string.goto_enable_settings),
+                                                    withDismissAction = true
+                                                )
+                                                if (result == SnackbarResult.ActionPerformed) {
+                                                    context.gotoAppDetailSettings()
+                                                }
+                                            }
+                                        } else {
+                                            permissionState.launchPermissionRequest()
+                                        }
+                                    }
+                                ) {
+                                    Text(text = stringResource(id = R.string.request_get_apps_permission))
+                            }
+                        }
+                    }
             }
-        }
     }
 }
 

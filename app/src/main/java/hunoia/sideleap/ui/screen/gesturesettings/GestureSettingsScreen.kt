@@ -18,12 +18,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -44,6 +52,7 @@ import hunoia.sideleap.system.vibration.VibrationDefaults.MaxCustomVibrationMs
 import hunoia.sideleap.system.vibration.VibrationDefaults.MinCustomVibrationMs
 import hunoia.sideleap.settings.api.SettingsUiDefaults.getPredefinedVibrationEffectText
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiEvent
+import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesContent
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.ItemPadding
@@ -63,12 +72,13 @@ import kotlinx.coroutines.launch
  * @since 2024/11/23
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GestureSettingsScreen(
-    onNavToGestureAngles: () -> Unit,
     onBack: () -> Unit,
     vm: GestureSettingsVM = viewModel()
 ) {
+    var showGestureAngles by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     UDFComponent(
@@ -94,7 +104,7 @@ fun GestureSettingsScreen(
             MyColumn(scrollState = scrollState) {
                 SectionCard {
                     TextActionButton(
-                        onClick = onNavToGestureAngles,
+                        onClick = { showGestureAngles = true },
                         text = stringResource(id = R.string.gesture_angles),
                         secondaryText = stringResource(id = R.string.gesture_angles_hint)
                     )
@@ -270,6 +280,15 @@ fun GestureSettingsScreen(
                         )
                     }
                 }
+            }
+        }
+
+        if (showGestureAngles) {
+            ModalBottomSheet(
+                onDismissRequest = { showGestureAngles = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                GestureAnglesContent(onDismiss = { showGestureAngles = false })
             }
         }
     }

@@ -8,13 +8,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,26 +32,31 @@ import hunoia.sideleap.settings.api.SettingsUiDefaults.getDayNightModeText
 import hunoia.sideleap.ui.theme.EdgeMenuPadding
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.settings.model.DayNightMode
+import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleContent
+import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistContent
+import hunoia.sideleap.ui.screen.quickapplaunchermanage.QuickAppLauncherManageContent
 import hunoia.sideleap.ui.widget.MyColumn
 import hunoia.sideleap.ui.widget.MyAlertDialog
 import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.TextActionButton
 import hunoia.sideleap.ui.widget.LabeledSwitch
 import hunoia.sideleap.ui.widget.TopBar
+import kotlinx.coroutines.launch
 
 /**
  * @author aaronzzxup@gmail.com
  * @since 2024/11/23
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdvancedSettingsScreen(
     onBack: () -> Unit,
-    onNavToAppBlacklist: () -> Unit,
-    onNavToQuickAppHidden: () -> Unit = {},
-    onNavToAnimationStyle: () -> Unit,
     vm: AdvancedSettingsVM = viewModel()
 ) {
+    var showAppBlacklist by remember { mutableStateOf(false) }
+    var showQuickAppHidden by remember { mutableStateOf(false) }
+    var showAnimationStyle by remember { mutableStateOf(false) }
     UDFComponent(component = vm.udfComponent, onEvent = {}) { uiState ->
         var confirmClear by remember { mutableStateOf(false) }
         Column {
@@ -58,7 +67,7 @@ fun AdvancedSettingsScreen(
             MyColumn {
                 SectionCard {
                     TextActionButton(
-                        onClick = onNavToAppBlacklist,
+                        onClick = { showAppBlacklist = true },
                         text = stringResource(id = R.string.exclude_app),
                         secondaryText = stringResource(id = R.string.exclude_app_hint)
                     )
@@ -68,7 +77,7 @@ fun AdvancedSettingsScreen(
                     title = stringResource(id = R.string.gesture_button_extension)
                 ) {
                     LabeledSwitch(
-                        onTextClick = onNavToAnimationStyle,
+                        onTextClick = { showAnimationStyle = true },
                         onCheckedChange = { vm.onShowAnimation(it) },
                         checked = uiState.showAnimation,
                         text = stringResource(id = R.string.animation_style)
@@ -121,7 +130,7 @@ fun AdvancedSettingsScreen(
                         text = stringResource(id = R.string.quick_launcher_launch_app),
                         secondaryText = stringResource(id = R.string.quick_launcher_launch_app_hint)
                     )
-                    TextActionButton(onClick = onNavToQuickAppHidden, text = stringResource(id = R.string.manage_hidden_apps))
+                    TextActionButton(onClick = { showQuickAppHidden = true }, text = stringResource(id = R.string.manage_hidden_apps))
                     TextActionButton(onClick = { confirmClear = true }, text = stringResource(id = R.string.clear_quick_app_stats))
                     LabeledSwitch(
                         onCheckedChange = { vm.onShowSystemAppsChange(it) },
@@ -190,6 +199,31 @@ fun AdvancedSettingsScreen(
                 text = stringResource(id = R.string.clear_quick_app_stats_confirm),
                 onCancelClick = { confirmClear = false }
             )
+        }
+
+        if (showAppBlacklist) {
+            ModalBottomSheet(
+                onDismissRequest = { showAppBlacklist = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                AppBlacklistContent(onDismiss = { showAppBlacklist = false })
+            }
+        }
+        if (showQuickAppHidden) {
+            ModalBottomSheet(
+                onDismissRequest = { showQuickAppHidden = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                QuickAppLauncherManageContent(onDismiss = { showQuickAppHidden = false })
+            }
+        }
+        if (showAnimationStyle) {
+            ModalBottomSheet(
+                onDismissRequest = { showAnimationStyle = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                WaveStyleContent(onDismiss = { showAnimationStyle = false })
+            }
         }
     }
 }

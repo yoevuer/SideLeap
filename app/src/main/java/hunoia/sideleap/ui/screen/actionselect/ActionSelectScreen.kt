@@ -7,20 +7,26 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,34 +34,34 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
+import com.aaron.compose.component.UiBaseEvent
 import hunoia.sideleap.R
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.launcher.query.LauncherIconQuery
-import hunoia.sideleap.ui.navigation.IconResize
+import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
+import hunoia.sideleap.ui.screen.iconresize.IconResizeContent
 import hunoia.sideleap.ui.widget.ActionSettingsDialog
 import hunoia.sideleap.ui.widget.MySnackbarHost
-import hunoia.sideleap.ui.widget.TopBar
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
-import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
-import hunoia.sideleap.ui.theme.ScrollBottomPadding
+import hunoia.sideleap.system.api.showToast
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.os.Build
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import hunoia.sideleap.ui.permission.rememberGetInstalledAppsPermissionState
 
 
@@ -64,18 +70,40 @@ import hunoia.sideleap.ui.permission.rememberGetInstalledAppsPermissionState
  * @since 2024/12/2
  */
 
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ActionSelectScreen(
-    onBack: () -> Unit,
-    onNavToIconResize: (IconResize) -> Unit,
-    vm: ActionSelectVM = viewModel()
+fun ActionSelectContent(
+    onDismiss: () -> Unit,
+    actionSelect: ActionSelect,
+    vm: ActionSelectVM = viewModel(
+        key = "action_select_${actionSelect.gestureButtonId}_${actionSelect.direction}_${actionSelect.isLongSlide}",
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                @Suppress("UNCHECKED_CAST")
+                return ActionSelectVM(actionSelect) as T
+            }
+        }
+    )
 ) {
+    var showIconResize by remember { mutableStateOf(false) }
+    var iconResizeIds by remember { mutableStateOf<List<String>>(emptyList()) }
+
     UDFComponent(
         component = vm.udfComponent,
         onEvent = { event ->
             when (event) {
-                is UiEvent.GotoIconResize -> onNavToIconResize(event.iconResize)
+                is UiEvent.GotoIconResize -> {
+                    iconResizeIds = event.iconResize.ids
+                    showIconResize = true
+                }
+            }
+        },
+        onBaseEvent = { baseEvent ->
+            when (baseEvent) {
+                is UiBaseEvent.Finish -> { onDismiss(); true }
+                is UiBaseEvent.ResToast -> { showToast(baseEvent.res); true }
+                is UiBaseEvent.StringToast -> { showToast(baseEvent.text); true }
+                else -> false
             }
         }
     ) { uiState ->
@@ -111,25 +139,21 @@ fun ActionSelectScreen(
         val snackbarHostState = remember { SnackbarHostState() }
         val pagerState = rememberPagerState { PAGES.size }
         val coroutineScope = rememberCoroutineScope()
-        Scaffold(
-            topBar = {
-                TopBar(
-                    onBack = onBack,
-                    title = uiState.title,
-                    actions = {
-                        if (!uiState.selectSingle) {
-                            IconButton(onClick = { vm.done() }) {
-                                Icon(imageVector = Icons.Default.Done, contentDescription = null)
-                            }
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(uiState.title, style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.weight(1f))
+                    if (!uiState.selectSingle) {
+                        IconButton(onClick = { vm.done() }) {
+                            Icon(imageVector = Icons.Default.Done, contentDescription = null)
                         }
                     }
-                )
-            },
-            snackbarHost = {
-                MySnackbarHost(hostState = snackbarHostState)
-            }
-        ) { contentPadding ->
-            Column(modifier = Modifier.padding(top = contentPadding.calculateTopPadding())) {
+                }
 
                 val permissionState = rememberGetInstalledAppsPermissionState { granted ->
                     if (granted) {
@@ -177,14 +201,6 @@ fun ActionSelectScreen(
                             }
                             ActionPage(
                                 modifier = Modifier.fillMaxSize(),
-                                contentPadding = run {
-                                    val direction = LocalLayoutDirection.current
-                                    PaddingValues(
-                                        start = contentPadding.calculateStartPadding(direction),
-                                        end = contentPadding.calculateEndPadding(direction),
-                                        bottom = contentPadding.calculateBottomPadding() + ScrollBottomPadding
-                                    )
-                                },
                                 actions = uiState.actions,
                                 appInfos = uiState.apps,
                                 createShortcuts = uiState.createShortcuts,
@@ -208,6 +224,18 @@ fun ActionSelectScreen(
                             )
                         }
                     }
+                }
+            }
+
+            if (showIconResize) {
+                ModalBottomSheet(
+                    onDismissRequest = { showIconResize = false },
+                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                ) {
+                    IconResizeContent(
+                        onDismiss = { showIconResize = false },
+                        ids = iconResizeIds
+                    )
                 }
             }
         }
