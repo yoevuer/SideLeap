@@ -6,6 +6,9 @@ import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordMinLength
 import hunoia.sideleap.settings.model.ActionSettings
 import java.security.SecureRandom
 import kotlin.math.log2
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 object PasswordGenerator {
@@ -47,9 +50,11 @@ object PasswordGenerator {
 
     fun generatedEntropyBits(config: ActionSettings.PasswordGenerator): Int {
         val normalized = normalize(config)
-        val poolSize = enabledPools(normalized).sumOf { it.length }
-        if (poolSize <= 0) return 0
-        return (normalized.length * log2(poolSize.toDouble())).roundToInt()
+        val poolSizes = enabledPools(normalized).map { it.length }
+        if (poolSizes.isEmpty()) return 0
+        val legalPasswordSpaceBits = constrainedEntropyBits(normalized.length, poolSizes)
+        val generationProcessBits = generationProcessEntropyBits(normalized.length, poolSizes)
+        return min(legalPasswordSpaceBits, generationProcessBits).roundToInt()
     }
 
     fun estimatedEntropyBits(text: String): Int {
@@ -72,6 +77,46 @@ object PasswordGenerator {
         if (config.uppercase) add(UPPERCASE)
         if (config.digits) add(DIGITS)
         if (config.symbols) add(SYMBOLS)
+    }
+
+    private fun constrainedEntropyBits(length: Int, poolSizes: List<Int>): Double {
+        val totalPoolSize = poolSizes.sum()
+        var validCount = 0.0
+        val subsetCount = 1 shl poolSizes.size
+        for (mask in 0 until subsetCount) {
+            var excludedSize = 0
+            for (index in poolSizes.indices) {
+                if ((mask and (1 shl index)) != 0) {
+                    excludedSize += poolSizes[index]
+                }
+            }
+            val remainingSize = totalPoolSize - excludedSize
+            if (remainingSize <= 0) continue
+            val count = remainingSize.toDouble().pow(length)
+            if (Integer.bitCount(mask) % 2 == 0) {
+                validCount += count
+            } else {
+                validCount -= count
+            }
+        }
+        return log2(max(validCount, 1.0))
+    }
+
+    private fun generationProcessEntropyBits(length: Int, poolSizes: List<Int>): Double {
+        val requiredTypeCount = poolSizes.size
+        val totalPoolSize = poolSizes.sum()
+        val requiredCharBits = poolSizes.sumOf { log2(it.toDouble()) }
+        val requiredPositionBits = log2Permutation(length, requiredTypeCount)
+        val remainingCharBits = (length - requiredTypeCount) * log2(totalPoolSize.toDouble())
+        return requiredPositionBits + requiredCharBits + remainingCharBits
+    }
+
+    private fun log2Permutation(n: Int, k: Int): Double {
+        var result = 0.0
+        repeat(k) { index ->
+            result += log2((n - index).toDouble())
+        }
+        return result
     }
 
     private fun String.randomChar(): Char = this[secureRandom.nextInt(length)]

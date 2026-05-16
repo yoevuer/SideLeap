@@ -65,6 +65,20 @@ class PasswordGeneratorTest {
     }
 
     @Test
+    fun entropy_generatedAccountsForRequiredCharacterTypes() {
+        val entropy = PasswordGenerator.generatedEntropyBits(ActionSettings.PasswordGenerator(length = 4))
+
+        assertEquals(22, entropy)
+    }
+
+    @Test
+    fun entropy_generatedDoesNotExceedUnconstrainedPool() {
+        val entropy = PasswordGenerator.generatedEntropyBits(ActionSettings.PasswordGenerator())
+
+        assertTrue(entropy <= 103)
+    }
+
+    @Test
     fun entropy_estimatedEmptyPassword() {
         assertEquals(0, PasswordGenerator.estimatedEntropyBits(""))
     }

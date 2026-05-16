@@ -27,7 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -226,17 +226,23 @@ private fun CharacterTypeSwitches(
     config: ActionSettings.PasswordGenerator,
     onConfigChanged: (ActionSettings.PasswordGenerator) -> Unit,
 ) {
-    CharacterTypeSwitch("a-z", config.lowercase) { enabled ->
-        onSwitchChange(config, config.copy(lowercase = enabled), onConfigChanged)
-    }
-    CharacterTypeSwitch("A-Z", config.uppercase) { enabled ->
-        onSwitchChange(config, config.copy(uppercase = enabled), onConfigChanged)
-    }
-    CharacterTypeSwitch("0-9", config.digits) { enabled ->
-        onSwitchChange(config, config.copy(digits = enabled), onConfigChanged)
-    }
-    CharacterTypeSwitch("!@#$...", config.symbols) { enabled ->
-        onSwitchChange(config, config.copy(symbols = enabled), onConfigChanged)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CharacterTypeCheckbox("a", config.lowercase, Modifier.weight(1f)) { enabled ->
+            onSwitchChange(config, config.copy(lowercase = enabled), onConfigChanged)
+        }
+        CharacterTypeCheckbox("A", config.uppercase, Modifier.weight(1f)) { enabled ->
+            onSwitchChange(config, config.copy(uppercase = enabled), onConfigChanged)
+        }
+        CharacterTypeCheckbox("1", config.digits, Modifier.weight(1f)) { enabled ->
+            onSwitchChange(config, config.copy(digits = enabled), onConfigChanged)
+        }
+        CharacterTypeCheckbox("#", config.symbols, Modifier.weight(1f)) { enabled ->
+            onSwitchChange(config, config.copy(symbols = enabled), onConfigChanged)
+        }
     }
 }
 
@@ -253,17 +259,18 @@ private fun onSwitchChange(
 }
 
 @Composable
-private fun CharacterTypeSwitch(
+private fun CharacterTypeCheckbox(
     label: String,
     checked: Boolean,
+    modifier: Modifier = Modifier,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = modifier.clickable { onCheckedChange(!checked) },
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, style = MaterialTheme.typography.bodyLarge)
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
     }
 }
