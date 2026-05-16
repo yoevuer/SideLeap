@@ -1,7 +1,6 @@
 package hunoia.sideleap.action
 
 import androidx.annotation.Keep
-import hunoia.sideleap.gesture.TriggerDirection
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
@@ -28,17 +27,4 @@ data class GestureActions(
     val down2: List<Action> = GestureActionsDefaults.Down2
 )
 
-fun GestureActions.actionsBy(direction: TriggerDirection): List<Action> {
-    return when (direction) {
-        TriggerDirection.Up -> up
-        TriggerDirection.Center -> center
-        TriggerDirection.Down -> down
-        TriggerDirection.Up2 -> up2
-        TriggerDirection.Center2 -> emptyList()
-        TriggerDirection.Down2 -> down2
-    }
-}
 
-fun List<Action>.isEmptyOrNone(): Boolean {
-    return isEmpty() || first() == GestureActionsDefaults.ActionNone
-}

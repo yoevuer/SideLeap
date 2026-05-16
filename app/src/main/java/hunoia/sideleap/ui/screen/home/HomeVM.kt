@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.R
-import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent
 import hunoia.sideleap.ui.screen.home.HomeVM.UiState
@@ -179,7 +178,8 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         viewModelScope.launch {
             val app = hunoia.sideleap.core.AppContext.get()
             val isGestureEnabled = SettingsProvider.getInitialSettings().gestureEnabled
-            val isAccessibilityEnabled = app.isAccessibilitySettingsOn(SideGestureService::class.java)
+            val clazz = Class.forName("hunoia.sideleap.SideGestureService") as Class<out android.accessibilityservice.AccessibilityService?>
+            val isAccessibilityEnabled = app.isAccessibilitySettingsOn(clazz)
             val isIgnoringBatteryOptimizations = app.isIgnoringBatteryOptimizations()
             updateUiState {
                 it.copy(
