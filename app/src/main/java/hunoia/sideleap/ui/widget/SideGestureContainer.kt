@@ -244,9 +244,13 @@ class SideGestureState(
         get() {
             val waveStyle = advancedSettings.animationStyles.value as? WaveStyle
             return if (waveStyle?.stickySlideEnabled == true) {
-                ConvertUtils.dp2px(36f).toFloat()
+                STICKY_SLIDE_DP
             } else 0f
         }
+
+    companion object {
+        private val STICKY_SLIDE_DP = ConvertUtils.dp2px(36f).toFloat()
+    }
 
     /**
      * 区分上下滑和侧滑，当可以触发侧滑时，即使后面触发方向变成上下滑也需要取消手势

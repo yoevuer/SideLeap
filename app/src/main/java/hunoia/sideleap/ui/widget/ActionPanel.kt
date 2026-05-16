@@ -128,26 +128,20 @@ fun ActionPanel(
                 enter = enter,
                 exit = ExitTransition.None
             ) {
-                BoxWithConstraints {
+                    BoxWithConstraints {
                     Box(
                         modifier = Modifier
                             .let { thisModifier ->
                                 val miniWindow = actionPanelState.triggerType.isMiniWindow(longPressLaunchPopup)
-                                val maxWidth = this@BoxWithConstraints.maxWidth
-                                val maxHeight = this@BoxWithConstraints.maxHeight
-                                val spec = spring<Dp>(stiffness = 5000f)
+                                val boxMaxWidth = maxWidth
+                                val boxMaxHeight = maxHeight
+                                val spec = tween<Dp>(250)
                                 val width by animateDpAsState(
-                                    targetValue = when (miniWindow) {
-                                        true -> 200.dp
-                                        false -> maxWidth
-                                    },
+                                    targetValue = if (miniWindow) 200.dp else boxMaxWidth,
                                     animationSpec = spec
                                 )
                                 val height by animateDpAsState(
-                                    targetValue = when (miniWindow) {
-                                        true -> width / 0.75f
-                                        false -> maxHeight
-                                    },
+                                    targetValue = if (miniWindow) 267.dp else boxMaxHeight,
                                     animationSpec = spec
                                 )
                                 thisModifier.size(width = width, height = height)
