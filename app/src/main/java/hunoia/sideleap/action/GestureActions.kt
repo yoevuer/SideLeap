@@ -1,8 +1,7 @@
-package hunoia.sideleap.gesture
+package hunoia.sideleap.action
 
 import androidx.annotation.Keep
-import hunoia.sideleap.action.Action
-import hunoia.sideleap.action.GlobalActions
+import hunoia.sideleap.gesture.TriggerDirection
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 

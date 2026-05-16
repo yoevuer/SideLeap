@@ -41,11 +41,11 @@ import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.gesture.GESTURE_ANGLE_BASE
-import hunoia.sideleap.gesture.actionsBy
+import hunoia.sideleap.action.actionsBy
 import hunoia.sideleap.gesture.bounds
 import hunoia.sideleap.gesture.find
 import hunoia.sideleap.gesture.getTriggerDirection
-import hunoia.sideleap.gesture.isEmptyOrNone
+import hunoia.sideleap.action.isEmptyOrNone
 import hunoia.sideleap.system.vibration.tryVibrateForLongSlide
 import hunoia.sideleap.system.vibration.tryVibrateForSlide
 import hunoia.sideleap.ui.widget.DragGestureHandler
