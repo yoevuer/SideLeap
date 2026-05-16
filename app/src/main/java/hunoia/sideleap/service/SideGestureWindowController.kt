@@ -18,7 +18,7 @@ import hunoia.sideleap.system.window.removeWindows
 import hunoia.sideleap.system.window.setBasic
 import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
-import hunoia.sideleap.ui.widget.GestureView
+import hunoia.sideleap.service.GestureView
 import com.blankj.utilcode.util.ScreenUtils
 
 class SideGestureWindowController(private val host: SideGestureService) {

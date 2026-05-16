@@ -17,7 +17,7 @@ class QuickAppLauncherManageVM : BaseComposeVM<QuickAppLauncherManageVM.UiState,
     override val initialState = UiState()
     init { load() }
     fun load() = viewModelScope.launch {
-        val context = hunoia.sideleap.App.getContext()
+        val context = hunoia.sideleap.core.AppContext.get()
         val (settings, mergedApps) = withContext(Dispatchers.IO) {
             val s = SettingsProvider.getQuickAppLauncherSettings()
             val appList = FrozenQuickAppLauncherQuery.queryApps(context, s.showSystemApps)

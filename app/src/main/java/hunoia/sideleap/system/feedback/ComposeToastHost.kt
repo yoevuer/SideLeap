@@ -1,7 +1,7 @@
 package hunoia.sideleap.system.feedback
 
 import androidx.annotation.StringRes
-import hunoia.sideleap.App
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
@@ -16,14 +16,20 @@ private fun getTimeMillis(duration: ToastDuration): Long {
     }
 }
 
+private var toastScope: CoroutineScope? = null
+
+fun initToastScope(scope: CoroutineScope) {
+    toastScope = scope
+}
+
 fun showComposeToast(@StringRes resId: Int, duration: ToastDuration = ToastDuration.Short) {
-    App.applicationScope.launch {
+    toastScope?.launch {
         channel.send(ToastData(resId = resId, duration = getTimeMillis(duration)))
     }
 }
 
 fun showComposeToast(text: String, duration: ToastDuration = ToastDuration.Short) {
-    App.applicationScope.launch {
+    toastScope?.launch {
         channel.send(ToastData(text = text, duration = getTimeMillis(duration)))
     }
 }

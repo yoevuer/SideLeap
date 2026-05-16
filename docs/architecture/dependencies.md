@@ -68,14 +68,14 @@ business domain -> 其他领域 internal/impl/data
 
 | 领域 | 可以依赖 | 禁止依赖 |
 |---|---|---|
-| `ui` | `gesture.api`, `action.api`, `settings.api`, `launcher.api`, `freeze.api`, `overlay.api`, `core` | 任何领域 internal/impl/data, system.impl, service 内部实现 |
+| `ui` | `gesture.api`, `action.api`, `settings.api`, `launcher.api`, `freeze.api`, `overlay.api`, `system.feedback`, `system.vibration`, `system.permission`, `system.intent`, `system.window`, `core` | 任何领域 internal/impl/data, system.impl (上述列出的除外), service 内部实现 |
 | `service` | `gesture.api`, `action.api`, `settings.api`, `launcher.api`, `freeze.api`, `overlay.api`, `system.api`, `core` | — |
-| `gesture` | `settings.api`, `system.api`, `core` | 执行动作、读取完整配置仓库、展示 UI、控制浮窗生命周期 |
-| `action` | `settings.api`, `system.api`, `core` | 手势识别、UI 页面展示、应用列表扫描、冻结名单策略、浮窗生命周期、设置持久化 |
-| `settings` | `system.api`, `core` | 执行业务动作、调用手势识别、控制浮窗实例、执行冻结、启动应用 |
+| `gesture` | `action`, `settings.api`, `system.api`, `core` | 读取完整配置仓库、展示 UI、控制浮窗生命周期 |
+| `action` | `settings.api`, `launcher`, `freeze`, `system.api`, `core` | 手势识别、UI 页面展示、浮窗生命周期、设置持久化 |
+| `settings` | `gesture`（仅模型/值引用）, `system.api`, `core` | 执行业务动作、调用手势识别（逻辑依赖）、控制浮窗实例、执行冻结、启动应用 |
 | `launcher` | `settings.api`, `system.api`, `core` | 决定手势如何触发应用、决定动作绑定关系、管理冻结状态、展示完整 UI 页面 |
 | `freeze` | `settings.api`, `launcher.api`, `system.api`, `core` | 手势识别、动作分发框架、应用启动、UI 页面导航、直接持久化全局配置 |
-| `overlay` | `settings.api`, `gesture.api`, `action.api`, `system.api`, `core` | 常规设置页 UI、手势识别算法、动作业务实现、配置持久化、Service 总编排 |
+| `overlay` | `settings.api`, `gesture.api`, `action.api`, `launcher`, `system.api`, `core` | 常规设置页 UI、手势识别算法、动作业务实现、配置持久化、Service 总编排 |
 | `system` | `core`, Android SDK | 手势业务、动作业务、冻结策略、默认配置、UI 页面状态、浮窗业务语义、运行时编排 |
 | `core` | 无 SideLeap 业务依赖 | 手势语义、动作语义、配置项语义、冻结语义、启动应用语义、浮窗语义、Android 业务封装 |
 

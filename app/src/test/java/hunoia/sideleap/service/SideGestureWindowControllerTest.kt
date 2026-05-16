@@ -2,7 +2,7 @@ package hunoia.sideleap.service
 
 import android.view.Gravity
 import android.view.WindowManager
-import hunoia.sideleap.gesture.GestureActions
+import hunoia.sideleap.action.GestureActions
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
 import org.junit.Assert.assertEquals

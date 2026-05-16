@@ -5,8 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.App
 import hunoia.sideleap.R
+import hunoia.sideleap.core.AppContext
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.core.Paths
 import hunoia.sideleap.action.definition.ActionCatalog
@@ -195,13 +195,13 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
         if (appInfos.isNotEmpty() || shortcutInfos.isNotEmpty()) {
             val ids = mutableListOf<String>()
             appInfos.forEach { appInfo ->
-                val icon = appInfo.getIcon(App.getContext()) ?: return@forEach
+                val icon = appInfo.getIcon(AppContext.get()) ?: return@forEach
                 ids.add(appInfo.qualifiedName)
                 IconResizeCache.iconCache[appInfo.qualifiedName] = icon
                 IconResizeCache.iconBgColorCache[appInfo.qualifiedName] = appInfo.iconBgColor
             }
             shortcutInfos.forEach { shortcutInfo ->
-                val icon = shortcutInfo.getIcon(App.getContext()) ?: return@forEach
+                val icon = shortcutInfo.getIcon(AppContext.get()) ?: return@forEach
                 ids.add(shortcutInfo.qualifiedNameWithIntents)
                 IconResizeCache.iconCache[shortcutInfo.qualifiedNameWithIntents] = icon
                 IconResizeCache.iconBgColorCache[shortcutInfo.qualifiedNameWithIntents] = shortcutInfo.iconBgColor
@@ -216,10 +216,10 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     fun updateShortcutInfos() {
         viewModelScope.launchWithLoading {
             val createLauncherInfos = withContext(Dispatchers.IO) {
-                AppQuery.queryCreateShortcutActivities(App.getContext())
+                AppQuery.queryCreateShortcutActivities(AppContext.get())
             }
             val launchLauncherInfos = withContext(Dispatchers.IO) {
-                ShortcutQuery.getAllAppsWithShortcut(App.getContext())
+                ShortcutQuery.getAllAppsWithShortcut(AppContext.get())
             }
             if (uiState.selectSingle) {
                 updateUiState {
@@ -309,9 +309,9 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
-                AppQuery.queryLauncherActivities(App.getContext())
+                AppQuery.queryLauncherActivities(AppContext.get())
             }
-            val frozenApps = FreezeState.queryFrozenApplications(App.getContext(), true)
+            val frozenApps = FreezeState.queryFrozenApplications(AppContext.get(), true)
             // 合并普通应用和冻结应用，普通应用优先，冻结应用只添加不存在的
             val normalPackageNames = appInfos.map { it.packageName }.toSet()
             val filteredFrozenApps = frozenApps.filter { it.packageName !in normalPackageNames }
@@ -377,7 +377,7 @@ class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState
     }
 
     private fun createTitle(): String {
-        val context = App.getContext()
+        val context = AppContext.get()
         val actionSelect = actionSelect
         val str1 = when (actionSelect.direction) {
             TriggerDirection.Center -> when (actionSelect.position) {

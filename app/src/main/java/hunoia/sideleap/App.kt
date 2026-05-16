@@ -5,8 +5,11 @@ import android.app.Application
 import android.content.Context
 import com.aaron.compose.component.UDFComponentDefaults
 import hunoia.sideleap.ui.UDFComponentDefaultsImpl
+import hunoia.sideleap.core.AppContext
 import hunoia.sideleap.core.crash.CrashHandler
 import hunoia.sideleap.core.event.Events
+import hunoia.sideleap.system.feedback.initToastScope
+import hunoia.sideleap.system.vibration.initVibrationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,14 +23,11 @@ import rikka.shizuku.ShizukuProvider
 class App : Application() {
 
     companion object {
-        @SuppressLint("StaticFieldLeak")
-        private lateinit var context: Context
+        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        val applicationScope: CoroutineScope get() = AppContext.applicationScope ?: scope
 
-        fun getContext(): Context {
-            return context
-        }
+        fun getContext(): Context = AppContext.get()
     }
 
     override fun attachBaseContext(base: Context?) {
@@ -38,10 +38,12 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        context = applicationContext
+        AppContext.init(applicationContext, scope)
+        Events.initScope(AppContext.applicationScope!!)
+        initToastScope(AppContext.applicationScope!!)
+        initVibrationContext(applicationContext)
 
         UDFComponentDefaults.set(UDFComponentDefaultsImpl())
-        Events.initScope(applicationScope)
 
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
     }
