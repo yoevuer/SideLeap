@@ -46,8 +46,8 @@ import hunoia.sideleap.gesture.bounds
 import hunoia.sideleap.gesture.find
 import hunoia.sideleap.gesture.getTriggerDirection
 import hunoia.sideleap.gesture.isEmptyOrNone
-import hunoia.sideleap.system.vibration.tryVibrateForLongSlide
-import hunoia.sideleap.system.vibration.tryVibrateForSlide
+import hunoia.sideleap.system.api.tryVibrateForLongSlide
+import hunoia.sideleap.system.api.tryVibrateForSlide
 import hunoia.sideleap.ui.widget.DragGestureHandler
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
 import com.blankj.utilcode.util.ConvertUtils

@@ -74,7 +74,7 @@ import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.action.shortcutInfo
-import hunoia.sideleap.system.vibration.tryVibrateForActionPanel
+import hunoia.sideleap.system.api.tryVibrateForActionPanel
 import hunoia.sideleap.ui.theme.RootPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
