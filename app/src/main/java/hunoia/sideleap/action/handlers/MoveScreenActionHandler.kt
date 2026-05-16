@@ -9,7 +9,7 @@ import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.settings.model.ActionSettings
-import hunoia.sideleap.system.accessibility.Accessibility
+import hunoia.sideleap.system.api.Accessibility
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.action.MoveScreenData
 
