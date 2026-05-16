@@ -387,14 +387,7 @@ class SideGestureState(
 
         val startX = fingerXDisplay
         val startY = fingerYDisplay
-        val targetX = when (button.position) {
-            Position.Left, Position.Right -> getStickySlideValue(button, curStickySlideValue, true)
-            Position.Bottom -> origin.x
-        }
-        val targetY = when (button.position) {
-            Position.Left, Position.Right -> origin.y
-            Position.Bottom -> getStickySlideValue(button, curStickySlideValue, false)
-        }
+        val (targetX, targetY) = retractTarget(button, curStickySlideValue)
         reset()
         animateDisplayBack(startX, startY, targetX, targetY)
         return returnAction
@@ -432,14 +425,8 @@ class SideGestureState(
         val tx: Float
         val ty: Float
         if (btn != null && !sx.isNaN() && !sy.isNaN()) {
-            tx = when (btn.position) {
-                Position.Left, Position.Right -> getStickySlideValue(btn, curStickySlideValue, true)
-                Position.Bottom -> origin.x
-            }
-            ty = when (btn.position) {
-                Position.Left, Position.Right -> origin.y
-                Position.Bottom -> getStickySlideValue(btn, curStickySlideValue, false)
-            }
+            val (t1, t2) = retractTarget(btn, curStickySlideValue)
+            tx = t1; ty = t2
         } else {
             tx = Float.NaN
             ty = Float.NaN
@@ -469,6 +456,13 @@ class SideGestureState(
 
     fun canDistanceTriggered(button: GestureButton, isLongSlide: Boolean, judgeAction: Boolean = true): Boolean {
         return hunoia.sideleap.gesture.canDistanceTriggered(button, origin, finger, triggerDirection, gestureSettings, isLongSlide, curStickySlideValue, judgeAction)
+    }
+
+    private fun retractTarget(button: GestureButton, stickyValue: Float): Pair<Float, Float> {
+        return when (button.position) {
+            Position.Left, Position.Right -> getStickySlideValue(button, stickyValue, true) to origin.y
+            Position.Bottom -> origin.x to getStickySlideValue(button, stickyValue, false)
+        }
     }
 }
 

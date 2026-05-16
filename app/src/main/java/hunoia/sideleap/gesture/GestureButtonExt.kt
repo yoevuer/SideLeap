@@ -29,3 +29,20 @@ fun GestureButton.bounds(imePadding: Int = 0): Rect {
 }
 
 val GestureButton.fraction: Float get() = end - start
+val GestureButton.isVertical: Boolean get() = position != Position.Bottom
+
+fun <T> GestureButton.whenVertical(vertical: T, horizontal: T): T = when (position) {
+    Position.Left, Position.Right -> vertical
+    Position.Bottom -> horizontal
+}
+
+fun GestureButton.whenVerticalFloat(vertical: () -> Float, horizontal: () -> Float): Float = when (position) {
+    Position.Left, Position.Right -> vertical()
+    Position.Bottom -> horizontal()
+}
+
+fun GestureButton.horizontalMirror(pos: Float, neg: Float): Float = when (position) {
+    Position.Left -> pos
+    Position.Right -> neg
+    Position.Bottom -> pos
+}
