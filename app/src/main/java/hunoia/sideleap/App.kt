@@ -6,6 +6,7 @@ import android.content.Context
 import com.aaron.compose.component.UDFComponentDefaults
 import hunoia.sideleap.ui.UDFComponentDefaultsImpl
 import hunoia.sideleap.core.crash.CrashHandler
+import hunoia.sideleap.core.event.Events
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -40,6 +41,7 @@ class App : Application() {
         context = applicationContext
 
         UDFComponentDefaults.set(UDFComponentDefaultsImpl())
+        Events.initScope(applicationScope)
 
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
     }

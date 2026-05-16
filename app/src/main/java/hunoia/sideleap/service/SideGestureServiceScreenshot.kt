@@ -1,4 +1,4 @@
-package hunoia.sideleap.system.accessibility
+package hunoia.sideleap.service
 
 import android.accessibilityservice.AccessibilityService
 import android.graphics.Bitmap
