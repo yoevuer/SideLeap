@@ -1,7 +1,7 @@
 package hunoia.sideleap
 
 import android.content.pm.ApplicationInfo
-import hunoia.sideleap.freeze.FreezeState
+import hunoia.sideleap.freeze.api.FreezeState
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

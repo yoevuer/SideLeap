@@ -10,6 +10,7 @@
 - 动作分发：`action/ActionRegistry.kt`、`action/ActionHandler.kt`、`action/ActionHandlerContext.kt`
 - 动作处理器：`action/handlers/*`
 - 动作展示：`action/display/*`
+- 密码生成：`action/api/PasswordGenerator.kt`
 - 位置移动数据：`action/MoveScreenData.kt`
 
 ## 主要源码路径
@@ -19,6 +20,7 @@
 | `action/definition/*` | 动作目录、分类、配置类型 |
 | `action/handlers/*` | 各动作执行器 |
 | `action/display/*` | 动作图标与展示素材 |
+| `action/api/PasswordGenerator.kt` | 密码生成、配置修正与熵值计算 |
 | `action/ActionRegistry.kt` | 动作注册与分发 |
 | `action/ActionPayload.kt` | 动作载荷 |
 
@@ -27,6 +29,7 @@
 - `ActionCatalog` 和 `ActionDefinition` 定义有哪些动作。
 - `ActionRegistry` 将配置后的动作分发给对应 handler。
 - `SystemActionHandler`、`AppLaunchActionHandler`、`FreezeAppsActionHandler`、`ShortcutActionHandler`、`NavigationActionHandler` 是当前主要执行器。
+- `PasswordGeneratorActionHandler` 处理生成密码复制和打开密码生成器浮层动作。
 - `ActionHandlerContext` 由 `service/SideGestureServiceProxyActionCoordinator.kt` 统一构造。
 - `ActionHandlerContext` 只暴露 action 执行所需的能力、settings 快照和回调，不依赖 `SideGestureService` 具体类型。
 

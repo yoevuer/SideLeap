@@ -1,6 +1,6 @@
 package hunoia.sideleap
 
-import hunoia.sideleap.freeze.FreezeAction
+import hunoia.sideleap.freeze.api.FreezeAction
 import hunoia.sideleap.launcher.model.AppInfo
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

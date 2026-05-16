@@ -88,6 +88,7 @@ internal class SideGestureServiceProxyActionCoordinator(
                 host.requestEnableFrozenPackage(packageName, onResult)
             },
             toggleQuickAppLauncher = { host.quickAppLauncherOverlay.toggle() },
+            openPasswordGenerator = { host.passwordGeneratorOverlay.show() },
             toggleKeepScreenOn = {
                 if (wakeLock != null) {
                     safeReleaseWakeLock()

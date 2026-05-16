@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.OpenWith
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.ScreenLockPortrait
 import androidx.compose.material.icons.filled.Screenshot
+import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.SwapHoriz
@@ -59,6 +60,8 @@ val actionTitleResMap: Map<String, Int> = mapOf(
     "quick_app_launcher" to R.string.action_quick_app_panel,
     "random_name" to R.string.action_random_name,
     "one_key_freeze" to R.string.action_one_key_freeze_apps,
+    "generate_password_copy" to R.string.action_generate_password_copy,
+    "open_password_generator" to R.string.action_open_password_generator,
 )
 
 val actionIconMap: Map<String, Any> = mapOf(
@@ -89,6 +92,8 @@ val actionIconMap: Map<String, Any> = mapOf(
     "quick_app_launcher" to Icons.Default.Apps,
     "random_name" to Icons.Default.Assistant,
     "one_key_freeze" to Icons.Default.AcUnit,
+    "generate_password_copy" to Icons.Default.Password,
+    "open_password_generator" to Icons.Default.Password,
 )
 
 val actionDescResMap: Map<String, Int> = mapOf(

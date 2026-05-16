@@ -20,6 +20,7 @@ data class ActionHandlerContext(
     val nowInLauncher: () -> Boolean = { false },
     val requestEnableFrozenPackage: (String, (Boolean) -> Unit) -> Unit = { _, onResult -> onResult(false) },
     val toggleQuickAppLauncher: () -> Unit = {},
+    val openPasswordGenerator: () -> Unit = {},
     val toggleKeepScreenOn: () -> Unit = {},
     val showVersionTooLowToast: (Int) -> Unit = {},
     val previousApp: suspend () -> Unit = {},

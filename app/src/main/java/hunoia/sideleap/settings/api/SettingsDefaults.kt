@@ -50,4 +50,11 @@ object ActionSettingsDefaults {
     const val MoveScreenRate = 2f
     const val MoveScreenHoverDelayMs = 600L
     const val GotoBottomStrength = 10
+    const val PasswordMinLength = 4
+    const val PasswordMaxLength = 32
+    const val PasswordDefaultLength = 16
+    const val PasswordLowercaseEnabled = true
+    const val PasswordUppercaseEnabled = true
+    const val PasswordDigitsEnabled = true
+    const val PasswordSymbolsEnabled = true
 }

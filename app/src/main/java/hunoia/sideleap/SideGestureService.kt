@@ -41,10 +41,14 @@ import hunoia.sideleap.ui.widget.SideGestureContainer
 import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.overlay.api.QuickAppLauncherOverlay
 import hunoia.sideleap.overlay.api.QuickAppLauncherOverlayHost
+import hunoia.sideleap.overlay.api.PasswordGeneratorOverlay
+import hunoia.sideleap.overlay.api.PasswordGeneratorOverlayHost
 import hunoia.sideleap.freeze.FrozenPackageEnabler
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
+import hunoia.sideleap.system.api.copySensitiveText
+import hunoia.sideleap.ui.widget.password.PasswordGeneratorPanel
 import com.blankj.utilcode.util.ScreenUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -55,7 +59,7 @@ import kotlinx.coroutines.launch
  * @author aaronzzxup@gmail.com
  * @since 2024/11/14
  */
-class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, QuickAppLauncherOverlayHost {
+class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, QuickAppLauncherOverlayHost, PasswordGeneratorOverlayHost {
 
     companion object {
         private var currentRef: WeakReference<SideGestureService>? = null
@@ -78,6 +82,9 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                 }
             }
         }
+    }
+    val passwordGeneratorOverlay by lazy {
+        PasswordGeneratorOverlay(this)
     }
     internal val overlayLifecycle = SideGestureOverlayLifecycle(this)
     override val coroutineScope = MainScope()
@@ -298,6 +305,22 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     override fun RenderQuickAppLauncherAdjustPanel(onSettingsChanged: (QuickAppLauncherSettings) -> Unit) {
         SideGestureTheme {
             QuickAppLauncherAdjustPanel(onSettingsChanged = onSettingsChanged)
+        }
+    }
+
+    @Composable
+    override fun RenderPasswordGeneratorContent(onClose: () -> Unit) {
+        SideGestureTheme {
+            PasswordGeneratorPanel(
+                onClose = onClose,
+                onCopyPassword = { password ->
+                    copySensitiveText(
+                        context = applicationContext,
+                        label = "Generated Password",
+                        text = password,
+                    )
+                }
+            )
         }
     }
 }

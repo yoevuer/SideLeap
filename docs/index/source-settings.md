@@ -11,6 +11,7 @@
 - 备份恢复：`settings/BackupHelper.kt`
 - 文件与键名常量：`settings/DataStoreFiles.kt`
 - 配置模型：`settings/model/*`
+- 密码生成器配置：`ActionSettings.PasswordGenerator`
 
 ## 主要源码路径
 
@@ -18,6 +19,7 @@
 |---|---|
 | `settings/model/GestureSettings.kt` | 手势配置 |
 | `settings/model/ActionSettings.kt` | 动作配置 |
+| `settings/model/ActionSettings.kt#PasswordGenerator` | 密码生成器长度和字符类型配置 |
 | `settings/model/AdvancedSettings.kt` | 高级设置 |
 | `settings/model/QuickAppLauncherSettings.kt` | 快捷启动器配置 |
 | `settings/model/FrozenAppSettings.kt` | 冻结配置 |
@@ -37,4 +39,5 @@
 
 - `settings` 是配置权威边界。
 - 下游领域通过读取结果、状态快照或 updater 使用配置，不应各自持久化。
+- 密码生成器的长度和字符类型配置随 `ActionSettings` 持久化，当前生成密码和显示状态不持久化。
 - `settings` 的对外依赖应保持最小，优先只依赖 `core`。

@@ -5,6 +5,11 @@ import com.blankj.utilcode.util.ConvertUtils
 import hunoia.sideleap.settings.api.ActionSettingsDefaults.GotoBottomStrength
 import hunoia.sideleap.settings.api.ActionSettingsDefaults.MoveScreenHoverDelayMs
 import hunoia.sideleap.settings.api.ActionSettingsDefaults.MoveScreenRate
+import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordDefaultLength
+import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordDigitsEnabled
+import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordLowercaseEnabled
+import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordSymbolsEnabled
+import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordUppercaseEnabled
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,7 +17,8 @@ import kotlinx.serialization.Serializable
 data class ActionSettings(
     val moveScreen: MoveScreen = MoveScreen(),
     val previousApp: PreviousApp = PreviousApp(),
-    val gotoBottom: GotoBottom = GotoBottom()
+    val gotoBottom: GotoBottom = GotoBottom(),
+    val passwordGenerator: PasswordGenerator = PasswordGenerator()
 ) {
     @Serializable
     @Keep
@@ -33,4 +39,14 @@ data class ActionSettings(
     @Serializable
     @Keep
     data class GotoBottom(val strength: Int = GotoBottomStrength)
+
+    @Serializable
+    @Keep
+    data class PasswordGenerator(
+        val length: Int = PasswordDefaultLength,
+        val lowercase: Boolean = PasswordLowercaseEnabled,
+        val uppercase: Boolean = PasswordUppercaseEnabled,
+        val digits: Boolean = PasswordDigitsEnabled,
+        val symbols: Boolean = PasswordSymbolsEnabled
+    )
 }

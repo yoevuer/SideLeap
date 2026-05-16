@@ -6,6 +6,7 @@ import hunoia.sideleap.action.handlers.FreezeAppsActionHandler
 import hunoia.sideleap.action.handlers.MediaActionHandler
 import hunoia.sideleap.action.handlers.MoveScreenActionHandler
 import hunoia.sideleap.action.handlers.NavigationActionHandler
+import hunoia.sideleap.action.handlers.PasswordGeneratorActionHandler
 import hunoia.sideleap.action.handlers.RandomNameActionHandler
 import hunoia.sideleap.action.handlers.ShortcutActionHandler
 import hunoia.sideleap.action.handlers.SystemActionHandler
@@ -17,6 +18,7 @@ object ActionRegistry {
         MediaActionHandler,
         SystemActionHandler,
         RandomNameActionHandler,
+        PasswordGeneratorActionHandler,
         MoveScreenActionHandler,
         AppLaunchActionHandler,
         ShortcutActionHandler,

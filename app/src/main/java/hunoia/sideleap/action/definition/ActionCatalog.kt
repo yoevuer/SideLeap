@@ -33,6 +33,8 @@ object ActionCatalog {
         ActionDefinition(GlobalActions.QUICK_APP_LAUNCHER, ActionCategory.LAUNCHER, ActionConfigKind.NONE, "quick_app_launcher", "quick_app_launcher"),
         ActionDefinition(GlobalActions.RANDOM_NAME, ActionCategory.TOOL, ActionConfigKind.NONE, "random_name", "random_name"),
         ActionDefinition(GlobalActions.ONE_KEY_FREEZE_APPS, ActionCategory.TOOL, ActionConfigKind.NONE, "one_key_freeze", "one_key_freeze"),
+        ActionDefinition(GlobalActions.GENERATE_PASSWORD_COPY, ActionCategory.TOOL, ActionConfigKind.NONE, "generate_password_copy", "generate_password_copy"),
+        ActionDefinition(GlobalActions.OPEN_PASSWORD_GENERATOR, ActionCategory.TOOL, ActionConfigKind.NONE, "open_password_generator", "open_password_generator"),
     )
 
     private val byIdMap: Map<String, ActionDefinition> = definitions.associateBy { it.actionId }

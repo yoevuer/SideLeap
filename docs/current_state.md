@@ -4,6 +4,16 @@
 
 ## 已完成
 
+### 密码生成器功能（`feat/password-generator`）
+
+- 新增两个工具动作：`生成密码并复制`、`打开密码生成器`
+- 新增 `ActionSettings.PasswordGenerator` 配置，随 `ActionSettings` 持久化和备份恢复
+- 新增 `action.api.PasswordGenerator`，提供安全随机生成、配置修正、熵值计算
+- 新增 `system.api.copySensitiveText()`，复制时使用非敏感 label，并在系统支持时标记敏感剪贴板
+- 新增 `PasswordGeneratorOverlay`，由 `SideGestureService` 运行时打开 Compose 浮层面板
+- 新增密码生成器面板：隐藏/显示、手动编辑、复制、重新生成、长度和字符类型配置
+- 新增密码生成器单元测试
+
 ### 移除音量键切歌功能
 
 - 删除 `service/LockScreenVolumeKeyHandler.kt`（75 行）
@@ -51,4 +61,5 @@
 
 - 拆分 `ActionSelectScreen`（1326 行）
 - 补充更多单元测试（Shizuku、Backup 等）
+- 人工验证密码生成器 overlay 在小屏、横屏和不同输入法下的交互
 - 定期更新本文档

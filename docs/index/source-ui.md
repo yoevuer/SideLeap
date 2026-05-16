@@ -8,6 +8,7 @@
 - 导航与路由：`ui/navigation/*`
 - 页面与 VM：`ui/screen/*`
 - 共享组件：`ui/widget/*`
+- 密码生成器面板：`ui/widget/password/PasswordGeneratorPanel.kt`
 - Dialog 与权限辅助：`ui/dialog/*`、`ui/permission/Permissions.kt`
 - 主题与样式：`ui/theme/*`
 - UI 事件与 ViewModel 基类：`ui/event/*`、`ui/UDFComponentDefaultsImpl.kt`
@@ -27,6 +28,7 @@
 | `ui/screen/quickapplaunchermanage/*` | 快捷启动器管理页 |
 | `ui/screen/iconresize/*` | 图标尺寸设置页 |
 | `ui/widget/*` | 按钮、面板、弹层、拖拽等通用组件 |
+| `ui/widget/password/*` | 密码生成器运行时面板 |
 | `ui/theme/*` | 主题与配色 |
 | `ui/gesture/GestureButtonDisplay.kt` | GestureButton 的 Compose 文案展示 |
 

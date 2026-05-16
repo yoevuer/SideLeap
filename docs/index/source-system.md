@@ -11,6 +11,7 @@
 - Shizuku：`system/shizuku/*`
 - Vibration：`system/vibration/*`
 - Toast / Compose toast：`system/feedback/*`
+- Clipboard：`system/api/Clipboard.kt`
 - Package / API 兼容封装：`system/packages/Compat.kt`
 - Audio：`system/audio/Audio.kt`
 
@@ -28,10 +29,12 @@
 | `system/shizuku/*` | Shizuku 调用与服务入口 |
 | `system/vibration/*` | 震动封装与效果定义 |
 | `system/feedback/*` | Toast 封装 |
+| `system/api/Clipboard.kt` | 敏感剪贴板写入封装 |
 
 ## 关键入口
 
 - `Accessibility`、`Intents`、`WindowManager`、`ShizukuCommand`、`Vibrator` 是主要能力入口。
+- `copySensitiveText()` 封装敏感剪贴板写入。
 - `system` 只提供能力，不承载业务规则。
 - `ContextSettings.kt` 已删除，Intent 跳转和权限判断已拆到 `system/intent` 与 `system/permission`。
 

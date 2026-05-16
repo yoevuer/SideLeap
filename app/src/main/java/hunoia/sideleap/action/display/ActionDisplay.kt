@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.InvertColors
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.filled.ScreenLockPortrait
@@ -101,7 +102,9 @@ private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.OPEN_APP_OR_URL to R.string.action_open_app_or_url,
     GlobalActions.QUICK_APP_LAUNCHER to R.string.action_quick_app_panel,
     GlobalActions.RANDOM_NAME to R.string.action_random_name,
-    GlobalActions.ONE_KEY_FREEZE_APPS to R.string.action_one_key_freeze_apps
+    GlobalActions.ONE_KEY_FREEZE_APPS to R.string.action_one_key_freeze_apps,
+    GlobalActions.GENERATE_PASSWORD_COPY to R.string.action_generate_password_copy,
+    GlobalActions.OPEN_PASSWORD_GENERATOR to R.string.action_open_password_generator
 )
 
 private val actionIconMap: Map<String, Any> = mapOf(
@@ -151,7 +154,9 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.OPEN_APP_OR_URL to Icons.Default.Forward,
     GlobalActions.QUICK_APP_LAUNCHER to Icons.Default.Apps,
     GlobalActions.RANDOM_NAME to Icons.Default.Assistant,
-    GlobalActions.ONE_KEY_FREEZE_APPS to Icons.Default.FlashlightOn
+    GlobalActions.ONE_KEY_FREEZE_APPS to Icons.Default.FlashlightOn,
+    GlobalActions.GENERATE_PASSWORD_COPY to Icons.Default.Password,
+    GlobalActions.OPEN_PASSWORD_GENERATOR to Icons.Default.Password
 )
 
 fun Context.actionText(action: Action, emptyIfNone: Boolean = true): String = when (action.value) {
