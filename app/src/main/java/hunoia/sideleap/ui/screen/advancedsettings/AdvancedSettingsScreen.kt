@@ -18,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -41,7 +40,6 @@ import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.TextActionButton
 import hunoia.sideleap.ui.widget.LabeledSwitch
 import hunoia.sideleap.ui.widget.TopBar
-import kotlinx.coroutines.launch
 
 /**
  * @author aaronzzxup@gmail.com
@@ -65,23 +63,50 @@ fun AdvancedSettingsScreen(
                 title = stringResource(id = R.string.advanced_settings)
             )
             MyColumn {
-                SectionCard {
+                SectionCard(
+                    title = stringResource(id = R.string.app_management)
+                ) {
                     TextActionButton(
                         onClick = { showAppBlacklist = true },
                         text = stringResource(id = R.string.exclude_app),
                         secondaryText = stringResource(id = R.string.exclude_app_hint)
                     )
+                    TextActionButton(
+                        onClick = { showQuickAppHidden = true },
+                        text = stringResource(id = R.string.manage_hidden_apps)
+                    )
+                    TextActionButton(
+                        onClick = { confirmClear = true },
+                        text = stringResource(id = R.string.clear_quick_app_stats)
+                    )
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onShowSystemAppsChange(it) },
+                        checked = uiState.showSystemApps,
+                        text = stringResource(id = R.string.show_system_apps)
+                    )
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onExcludeFromRecentsChange(it) },
+                        checked = uiState.excludeFromRecents,
+                        text = stringResource(id = R.string.exclude_from_recents),
+                        secondaryText = stringResource(id = R.string.exclude_from_recents_hint)
+                    )
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onActionPanelAppLongPressLaunchPopupChanged(it) },
+                        checked = uiState.actionPanelAppLongPressLaunchPopup,
+                        text = stringResource(id = R.string.action_panel_launch_app),
+                        secondaryText = stringResource(id = R.string.action_panel_launch_app_hint)
+                    )
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onQuickLauncherAppLongPressLaunchPopupChanged(it) },
+                        checked = uiState.quickLauncherAppLongPressLaunchPopup,
+                        text = stringResource(id = R.string.quick_launcher_launch_app),
+                        secondaryText = stringResource(id = R.string.quick_launcher_launch_app_hint)
+                    )
                 }
                 SectionCard(
                     modifier = Modifier.padding(top = SectionPadding),
-                    title = stringResource(id = R.string.gesture_button_extension)
+                    title = stringResource(id = R.string.gesture_behavior)
                 ) {
-                    LabeledSwitch(
-                        onTextClick = { showAnimationStyle = true },
-                        onCheckedChange = { vm.onShowAnimation(it) },
-                        checked = uiState.showAnimation,
-                        text = stringResource(id = R.string.animation_style)
-                    )
                     LabeledSwitch(
                         onCheckedChange = { vm.onFitSoftKeyboardChange(it) },
                         checked = uiState.fitSoftKeyboard,
@@ -116,32 +141,13 @@ fun AdvancedSettingsScreen(
                 }
                 SectionCard(
                     modifier = Modifier.padding(top = SectionPadding),
-                    title = stringResource(id = R.string.app_settings)
+                    title = stringResource(id = R.string.display)
                 ) {
                     LabeledSwitch(
-                        onCheckedChange = { vm.onActionPanelAppLongPressLaunchPopupChanged(it) },
-                        checked = uiState.actionPanelAppLongPressLaunchPopup,
-                        text = stringResource(id = R.string.action_panel_launch_app),
-                        secondaryText = stringResource(id = R.string.action_panel_launch_app_hint)
-                    )
-                    LabeledSwitch(
-                        onCheckedChange = { vm.onQuickLauncherAppLongPressLaunchPopupChanged(it) },
-                        checked = uiState.quickLauncherAppLongPressLaunchPopup,
-                        text = stringResource(id = R.string.quick_launcher_launch_app),
-                        secondaryText = stringResource(id = R.string.quick_launcher_launch_app_hint)
-                    )
-                    TextActionButton(onClick = { showQuickAppHidden = true }, text = stringResource(id = R.string.manage_hidden_apps))
-                    TextActionButton(onClick = { confirmClear = true }, text = stringResource(id = R.string.clear_quick_app_stats))
-                    LabeledSwitch(
-                        onCheckedChange = { vm.onShowSystemAppsChange(it) },
-                        checked = uiState.showSystemApps,
-                        text = stringResource(id = R.string.show_system_apps)
-                    )
-                    LabeledSwitch(
-                        onCheckedChange = { vm.onExcludeFromRecentsChange(it) },
-                        checked = uiState.excludeFromRecents,
-                        text = stringResource(id = R.string.exclude_from_recents),
-                        secondaryText = stringResource(id = R.string.exclude_from_recents_hint)
+                        onTextClick = { showAnimationStyle = true },
+                        onCheckedChange = { vm.onShowAnimation(it) },
+                        checked = uiState.showAnimation,
+                        text = stringResource(id = R.string.animation_style)
                     )
                     if (uiState.showDynamicColorOption) {
                         LabeledSwitch(
