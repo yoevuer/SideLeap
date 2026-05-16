@@ -10,8 +10,10 @@
 - 新增 `ActionSettings.PasswordGenerator` 配置，随 `ActionSettings` 持久化和备份恢复
 - 新增 `action.api.PasswordGenerator`，提供安全随机生成、配置修正、熵值计算
 - 新增 `system.api.copySensitiveText()`，复制时使用非敏感 label，并在系统支持时标记敏感剪贴板
-- 新增 `PasswordGeneratorOverlay`，由 `SideGestureService` 运行时打开 Compose 浮层面板
+- 新增 `RuntimePanelOverlay`，由 `SideGestureService` 运行时承载密码生成器 Compose 面板
 - 新增密码生成器面板：隐藏/显示、手动编辑、复制、重新生成、长度和字符类型配置
+- 密码生成器面板背景透明，并随输入法 inset 自动上移
+- `RuntimePanelOverlay` 会按状态栏、导航栏和系统手势 inset 缩小 `ComposeView` 区域，避免覆盖通知栏、底部导航栏和侧边手势热区
 - 新增密码生成器单元测试
 
 ### 移除音量键切歌功能

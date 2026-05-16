@@ -41,8 +41,8 @@ import hunoia.sideleap.ui.widget.SideGestureContainer
 import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.overlay.api.QuickAppLauncherOverlay
 import hunoia.sideleap.overlay.api.QuickAppLauncherOverlayHost
-import hunoia.sideleap.overlay.api.PasswordGeneratorOverlay
-import hunoia.sideleap.overlay.api.PasswordGeneratorOverlayHost
+import hunoia.sideleap.overlay.api.RuntimePanelOverlay
+import hunoia.sideleap.overlay.api.RuntimePanelOverlayHost
 import hunoia.sideleap.freeze.FrozenPackageEnabler
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
@@ -59,7 +59,7 @@ import kotlinx.coroutines.launch
  * @author aaronzzxup@gmail.com
  * @since 2024/11/14
  */
-class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, QuickAppLauncherOverlayHost, PasswordGeneratorOverlayHost {
+class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, QuickAppLauncherOverlayHost, RuntimePanelOverlayHost {
 
     companion object {
         private var currentRef: WeakReference<SideGestureService>? = null
@@ -83,8 +83,8 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             }
         }
     }
-    val passwordGeneratorOverlay by lazy {
-        PasswordGeneratorOverlay(this)
+    val runtimePanelOverlay by lazy {
+        RuntimePanelOverlay(this)
     }
     internal val overlayLifecycle = SideGestureOverlayLifecycle(this)
     override val coroutineScope = MainScope()
@@ -279,6 +279,23 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         frozenPackageEnabler.request(packageName, onResult)
     }
 
+    fun openPasswordGeneratorPanel() {
+        runtimePanelOverlay.show {
+            SideGestureTheme {
+                PasswordGeneratorPanel(
+                    onClose = close,
+                    onCopyPassword = { password ->
+                        copySensitiveText(
+                            context = applicationContext,
+                            label = "Generated Password",
+                            text = password,
+                        )
+                    }
+                )
+            }
+        }
+    }
+
     @Composable
     override fun RenderQuickAppLauncherContent(
         initialSettings: QuickAppLauncherSettings,
@@ -308,21 +325,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         }
     }
 
-    @Composable
-    override fun RenderPasswordGeneratorContent(onClose: () -> Unit) {
-        SideGestureTheme {
-            PasswordGeneratorPanel(
-                onClose = onClose,
-                onCopyPassword = { password ->
-                    copySensitiveText(
-                        context = applicationContext,
-                        label = "Generated Password",
-                        text = password,
-                    )
-                }
-            )
-        }
-    }
 }
 
 internal suspend fun recordQuickAppLaunchIfSuccess(
