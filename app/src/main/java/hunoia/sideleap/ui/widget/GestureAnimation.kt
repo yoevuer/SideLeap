@@ -14,8 +14,12 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.dp
 import com.aaron.compose.ktx.toPx
 import hunoia.sideleap.settings.model.AnimationStyle
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection.Center
+import hunoia.sideleap.gesture.horizontalMirror
+import hunoia.sideleap.gesture.isVertical
+import hunoia.sideleap.gesture.whenVertical
 import hunoia.sideleap.gesture.TriggerDirection.Center2
 import hunoia.sideleap.gesture.TriggerDirection.Down
 import hunoia.sideleap.gesture.TriggerDirection.Down2
@@ -54,11 +58,10 @@ private fun WaveGestureAnimation(
     val button = sideGestureState.button ?: return
     val icon = animationStyle.getIcon()
     // 贝塞尔偏移值
-    val bezierOffset = when (button.position) {
-        // 使贝塞尔显示在手指落点上方
-        Position.Left, Position.Right -> if (animationStyle.safeBounds) 70.dp.toPx() else 0f
-        Position.Bottom -> 0f
-    }
+    val bezierOffset = button.whenVertical(
+        vertical = if (animationStyle.safeBounds) 70.dp.toPx() else 0f,
+        horizontal = 0f
+    )
     // 贝塞尔与边界间距
     val bezierSpacing = if (animationStyle.safeBounds) 40.dp.toPx() else 0f
     // 贝塞尔的最大宽度
@@ -88,41 +91,28 @@ private fun WaveGestureAnimation(
         }
 
         // 贝塞尔形变偏移值
-        val transformOffset = when (button.position) {
-            Position.Left, Position.Right -> originYAnimVal - fingerYAnimVal
-            Position.Bottom -> originXAnimVal - fingerXAnimVal
-        }.coerceIn(-bezierTransformOffsetCoerce, bezierTransformOffsetCoerce)
+        val transformOffset = button.whenVertical(
+            vertical = originYAnimVal - fingerYAnimVal,
+            horizontal = originXAnimVal - fingerXAnimVal
+        ).coerceIn(-bezierTransformOffsetCoerce, bezierTransformOffsetCoerce)
         // 能完整显示整个贝塞尔并且留有间距
-        val safeOrigin = when (button.position) {
-            Position.Left, Position.Right -> originYAnimVal - bezierOffset
-            Position.Bottom -> originXAnimVal - bezierOffset
-        }.coerceIn(
-            minimumValue = when (animationStyle.safeBounds) {
-                true -> bezierLengthHalf + bezierSpacing
-                else -> 0f
-            },
-            maximumValue = when (button.position) {
-                Position.Left, Position.Right -> when (animationStyle.safeBounds) {
-                    true -> size.height - bezierLengthHalf - bezierSpacing
-                    else -> size.height
-                }
-                Position.Bottom -> when (animationStyle.safeBounds) {
-                    true -> size.width - bezierLengthHalf - bezierSpacing
-                    else -> size.width
-                }
-            }
+        val safeOrigin = button.whenVertical(
+            vertical = originYAnimVal - bezierOffset,
+            horizontal = originXAnimVal - bezierOffset
+        ).coerceIn(
+            minimumValue = if (animationStyle.safeBounds) bezierLengthHalf + bezierSpacing else 0f,
+            maximumValue = button.whenVertical(
+                vertical = if (animationStyle.safeBounds) size.height - bezierLengthHalf - bezierSpacing else size.height,
+                horizontal = if (animationStyle.safeBounds) size.width - bezierLengthHalf - bezierSpacing else size.width
+            )
         )
         val bezierPath = Path().also { path ->
 
-            val moveToX = when (button.position) {
-                Position.Left -> 0f
-                Position.Right -> size.width
-                Position.Bottom -> safeOrigin - bezierLengthHalf
-            }
-            val moveToY = when (button.position) {
-                Position.Left, Position.Right -> safeOrigin - bezierLengthHalf
-                Position.Bottom -> size.height
-            }
+            val moveToX = button.horizontalMirror(
+                pos = 0f,
+                neg = size.width
+            ).let { if (button.isVertical) it else safeOrigin - bezierLengthHalf }
+            val moveToY = if (button.isVertical) safeOrigin - bezierLengthHalf else size.height
             path.moveTo(moveToX, moveToY)
 
             // 避免边缘出现没覆盖全的白边
@@ -189,11 +179,10 @@ private fun WaveGestureAnimation(
             }
 
             if (animationStyle.strokeWidth > 0) {
-                val offset2 = when (button.position) {
-                    Position.Left -> Offset(-animationStyle.strokeWidth.toFloat(), 0f)
-                    Position.Right -> Offset(animationStyle.strokeWidth.toFloat(), 0f)
-                    Position.Bottom -> Offset(0f, animationStyle.strokeWidth.toFloat())
-                }
+                val offset2 = button.whenVertical(
+                    vertical = Offset(button.horizontalMirror(-1f, 1f) * animationStyle.strokeWidth, 0f),
+                    horizontal = Offset(0f, animationStyle.strokeWidth.toFloat())
+                )
                 path.translate(offset2)
             }
         }

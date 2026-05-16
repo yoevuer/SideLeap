@@ -218,19 +218,9 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
             setViewTreeViewModelStoreOwner(host)
             setViewTreeSavedStateRegistryOwner(host)
 
-            setOnTouchListener { v, event ->
-                val now = System.currentTimeMillis()
-                if (event.action == MotionEvent.ACTION_OUTSIDE) {
-                    lastCloseMs = now
-                    Log.d("SideLeapLauncher","touch: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
-                    close()
-                    v.performClick()
-                    true
-                } else {
-                    Log.d("SideLeapLauncher","touch: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
-                    false
-                }
-            }
+            setOnTouchListener(createDismissOnOutsideTouch(onOutsideTouch = {
+                close()
+            }, logTag = "touch"))
 
             setContent {
                 val quickLauncherPopup = host.advancedSettings?.quickLauncherAppLongPressLaunchPopup ?: false
@@ -305,17 +295,9 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
             setViewTreeLifecycleOwner(host)
             setViewTreeViewModelStoreOwner(host)
             setViewTreeSavedStateRegistryOwner(host)
-            setOnTouchListener { v, event ->
-                if (event.action == MotionEvent.ACTION_OUTSIDE) {
-                    Log.d("SideLeapLauncher","adjustTouch: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
-                    closeAdjustPanel()
-                    v.performClick()
-                    true
-                } else {
-                    Log.d("SideLeapLauncher","adjustTouch: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
-                    false
-                }
-            }
+            setOnTouchListener(createDismissOnOutsideTouch(onOutsideTouch = {
+                closeAdjustPanel()
+            }, logTag = "adjustTouch"))
             setContent {
                     host.RenderQuickAppLauncherAdjustPanel(
                         onSettingsChanged = { settings -> updateLayout(settings) }
@@ -382,6 +364,21 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         }
     }
 
+}
+
+private fun createDismissOnOutsideTouch(
+    onOutsideTouch: () -> Unit,
+    logTag: String,
+): View.OnTouchListener = View.OnTouchListener { v, event ->
+    if (event.action == MotionEvent.ACTION_OUTSIDE) {
+        Log.d("SideLeapLauncher", "$logTag: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
+        onOutsideTouch()
+        v.performClick()
+        true
+    } else {
+        Log.d("SideLeapLauncher", "$logTag: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
+        false
+    }
 }
 
 private fun Int.dpToPx(density: Float) = (this * density).roundToInt()

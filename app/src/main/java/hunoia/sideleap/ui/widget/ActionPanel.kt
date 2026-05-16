@@ -76,6 +76,8 @@ import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.system.api.tryVibrateForActionPanel
+import hunoia.sideleap.ui.theme.AnimNormal
+import hunoia.sideleap.ui.theme.AnimPanelResize
 import hunoia.sideleap.ui.theme.RootPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -109,7 +111,7 @@ fun ActionPanel(
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .background(color = Color.Black.copy(DimAlpha))
+                    .background(color = MaterialTheme.colorScheme.scrim.copy(alpha = DimAlpha))
             )
 
             val selectedAction = actionPanelState.selectedAction
@@ -135,7 +137,7 @@ fun ActionPanel(
                                 val miniWindow = actionPanelState.triggerType.isMiniWindow(longPressLaunchPopup)
                                 val boxMaxWidth = maxWidth
                                 val boxMaxHeight = maxHeight
-                                val spec = tween<Dp>(250)
+                                val spec = tween<Dp>(AnimPanelResize.toInt())
                                 val width by animateDpAsState(
                                     targetValue = if (miniWindow) 200.dp else boxMaxWidth,
                                     animationSpec = spec
@@ -147,7 +149,7 @@ fun ActionPanel(
                                 thisModifier.size(width = width, height = height)
                             }
                             .background(
-                                color = Color.White.copy(alpha = 0.35f),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
                                 shape = RoundedCornerShape(8.dp)
                             )
                     )
@@ -290,7 +292,7 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                         Offset(x = transX.toFloat(), y = transY.toFloat())
                     }
                     var isHovered by remember { mutableStateOf(false) }
-                    val scale by animateFloatAsState(if (isHovered) 1.15f else 1f, tween(150), label = "actionScale")
+                    val scale by animateFloatAsState(if (isHovered) 1.15f else 1f, tween(AnimNormal.toInt()), label = "actionScale")
 
                     var originBounds by remember { mutableStateOf(Rect.Zero) }
                     LaunchedEffect(transition, actionPanelState, index, action) {
