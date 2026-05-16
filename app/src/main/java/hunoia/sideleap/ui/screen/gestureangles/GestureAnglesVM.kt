@@ -8,7 +8,7 @@ import hunoia.sideleap.gesture.GestureAngles
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesVM.UiEvent
 import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesVM.UiState
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.SettingsProvider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch

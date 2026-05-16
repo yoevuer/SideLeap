@@ -85,7 +85,7 @@ import com.aaron.compose.ktx.onClick
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
 import hunoia.sideleap.action.GlobalActions
-import hunoia.sideleap.settings.SettingsUiDefaults
+import hunoia.sideleap.settings.api.SettingsUiDefaults
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.navigation.IconResize

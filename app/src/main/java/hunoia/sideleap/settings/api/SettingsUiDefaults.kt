@@ -1,6 +1,6 @@
 @file:Suppress("ConstPropertyName")
 
-package hunoia.sideleap.settings
+package hunoia.sideleap.settings.api
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

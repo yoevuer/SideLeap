@@ -8,8 +8,8 @@ import hunoia.sideleap.R
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent
 import hunoia.sideleap.ui.screen.home.HomeVM.UiState
-import hunoia.sideleap.settings.BackupHelper
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.BackupHelper
+import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.system.api.isAccessibilitySettingsOn
 import hunoia.sideleap.system.api.isIgnoringBatteryOptimizations
 import kotlinx.coroutines.CoroutineExceptionHandler

@@ -13,7 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.ui.SideGestureApp
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.SettingsProvider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

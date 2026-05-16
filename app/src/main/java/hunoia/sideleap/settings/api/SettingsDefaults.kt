@@ -1,6 +1,6 @@
 @file:Suppress("ConstPropertyName")
 
-package hunoia.sideleap.settings
+package hunoia.sideleap.settings.api
 
 import hunoia.sideleap.settings.model.ActionPanelStyles
 import hunoia.sideleap.settings.model.AnimationStyles

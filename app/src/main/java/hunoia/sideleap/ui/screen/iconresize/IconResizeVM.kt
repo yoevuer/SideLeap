@@ -13,7 +13,7 @@ import hunoia.sideleap.launcher.util.IconResizeCache
 import hunoia.sideleap.ui.event.IconResizeEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiState
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.core.event.Events
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take

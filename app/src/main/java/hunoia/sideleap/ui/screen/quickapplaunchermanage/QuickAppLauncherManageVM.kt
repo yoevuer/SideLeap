@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.freeze.FrozenQuickAppLauncherQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest

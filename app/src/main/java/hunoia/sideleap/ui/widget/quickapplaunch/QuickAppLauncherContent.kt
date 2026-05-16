@@ -63,7 +63,7 @@ import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.freeze.FrozenQuickAppLauncherQuery
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.launcher.launch.QuickAppLaunch
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.launcher.query.AppSearch.sortApps

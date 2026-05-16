@@ -8,14 +8,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.settings.SettingsUiDefaults.MinGestureButtonLength
+import hunoia.sideleap.settings.api.SettingsUiDefaults.MinGestureButtonLength
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.gesture.fraction
 import hunoia.sideleap.system.window.rootSize
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsVM.UiState
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.SettingsProvider
 import com.blankj.utilcode.util.ConvertUtils
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest

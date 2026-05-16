@@ -68,7 +68,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.launcher.query.AppSearch.key
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.SettingsProvider
 import com.blankj.utilcode.util.ScreenUtils
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.setViewTreeLifecycleOwner

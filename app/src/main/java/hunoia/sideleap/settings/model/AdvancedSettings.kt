@@ -1,21 +1,21 @@
 package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.ActionPanelAppLongPressLaunchPopup
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.ActionPanelStyles
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.AnimationStyles
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.ClipApps
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.ClipShortcuts
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.DayNightMode
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.DynamicColor
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.ExcludeApps
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.ExcludeFromRecents
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.FitSoftKeyboard
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.HideHomeScreen
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.HideLandscape
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.HideScreenLock
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.HideTemporary
-import hunoia.sideleap.settings.AdvancedSettingsDefaults.QuickLauncherAppLongPressLaunchPopup
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ActionPanelAppLongPressLaunchPopup
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ActionPanelStyles
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.AnimationStyles
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ClipApps
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ClipShortcuts
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.DayNightMode
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.DynamicColor
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ExcludeApps
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ExcludeFromRecents
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.FitSoftKeyboard
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideHomeScreen
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideLandscape
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideScreenLock
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideTemporary
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.QuickLauncherAppLongPressLaunchPopup
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -23,7 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.SettingsProvider
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 

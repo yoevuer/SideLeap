@@ -1,4 +1,4 @@
-package hunoia.sideleap.settings
+package hunoia.sideleap.settings.api
 
 import android.content.Context
 import android.net.Uri

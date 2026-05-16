@@ -1,4 +1,4 @@
-package hunoia.sideleap.settings
+package hunoia.sideleap.settings.api
 
 import androidx.datastore.core.DataStore
 import hunoia.sideleap.App

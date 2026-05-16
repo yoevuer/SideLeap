@@ -38,7 +38,7 @@ import hunoia.sideleap.ui.event.SubscribeEvent
 import java.lang.ref.WeakReference
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import hunoia.sideleap.ui.widget.SideGestureContainer
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.overlay.QuickAppLauncherOverlay
 import hunoia.sideleap.overlay.QuickAppLauncherOverlayHost
 import hunoia.sideleap.freeze.FrozenPackageEnabler

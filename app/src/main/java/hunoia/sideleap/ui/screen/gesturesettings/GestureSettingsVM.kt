@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiState
-import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.system.vibration.VibrationEffects
 import hunoia.sideleap.system.vibration.Vibrations
 import kotlinx.coroutines.flow.collectLatest
