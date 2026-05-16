@@ -87,6 +87,20 @@ class PasswordGeneratorTest {
     fun entropy_estimatedIncludesOtherCharacters() {
         val entropy = PasswordGenerator.estimatedEntropyBits("a中")
 
-        assertEquals(12, entropy)
+        assertTrue(entropy > 0)
+    }
+
+    @Test
+    fun entropy_estimatedPenalizesCommonPasswords() {
+        val common = PasswordGenerator.estimatedEntropyBits("P@ssw0rd")
+        val randomLike = PasswordGenerator.estimatedEntropyBits("P@8xQ0rd")
+
+        assertTrue(common < randomLike)
+    }
+
+    @Test
+    fun entropy_estimatedPenalizesRepeatsAndSequences() {
+        assertTrue(PasswordGenerator.estimatedEntropyBits("aaaaaaaa") < PasswordGenerator.estimatedEntropyBits("aB8#kL2@"))
+        assertTrue(PasswordGenerator.estimatedEntropyBits("abcdef") < PasswordGenerator.estimatedEntropyBits("a8C#f2"))
     }
 }

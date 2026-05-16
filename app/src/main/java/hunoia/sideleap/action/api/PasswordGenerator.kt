@@ -59,15 +59,21 @@ object PasswordGenerator {
 
     fun estimatedEntropyBits(text: String): Int {
         if (text.isEmpty()) return 0
-        var poolSize = 0
-        if (text.any { it in LOWERCASE }) poolSize += LOWERCASE.length
-        if (text.any { it in UPPERCASE }) poolSize += UPPERCASE.length
-        if (text.any { it in DIGITS }) poolSize += DIGITS.length
-        if (text.any { it in SYMBOLS }) poolSize += SYMBOLS.length
-        if (text.any { it !in LOWERCASE && it !in UPPERCASE && it !in DIGITS && it !in SYMBOLS }) {
-            poolSize += OTHER_CHAR_POOL_SIZE
+        val dp = DoubleArray(text.length + 1) { Double.POSITIVE_INFINITY }
+        dp[0] = 0.0
+        for (start in text.indices) {
+            if (!dp[start].isFinite()) continue
+            for (end in start + 1..text.length) {
+                val part = text.substring(start, end)
+                val cost = estimatePatternCost(part)
+                if (cost != null) {
+                    dp[end] = min(dp[end], dp[start] + cost)
+                }
+            }
+            val charCost = estimateSingleCharCost(text[start])
+            dp[start + 1] = min(dp[start + 1], dp[start] + charCost)
         }
-        return (text.length * log2(poolSize.toDouble())).roundToInt()
+        return dp[text.length].roundToInt().coerceAtLeast(0)
     }
 
     fun enabledTypeCount(config: ActionSettings.PasswordGenerator): Int = enabledPools(config).size
@@ -119,6 +125,69 @@ object PasswordGenerator {
         return result
     }
 
+    private fun estimatePatternCost(text: String): Double? {
+        return listOfNotNull(
+            estimateCommonPasswordCost(text),
+            estimateRepeatCost(text),
+            estimateDigitCost(text),
+            estimateSequenceCost(text),
+        ).minOrNull()
+    }
+
+    private fun estimateSingleCharCost(char: Char): Double {
+        val poolSize = when (char) {
+            in LOWERCASE -> LOWERCASE.length
+            in UPPERCASE -> UPPERCASE.length
+            in DIGITS -> DIGITS.length
+            in SYMBOLS -> SYMBOLS.length
+            else -> OTHER_CHAR_POOL_SIZE
+        }
+        return log2(poolSize.toDouble()) * SINGLE_CHAR_DAMPING_BITS
+    }
+
+    private fun estimateCommonPasswordCost(text: String): Double? {
+        val normalized = normalizeCommonPassword(text)
+        val rank = COMMON_PASSWORDS.indexOf(normalized).takeIf { it >= 0 } ?: return null
+        val caseCost = if (text.any { it.isUpperCase() }) 1.0 else 0.0
+        val leetCost = if (text.any { it in LEET_CHARS }) 2.0 else 0.0
+        return log2((rank + 2).toDouble()) + PATTERN_ID_BITS + caseCost + leetCost
+    }
+
+    private fun estimateRepeatCost(text: String): Double? {
+        if (text.length < 3 || text.any { it != text.first() }) return null
+        return estimateSingleCharCost(text.first()) + log2(text.length.toDouble()) + PATTERN_ID_BITS
+    }
+
+    private fun estimateDigitCost(text: String): Double? {
+        if (text.length < 2 || text.any { it !in DIGITS }) return null
+        return text.length * log2(DIGITS.length.toDouble()) + PATTERN_ID_BITS
+    }
+
+    private fun estimateSequenceCost(text: String): Double? {
+        if (text.length < 3) return null
+        val diffs = text.zipWithNext { a, b -> b.code - a.code }
+        val diff = diffs.first()
+        if (diff == 0 || diffs.any { it != diff }) return null
+        if (kotlin.math.abs(diff) > 5) return null
+        val startCost = estimateSingleCharCost(text.first())
+        val diffCost = log2(11.0)
+        return startCost + diffCost + log2(text.length.toDouble()) + PATTERN_ID_BITS
+    }
+
+    private fun normalizeCommonPassword(text: String): String {
+        return text.lowercase().map { char ->
+            when (char) {
+                '0' -> 'o'
+                '1', '!' -> 'i'
+                '3' -> 'e'
+                '4', '@' -> 'a'
+                '5', '$' -> 's'
+                '7' -> 't'
+                else -> char
+            }
+        }.joinToString(separator = "")
+    }
+
     private fun String.randomChar(): Char = this[secureRandom.nextInt(length)]
 
     private fun MutableList<Char>.shuffleSecure() {
@@ -129,4 +198,22 @@ object PasswordGenerator {
             this[j] = tmp
         }
     }
+
+    private const val PATTERN_ID_BITS = 3.0
+    private const val SINGLE_CHAR_DAMPING_BITS = 0.85
+    private const val LEET_CHARS = "013457!@$"
+    private val COMMON_PASSWORDS = listOf(
+        "password",
+        "qwerty",
+        "admin",
+        "welcome",
+        "letmein",
+        "monkey",
+        "dragon",
+        "iloveyou",
+        "abc",
+        "master",
+        "login",
+        "passw0rd",
+    )
 }

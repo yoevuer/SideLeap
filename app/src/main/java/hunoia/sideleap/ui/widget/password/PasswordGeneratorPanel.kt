@@ -144,17 +144,14 @@ fun PasswordGeneratorPanel(
                     )
 
                     Text(
-                        text = if (manuallyEdited) {
-                            context.getString(
-                                R.string.password_estimated_entropy_bits,
-                                PasswordGenerator.estimatedEntropyBits(password)
-                            )
-                        } else {
-                            context.getString(
-                                R.string.password_entropy_bits,
-                                PasswordGenerator.generatedEntropyBits(config)
-                            )
-                        },
+                        text = context.getString(
+                            if (manuallyEdited) {
+                                R.string.password_estimated_entropy_bits
+                            } else {
+                                R.string.password_entropy_bits
+                            },
+                            PasswordGenerator.estimatedEntropyBits(password)
+                        ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall
                     )
