@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
+import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.TextActionButton
 import hunoia.sideleap.ui.widget.TopBar
@@ -93,7 +94,7 @@ fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageV
                     }
                 }
                 item(key = "hidden_header") {
-                    SectionCard(modifier = Modifier.padding(top = 8.dp), title = "已隐藏") { }
+                    SectionCard(modifier = Modifier.padding(top = SectionPadding), title = "已隐藏") { }
                 }
                 val keys = uiState.settings.hiddenApps.toList()
                 items(keys, key = { "hidden:$it" }) { key ->
@@ -129,7 +130,7 @@ fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageV
                     }
                 }
                 item(key = "all_header") {
-                    SectionCard(modifier = Modifier.padding(top = 8.dp), title = "全部应用 - 添加隐藏") { }
+                    SectionCard(modifier = Modifier.padding(top = SectionPadding), title = "全部应用 - 添加隐藏") { }
                 }
                 items(filteredApps, key = { "all:${keyOf(it)}" }) { app ->
                     val key = keyOf(app)
