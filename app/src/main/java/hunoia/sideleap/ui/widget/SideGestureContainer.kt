@@ -51,10 +51,6 @@ import hunoia.sideleap.ui.widget.DragGestureHandler
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
 import com.blankj.utilcode.util.ConvertUtils
 import androidx.compose.ui.graphics.Color
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateTo
-import androidx.compose.animation.core.tween
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -259,7 +255,6 @@ class SideGestureState(
 
     private var slideVibrationFlags = false
     private var animationResetJob: Job? = null
-    private val retractAnimSpec = tween<Float>(180, easing = FastOutSlowInEasing)
 
     private val viewConfiguration = ViewConfiguration.get(hunoia.sideleap.core.AppContext.get())
 
@@ -410,14 +405,17 @@ class SideGestureState(
         if (startX.isNaN() || startY.isNaN()) return
         animationResetJob?.cancel()
         animationResetJob = coroutineScope.launch {
-            val animX = Animatable(startX)
-            val animY = Animatable(startY)
-            kotlinx.coroutines.coroutineScope {
-                launch { animX.animateTo(targetX, retractAnimSpec) }
-                launch { animY.animateTo(targetY, retractAnimSpec) }
+            val duration = 180L
+            val startMs = SystemClock.uptimeMillis()
+            while (true) {
+                val elapsed = SystemClock.uptimeMillis() - startMs
+                val fraction = (elapsed.toFloat() / duration).coerceAtMost(1f)
+                val eased = 1f - (1f - fraction) * (1f - fraction)
+                fingerXDisplay = startX + (targetX - startX) * eased
+                fingerYDisplay = startY + (targetY - startY) * eased
+                if (fraction >= 1f) break
+                delay(16)
             }
-            fingerXDisplay = animX.value
-            fingerYDisplay = animY.value
             reset()
         }
     }
