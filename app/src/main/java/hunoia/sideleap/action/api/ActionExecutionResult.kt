@@ -1,4 +1,4 @@
-package hunoia.sideleap.action
+package hunoia.sideleap.action.api
 
 sealed interface ActionExecutionResult {
     data object Success : ActionExecutionResult

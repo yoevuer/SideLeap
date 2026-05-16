@@ -1,4 +1,4 @@
-package hunoia.sideleap.action
+package hunoia.sideleap.action.api
 
 import hunoia.sideleap.action.Action
 

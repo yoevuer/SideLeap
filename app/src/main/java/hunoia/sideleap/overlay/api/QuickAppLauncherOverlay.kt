@@ -1,4 +1,4 @@
-package hunoia.sideleap.overlay
+package hunoia.sideleap.overlay.api
 
 import android.graphics.Color
 import android.graphics.PixelFormat

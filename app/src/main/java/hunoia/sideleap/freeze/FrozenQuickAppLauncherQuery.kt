@@ -1,6 +1,7 @@
 package hunoia.sideleap.freeze
 
 import android.content.Context
+import hunoia.sideleap.freeze.api.FreezeState
 import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.launcher.query.QuickAppLauncherAppList
 

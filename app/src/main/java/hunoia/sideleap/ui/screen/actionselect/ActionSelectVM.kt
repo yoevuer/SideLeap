@@ -31,7 +31,7 @@ import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState
 import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.core.serialization.JsonHelper
-import hunoia.sideleap.freeze.FreezeState
+import hunoia.sideleap.freeze.api.FreezeState
 import hunoia.sideleap.launcher.query.ShortcutQuery
 import com.blankj.utilcode.util.FileUtils
 import kotlinx.coroutines.Dispatchers

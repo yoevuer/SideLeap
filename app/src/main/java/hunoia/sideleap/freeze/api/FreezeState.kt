@@ -1,4 +1,4 @@
-package hunoia.sideleap.freeze
+package hunoia.sideleap.freeze.api
 
 import android.content.Context
 import android.content.pm.ApplicationInfo

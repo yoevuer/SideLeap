@@ -4,13 +4,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import hunoia.sideleap.R
-import hunoia.sideleap.action.ActionExecutionResult
-import hunoia.sideleap.action.ActionHandler
-import hunoia.sideleap.action.ActionHandlerContext
+import hunoia.sideleap.action.api.ActionExecutionResult
+import hunoia.sideleap.action.api.ActionHandler
+import hunoia.sideleap.action.api.ActionHandlerContext
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.launcher.model.OpenAppOrUrlData
-import hunoia.sideleap.freeze.FreezeLaunch
+import hunoia.sideleap.freeze.api.FreezeLaunch
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.system.api.queryIntentActivitiesCompat

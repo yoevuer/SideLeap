@@ -1,4 +1,4 @@
-package hunoia.sideleap.action
+package hunoia.sideleap.action.api
 
 import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.action.handlers.AppLaunchActionHandler

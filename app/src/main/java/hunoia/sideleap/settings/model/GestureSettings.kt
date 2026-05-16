@@ -2,15 +2,15 @@ package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
 import hunoia.sideleap.gesture.GestureAngles
-import hunoia.sideleap.settings.GestureSettingsDefaults.Angles
-import hunoia.sideleap.settings.GestureSettingsDefaults.IsCustomVibration
-import hunoia.sideleap.settings.GestureSettingsDefaults.IsPreciseSlideType
-import hunoia.sideleap.settings.GestureSettingsDefaults.LongPressTriggerDelayMs
-import hunoia.sideleap.settings.GestureSettingsDefaults.LongSlideTriggerDelayMs
-import hunoia.sideleap.settings.GestureSettingsDefaults.LongSlideTriggerDistance
-import hunoia.sideleap.settings.GestureSettingsDefaults.LongSlideTriggerImmediately
-import hunoia.sideleap.settings.GestureSettingsDefaults.SlideTriggerDistance
-import hunoia.sideleap.settings.GestureSettingsDefaults.Vibrations as DefaultVibrations
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.Angles
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.IsCustomVibration
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.IsPreciseSlideType
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.LongPressTriggerDelayMs
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.LongSlideTriggerDelayMs
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.LongSlideTriggerDistance
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.LongSlideTriggerImmediately
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.SlideTriggerDistance
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.Vibrations as DefaultVibrations
 import hunoia.sideleap.system.vibration.Vibrations
 import kotlinx.serialization.Serializable
 

@@ -8,8 +8,8 @@ import android.view.accessibility.AccessibilityEvent
 import hunoia.sideleap.R
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.action.ActionHandlerContext
-import hunoia.sideleap.action.ActionRegistry
+import hunoia.sideleap.action.api.ActionHandlerContext
+import hunoia.sideleap.action.api.ActionRegistry
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.system.api.showToast
 import hunoia.sideleap.system.api.showToastLong

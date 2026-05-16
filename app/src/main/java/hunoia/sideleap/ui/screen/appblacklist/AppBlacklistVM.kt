@@ -9,7 +9,7 @@ import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiEvent
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiState
 import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.api.SettingsProvider
-import hunoia.sideleap.freeze.FreezeState
+import hunoia.sideleap.freeze.api.FreezeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take

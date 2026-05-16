@@ -9,9 +9,9 @@ import android.os.Build
 import com.blankj.utilcode.util.FlashlightUtils
 import com.blankj.utilcode.util.PermissionUtils
 import hunoia.sideleap.R
-import hunoia.sideleap.action.ActionExecutionResult
-import hunoia.sideleap.action.ActionHandler
-import hunoia.sideleap.action.ActionHandlerContext
+import hunoia.sideleap.action.api.ActionExecutionResult
+import hunoia.sideleap.action.api.ActionHandler
+import hunoia.sideleap.action.api.ActionHandlerContext
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.system.api.launchAssist
