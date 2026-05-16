@@ -1,4 +1,4 @@
-package hunoia.sideleap.system.audio
+package hunoia.sideleap.system.api
 
 import android.app.NotificationManager
 import android.content.Context
@@ -7,7 +7,6 @@ import android.media.AudioManager
 import android.provider.Settings
 import android.view.KeyEvent
 import hunoia.sideleap.R
-import hunoia.sideleap.system.api.showToast
 
 fun Context.volumeUp() {
     val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager

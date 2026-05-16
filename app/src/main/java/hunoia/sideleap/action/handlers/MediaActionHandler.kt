@@ -6,10 +6,10 @@ import hunoia.sideleap.action.ActionHandler
 import hunoia.sideleap.action.ActionHandlerContext
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.system.audio.dispatchMediaKeyEvent
-import hunoia.sideleap.system.audio.toggleMute
-import hunoia.sideleap.system.audio.volumeDown
-import hunoia.sideleap.system.audio.volumeUp
+import hunoia.sideleap.system.api.dispatchMediaKeyEvent
+import hunoia.sideleap.system.api.toggleMute
+import hunoia.sideleap.system.api.volumeDown
+import hunoia.sideleap.system.api.volumeUp
 
 object MediaActionHandler : ActionHandler {
 
