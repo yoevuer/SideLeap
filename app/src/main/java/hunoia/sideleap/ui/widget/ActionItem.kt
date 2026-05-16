@@ -170,7 +170,7 @@ fun LabeledSwitch(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    modifier = Modifier.weight(1f, false),
+                        modifier = Modifier.weight(1f),
                     text = text,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1
