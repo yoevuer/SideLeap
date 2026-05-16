@@ -93,6 +93,7 @@ context.getSystemService(ClipboardManager::class.java)
 - 展示冻结列表
 - 展示权限状态
 - 发起用户操作
+- 调用 `system.feedback`、`system.vibration`、`system.permission`、`system.intent`、`system.window` 这类 UI 级系统能力（toast、振动反馈、权限检查、打开系统设置、获取屏幕尺寸）
 
 `ui` 不可以：
 - 直接执行动作
@@ -101,6 +102,7 @@ context.getSystemService(ClipboardManager::class.java)
 - 直接识别手势
 - 直接管理浮窗窗口
 - 直接访问 settings 持久化实现
+- 调用 `system/shizuku`、`system/accessibility`、`system/packages` 等业务级系统能力
 
 UI 页面所需的组合数据，应通过 ViewModel 从各领域 `api` 获取，然后转换为 UI state。
 

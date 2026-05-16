@@ -68,7 +68,7 @@ business domain -> 其他领域 internal/impl/data
 
 | 领域 | 可以依赖 | 禁止依赖 |
 |---|---|---|
-| `ui` | `gesture.api`, `action.api`, `settings.api`, `launcher.api`, `freeze.api`, `overlay.api`, `core` | 任何领域 internal/impl/data, system.impl, service 内部实现 |
+| `ui` | `gesture.api`, `action.api`, `settings.api`, `launcher.api`, `freeze.api`, `overlay.api`, `system.feedback`, `system.vibration`, `system.permission`, `system.intent`, `system.window`, `core` | 任何领域 internal/impl/data, system.impl (上述列出的除外), service 内部实现 |
 | `service` | `gesture.api`, `action.api`, `settings.api`, `launcher.api`, `freeze.api`, `overlay.api`, `system.api`, `core` | — |
 | `gesture` | `settings.api`, `system.api`, `core` | 执行动作、读取完整配置仓库、展示 UI、控制浮窗生命周期 |
 | `action` | `settings.api`, `system.api`, `core` | 手势识别、UI 页面展示、应用列表扫描、冻结名单策略、浮窗生命周期、设置持久化 |
