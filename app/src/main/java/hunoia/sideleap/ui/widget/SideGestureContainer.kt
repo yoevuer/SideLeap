@@ -146,8 +146,6 @@ fun SideGestureContainer(
             if (!sideGestureState.isCanceled) {
                 val action = sideGestureState.onDragEnd()
                 curOnAction(action)
-            } else {
-                sideGestureState.reset()
             }
         },
         onDragCancel = onDragCancel@{
@@ -260,6 +258,8 @@ class SideGestureState(
     private val viewConfiguration = ViewConfiguration.get(hunoia.sideleap.core.AppContext.get())
 
     fun onDragStart(offset: Offset, imePadding: Int) {
+        animationResetJob?.cancel()
+        isCanceled = false
         origin = offset
         finger = offset
         button = buttons.find(offset, imePadding)
@@ -277,7 +277,6 @@ class SideGestureState(
             }
         }
 
-        animationResetJob?.cancel()
         originXAnimVal = offset.x
         originYAnimVal = offset.y
 
@@ -427,8 +426,29 @@ class SideGestureState(
     fun cancel() {
         if (isCanceled) return
         animationResetJob?.cancel()
+        val btn = button
+        val sx = fingerXDisplay
+        val sy = fingerYDisplay
+        val tx: Float
+        val ty: Float
+        if (btn != null && !sx.isNaN() && !sy.isNaN()) {
+            tx = when (btn.position) {
+                Position.Left, Position.Right -> getStickySlideValue(btn, true)
+                Position.Bottom -> origin.x
+            }
+            ty = when (btn.position) {
+                Position.Left, Position.Right -> origin.y
+                Position.Bottom -> getStickySlideValue(btn, false)
+            }
+        } else {
+            tx = Float.NaN
+            ty = Float.NaN
+        }
         reset()
         isCanceled = true
+        if (!tx.isNaN() && !ty.isNaN()) {
+            animateDisplayBack(sx, sy, tx, ty)
+        }
     }
 
     fun reset() {
