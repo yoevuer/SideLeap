@@ -1,4 +1,4 @@
-package hunoia.sideleap.system.shizuku
+package hunoia.sideleap.system.api
 
 import android.content.pm.PackageManager
 import rikka.shizuku.Shizuku
