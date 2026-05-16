@@ -1,43 +1,23 @@
 # SideLeap 架构规范
 
-本文档定义 SideLeap 的长期代码组织规则。  
-所有新增代码、重构和修复都应先判断领域归属，再确定调用方向。
+架构文档已拆分到 `docs/architecture/`，本文件仅作为索引入口。
 
-## 1. 总体原则
+## 文档列表
 
-SideLeap 采用单模块领域边界架构。
+- [architecture/README.md](architecture/README.md) — 架构总览、原则、领域列表、新功能判断流程
+- [architecture/domains.md](architecture/domains.md) — 每个领域的具体职责、依赖和边界
+- [architecture/dependencies.md](architecture/dependencies.md) — 层级结构、依赖方向、跨领域调用规则
+- [architecture/api-boundaries.md](architecture/api-boundaries.md) — 包结构、Public API、动作集成规则
+- [architecture/runtime-flows.md](architecture/runtime-flows.md) — 关键运行时流程描述
+- [architecture/rules.md](architecture/rules.md) — 配置、Android API、UI、Service、命名等硬性约束
+- [architecture/examples.md](architecture/examples.md) — 功能落位示例
 
-代码按业务语义划分领域，通过包结构、入口类和依赖方向保持边界清晰。
+## 修改规范
 
-核心原则：
-
-- 每个领域负责单一语义。
-- 跨领域调用走明确入口。
-- 配置由统一边界管理。
-- 手势识别与动作执行分离。
-- Android 系统能力集中封装。
-- 基础设施保持通用、轻量、无业务语义。
-
-## 2. 领域
-
-| 领域 | 职责 |
-|---|---|
-| `ui` | 页面、组件、导航、页面状态 |
-| `gesture` | 手势模型、输入识别、触发语义 |
-| `action` | 动作定义、展示、payload、执行分发 |
-| `settings` | 配置模型、默认值、持久化、备份恢复 |
-| `launcher` | 应用、Shortcut、图标、启动能力 |
-| `freeze` | 冻结业务、冻结状态、名单策略 |
-| `overlay` | 浮窗表现、浮窗交互、浮窗生命周期 |
-| `service` | `SideGestureService` 内部协作结构 |
-| `system` | Android 底层能力封装 |
-| `core` | 跨领域基础设施 |
-
-## 3. 依赖方向
-
-| 层级 | 包 |
-|---|---|
-| 入口层 | `ui`、`service` |
-| 业务领域层 | `gesture`、`action`、`settings`、`launcher`、`freeze`、`overlay` |
-| 系统能力层 | `system` |
-| 基础设施层 | `core` |
+- 新增架构规则应写入 `rules.md`。
+- 修改领域职责应更新 `domains.md`。
+- 修改依赖方向应更新 `dependencies.md`。
+- 新增运行时流程应更新 `runtime-flows.md`。
+- 新增功能示例应写入 `examples.md`。
+- 包结构或 API 约定变更应更新 `api-boundaries.md`。
+- 新增原则或架构目标应更新 `README.md`。
