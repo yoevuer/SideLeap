@@ -2,7 +2,10 @@ package hunoia.sideleap.ui.screen.advancedsettings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -139,33 +142,36 @@ fun AdvancedSettingsScreen(
                             secondaryText = stringResource(id = R.string.dynamic_color_hint)
                         )
                     }
-                    Box {
+                    Row(Modifier.fillMaxWidth()) {
                         TextActionButton(
                             onClick = { vm.showDayNightModeDropdownMenu(true) },
                             text = stringResource(id = R.string.day_night_mode),
                             secondaryText = getDayNightModeText(uiState.dayNightMode),
-                            secondaryTextColor = MaterialTheme.colorScheme.primary
+                            secondaryTextColor = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f)
                         )
-                        DropdownMenu(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            offset = DpOffset(x = -EdgeMenuPadding, y = 0.dp),
-                            shape = MaterialTheme.shapes.medium,
-                            expanded = uiState.showDayNightModeDropdownMenu,
-                            onDismissRequest = { vm.showDayNightModeDropdownMenu(false) }
-                        ) {
-                            listOf(
-                                DayNightMode.Auto to getDayNightModeText(DayNightMode.Auto),
-                                DayNightMode.Day to getDayNightModeText(DayNightMode.Day),
-                                DayNightMode.Night to getDayNightModeText(DayNightMode.Night),
-                            ).fastForEach { (effectValue, text) ->
-                                key(effectValue) {
-                                    DropdownMenuItem(
-                                        onClick = {
-                                            vm.onDayNightModeChange(effectValue)
-                                            vm.showDayNightModeDropdownMenu(false)
-                                        },
-                                        text = { Text(text = text) }
-                                    )
+                        Box(Modifier.size(1.dp)) {
+                            DropdownMenu(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                offset = DpOffset(x = -EdgeMenuPadding, y = 0.dp),
+                                shape = MaterialTheme.shapes.medium,
+                                expanded = uiState.showDayNightModeDropdownMenu,
+                                onDismissRequest = { vm.showDayNightModeDropdownMenu(false) }
+                            ) {
+                                listOf(
+                                    DayNightMode.Auto to getDayNightModeText(DayNightMode.Auto),
+                                    DayNightMode.Day to getDayNightModeText(DayNightMode.Day),
+                                    DayNightMode.Night to getDayNightModeText(DayNightMode.Night),
+                                ).fastForEach { (effectValue, text) ->
+                                    key(effectValue) {
+                                        DropdownMenuItem(
+                                            onClick = {
+                                                vm.onDayNightModeChange(effectValue)
+                                                vm.showDayNightModeDropdownMenu(false)
+                                            },
+                                            text = { Text(text = text) }
+                                        )
+                                    }
                                 }
                             }
                         }
