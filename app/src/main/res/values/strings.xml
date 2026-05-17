@@ -243,6 +243,7 @@
     <string name="action_keep_screen_on">屏幕常亮</string>
     <string name="action_back_to_top">快速回顶部(7.0+ 模拟滑动)</string>
     <string name="action_goto_bottom">快速到底部(7.0+ 模拟滑动)</string>
+    <string name="action_click_current_position">模拟点击当前位置</string>
     <string name="action_open_app_or_url">打开应用活动/链接</string>
     <string name="action_desc_back">返回上一层界面</string>
     <string name="action_desc_home">回到桌面</string>

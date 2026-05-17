@@ -111,6 +111,8 @@ object GlobalActions {
     const val GENERATE_PASSWORD_COPY = "53"
     /** 打开密码生成器 */
     const val OPEN_PASSWORD_GENERATOR = "54"
+    /** 模拟点击当前位置 */
+    const val CLICK_CURRENT_POSITION = "55"
 
     /** 启动应用 */
     const val EXTRA_LAUNCH_APP = "101"
@@ -124,6 +126,6 @@ object GlobalActions {
         KEEP_SCREEN_ON, POPUP_SCREEN, MOVE_SCREEN, BACK_TO_TOP, GOTO_BOTTOM,
         OPEN_APP_OR_URL, QUICK_APP_LAUNCHER, RANDOM_NAME, ONE_KEY_FREEZE_APPS,
         GENERATE_PASSWORD_COPY, OPEN_PASSWORD_GENERATOR,
-        HIDE_GESTURE_BUTTON
+        HIDE_GESTURE_BUTTON, CLICK_CURRENT_POSITION
     )
 }

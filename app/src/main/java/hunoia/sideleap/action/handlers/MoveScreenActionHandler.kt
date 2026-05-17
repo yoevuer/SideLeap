@@ -12,6 +12,8 @@ import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.system.api.Accessibility
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.action.MoveScreenData
+import hunoia.sideleap.action.runtimeTouchPosition
+import kotlinx.coroutines.delay
 
 object MoveScreenActionHandler : ActionHandler {
 
@@ -19,6 +21,7 @@ object MoveScreenActionHandler : ActionHandler {
         GlobalActions.MOVE_SCREEN,
         GlobalActions.BACK_TO_TOP,
         GlobalActions.GOTO_BOTTOM,
+        GlobalActions.CLICK_CURRENT_POSITION,
     )
 
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
@@ -26,6 +29,7 @@ object MoveScreenActionHandler : ActionHandler {
             GlobalActions.MOVE_SCREEN -> handleMoveScreen(action, context)
             GlobalActions.BACK_TO_TOP -> handleBackToTop(context)
             GlobalActions.GOTO_BOTTOM -> handleGotoBottom(context)
+            GlobalActions.CLICK_CURRENT_POSITION -> handleClickCurrentPosition(action, context)
             else -> return ActionExecutionResult.Ignored
         }
         return ActionExecutionResult.Success
@@ -73,6 +77,16 @@ object MoveScreenActionHandler : ActionHandler {
             Accessibility.fastVerticalScroll(context.accessibilityService, false, strength)
         } else {
             context.showVersionTooLowToast(R.string.action_goto_bottom)
+        }
+    }
+
+    private suspend fun handleClickCurrentPosition(action: Action, context: ActionHandlerContext) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return
+        val (x, y) = action.runtimeTouchPosition() ?: return
+        if (x in 0..ScreenUtils.getScreenWidth() && y in 0..ScreenUtils.getScreenHeight()) {
+            context.hideGestureButton(250L)
+            delay(80)
+            Accessibility.click(context.accessibilityService, x, y)
         }
     }
 }

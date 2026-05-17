@@ -12,6 +12,7 @@
 - Action 编排协作：`service/SideGestureServiceProxyActionCoordinator.kt`
 - 服务代理协作：`service/SideGestureServiceProxy.kt`
 - 窗口管理协作：`service/SideGestureWindowController.kt`
+- 手势触钮临时隐藏协作：`SideGestureService.hideGestureButtonTemporarily()` 基于 sourceButton 只隐藏触发来源触钮，用于隐藏触钮动作和当前位置模拟点击
 - 设置观察协作：`service/SideGestureSettingsObserver.kt`
 - 壁纸变化监听：`service/WallpaperChangeObserver.kt`
 - 锁屏状态监听：`service/ScreenLockObserver.kt`

@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import hunoia.sideleap.R
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
+import hunoia.sideleap.action.withRuntimeTouchPosition
 import hunoia.sideleap.settings.model.ActionPanelStyle
 import hunoia.sideleap.settings.model.ActionPanelStyles
 import hunoia.sideleap.settings.model.AnimationStyle
@@ -63,6 +64,7 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.atan
 import kotlin.math.hypot
+import kotlin.math.roundToInt
 
 /**
  * @author aaronzzxup@gmail.com
@@ -90,7 +92,7 @@ fun SideGestureContainer(
 
     SideEffect {
         sideGestureState.onLongPress = { action ->
-            curOnAction(action, sideGestureState.button)
+            curOnAction(action.withTouchPosition(sideGestureState.finger), sideGestureState.button)
             sideGestureState.cancel()
         }
     }
@@ -126,7 +128,7 @@ fun SideGestureContainer(
                             moveScreenState.onDragStart(sideGestureState.finger)
                             sideGestureState.cancel()
                         } else {
-                            curOnAction(actions.first(), button)
+                            curOnAction(actions.first().withTouchPosition(sideGestureState.finger), button)
                             sideGestureState.cancel()
                         }
                     }
@@ -137,19 +139,22 @@ fun SideGestureContainer(
         },
         onDragEnd = onDragEnd@{
             if (actionPanelState.visible) {
+                val touchPosition = actionPanelState.finger
                 val action = actionPanelState.done()
                 actionPanelState.onDragEnd()
-                curOnAction(action, sideGestureState.button)
+                curOnAction(action.withTouchPosition(touchPosition), sideGestureState.button)
             }
             if (moveScreenState.visible) {
+                val touchPosition = moveScreenState.finger
                 val action = moveScreenState.done()
                 moveScreenState.onDragEnd()
-                curOnAction(action, sideGestureState.button)
+                curOnAction(action.withTouchPosition(touchPosition), sideGestureState.button)
             }
 
             if (!sideGestureState.isCanceled) {
+                val touchPosition = sideGestureState.finger
                 val action = sideGestureState.onDragEnd()
-                curOnAction(action, sideGestureState.button)
+                curOnAction(action.withTouchPosition(touchPosition), sideGestureState.button)
             }
         },
         onDragCancel = onDragCancel@{
@@ -197,6 +202,11 @@ fun SideGestureContainer(
             }
         }
     }
+}
+
+private fun Action.withTouchPosition(position: Offset): Action {
+    if (!position.x.isFinite() || !position.y.isFinite()) return this
+    return withRuntimeTouchPosition(position.x.roundToInt(), position.y.roundToInt())
 }
 
 @Composable
