@@ -50,6 +50,7 @@ import hunoia.sideleap.gesture.getStickySlideValue
 import hunoia.sideleap.gesture.getTriggerDirection
 import hunoia.sideleap.gesture.isEmptyOrNone
 import hunoia.sideleap.gesture.stickySlideValue
+import hunoia.sideleap.gesture.styleBy
 import hunoia.sideleap.system.api.tryVibrateForLongSlide
 import hunoia.sideleap.system.api.tryVibrateForSlide
 import hunoia.sideleap.ui.widget.DragGestureHandler
@@ -114,10 +115,14 @@ fun SideGestureContainer(
                 val actions = sideGestureState.onDrag(dragAmount)
                 val button = sideGestureState.button
                 if (button != null && actions != null) {
-                    if (actions.size > 1) {
-                        actionPanelState.onDragStart(sideGestureState.finger)
-                        actionPanelState.ready(button.position, actions)
-                        sideGestureState.cancel()
+                        if (actions.size > 1) {
+                            actionPanelState.onDragStart(sideGestureState.finger)
+                            actionPanelState.ready(
+                                button.position,
+                                actions,
+                                button.longSlideActionPanelStyles.styleBy(sideGestureState.triggerDirection).value
+                            )
+                            sideGestureState.cancel()
                     } else if (actions.isNotEmpty()) {
                         if (actions.first().value == GlobalActions.MOVE_SCREEN) {
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {

@@ -17,12 +17,15 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -69,6 +72,8 @@ import hunoia.sideleap.action.TriggerType
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.settings.model.ActionPanelStyle
 import hunoia.sideleap.settings.model.ArcStyle
+import hunoia.sideleap.settings.model.GridStyle
+import hunoia.sideleap.settings.model.ListStyle
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.system.vibration.Vibrations
 import hunoia.sideleap.action.display.actionIcon
@@ -85,6 +90,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.math.cos
+import kotlin.math.ceil
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -156,19 +162,27 @@ fun ActionPanel(
                 }
             }
 
-            when (actionPanelStyle) {
+            when (val style = actionPanelState.actionPanelStyle ?: actionPanelStyle) {
                 is ArcStyle -> {
                     ArcActionPanel(
                         modifier = Modifier.fillMaxSize(),
-                        actionPanelStyle = actionPanelStyle,
+                        actionPanelStyle = style,
                         actionPanelState = actionPanelState,
                         vibrations = vibrations
                     )
                 }
-                else -> {
-                    ArcActionPanel(
+                is ListStyle -> {
+                    LinearActionPanel(
                         modifier = Modifier.fillMaxSize(),
-                        actionPanelStyle = ArcStyle(),
+                        actionPanelStyle = style,
+                        actionPanelState = actionPanelState,
+                        vibrations = vibrations
+                    )
+                }
+                is GridStyle -> {
+                    GridActionPanel(
+                        modifier = Modifier.fillMaxSize(),
+                        actionPanelStyle = style,
                         actionPanelState = actionPanelState,
                         vibrations = vibrations
                     )
@@ -207,7 +221,8 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
 ) {
     val itemSize = actionPanelStyle.itemSize.toDp()
     // 斜边，从origin原点到item中心的距离，值越大item散得越开
-    val hypot = itemSize.toPx() * 2f
+    val actionCount = actionPanelState.actions.size
+    val hypot = itemSize.toPx() * if (actionCount > 5) 2.6f else 2f
     var parentSize by remember { mutableStateOf(Size.Zero) }
     Box(modifier = modifier) {
         Box(
@@ -280,7 +295,9 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                 key(index) {
                     val targetAnimOffset = remember {
                         // 平均每个块之间的角度
-                        val avgAngleDegree = 35.0
+                        val avgAngleDegree = if (actionPanelState.actions.size > 5) {
+                            180.0 / (actionPanelState.actions.size - 1).coerceAtLeast(1)
+                        } else 35.0
                         val totalAngleDegree = avgAngleDegree * (actionPanelState.actions.size - 1)
                         val angleDegree = -90.0 - totalAngleDegree / 2.0 + avgAngleDegree * index
                         val radians = Math.toRadians(angleDegree)
@@ -412,6 +429,231 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
 }
 
 @Composable
+private fun AnimatedVisibilityScope.LinearActionPanel(
+    actionPanelStyle: ListStyle,
+    actionPanelState: ActionPanelState,
+    modifier: Modifier = Modifier,
+    vibrations: Vibrations? = null
+) {
+    val itemSize = actionPanelStyle.itemSize.toDp()
+    val itemWidth = itemSize * 3.5f
+    val itemGapPx = itemSize.toPx() * 0.3f
+    val itemHeightPx = itemSize.toPx()
+    val itemWidthPx = itemWidth.toPx()
+    val origin = remember(actionPanelState) { actionPanelState.origin }
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    translationX = origin.x - itemSize.toPx() / 2f
+                    translationY = origin.y - itemSize.toPx() / 2f
+                }
+                .size(itemSize)
+        ) {
+            actionPanelState.actions.fastForEachIndexed { index, action ->
+                key(index) {
+                    val offset = remember(actionPanelState.position, actionPanelState.actions.size, index) {
+                        val centerOffset = index - (actionPanelState.actions.size - 1) / 2f
+                        when (actionPanelState.position) {
+                            Position.Left -> Offset(itemHeightPx * 1.3f, centerOffset * (itemHeightPx + itemGapPx))
+                            Position.Right -> Offset(-itemWidthPx - itemHeightPx * 0.3f, centerOffset * (itemHeightPx + itemGapPx))
+                            Position.Bottom -> {
+                                if (actionPanelState.actions.size <= 4) {
+                                    Offset(centerOffset * (itemWidthPx + itemGapPx), -itemHeightPx * 1.4f)
+                                } else {
+                                    Offset(-itemWidthPx / 2f, -(index + 1) * (itemHeightPx + itemGapPx))
+                                }
+                            }
+                        }
+                    }
+                    ActionPanelSelectableItem(
+                        actionPanelState = actionPanelState,
+                        index = index,
+                        action = action,
+                        targetAnimOffset = offset,
+                        vibrations = vibrations,
+                        modifier = Modifier.size(width = itemWidth, height = itemSize),
+                        shape = RoundedCornerShape(999.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            ActionPanelIcon(action = action, iconSize = itemSize * 0.58f)
+                            Text(
+                                text = actionText(action),
+                                modifier = Modifier.width(itemWidth - itemSize),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnimatedVisibilityScope.GridActionPanel(
+    actionPanelStyle: GridStyle,
+    actionPanelState: ActionPanelState,
+    modifier: Modifier = Modifier,
+    vibrations: Vibrations? = null
+) {
+    val itemSize = actionPanelStyle.itemSize.toDp()
+    val itemSizePx = itemSize.toPx()
+    val gapPx = itemSizePx * 0.35f
+    val columns = when (actionPanelState.actions.size) {
+        in 1..4 -> 1
+        in 5..6 -> 2
+        else -> 3
+    }
+    val rows = ceil(actionPanelState.actions.size / columns.toFloat()).toInt().coerceAtLeast(1)
+    val origin = remember(actionPanelState) { actionPanelState.origin }
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    translationX = origin.x - itemSizePx / 2f
+                    translationY = origin.y - itemSizePx / 2f
+                }
+                .size(itemSize)
+        ) {
+            actionPanelState.actions.fastForEachIndexed { index, action ->
+                key(index) {
+                    val offset = remember(actionPanelState.position, actionPanelState.actions.size, index) {
+                        val col = index % columns
+                        val row = index / columns
+                        val cell = itemSizePx + gapPx
+                        val gridWidth = (columns - 1) * cell
+                        val gridHeight = (rows - 1) * cell
+                        when (actionPanelState.position) {
+                            Position.Left -> Offset(itemSizePx * 1.4f + col * cell, row * cell - gridHeight / 2f)
+                            Position.Right -> Offset(-itemSizePx * 1.4f - gridWidth + col * cell, row * cell - gridHeight / 2f)
+                            Position.Bottom -> Offset(col * cell - gridWidth / 2f, -itemSizePx * 1.4f - gridHeight + row * cell)
+                        }
+                    }
+                    ActionPanelSelectableItem(
+                        actionPanelState = actionPanelState,
+                        index = index,
+                        action = action,
+                        targetAnimOffset = offset,
+                        vibrations = vibrations,
+                        modifier = Modifier.size(itemSize),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        ActionPanelIcon(action = action, iconSize = itemSize * 0.58f)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnimatedVisibilityScope.ActionPanelSelectableItem(
+    actionPanelState: ActionPanelState,
+    index: Int,
+    action: Action,
+    targetAnimOffset: Offset,
+    vibrations: Vibrations?,
+    modifier: Modifier,
+    shape: androidx.compose.ui.graphics.Shape,
+    content: @Composable () -> Unit
+) {
+    val transition = transition
+    var isHovered by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(if (isHovered) 1.08f else 1f, tween(AnimNormal.toInt()), label = "actionScale")
+    var originBounds by remember { mutableStateOf(Rect.Zero) }
+    LaunchedEffect(transition, actionPanelState, index, action) {
+        snapshotFlow { actionPanelState.finger }
+            .filter { it.isSpecified && !transition.isRunning && transition.currentState == Visible }
+            .collect { finger ->
+                val transFinger = finger - targetAnimOffset
+                if (originBounds.contains(transFinger)) {
+                    if (!actionPanelState.isSelected(action)) {
+                        isHovered = true
+                        actionPanelState.select(index, action)
+                        vibrations?.tryVibrateForActionPanel()
+                    }
+                } else if (actionPanelState.isSelected(action)) {
+                    isHovered = false
+                    actionPanelState.select(index, Action.NONE)
+                }
+            }
+    }
+    Box(
+        modifier = modifier
+            .onGloballyPositioned { originBounds = it.boundsInRoot() }
+            .graphicsLayer {
+                translationX = targetAnimOffset.x
+                translationY = targetAnimOffset.y
+                scaleX = scale
+                scaleY = scale
+            }
+            .clipToBackground(color = actionPanelItemColor(action), shape = shape),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun ActionPanelIcon(action: Action, iconSize: Dp) {
+    val actionIcon = actionIcon(action = action)
+    if (actionIcon is ImageVector) {
+        Image(
+            modifier = Modifier.size(iconSize),
+            imageVector = actionIcon,
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
+        )
+    } else {
+        AsyncImage(
+            modifier = Modifier
+                .size(iconSize)
+                .graphicsLayer {
+                    val appInfo = action.appInfo
+                    if (appInfo != null) {
+                        scaleX = appInfo.iconScale
+                        scaleY = appInfo.iconScale
+                        return@graphicsLayer
+                    }
+                    val shortcutInfo = action.shortcutInfo
+                    if (shortcutInfo != null) {
+                        scaleX = shortcutInfo.iconScale
+                        scaleY = shortcutInfo.iconScale
+                    }
+                },
+            model = actionIcon,
+            contentDescription = null,
+            imageLoader = LocalContext.current.imageLoader,
+        )
+    }
+}
+
+@Composable
+private fun actionPanelItemColor(action: Action): Color {
+    val actionIcon = actionIcon(action = action)
+    return when (action.value) {
+        GlobalActions.EXTRA_LAUNCH_APP -> when (actionIcon is ImageVector) {
+            true -> MaterialTheme.colorScheme.primary
+            else -> Color(action.appInfo!!.iconBgColor)
+        }
+
+        GlobalActions.EXTRA_LAUNCH_SHORTCUT -> when (actionIcon is ImageVector) {
+            true -> MaterialTheme.colorScheme.primary
+            else -> Color(action.shortcutInfo!!.iconBgColor)
+        }
+
+        else -> MaterialTheme.colorScheme.primary
+    }
+}
+
+@Composable
 fun rememberActionPanelState(): ActionPanelState {
     val coroutineScope = rememberCoroutineScope()
     return remember {
@@ -426,6 +668,8 @@ class ActionPanelState(private val coroutineScope: CoroutineScope) : LongSlideSt
     var actions: List<Action> by mutableStateOf(emptyList())
         private set
     var position: Position by mutableStateOf(Position.Left)
+        private set
+    var actionPanelStyle: ActionPanelStyle? by mutableStateOf(null)
         private set
     private val pendingActions: MutableMap<Int, Action> = mutableStateMapOf()
 
@@ -447,9 +691,10 @@ class ActionPanelState(private val coroutineScope: CoroutineScope) : LongSlideSt
         visible = true
     }
 
-    fun ready(position: Position, actions: List<Action>) {
+    fun ready(position: Position, actions: List<Action>, actionPanelStyle: ActionPanelStyle) {
         this.position = position
         this.actions = actions
+        this.actionPanelStyle = actionPanelStyle
     }
 
     fun done(): Action {
@@ -476,6 +721,7 @@ class ActionPanelState(private val coroutineScope: CoroutineScope) : LongSlideSt
 
     override fun reset() {
         visible = false
+        actionPanelStyle = null
         pendingActions.clear()
         origin = Offset.Unspecified
         finger = Offset.Unspecified
