@@ -4,6 +4,13 @@
 
 ## 已完成
 
+### 触钮独立手势角度（`feat/per-button-gesture-angle`）
+
+- 手势角度从 `GestureSettings` 的按位置共享配置迁移到 `GestureButton.angle`
+- 运行时方向判定直接使用当前触钮角度
+- 全局手势角度入口移除，角度调整入口放入单个触钮设置页
+- 角度调整界面改为当前触钮专用底部弹窗
+
 ### 密码生成器功能（`feat/password-generator`）
 
 - 新增两个工具动作：`生成密码并复制`、`打开密码生成器`

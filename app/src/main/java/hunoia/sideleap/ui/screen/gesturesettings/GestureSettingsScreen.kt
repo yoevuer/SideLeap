@@ -52,7 +52,6 @@ import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.system.vibration.VibrationEffects
 import hunoia.sideleap.ui.widget.MyColumn
 import hunoia.sideleap.ui.widget.SectionCard
-import hunoia.sideleap.ui.widget.TextActionButton
 import hunoia.sideleap.ui.widget.MyTextSlider
 import hunoia.sideleap.ui.widget.LabeledSwitch
 import hunoia.sideleap.ui.widget.TopBar
@@ -65,7 +64,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun GestureSettingsScreen(
-    onNavToGestureAngles: () -> Unit,
     onBack: () -> Unit,
     vm: GestureSettingsVM = viewModel()
 ) {
@@ -93,11 +91,6 @@ fun GestureSettingsScreen(
             )
             MyColumn(scrollState = scrollState) {
                 SectionCard {
-                    TextActionButton(
-                        onClick = onNavToGestureAngles,
-                        text = stringResource(id = R.string.gesture_angles),
-                        secondaryText = stringResource(id = R.string.gesture_angles_hint)
-                    )
                     LabeledSwitch(
                         onCheckedChange = { vm.onPreciseSlideTypeChange(it) },
                         checked = uiState.isPreciseSlideTypeEnabled,

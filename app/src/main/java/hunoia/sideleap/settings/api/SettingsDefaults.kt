@@ -28,7 +28,6 @@ object AdvancedSettingsDefaults {
 
 object GestureSettingsDefaults {
 
-    val Angles = hunoia.sideleap.gesture.GestureAngles()
     val SlideTriggerDistance = ConvertUtils.dp2px(30f)
     val LongSlideTriggerDistance = ConvertUtils.dp2px(100f)
     const val LongPressTriggerDelayMs = 250L

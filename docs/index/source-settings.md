@@ -11,13 +11,14 @@
 - 备份恢复：`settings/BackupHelper.kt`
 - 文件与键名常量：`settings/DataStoreFiles.kt`
 - 配置模型：`settings/model/*`
+- 手势角度随 `GestureButton` 持久化，不再由 `GestureSettings` 按位置保存
 - 密码生成器配置：`ActionSettings.PasswordGenerator`
 
 ## 主要源码路径
 
 | 路径 | 作用 |
 |---|---|
-| `settings/model/GestureSettings.kt` | 手势配置 |
+| `settings/model/GestureSettings.kt` | 手势距离、振动、精确滑动等全局手势配置 |
 | `settings/model/ActionSettings.kt` | 动作配置 |
 | `settings/model/ActionSettings.kt#PasswordGenerator` | 密码生成器长度和字符类型配置 |
 | `settings/model/AdvancedSettings.kt` | 高级设置 |
@@ -34,6 +35,7 @@
 - `SettingsProvider` 是配置读写入口。
 - `BackupHelper` 负责导出与恢复。
 - `DataStore` 的实现细节被限制在 `settings/internal`。
+- 触钮角度作为 `GestureButton.angle` 随侧边/底部触钮列表保存。
 
 ## 依赖边界
 

@@ -23,7 +23,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import hunoia.sideleap.ui.navigation.ActionSelect
-import hunoia.sideleap.ui.navigation.AdjustGestureAngles
 import hunoia.sideleap.ui.navigation.AdvancedSettings
 import hunoia.sideleap.ui.navigation.AppBlacklist
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
@@ -39,7 +38,6 @@ import hunoia.sideleap.ui.screen.actionselect.ActionSelectScreen
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsScreen
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleScreen
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistScreen
-import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesScreen
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsScreen
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsScreen
 import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppManageScreen
@@ -108,12 +106,8 @@ fun SideGestureApp() {
                 }
                 myComposable<GestureSettings> {
                     GestureSettingsScreen(
-                        onNavToGestureAngles = { navController.navigate(AdjustGestureAngles) },
                         onBack = { navController.navigateUp() }
                     )
-                }
-                myComposable<AdjustGestureAngles> {
-                    GestureAnglesScreen(onBack = { navController.navigateUp() })
                 }
                 myComposable<GestureButtonSettings> {
                     GestureButtonSettingsScreen(

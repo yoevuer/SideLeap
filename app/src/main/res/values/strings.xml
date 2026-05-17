@@ -85,6 +85,7 @@
     <string name="slide_action">短距离滑动</string>
     <string name="gesture_angles">手势角度</string>
     <string name="gesture_angles_hint">调整不同方向的触发角度</string>
+    <string name="gesture_button_angles_hint">调整此触钮各滑动方向的判定范围</string>
     <string name="trigger_distance">触发距离</string>
     <string name="small">小</string>
     <string name="large">大</string>
@@ -116,6 +117,7 @@
     <string name="reset_gesture_angles_warning_desc">这将会清除现有的全局手势角度设置，并恢复到初始设置，不包含触钮自定义的部分。</string>
     <string name="cancel">取消</string>
     <string name="confirm">确认</string>
+    <string name="reset">重置</string>
     <string name="save_success">保存成功</string>
     <string name="save_failure">保存失败</string>
     <string name="reset_success">重置成功</string>

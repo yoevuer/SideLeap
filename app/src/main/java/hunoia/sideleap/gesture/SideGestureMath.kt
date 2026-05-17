@@ -30,12 +30,7 @@ fun calcDirection(
         Position.Bottom -> abs(finger.x - origin.x)
     }
     if (neighbor == 0f) {
-        val angle = when (button.position) {
-            Position.Left -> gestureSettings.angles.left
-            Position.Right -> gestureSettings.angles.right
-            Position.Bottom -> gestureSettings.angles.bottom
-        }
-        return angle.getTriggerDirection(90f)
+        return button.angle.getTriggerDirection(90f)
     }
     val tanVal = opposite / neighbor
     val radians = atan(tanVal)
@@ -48,12 +43,7 @@ fun calcDirection(
     } else {
         GESTURE_ANGLE_BASE - Math.toDegrees(radians.toDouble())
     }
-    val angle = when (button.position) {
-        Position.Left -> gestureSettings.angles.left
-        Position.Right -> gestureSettings.angles.right
-        Position.Bottom -> gestureSettings.angles.bottom
-    }
-    return angle.getTriggerDirection(degree.toFloat())
+    return button.angle.getTriggerDirection(degree.toFloat())
 }
 
 fun canDistanceTriggered(

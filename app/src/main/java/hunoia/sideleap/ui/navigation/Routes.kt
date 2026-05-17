@@ -32,10 +32,6 @@ data object AppBlacklist
 @Serializable
 data object QuickAppLauncherHidden
 
-@Keep
-@Serializable
-data object AdjustGestureAngles
-
 @Serializable
 @Keep
 data class GestureButtonSettings(

@@ -15,15 +15,15 @@ object GestureAnglesDefaults {
     const val P4 = 0.88f
 }
 
-const val GESTURE_ANGLE_BASE = 180f
+fun defaultGestureAngleFor(position: Position): GestureAngle {
+    return when (position) {
+        Position.Left -> GestureAnglesDefaults.Left
+        Position.Right -> GestureAnglesDefaults.Right
+        Position.Bottom -> GestureAnglesDefaults.Bottom
+    }
+}
 
-@Serializable
-@Keep
-data class GestureAngles(
-    val left: GestureAngle = GestureAnglesDefaults.Left,
-    val right: GestureAngle = GestureAnglesDefaults.Right,
-    val bottom: GestureAngle = GestureAnglesDefaults.Bottom
-)
+const val GESTURE_ANGLE_BASE = 180f
 
 @Serializable
 @Keep
