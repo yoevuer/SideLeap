@@ -149,6 +149,7 @@
     <string name="goto_enable_settings">去开启</string>
     <string name="tab_apps">应用</string>
     <string name="tab_shortcuts">快捷</string>
+    <string name="tab_selected">已选</string>
     <string name="create_shortcut">创建快捷方式</string>
     <string name="launch_shortcut">启动快捷方式</string>
     <string name="background_color">背景色</string>

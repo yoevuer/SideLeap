@@ -115,12 +115,10 @@ internal fun ActionPage(
     val categoryChips = remember {
         listOf<Pair<Any?, String>>(
             null to context.getString(R.string.all_categories),
-            ActionCategory.NONE to "默认/导航",
-            ActionCategory.MEDIA to ActionCategory.MEDIA.displayName,
-            ActionCategory.SYSTEM to ActionCategory.SYSTEM.displayName,
-            ActionCategory.WINDOW to ActionCategory.WINDOW.displayName,
-            ActionCategory.LAUNCHER to ActionCategory.LAUNCHER.displayName,
-            ActionCategory.TOOL to ActionCategory.TOOL.displayName,
+            "selected" to context.getString(R.string.tab_selected),
+            ActionCategory.NONE to "导航",
+            ActionCategory.SYSTEM to "系统",
+            ActionCategory.TOOL to "工具",
             "app" to context.getString(R.string.tab_apps),
             "shortcut" to context.getString(R.string.tab_shortcuts),
         )
@@ -139,7 +137,7 @@ internal fun ActionPage(
             }
             result = result.filter { context.actionText(it, emptyIfNone = false).contains(query, ignoreCase = true) }
             result
-        } else if (selectedType == "app" || selectedType == "shortcut") emptyList()
+        } else if (selectedType == "app" || selectedType == "shortcut" || selectedType == "selected") emptyList()
         else {
             var result = actions
             if (selectedCategory != null) {
