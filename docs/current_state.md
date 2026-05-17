@@ -31,7 +31,7 @@
 
 - 密码生成器面板由 `RuntimePanelOverlay` 承载，窗口使用 `TYPE_ACCESSIBILITY_OVERLAY`、透明背景和内容实测尺寸。
 - 可见 Card 在 `SideGestureTheme` 内渲染，使用动态取色；窗口尺寸随 Card 实测宽高回写到 `WindowManager.LayoutParams`。
-- `PasswordGeneratorPanel` 只保留内容层，关闭、外部触摸、圆角和底部定位由运行时 overlay 负责。
+- `PasswordGeneratorPanel` 只保留内容层，关闭、外部触摸、圆角和底部定位由运行时 overlay 负责；打开/关闭复用 QLA 的内容层淡入淡出与位移动画。
 
 ## 待办
 

@@ -20,6 +20,7 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.blankj.utilcode.util.ScreenUtils
+import kotlin.math.roundToInt
 
 interface RuntimePanelOverlayHost : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     val context: Context
@@ -28,14 +29,22 @@ interface RuntimePanelOverlayHost : LifecycleOwner, ViewModelStoreOwner, SavedSt
 class RuntimePanelScope internal constructor(
     val close: () -> Unit,
     val updatePanelSize: (width: Int, height: Int) -> Unit,
+    val onCloseAnimated: () -> Unit,
+    val onRegisterCloseAnimated: ((() -> Unit) -> Unit)?,
 )
 
 class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
     private var overlayView: View? = null
     private var imeHeight: Int = 0
+    private var isShowing = false
+    private var isHiding = false
+    private var hasPanelSize = false
+    private var triggerCloseAnimated: (() -> Unit)? = null
 
     fun show(content: @Composable RuntimePanelScope.() -> Unit) {
-        close()
+        if (isShowing || isHiding) return
+        removeOverlayView()
+        isShowing = true
         val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
         val lp = createLayoutParams()
 
@@ -72,6 +81,12 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
                     updatePanelSize = { width, height ->
                         updatePanelLayout(wm, this, lp, width, height)
                     },
+                    onCloseAnimated = {
+                        removeOverlayView(this)
+                    },
+                    onRegisterCloseAnimated = { callback ->
+                        triggerCloseAnimated = callback
+                    },
                 ).content()
             }
         }
@@ -84,11 +99,24 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
 
     fun close() {
         val view = overlayView ?: return
-        overlayView = null
+        if (isHiding) return
+        isShowing = false
+        isHiding = true
+        triggerCloseAnimated?.invoke() ?: removeOverlayView(view)
+    }
+
+    private fun removeOverlayView(view: View? = overlayView) {
+        val target = view ?: return
+        target.animate().cancel()
+        if (overlayView === target) overlayView = null
         imeHeight = 0
-        ViewCompat.setOnApplyWindowInsetsListener(view, null)
+        isShowing = false
+        isHiding = false
+        hasPanelSize = false
+        triggerCloseAnimated = null
+        ViewCompat.setOnApplyWindowInsetsListener(target, null)
         val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
-        runCatching { wm.removeView(view) }
+        runCatching { wm.removeView(target) }
     }
 
     private fun updatePanelLayout(
@@ -98,6 +126,7 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
         width: Int,
         height: Int,
     ) {
+        if (isHiding) return
         if (width <= 0 || height <= 0) return
         val screenWidth = ScreenUtils.getScreenWidth()
         val screenHeight = ScreenUtils.getScreenHeight()
@@ -105,24 +134,45 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
         val nextHeight = height.coerceIn(1, screenHeight)
         val nextX = ((screenWidth - nextWidth) / 2).coerceAtLeast(0)
         val nextY = (screenHeight - nextHeight - BottomMarginPx - imeHeight).coerceAtLeast(0)
-        if (lp.width == nextWidth && lp.height == nextHeight && lp.x == nextX && lp.y == nextY) return
+        val firstLayout = !hasPanelSize
+        hasPanelSize = true
+        if (lp.width == nextWidth && lp.height == nextHeight && lp.x == nextX && lp.y == nextY) {
+            if (firstLayout) startShowAnimation(view)
+            return
+        }
 
         lp.width = nextWidth
         lp.height = nextHeight
         lp.x = nextX
         lp.y = nextY
         runCatching { wm.updateViewLayout(view, lp) }
+        if (firstLayout) startShowAnimation(view)
+    }
+
+    private fun startShowAnimation(view: View) {
+        if (!isShowing || isHiding || overlayView !== view) return
+        view.animate().cancel()
+        view.animate()
+            .alpha(1f)
+            .setDuration(200L)
+            .setInterpolator(android.view.animation.AccelerateDecelerateInterpolator())
+            .withEndAction {
+                if (overlayView === view) isShowing = false
+            }
+            .start()
     }
 
     private fun createLayoutParams(): WindowManager.LayoutParams {
         val screenWidth = ScreenUtils.getScreenWidth()
+        val screenHeight = ScreenUtils.getScreenHeight()
         val panelWidth = (screenWidth * 0.9f).toInt()
+        val panelHeight = estimatePanelHeightPx().coerceAtMost(screenHeight)
 
         return WindowManager.LayoutParams().apply {
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             format = PixelFormat.RGBA_8888
             width = panelWidth
-            height = WindowManager.LayoutParams.WRAP_CONTENT
+            height = panelHeight
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
@@ -136,11 +186,18 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
             }
             gravity = Gravity.START or Gravity.TOP
             x = ((screenWidth - panelWidth) / 2).coerceAtLeast(0)
-            y = 0
+            y = (screenHeight - panelHeight - BottomMarginPx).coerceAtLeast(0)
         }
+    }
+
+    private fun estimatePanelHeightPx(): Int {
+        val density = host.context.resources.displayMetrics.density
+        return 336.dpToPx(density)
     }
 
     private companion object {
         const val BottomMarginPx = 180
     }
 }
+
+private fun Int.dpToPx(density: Float) = (this * density).roundToInt()

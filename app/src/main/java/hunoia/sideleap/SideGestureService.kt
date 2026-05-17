@@ -5,6 +5,8 @@ import android.os.Build
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,12 +16,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,6 +50,9 @@ import hunoia.sideleap.service.WallpaperChangeObserver
 import hunoia.sideleap.ui.event.SubscribeEvent
 import java.lang.ref.WeakReference
 import hunoia.sideleap.ui.theme.SideGestureTheme
+import hunoia.sideleap.ui.theme.AnimOverlayFade
+import hunoia.sideleap.ui.theme.AnimPanelShift
+import hunoia.sideleap.ui.theme.AnimPostHideDelay
 import hunoia.sideleap.ui.widget.SideGestureContainer
 import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.overlay.api.QuickAppLauncherOverlay
@@ -61,6 +69,7 @@ import com.blankj.utilcode.util.ScreenUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -290,10 +299,41 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     fun openPasswordGeneratorPanel() {
         runtimePanelOverlay.show {
             SideGestureTheme {
+                val coroutineScope = rememberCoroutineScope()
+                var panelVisible by remember { mutableStateOf(false) }
+                var closing by remember { mutableStateOf(false) }
+                val panelAlpha by animateFloatAsState(
+                    targetValue = if (panelVisible) 1f else 0f,
+                    animationSpec = tween(AnimOverlayFade.toInt()),
+                    label = "passwordPanelAlpha"
+                )
+                val panelShiftY by animateFloatAsState(
+                    targetValue = if (panelVisible) 0f else 18f,
+                    animationSpec = tween(AnimPanelShift.toInt()),
+                    label = "passwordPanelShiftY"
+                )
+                val closeAnimated = {
+                    if (!closing) {
+                        closing = true
+                        panelVisible = false
+                        coroutineScope.launch {
+                            delay(AnimPostHideDelay)
+                            onCloseAnimated()
+                        }
+                    }
+                }
+                LaunchedEffect(Unit) {
+                    onRegisterCloseAnimated?.invoke(closeAnimated)
+                    panelVisible = true
+                }
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
+                        .graphicsLayer {
+                            alpha = panelAlpha
+                            translationY = panelShiftY
+                        }
                         .onSizeChanged { size ->
                             updatePanelSize(size.width, size.height)
                         },
@@ -303,7 +343,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                     )
                 ) {
                     PasswordGeneratorPanel(
-                        onClose = close,
+                        onClose = closeAnimated,
                         onCopyPassword = { password ->
                             copySensitiveText(
                                 context = applicationContext,
