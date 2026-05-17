@@ -116,9 +116,9 @@ internal fun ActionPage(
         listOf<Pair<Any?, String>>(
             null to context.getString(R.string.all_categories),
             "selected" to context.getString(R.string.tab_selected),
-            ActionCategory.NONE to "导航",
-            ActionCategory.SYSTEM to "系统",
-            ActionCategory.TOOL to "工具",
+            ActionCategory.NAVIGATION to ActionCategory.NAVIGATION.displayName,
+            ActionCategory.SYSTEM to ActionCategory.SYSTEM.displayName,
+            ActionCategory.TOOL to ActionCategory.TOOL.displayName,
             "app" to context.getString(R.string.tab_apps),
             "shortcut" to context.getString(R.string.tab_shortcuts),
         )
@@ -129,10 +129,7 @@ internal fun ActionPage(
             if (selectedCategory != null) {
                 result = result.filter { action ->
                     val cat = ActionCatalog.byId(action.value)?.category ?: ActionCategory.TOOL
-                    when (selectedCategory) {
-                        ActionCategory.NONE -> cat == ActionCategory.NONE || cat == ActionCategory.NAVIGATION
-                        else -> cat == selectedCategory
-                    }
+                    cat == selectedCategory
                 }
             }
             result = result.filter { context.actionText(it, emptyIfNone = false).contains(query, ignoreCase = true) }
@@ -143,10 +140,7 @@ internal fun ActionPage(
             if (selectedCategory != null) {
                 result = result.filter { action ->
                     val cat = ActionCatalog.byId(action.value)?.category ?: ActionCategory.TOOL
-                    when (selectedCategory) {
-                        ActionCategory.NONE -> cat == ActionCategory.NONE || cat == ActionCategory.NAVIGATION
-                        else -> cat == selectedCategory
-                    }
+                    cat == selectedCategory
                 }
             }
             result
