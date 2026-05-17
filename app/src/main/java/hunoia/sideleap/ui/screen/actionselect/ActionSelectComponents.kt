@@ -237,7 +237,7 @@ internal fun ActionPage(
                 }
             }
         }
-        if (!selectSingle && selectedItems.isNotEmpty()) {
+        if (selectedType == "selected" && !selectSingle && selectedItems.isNotEmpty()) {
             item(key = "selected_bar") {
                 SelectedBar(
                     selectedItems = selectedItems,
