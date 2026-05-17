@@ -247,6 +247,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
                             advancedSettings.miniWindowHorizontalBias,
                             advancedSettings.miniWindowVerticalBias,
                             advancedSettings.miniWindowVerticalEdgeMarginFraction,
+                            advancedSettings.miniWindowVerticalOffsetFraction,
                         )
                         Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
                         if (success) onAppLaunchRequested?.invoke(appInfo)

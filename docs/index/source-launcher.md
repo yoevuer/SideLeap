@@ -7,7 +7,7 @@
 - 应用与 Shortcut 查询：`launcher/query/*`
 - 应用与 Shortcut 扩展：`launcher/ext/*`
 - 启动入口：`launcher/launch/Launcher.kt`
-- 应用小窗启动位置由调用方传入水平/垂直 bias 和垂直边缘留白，`Launcher` 只负责转换为 `ActivityOptions.setLaunchBounds`
+- 应用小窗启动位置由调用方传入水平/垂直 bias、垂直边缘留白和垂直补偿，`Launcher` 只负责转换为 `ActivityOptions.setLaunchBounds`
 - 快捷启动器基础应用列表：`launcher/query/QuickAppLauncherBaseQuery.kt`
 - 快捷启动器启动流程：`launcher/launch/QuickAppLaunch.kt`
 - 启动对象模型：`launcher/model/*`

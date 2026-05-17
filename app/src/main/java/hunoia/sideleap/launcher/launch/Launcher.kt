@@ -27,6 +27,7 @@ object Launcher {
         miniWindowHorizontalBias: Float = DefaultMiniWindowHorizontalBias,
         miniWindowVerticalBias: Float = DefaultMiniWindowVerticalBias,
         miniWindowVerticalEdgeMarginFraction: Float = DefaultMiniWindowVerticalEdgeMarginFraction,
+        miniWindowVerticalOffsetFraction: Float = DefaultMiniWindowVerticalOffsetFraction,
     ): Boolean {
         if (miniWindow && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return launchAppInPopup(
@@ -36,6 +37,7 @@ object Launcher {
                 miniWindowHorizontalBias,
                 miniWindowVerticalBias,
                 miniWindowVerticalEdgeMarginFraction,
+                miniWindowVerticalOffsetFraction,
             )
         }
         return try {
@@ -77,6 +79,7 @@ object Launcher {
         miniWindowHorizontalBias: Float = DefaultMiniWindowHorizontalBias,
         miniWindowVerticalBias: Float = DefaultMiniWindowVerticalBias,
         miniWindowVerticalEdgeMarginFraction: Float = DefaultMiniWindowVerticalEdgeMarginFraction,
+        miniWindowVerticalOffsetFraction: Float = DefaultMiniWindowVerticalOffsetFraction,
     ): Boolean {
         return launchApp(
             context,
@@ -86,6 +89,7 @@ object Launcher {
             miniWindowHorizontalBias,
             miniWindowVerticalBias,
             miniWindowVerticalEdgeMarginFraction,
+            miniWindowVerticalOffsetFraction,
         )
     }
 
@@ -176,6 +180,7 @@ object Launcher {
         horizontalBias: Float = DefaultMiniWindowHorizontalBias,
         verticalBias: Float = DefaultMiniWindowVerticalBias,
         verticalEdgeMarginFraction: Float = DefaultMiniWindowVerticalEdgeMarginFraction,
+        verticalOffsetFraction: Float = DefaultMiniWindowVerticalOffsetFraction,
     ): Boolean {
         return MiniWindow.startActivity(
             context,
@@ -183,6 +188,7 @@ object Launcher {
             horizontalBias,
             verticalBias,
             verticalEdgeMarginFraction,
+            verticalOffsetFraction,
         )
     }
 
@@ -193,8 +199,9 @@ object Launcher {
 }
 
 private const val DefaultMiniWindowHorizontalBias = 0.5f
-private const val DefaultMiniWindowVerticalBias = 0.3f
+private const val DefaultMiniWindowVerticalBias = 0.7f
 private const val DefaultMiniWindowVerticalEdgeMarginFraction = 0.05f
+private const val DefaultMiniWindowVerticalOffsetFraction = 0f
 
 @RequiresApi(Build.VERSION_CODES.N)
 private object MiniWindow {
@@ -205,6 +212,7 @@ private object MiniWindow {
         horizontalBias: Float,
         verticalBias: Float,
         verticalEdgeMarginFraction: Float,
+        verticalOffsetFraction: Float,
     ): Boolean {
         return try {
             val intent = Intent().apply {
@@ -213,7 +221,7 @@ private object MiniWindow {
                 addCategory(Intent.CATEGORY_LAUNCHER)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            val activityOptions = getActivityOptions(horizontalBias, verticalBias, verticalEdgeMarginFraction)
+            val activityOptions = getActivityOptions(horizontalBias, verticalBias, verticalEdgeMarginFraction, verticalOffsetFraction)
             context.startActivity(intent, activityOptions.toBundle())
             true
         } catch (ignored: Exception) {
@@ -226,12 +234,13 @@ private object MiniWindow {
         horizontalBias: Float,
         verticalBias: Float,
         verticalEdgeMarginFraction: Float,
+        verticalOffsetFraction: Float,
     ): ActivityOptions {
         val brand = Build.BRAND.lowercase()
         return when (brand) {
-            "huawei", "honor" -> makeActivityOptions(102, horizontalBias, verticalBias, verticalEdgeMarginFraction)
-            "oppo", "oneplus", "realme" -> makeActivityOptions(100, horizontalBias, verticalBias, verticalEdgeMarginFraction)
-            else -> makeActivityOptions(5, horizontalBias, verticalBias, verticalEdgeMarginFraction)
+            "huawei", "honor" -> makeActivityOptions(102, horizontalBias, verticalBias, verticalEdgeMarginFraction, verticalOffsetFraction)
+            "oppo", "oneplus", "realme" -> makeActivityOptions(100, horizontalBias, verticalBias, verticalEdgeMarginFraction, verticalOffsetFraction)
+            else -> makeActivityOptions(5, horizontalBias, verticalBias, verticalEdgeMarginFraction, verticalOffsetFraction)
         }
     }
 
@@ -240,6 +249,7 @@ private object MiniWindow {
         horizontalBias: Float,
         verticalBias: Float,
         verticalEdgeMarginFraction: Float,
+        verticalOffsetFraction: Float,
     ): ActivityOptions {
         return ActivityOptions.makeBasic().also {
             try {
@@ -251,20 +261,19 @@ private object MiniWindow {
             }
             val screenWidth = ScreenUtils.getScreenWidth()
             val screenHeight = ScreenUtils.getScreenHeight()
-            var bounds: Rect? = null
-            if (mode == 5) {
-                val width = screenWidth
-                val scaledWidth = width * 0.7f
-                val left = ((screenWidth - scaledWidth) * horizontalBias.coerceIn(0f, 1f)).roundToInt()
-                val right = left + width
-                val height = (width / 0.625f).roundToInt()
-                val verticalMargin = (screenHeight * verticalEdgeMarginFraction.coerceIn(0f, 0.2f)).roundToInt()
-                val minTop = verticalMargin.coerceAtMost(screenHeight)
-                val maxTop = (screenHeight - verticalMargin - height).coerceAtLeast(minTop)
-                val top = (minTop + (maxTop - minTop) * verticalBias.coerceIn(0f, 1f)).roundToInt()
-                val bottom = top + height
-                bounds = Rect(left, top, right, bottom)
-            }
+            val width = screenWidth
+            val scaledWidth = width * 0.7f
+            val left = ((screenWidth - scaledWidth) * horizontalBias.coerceIn(0f, 1f)).roundToInt()
+            val right = left + width
+            val height = (width / 0.625f).roundToInt()
+            val verticalMargin = (screenHeight * verticalEdgeMarginFraction.coerceIn(0f, 0.2f)).roundToInt()
+            val minTop = verticalMargin.coerceAtMost(screenHeight)
+            val maxTop = (screenHeight - verticalMargin - height).coerceAtLeast(minTop)
+            val targetTop = minTop + (maxTop - minTop) * verticalBias.coerceIn(0f, 1f)
+            val offset = screenHeight * verticalOffsetFraction.coerceIn(-1f, 1f)
+            val top = (targetTop + offset).roundToInt().coerceIn(-height, screenHeight)
+            val bottom = top + height
+            val bounds = Rect(left, top, right, bottom)
             it.setLaunchBounds(bounds)
         }
     }

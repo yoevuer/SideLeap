@@ -126,6 +126,14 @@ fun AdvancedSettingsScreen(
                         sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
                         valueRange = 0f..0.2f,
                     )
+                    MyTextSlider(
+                        value = uiState.miniWindowVerticalOffsetFraction,
+                        onValueChange = { vm.onMiniWindowVerticalOffsetChange(it) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = "${stringResource(id = R.string.mini_window_vertical_offset)} ${(uiState.miniWindowVerticalOffsetFraction * 100).roundToInt()}%",
+                        sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+                        valueRange = -0.3f..0.3f,
+                    )
                 }
                 SectionCard(
                     modifier = Modifier.padding(top = SectionPadding),

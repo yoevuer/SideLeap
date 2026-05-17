@@ -63,6 +63,7 @@ object AppLaunchActionHandler : ActionHandler {
                     context.advancedSettings.miniWindowHorizontalBias,
                     context.advancedSettings.miniWindowVerticalBias,
                     context.advancedSettings.miniWindowVerticalEdgeMarginFraction,
+                    context.advancedSettings.miniWindowVerticalOffsetFraction,
                 )
             }
         } else {
@@ -124,6 +125,7 @@ object AppLaunchActionHandler : ActionHandler {
                 miniWindowHorizontalBias = context.advancedSettings.miniWindowHorizontalBias,
                 miniWindowVerticalBias = context.advancedSettings.miniWindowVerticalBias,
                 miniWindowVerticalEdgeMarginFraction = context.advancedSettings.miniWindowVerticalEdgeMarginFraction,
+                miniWindowVerticalOffsetFraction = context.advancedSettings.miniWindowVerticalOffsetFraction,
             ) { _, pkg ->
                 suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
             }

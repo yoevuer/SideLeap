@@ -53,6 +53,7 @@
     <string name="mini_window_horizontal_position">小窗打开水平位置</string>
     <string name="mini_window_vertical_position">小窗打开垂直位置</string>
     <string name="mini_window_vertical_edge_margin">小窗垂直边缘留白</string>
+    <string name="mini_window_vertical_offset">小窗垂直位置补偿</string>
     <string name="hide_gesture_button">隐藏触钮</string>
     <string name="landscape">横屏模式</string>
     <string name="manage_hidden_apps">管理隐藏应用</string>
