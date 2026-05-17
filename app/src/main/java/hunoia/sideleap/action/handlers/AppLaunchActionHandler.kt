@@ -56,7 +56,14 @@ object AppLaunchActionHandler : ActionHandler {
                 .firstOrNull()
             val className = resolveInfo?.activityInfo?.name
             if (!className.isNullOrEmpty()) {
-                Launcher.launchAppInPopup(context.appContext, curPkgName, className)
+                Launcher.launchAppInPopup(
+                    context.appContext,
+                    curPkgName,
+                    className,
+                    context.advancedSettings.miniWindowHorizontalBias,
+                    context.advancedSettings.miniWindowVerticalBias,
+                    context.advancedSettings.miniWindowVerticalEdgeMarginFraction,
+                )
             }
         } else {
             context.showVersionTooLowToast(R.string.action_popup_screen)
@@ -113,7 +120,10 @@ object AppLaunchActionHandler : ActionHandler {
                 context = context.appContext,
                 packageName = appInfo.packageName,
                 className = appInfo.className,
-                miniWindow = miniWindow
+                miniWindow = miniWindow,
+                miniWindowHorizontalBias = context.advancedSettings.miniWindowHorizontalBias,
+                miniWindowVerticalBias = context.advancedSettings.miniWindowVerticalBias,
+                miniWindowVerticalEdgeMarginFraction = context.advancedSettings.miniWindowVerticalEdgeMarginFraction,
             ) { _, pkg ->
                 suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
             }

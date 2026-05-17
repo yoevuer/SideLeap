@@ -15,6 +15,9 @@ import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideHomeScreen
 import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideLandscape
 import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideScreenLock
 import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideTemporary
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.MiniWindowHorizontalBias
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.MiniWindowVerticalBias
+import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.MiniWindowVerticalEdgeMarginFraction
 import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.QuickLauncherAppLongPressLaunchPopup
 import kotlinx.serialization.Serializable
 
@@ -27,6 +30,9 @@ data class AdvancedSettings(
     val fitSoftKeyboard: Boolean = FitSoftKeyboard,
     val actionPanelAppLongPressLaunchPopup: Boolean = ActionPanelAppLongPressLaunchPopup,
     val quickLauncherAppLongPressLaunchPopup: Boolean = QuickLauncherAppLongPressLaunchPopup,
+    val miniWindowHorizontalBias: Float = MiniWindowHorizontalBias,
+    val miniWindowVerticalBias: Float = MiniWindowVerticalBias,
+    val miniWindowVerticalEdgeMarginFraction: Float = MiniWindowVerticalEdgeMarginFraction,
     val hideLandscape: Boolean = HideLandscape,
     val hideScreenLock: Boolean = HideScreenLock,
     val hideHomeScreen: Boolean = HideHomeScreen,

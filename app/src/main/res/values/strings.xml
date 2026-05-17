@@ -50,6 +50,9 @@
     <string name="action_panel_launch_app_hint">调换手势动作中启动应用的短按与长按方式：默认短按小窗、长按全屏</string>
     <string name="quick_launcher_launch_app">启动器应用项启动方式</string>
     <string name="quick_launcher_launch_app_hint">调换快速启动器中应用项的短按与长按方式：默认短按小窗、长按全屏</string>
+    <string name="mini_window_horizontal_position">小窗打开水平位置</string>
+    <string name="mini_window_vertical_position">小窗打开垂直位置</string>
+    <string name="mini_window_vertical_edge_margin">小窗垂直边缘留白</string>
     <string name="hide_gesture_button">隐藏触钮</string>
     <string name="landscape">横屏模式</string>
     <string name="manage_hidden_apps">管理隐藏应用</string>
@@ -127,6 +130,8 @@
     <string name="reset_success">重置成功</string>
     <string name="reset_failure">重置失败</string>
     <string name="left_gesture_button">左侧触钮</string>
+    <string name="left">左</string>
+    <string name="right">右</string>
     <string name="right_gesture_button">右侧触钮</string>
     <string name="bottom_gesture_button">底部触钮</string>
     <string name="gesture_button_size_max">已达到最大触钮数量</string>
@@ -261,6 +266,14 @@
     <string name="no_matching_results">无匹配结果</string>
     <string name="selected_count">已选 %1$d/%2$d</string>
     <string name="clear_all">清空</string>
+    <string name="selected_action_settings">已选动作设置</string>
+    <string name="set_long_press_action">设置</string>
+    <string name="clear_long_press_action">清除</string>
+    <string name="long_press_action_value">长按：%1$s</string>
+    <string name="long_press_action_fallback">未设置</string>
+    <string name="choose_long_press_action_hint">正在设置长按动作，请从下方列表选择</string>
+    <string name="move_up">上移</string>
+    <string name="move_down">下移</string>
     <string name="all_categories">全部</string>
     <string name="frequent_tag">常用</string>
     <string name="no_available_apps">暂无可选应用</string>

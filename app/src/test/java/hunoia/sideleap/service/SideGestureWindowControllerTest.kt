@@ -5,6 +5,7 @@ import android.view.WindowManager
 import hunoia.sideleap.action.GestureActions
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
+import hunoia.sideleap.gesture.defaultGestureAngleFor
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -17,6 +18,7 @@ class SideGestureWindowControllerTest {
                 button = GestureButton(
                     id = "left",
                     position = Position.Left,
+                    angle = defaultGestureAngleFor(Position.Left),
                     enabled = true,
                     start = 0.25f,
                     end = 0.75f,
@@ -43,6 +45,7 @@ class SideGestureWindowControllerTest {
                 button = GestureButton(
                     id = "right",
                     position = Position.Right,
+                    angle = defaultGestureAngleFor(Position.Right),
                     enabled = true,
                     start = 0.25f,
                     end = 0.75f,
@@ -69,6 +72,7 @@ class SideGestureWindowControllerTest {
                 button = GestureButton(
                     id = "bottom",
                     position = Position.Bottom,
+                    angle = defaultGestureAngleFor(Position.Bottom),
                     enabled = true,
                     start = 0.25f,
                     end = 0.75f,

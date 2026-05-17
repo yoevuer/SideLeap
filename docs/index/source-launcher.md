@@ -7,6 +7,7 @@
 - 应用与 Shortcut 查询：`launcher/query/*`
 - 应用与 Shortcut 扩展：`launcher/ext/*`
 - 启动入口：`launcher/launch/Launcher.kt`
+- 应用小窗启动位置由调用方传入水平/垂直 bias 和垂直边缘留白，`Launcher` 只负责转换为 `ActivityOptions.setLaunchBounds`
 - 快捷启动器基础应用列表：`launcher/query/QuickAppLauncherBaseQuery.kt`
 - 快捷启动器启动流程：`launcher/launch/QuickAppLaunch.kt`
 - 启动对象模型：`launcher/model/*`
@@ -36,6 +37,7 @@
 ## 关键入口
 
 - `Launcher` 是启动能力入口。
+- `Launcher.launchAppInPopup` 支持小窗初始位置 bias；部分厂商 windowing mode 可能忽略 bounds。
 - `AppQuery`、`ShortcutQuery` 负责元数据查询。
 - `LauncherIconQuery`、`LauncherEnvironment`、`OpenAppOrUrlQuery` 负责按需查询。
 - `QuickAppLauncherBaseQuery` 提供不含冻结业务的快捷启动器基础应用列表。
@@ -47,3 +49,4 @@
 
 - `launcher` 可以依赖 `system`。
 - `launcher` 不负责冻结业务，不负责浮窗展示，不负责配置持久化。
+- `launcher` 不直接读取 settings，小窗位置由 action/overlay 等调用方传入。

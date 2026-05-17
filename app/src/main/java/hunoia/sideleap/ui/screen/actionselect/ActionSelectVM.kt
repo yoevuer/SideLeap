@@ -79,6 +79,10 @@ class ActionSelectVM(
     }
 
     fun select(obj: Any, selected: Boolean) {
+        if (uiState.longPressTargetIndex != null && selected) {
+            selectLongPressAction(obj)
+            return
+        }
         val uiState = uiState
         if (obj is AppInfo) {
             selectAppInfo(obj, selected)
@@ -98,10 +102,30 @@ class ActionSelectVM(
         }
     }
 
+    fun startSetLongPressAction(index: Int) {
+        if (index !in uiState.selectedRecord.list.indices) return
+        updateUiState { it.copy(longPressTargetIndex = index) }
+    }
+
+    fun cancelSetLongPressAction() {
+        updateUiState { it.copy(longPressTargetIndex = null) }
+    }
+
+    fun clearLongPressAction(index: Int) {
+        updateSelectedAction(index) { it.copy(longPressAction = null) }
+    }
+
+    fun selectLongPressAction(obj: Any) {
+        val index = uiState.longPressTargetIndex ?: return
+        val longPressAction = obj.toAction()
+        updateSelectedAction(index) { it.copy(longPressAction = longPressAction) }
+        updateUiState { it.copy(longPressTargetIndex = null) }
+    }
+
     fun updateActionData(action: Action, data: String) {
         val currentState = uiState
         val newList = currentState.selectedRecord.list.toMutableList()
-        val index = newList.indexOfFirst { obj -> obj is Action && obj == action }
+        val index = newList.indexOfFirst { obj -> obj is Action && obj.sameAction(action) }
         if (index == -1) {
             return
         }
@@ -141,18 +165,26 @@ class ActionSelectVM(
     fun toggleMiniWindow(appInfo: AppInfo) {
         val switchToMiniWindow = !appInfo.miniWindow
         updateUiState {
-            val block: (MutableList<Any>) -> MutableList<Any> = { list ->
-                val index = list.indexOf(appInfo)
+            val block: (MutableList<Action>) -> MutableList<Action> = { list ->
+                val index = list.indexOfFirst { action ->
+                    action.appInfo?.qualifiedName == appInfo.qualifiedName
+                }
                 if (index != -1) {
-                    val newAppInfo = appInfo.copy(miniWindow = switchToMiniWindow)
-                    list[index] = newAppInfo
+                    val current = list[index]
+                    val currentAppInfo = current.appInfo ?: appInfo
+                    val newAppInfo = currentAppInfo.copy(miniWindow = switchToMiniWindow)
+                    list[index] = current.copy(data = JsonHelper.encodeToString(newAppInfo))
                 }
                 list
             }
             it.copy(
-                apps = block(it.apps.toMutableList()) as List<AppInfo>,
+                apps = it.apps.map { app ->
+                    if (app.qualifiedName == appInfo.qualifiedName) {
+                        app.copy(miniWindow = switchToMiniWindow)
+                    } else app
+                },
                 selectedRecord = it.selectedRecord.copy(
-                    list = block(it.selectedRecord.list.toMutableList())
+                    list = block(it.selectedRecord.list.filterIsInstance<Action>().toMutableList())
                 )
             )
         }
@@ -181,15 +213,24 @@ class ActionSelectVM(
         }
     }
 
+    private fun updateSelectedAction(index: Int, transform: (Action) -> Action) {
+        updateUiState {
+            val list = it.selectedRecord.list.toMutableList()
+            val current = list.getOrNull(index) as? Action ?: return@updateUiState it
+            list[index] = transform(current)
+            it.copy(selectedRecord = it.selectedRecord.copy(list = list))
+        }
+    }
+
     fun done() {
         val appInfos = uiState
             .selectedRecord
             .list
-            .filterIsInstance<AppInfo>()
+            .mapNotNull { (it as? Action)?.appInfo }
         val shortcutInfos = uiState
             .selectedRecord
             .list
-            .filterIsInstance<LauncherInfo.ShortcutInfo>()
+            .mapNotNull { (it as? Action)?.shortcutInfo }
         if (appInfos.isNotEmpty() || shortcutInfos.isNotEmpty()) {
             val ids = mutableListOf<String>()
             appInfos.forEach { appInfo ->
@@ -234,7 +275,7 @@ class ActionSelectVM(
                     val uninstalledList = mutableListOf<LauncherInfo.ShortcutInfo>()
                     selectedRecord
                         .list
-                        .filterIsInstance<LauncherInfo.ShortcutInfo>()
+                        .mapNotNull { (it as? Action)?.shortcutInfo }
                         .forEach { selected ->
                             val uninstalled = !createLauncherInfos.any { launcher ->
                                 launcher.qualifiedName == selected.qualifiedName
@@ -253,7 +294,7 @@ class ActionSelectVM(
             val finalCreateList = withContext(Dispatchers.Default) {
                 val list1 = mutableListOf<LauncherInfo>()
                 val list2 = mutableListOf<LauncherInfo>()
-                val selectedShortcutInfos = selectedRecord.list.filterIsInstance<LauncherInfo.ShortcutInfo>()
+                val selectedShortcutInfos = selectedRecord.list.mapNotNull { (it as? Action)?.shortcutInfo }
                 createLauncherInfos.forEach { launcherInfo ->
                     val cache = selectedShortcutInfos.find { info ->
                         info.packageName == launcherInfo.packageName
@@ -269,7 +310,7 @@ class ActionSelectVM(
             val finalLaunchList = withContext(Dispatchers.Default) {
                 val list1 = mutableListOf<LauncherInfo>()
                 val list2 = mutableListOf<LauncherInfo>()
-                val selectedShortcutInfos = selectedRecord.list.filterIsInstance<LauncherInfo.ShortcutInfo>()
+                val selectedShortcutInfos = selectedRecord.list.mapNotNull { (it as? Action)?.shortcutInfo }
                 launchLauncherInfos.forEach { launcherInfo ->
                     val cache = selectedShortcutInfos.find { info ->
                         info.packageName == launcherInfo.packageName
@@ -292,7 +333,7 @@ class ActionSelectVM(
             uiState
                 .selectedRecord
                 .list
-                .filterIsInstance<LauncherInfo.ShortcutInfo>()
+                .mapNotNull { (it as? Action)?.shortcutInfo }
                 .forEach { shortcut ->
                     val launcherInfo = createLauncherInfos.find {
                         it.qualifiedName == shortcut.qualifiedName
@@ -329,7 +370,7 @@ class ActionSelectVM(
                     val uninstalledList = mutableListOf<AppInfo>()
                     selectedRecord
                         .list
-                        .filterIsInstance<AppInfo>()
+                        .mapNotNull { (it as? Action)?.appInfo }
                         .forEach { selectedApp ->
                             val uninstalled = !mergedApps.any { app ->
                                 selectedApp.qualifiedName == app.qualifiedName
@@ -344,7 +385,7 @@ class ActionSelectVM(
             val finalList = withContext(Dispatchers.Default) {
                 val list1 = mutableListOf<AppInfo>()
                 val list2 = mutableListOf<AppInfo>()
-                val selectedAppInfos = selectedRecord.list.filterIsInstance<AppInfo>()
+                val selectedAppInfos = selectedRecord.list.mapNotNull { (it as? Action)?.appInfo }
                 mergedApps.forEach { appInfo ->
                     val cache = selectedAppInfos.find { app ->
                         app.qualifiedName == appInfo.qualifiedName
@@ -519,21 +560,7 @@ class ActionSelectVM(
                     return@buttonsUpdater mutableList
                 }
                 val selectedRecord = uiState.selectedRecord
-                val selectedList = selectedRecord.list.map { obj ->
-                    when (obj) {
-                        is AppInfo -> {
-                            val data = JsonHelper.encodeToString(obj)
-                            Action(value = GlobalActions.EXTRA_LAUNCH_APP, data = data)
-                        }
-                        is LauncherInfo.ShortcutInfo -> {
-                            val data = JsonHelper.encodeToString(obj)
-                            Action(value = GlobalActions.EXTRA_LAUNCH_SHORTCUT, data = data)
-                        }
-                        else -> {
-                            obj as Action
-                        }
-                    }
-                }
+                val selectedList = selectedRecord.list.filterIsInstance<Action>()
                 val newActions = when (uiState.selectSingle) {
                     true -> if (selectedList.any { it.value == GlobalActions.OPEN_APP_OR_URL }) {
                         selectedList
@@ -547,11 +574,21 @@ class ActionSelectVM(
                     else -> button.slideActions
                 }
                 fun tryDeleteShortcutIcons(old: List<Action>, new: List<Action>) {
+                    fun List<Action>.shortcutIconPaths(): List<String> {
+                        return flatMap { action ->
+                            listOfNotNull(
+                                action.shortcutInfo?.iconPath,
+                                action.longPressAction?.shortcutInfo?.iconPath
+                            )
+                        }.filter { it.isNotEmpty() }
+                    }
+                    val newPaths = new.shortcutIconPaths().toSet()
                     old.forEach { action ->
-                        val shortcutInfo = action.shortcutInfo ?: return@forEach
-                        if (shortcutInfo.iconPath.isNullOrEmpty()) return@forEach
-                        if (new.any { it.shortcutInfo?.iconPath == shortcutInfo.iconPath }) return@forEach
-                        FileUtils.delete(shortcutInfo.iconPath)
+                        listOfNotNull(action.shortcutInfo, action.longPressAction?.shortcutInfo).forEach { shortcutInfo ->
+                            if (shortcutInfo.iconPath.isNullOrEmpty()) return@forEach
+                            if (shortcutInfo.iconPath in newPaths) return@forEach
+                            FileUtils.delete(shortcutInfo.iconPath)
+                        }
                     }
                 }
                 val newGestureActions = when (actionSelect.direction) {
@@ -615,51 +652,65 @@ class ActionSelectVM(
                     val selectedList = it.selectedRecord.list.toMutableList()
                     scaleFactors.forEach { (id, scaleFactor) ->
                         val index = selectedList.indexOfFirst { obj ->
-                            obj is AppInfo && obj.qualifiedName == id
+                            (obj as? Action)?.appInfo?.qualifiedName == id
                         }
                         if (index != -1) {
-                            val old = selectedList[index] as AppInfo
-                            selectedList[index] = old.copy(iconScale = scaleFactor)
+                            val old = selectedList[index] as Action
+                            val appInfo = old.appInfo
+                            if (appInfo != null) {
+                                selectedList[index] = old.copy(data = JsonHelper.encodeToString(appInfo.copy(iconScale = scaleFactor)))
+                            }
                             return@forEach
                         }
                         val index2 = selectedList.indexOfFirst { obj ->
-                            obj is LauncherInfo.ShortcutInfo && obj.qualifiedNameWithIntents == id
+                            (obj as? Action)?.shortcutInfo?.qualifiedNameWithIntents == id
                         }
                         if (index2 != -1) {
-                            val old = selectedList[index2] as LauncherInfo.ShortcutInfo
-                            selectedList[index2] = old.copy(iconScale = scaleFactor)
+                            val old = selectedList[index2] as Action
+                            val shortcutInfo = old.shortcutInfo
+                            if (shortcutInfo != null) {
+                                selectedList[index2] = old.copy(data = JsonHelper.encodeToString(shortcutInfo.copy(iconScale = scaleFactor)))
+                            }
                         }
                     }
                     bgColors.forEach { (id, color) ->
                         val index = selectedList.indexOfFirst { obj ->
-                            obj is AppInfo && obj.qualifiedName == id
+                            (obj as? Action)?.appInfo?.qualifiedName == id
                         }
                         if (index != -1) {
-                            val old = selectedList[index] as AppInfo
-                            selectedList[index] = old.copy(iconBgColor = color)
+                            val old = selectedList[index] as Action
+                            val appInfo = old.appInfo
+                            if (appInfo != null) {
+                                selectedList[index] = old.copy(data = JsonHelper.encodeToString(appInfo.copy(iconBgColor = color)))
+                            }
                             return@forEach
                         }
                         val index2 = selectedList.indexOfFirst { obj ->
-                            obj is LauncherInfo.ShortcutInfo && obj.qualifiedNameWithIntents == id
+                            (obj as? Action)?.shortcutInfo?.qualifiedNameWithIntents == id
                         }
                         if (index2 != -1) {
-                            val old = selectedList[index2] as LauncherInfo.ShortcutInfo
-                            selectedList[index2] = old.copy(iconBgColor = color)
+                            val old = selectedList[index2] as Action
+                            val shortcutInfo = old.shortcutInfo
+                            if (shortcutInfo != null) {
+                                selectedList[index2] = old.copy(data = JsonHelper.encodeToString(shortcutInfo.copy(iconBgColor = color)))
+                            }
                         }
                     }
 
                     // 保存Bitmap到本地
                     val shortcutInfos = mutableMapOf<Int, LauncherInfo.ShortcutInfo>()
                     selectedList.forEachIndexed { index, obj ->
-                        if (obj !is LauncherInfo.ShortcutInfo) return@forEachIndexed
-                        val iconBitmap = obj.iconBitmap ?: return@forEachIndexed
+                        val action = obj as? Action ?: return@forEachIndexed
+                        val shortcutInfo = action.shortcutInfo ?: return@forEachIndexed
+                        val iconBitmap = shortcutInfo.iconBitmap ?: return@forEachIndexed
                         val iconPath = "${Paths.Image}/${System.currentTimeMillis()}"
                         val fos = FileOutputStream(iconPath)
                         iconBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-                        shortcutInfos[index] = obj.copy(iconPath = iconPath)
+                        shortcutInfos[index] = shortcutInfo.copy(iconPath = iconPath)
                     }
                     shortcutInfos.forEach { (index, shortcutInfo) ->
-                        selectedList[index] = shortcutInfo
+                        val action = selectedList[index] as? Action ?: return@forEach
+                        selectedList[index] = action.copy(data = JsonHelper.encodeToString(shortcutInfo))
                     }
 
                     it.copy(selectedRecord = UiState.SelectedRecord(selectedList))
@@ -686,6 +737,7 @@ class ActionSelectVM(
         val createShortcuts: List<LauncherInfo> = emptyList(),
         val launchShortcuts: List<LauncherInfo> = emptyList(),
         val selectedRecord: SelectedRecord = SelectedRecord(),
+        val longPressTargetIndex: Int? = null,
         val actionSettingsDialog: ActionSettingsDialogValue = ActionSettingsDialogValue(false, Action.NONE),
     ) {
         data class SelectedRecord(val list: List<Any> = emptyList()) {
@@ -695,13 +747,7 @@ class ActionSelectVM(
             fun selectAll(actions: List<Action>): SelectedRecord {
                 val newList = list.toMutableList().apply {
                     actions.forEach { action ->
-                        if (action.appInfo != null) {
-                            add(action.appInfo!!)
-                        } else if (action.shortcutInfo != null) {
-                            add(action.shortcutInfo!!)
-                        } else {
-                            add(action)
-                        }
+                        add(action)
                     }
                 }
                 return this.copy(list = newList)
@@ -712,7 +758,7 @@ class ActionSelectVM(
                     if (selected) {
                         add(action)
                     } else {
-                        remove(action)
+                        removeAll { it is Action && it.sameAction(action) }
                     }
                 }
                 return this.copy(list = newList)
@@ -721,9 +767,9 @@ class ActionSelectVM(
             fun selectAppInfo(app: AppInfo, selected: Boolean): SelectedRecord {
                 val newList = list.toMutableList().apply {
                     if (selected) {
-                        add(app)
+                        add(app.toAction())
                     } else {
-                        removeAll { it is AppInfo && it.qualifiedName == app.qualifiedName }
+                        removeAll { (it as? Action)?.appInfo?.qualifiedName == app.qualifiedName }
                     }
                 }
                 return this.copy(list = newList)
@@ -732,11 +778,10 @@ class ActionSelectVM(
             fun selectShortcutInfo(shortcut: LauncherInfo.ShortcutInfo, selected: Boolean): SelectedRecord {
                 val newList = list.toMutableList().apply {
                     if (selected) {
-                        add(shortcut)
+                        add(shortcut.toAction())
                     } else {
                         removeAll {
-                            it is LauncherInfo.ShortcutInfo &&
-                                    it.qualifiedNameWithIntents == shortcut.qualifiedNameWithIntents
+                            (it as? Action)?.shortcutInfo?.qualifiedNameWithIntents == shortcut.qualifiedNameWithIntents
                         }
                     }
                 }
@@ -745,12 +790,9 @@ class ActionSelectVM(
 
             fun removeAllAppInfos(list: List<AppInfo>): SelectedRecord {
                 val newList = this.list.toMutableList().apply {
-                    removeAll(list)
                     removeAll {
-                        it is AppInfo &&
-                                list.any { selected ->
-                                    it.qualifiedName == selected.qualifiedName
-                                }
+                        val appInfo = (it as? Action)?.appInfo ?: return@removeAll false
+                        list.any { selected -> appInfo.qualifiedName == selected.qualifiedName }
                     }
                 }
                 return this.copy(list = newList)
@@ -759,10 +801,10 @@ class ActionSelectVM(
             fun removeAllShortcutInfos(list: List<LauncherInfo.ShortcutInfo>): SelectedRecord {
                 val newList = this.list.toMutableList().apply {
                     removeAll {
-                        it is LauncherInfo.ShortcutInfo &&
-                                list.any { selected ->
-                                    it.qualifiedNameWithIntents == selected.qualifiedNameWithIntents
-                                }
+                        val shortcutInfo = (it as? Action)?.shortcutInfo ?: return@removeAll false
+                        list.any { selected ->
+                            shortcutInfo.qualifiedNameWithIntents == selected.qualifiedNameWithIntents
+                        }
                     }
                 }
                 return this.copy(list = newList)
@@ -771,13 +813,14 @@ class ActionSelectVM(
             fun isSelected(obj: Any): Boolean {
                 if (obj is AppInfo) {
                     return list.find {
-                        it is AppInfo && it.qualifiedName == obj.qualifiedName
+                        (it as? Action)?.appInfo?.qualifiedName == obj.qualifiedName
                     } != null
                 } else if (obj is LauncherInfo.ShortcutInfo) {
                     return list.find {
-                        it is LauncherInfo.ShortcutInfo &&
-                                it.qualifiedNameWithIntents == obj.qualifiedNameWithIntents
+                        (it as? Action)?.shortcutInfo?.qualifiedNameWithIntents == obj.qualifiedNameWithIntents
                     } != null
+                } else if (obj is Action) {
+                    return list.find { it is Action && it.sameAction(obj) } != null
                 }
                 return obj in list
             }
@@ -792,4 +835,23 @@ class ActionSelectVM(
     sealed interface UiEvent {
         data class GotoIconResize(val iconResize: IconResize) : UiEvent
     }
+}
+
+private fun Any.toAction(): Action {
+    return when (this) {
+        is Action -> this.copy(extra = null)
+        is AppInfo -> Action(
+            value = GlobalActions.EXTRA_LAUNCH_APP,
+            data = JsonHelper.encodeToString(this)
+        )
+        is LauncherInfo.ShortcutInfo -> Action(
+            value = GlobalActions.EXTRA_LAUNCH_SHORTCUT,
+            data = JsonHelper.encodeToString(this)
+        )
+        else -> error("Unsupported selected action type: ${this::class.java.name}")
+    }
+}
+
+private fun Action.sameAction(other: Action): Boolean {
+    return value == other.value && data == other.data
 }

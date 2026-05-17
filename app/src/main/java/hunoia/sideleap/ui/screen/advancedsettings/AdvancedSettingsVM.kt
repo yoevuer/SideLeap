@@ -58,6 +58,18 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
+    fun onMiniWindowHorizontalBiasChange(value: Float) {
+        updateUiState { it.copy(miniWindowHorizontalBias = value.coerceIn(0f, 1f)) }
+    }
+
+    fun onMiniWindowVerticalBiasChange(value: Float) {
+        updateUiState { it.copy(miniWindowVerticalBias = value.coerceIn(0f, 1f)) }
+    }
+
+    fun onMiniWindowVerticalEdgeMarginChange(value: Float) {
+        updateUiState { it.copy(miniWindowVerticalEdgeMarginFraction = value.coerceIn(0f, 0.2f)) }
+    }
+
     fun onExcludeFromRecentsChange(value: Boolean) {
         updateUiState {
             it.copy(excludeFromRecents = value)
@@ -125,7 +137,7 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         toast(R.string.clear_quick_app_stats_done)
     }
 
-    private fun saveSettings() {
+    fun saveSettings() {
         viewModelScope.launch {
             SettingsProvider.updateAdvancedSettings {
                 val uiState = uiState
@@ -134,6 +146,9 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                     fitSoftKeyboard = uiState.fitSoftKeyboard,
                     actionPanelAppLongPressLaunchPopup = uiState.actionPanelAppLongPressLaunchPopup,
                     quickLauncherAppLongPressLaunchPopup = uiState.quickLauncherAppLongPressLaunchPopup,
+                    miniWindowHorizontalBias = uiState.miniWindowHorizontalBias,
+                    miniWindowVerticalBias = uiState.miniWindowVerticalBias,
+                    miniWindowVerticalEdgeMarginFraction = uiState.miniWindowVerticalEdgeMarginFraction,
                     hideLandscape = uiState.hideLandscape,
                     hideScreenLock = uiState.hideScreenLock,
                     hideHomeScreen = uiState.hideHomeScreen,
@@ -166,6 +181,9 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                             fitSoftKeyboard = item.fitSoftKeyboard,
                             actionPanelAppLongPressLaunchPopup = item.actionPanelAppLongPressLaunchPopup,
                             quickLauncherAppLongPressLaunchPopup = item.quickLauncherAppLongPressLaunchPopup,
+                            miniWindowHorizontalBias = item.miniWindowHorizontalBias,
+                            miniWindowVerticalBias = item.miniWindowVerticalBias,
+                            miniWindowVerticalEdgeMarginFraction = item.miniWindowVerticalEdgeMarginFraction,
                             hideLandscape = item.hideLandscape,
                             hideScreenLock = item.hideScreenLock,
                             hideHomeScreen = item.hideHomeScreen,
@@ -189,6 +207,9 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         val fitSoftKeyboard: Boolean = false,
         val actionPanelAppLongPressLaunchPopup: Boolean = false,
         val quickLauncherAppLongPressLaunchPopup: Boolean = false,
+        val miniWindowHorizontalBias: Float = 0.5f,
+        val miniWindowVerticalBias: Float = 0.3f,
+        val miniWindowVerticalEdgeMarginFraction: Float = 0.05f,
         val hideLandscape: Boolean = false,
         val hideScreenLock: Boolean = false,
         val hideHomeScreen: Boolean = false,
