@@ -15,6 +15,9 @@ object AdvancedSettingsDefaults {
     const val FitSoftKeyboard = true
     const val ActionPanelAppLongPressLaunchPopup = false
     const val QuickLauncherAppLongPressLaunchPopup = false
+    const val MiniWindowHorizontalBias = 0.5f
+    const val MiniWindowVerticalBias = 0.3f
+    const val MiniWindowVerticalEdgeMarginFraction = 0.05f
     const val HideLandscape = false
     const val HideScreenLock = false
     const val HideHomeScreen = false

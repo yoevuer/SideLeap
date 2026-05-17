@@ -39,7 +39,9 @@ import hunoia.sideleap.ui.widget.MyAlertDialog
 import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.TextActionButton
 import hunoia.sideleap.ui.widget.LabeledSwitch
+import hunoia.sideleap.ui.widget.MyTextSlider
 import hunoia.sideleap.ui.widget.TopBar
+import kotlin.math.roundToInt
 
 /**
  * @author aaronzzxup@gmail.com
@@ -101,6 +103,28 @@ fun AdvancedSettingsScreen(
                         checked = uiState.quickLauncherAppLongPressLaunchPopup,
                         text = stringResource(id = R.string.quick_launcher_launch_app),
                         secondaryText = stringResource(id = R.string.quick_launcher_launch_app_hint)
+                    )
+                    MyTextSlider(
+                        value = uiState.miniWindowHorizontalBias,
+                        onValueChange = { vm.onMiniWindowHorizontalBiasChange(it) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = "${stringResource(id = R.string.mini_window_horizontal_position)} ${(uiState.miniWindowHorizontalBias * 100).roundToInt()}%",
+                        sliderValueHint = stringResource(id = R.string.left) to stringResource(id = R.string.right),
+                    )
+                    MyTextSlider(
+                        value = uiState.miniWindowVerticalBias,
+                        onValueChange = { vm.onMiniWindowVerticalBiasChange(it) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = "${stringResource(id = R.string.mini_window_vertical_position)} ${(uiState.miniWindowVerticalBias * 100).roundToInt()}%",
+                        sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+                    )
+                    MyTextSlider(
+                        value = uiState.miniWindowVerticalEdgeMarginFraction,
+                        onValueChange = { vm.onMiniWindowVerticalEdgeMarginChange(it) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = "${stringResource(id = R.string.mini_window_vertical_edge_margin)} ${(uiState.miniWindowVerticalEdgeMarginFraction * 100).roundToInt()}%",
+                        sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+                        valueRange = 0f..0.2f,
                     )
                 }
                 SectionCard(

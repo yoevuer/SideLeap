@@ -19,9 +19,24 @@ import kotlin.math.roundToInt
 
 object Launcher {
 
-    fun launchApp(context: Context, packageName: String, className: String, miniWindow: Boolean): Boolean {
+    fun launchApp(
+        context: Context,
+        packageName: String,
+        className: String,
+        miniWindow: Boolean,
+        miniWindowHorizontalBias: Float = DefaultMiniWindowHorizontalBias,
+        miniWindowVerticalBias: Float = DefaultMiniWindowVerticalBias,
+        miniWindowVerticalEdgeMarginFraction: Float = DefaultMiniWindowVerticalEdgeMarginFraction,
+    ): Boolean {
         if (miniWindow && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return launchAppInPopup(context, packageName, className)
+            return launchAppInPopup(
+                context,
+                packageName,
+                className,
+                miniWindowHorizontalBias,
+                miniWindowVerticalBias,
+                miniWindowVerticalEdgeMarginFraction,
+            )
         }
         return try {
             val intent = Intent().apply {
@@ -55,8 +70,23 @@ object Launcher {
         }
     }
 
-    fun launchAppInfo(context: Context, appInfo: AppInfo, miniWindow: Boolean): Boolean {
-        return launchApp(context, appInfo.packageName, appInfo.className, miniWindow)
+    fun launchAppInfo(
+        context: Context,
+        appInfo: AppInfo,
+        miniWindow: Boolean,
+        miniWindowHorizontalBias: Float = DefaultMiniWindowHorizontalBias,
+        miniWindowVerticalBias: Float = DefaultMiniWindowVerticalBias,
+        miniWindowVerticalEdgeMarginFraction: Float = DefaultMiniWindowVerticalEdgeMarginFraction,
+    ): Boolean {
+        return launchApp(
+            context,
+            appInfo.packageName,
+            appInfo.className,
+            miniWindow,
+            miniWindowHorizontalBias,
+            miniWindowVerticalBias,
+            miniWindowVerticalEdgeMarginFraction,
+        )
     }
 
     fun launchShortcutInfo(context: Context, shortcutInfo: LauncherInfo.ShortcutInfo): Boolean {
@@ -139,8 +169,21 @@ object Launcher {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    fun launchAppInPopup(context: Context, packageName: String, className: String): Boolean {
-        return MiniWindow.startActivity(context, ComponentName.createRelative(packageName, className))
+    fun launchAppInPopup(
+        context: Context,
+        packageName: String,
+        className: String,
+        horizontalBias: Float = DefaultMiniWindowHorizontalBias,
+        verticalBias: Float = DefaultMiniWindowVerticalBias,
+        verticalEdgeMarginFraction: Float = DefaultMiniWindowVerticalEdgeMarginFraction,
+    ): Boolean {
+        return MiniWindow.startActivity(
+            context,
+            ComponentName.createRelative(packageName, className),
+            horizontalBias,
+            verticalBias,
+            verticalEdgeMarginFraction,
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -149,10 +192,20 @@ object Launcher {
     }
 }
 
+private const val DefaultMiniWindowHorizontalBias = 0.5f
+private const val DefaultMiniWindowVerticalBias = 0.3f
+private const val DefaultMiniWindowVerticalEdgeMarginFraction = 0.05f
+
 @RequiresApi(Build.VERSION_CODES.N)
 private object MiniWindow {
 
-    fun startActivity(context: Context, component: ComponentName): Boolean {
+    fun startActivity(
+        context: Context,
+        component: ComponentName,
+        horizontalBias: Float,
+        verticalBias: Float,
+        verticalEdgeMarginFraction: Float,
+    ): Boolean {
         return try {
             val intent = Intent().apply {
                 setComponent(component)
@@ -160,7 +213,7 @@ private object MiniWindow {
                 addCategory(Intent.CATEGORY_LAUNCHER)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            val activityOptions = getActivityOptions()
+            val activityOptions = getActivityOptions(horizontalBias, verticalBias, verticalEdgeMarginFraction)
             context.startActivity(intent, activityOptions.toBundle())
             true
         } catch (ignored: Exception) {
@@ -169,16 +222,25 @@ private object MiniWindow {
         }
     }
 
-    private fun getActivityOptions(): ActivityOptions {
+    private fun getActivityOptions(
+        horizontalBias: Float,
+        verticalBias: Float,
+        verticalEdgeMarginFraction: Float,
+    ): ActivityOptions {
         val brand = Build.BRAND.lowercase()
         return when (brand) {
-            "huawei", "honor" -> makeActivityOptions(102)
-            "oppo", "oneplus", "realme" -> makeActivityOptions(100)
-            else -> makeActivityOptions(5)
+            "huawei", "honor" -> makeActivityOptions(102, horizontalBias, verticalBias, verticalEdgeMarginFraction)
+            "oppo", "oneplus", "realme" -> makeActivityOptions(100, horizontalBias, verticalBias, verticalEdgeMarginFraction)
+            else -> makeActivityOptions(5, horizontalBias, verticalBias, verticalEdgeMarginFraction)
         }
     }
 
-    private fun makeActivityOptions(mode: Int): ActivityOptions {
+    private fun makeActivityOptions(
+        mode: Int,
+        horizontalBias: Float,
+        verticalBias: Float,
+        verticalEdgeMarginFraction: Float,
+    ): ActivityOptions {
         return ActivityOptions.makeBasic().also {
             try {
                 val method = ActivityOptions::class.java.getMethod(
@@ -193,10 +255,13 @@ private object MiniWindow {
             if (mode == 5) {
                 val width = screenWidth
                 val scaledWidth = width * 0.7f
-                val left = ((screenWidth - scaledWidth) / 2f).roundToInt()
+                val left = ((screenWidth - scaledWidth) * horizontalBias.coerceIn(0f, 1f)).roundToInt()
                 val right = left + width
                 val height = (width / 0.625f).roundToInt()
-                val top = (screenHeight - height) / 2
+                val verticalMargin = (screenHeight * verticalEdgeMarginFraction.coerceIn(0f, 0.2f)).roundToInt()
+                val minTop = verticalMargin.coerceAtMost(screenHeight)
+                val maxTop = (screenHeight - verticalMargin - height).coerceAtLeast(minTop)
+                val top = (minTop + (maxTop - minTop) * verticalBias.coerceIn(0f, 1f)).roundToInt()
                 val bottom = top + height
                 bounds = Rect(left, top, right, bottom)
             }

@@ -42,6 +42,13 @@
 - 可见 Card 在 `SideGestureTheme` 内渲染，使用动态取色；窗口尺寸随 Card 实测宽高回写到 `WindowManager.LayoutParams`。
 - `PasswordGeneratorPanel` 只保留内容层，关闭、外部触摸、圆角和底部定位由运行时 overlay 负责；打开/关闭复用 QLA 的内容层淡入淡出与位移动画。
 
+### 应用小窗打开位置设置（`feat/mini-window-position-settings`）
+
+- 高级设置新增小窗打开水平/垂直位置滑杆，默认水平 50%、垂直 30%。
+- 新增小窗垂直边缘留白滑杆，默认 5%；垂直位置 0% 表示上边缘距顶部留白，100% 表示下边缘距底部留白。
+- 打开应用动作、快捷启动器打开应用和当前应用小窗动作共用同一位置配置。
+- 小窗位置通过 `ActivityOptions.setLaunchBounds` 传入；部分厂商小窗模式可能由系统决定实际位置。
+
 ### 冻结应用管理网格（`feat/frozen-app-grid`）
 
 - 冻结应用管理页和保护名单页改为自适应网格展示。

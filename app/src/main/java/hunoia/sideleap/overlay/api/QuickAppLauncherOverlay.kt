@@ -223,7 +223,8 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
             }, logTag = "touch"))
 
             setContent {
-                val quickLauncherPopup = host.advancedSettings?.quickLauncherAppLongPressLaunchPopup ?: false
+                val advancedSettings = host.advancedSettings ?: AdvancedSettings()
+                val quickLauncherPopup = advancedSettings.quickLauncherAppLongPressLaunchPopup
                 host.RenderQuickAppLauncherContent(
                     initialSettings = initialSettings,
                     quickLauncherAppLongPressLaunchPopup = quickLauncherPopup,
@@ -239,7 +240,14 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
                         val now = System.currentTimeMillis()
                         val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
                         Log.d("SideLeapLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
-                        val success = Launcher.launchAppInfo(host.context, appInfo, miniWindow)
+                        val success = Launcher.launchAppInfo(
+                            host.context,
+                            appInfo,
+                            miniWindow,
+                            advancedSettings.miniWindowHorizontalBias,
+                            advancedSettings.miniWindowVerticalBias,
+                            advancedSettings.miniWindowVerticalEdgeMarginFraction,
+                        )
                         Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
                         if (success) onAppLaunchRequested?.invoke(appInfo)
                         success
