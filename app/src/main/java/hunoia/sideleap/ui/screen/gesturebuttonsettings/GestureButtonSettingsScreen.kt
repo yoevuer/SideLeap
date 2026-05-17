@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -59,6 +61,7 @@ import hunoia.sideleap.gesture.TriggerDirection.Up
 import hunoia.sideleap.gesture.TriggerDirection.Up2
 import hunoia.sideleap.action.display.actionTextCompose
 import hunoia.sideleap.gesture.bounds
+import hunoia.sideleap.gesture.styleBy
 import hunoia.sideleap.settings.model.ActionPanelStyles
 import hunoia.sideleap.settings.model.LongSlideActionPanelStyles
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectContent
@@ -261,70 +264,61 @@ fun GestureButtonSettingsScreen(
                                 pendingActionSelect = actionSelect
                                 showActionSelect = true
                             }
+                            fun styleTrailing(direction: TriggerDirection): @Composable () -> Unit = {
+                                Surface(
+                                    onClick = { pendingActionPanelStyleDirection = direction },
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = MaterialTheme.colorScheme.surfaceVariant
+                                ) {
+                                    Text(
+                                        text = actionPanelStyleText(
+                                            gestureButton.longSlideActionPanelStyles.styleBy(direction)
+                                        ),
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Center)
-                                },
+                                onClick = { navToActionSelect(Center) },
                                 gestureButton = gestureButton,
                                 direction = Center,
                                 isLongSlide = true,
-                                secondaryText = gestureButton.longSlideActions.center.actionTextCompose()
-                            )
-                            LongSlideActionPanelStyleSettings(
-                                onClick = { pendingActionPanelStyleDirection = Center },
-                                style = gestureButton.longSlideActionPanelStyles.center
+                                secondaryText = gestureButton.longSlideActions.center.actionTextCompose(),
+                                trailing = styleTrailing(Center)
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Up)
-                                },
+                                onClick = { navToActionSelect(Up) },
                                 gestureButton = gestureButton,
                                 direction = Up,
                                 isLongSlide = true,
-                                secondaryText = gestureButton.longSlideActions.up.actionTextCompose()
-                            )
-                            LongSlideActionPanelStyleSettings(
-                                onClick = { pendingActionPanelStyleDirection = Up },
-                                style = gestureButton.longSlideActionPanelStyles.up
+                                secondaryText = gestureButton.longSlideActions.up.actionTextCompose(),
+                                trailing = styleTrailing(Up)
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Down)
-                                },
+                                onClick = { navToActionSelect(Down) },
                                 gestureButton = gestureButton,
                                 direction = Down,
                                 isLongSlide = true,
-                                secondaryText = gestureButton.longSlideActions.down.actionTextCompose()
-                            )
-                            LongSlideActionPanelStyleSettings(
-                                onClick = { pendingActionPanelStyleDirection = Down },
-                                style = gestureButton.longSlideActionPanelStyles.down
+                                secondaryText = gestureButton.longSlideActions.down.actionTextCompose(),
+                                trailing = styleTrailing(Down)
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Up2)
-                                },
+                                onClick = { navToActionSelect(Up2) },
                                 gestureButton = gestureButton,
                                 direction = Up2,
                                 isLongSlide = true,
-                                secondaryText = gestureButton.longSlideActions.up2.actionTextCompose()
-                            )
-                            LongSlideActionPanelStyleSettings(
-                                onClick = { pendingActionPanelStyleDirection = Up2 },
-                                style = gestureButton.longSlideActionPanelStyles.up2
+                                secondaryText = gestureButton.longSlideActions.up2.actionTextCompose(),
+                                trailing = styleTrailing(Up2)
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Down2)
-                                },
+                                onClick = { navToActionSelect(Down2) },
                                 gestureButton = gestureButton,
                                 direction = Down2,
                                 isLongSlide = true,
-                                secondaryText = gestureButton.longSlideActions.down2.actionTextCompose()
-                            )
-                            LongSlideActionPanelStyleSettings(
-                                onClick = { pendingActionPanelStyleDirection = Down2 },
-                                style = gestureButton.longSlideActionPanelStyles.down2
+                                secondaryText = gestureButton.longSlideActions.down2.actionTextCompose(),
+                                trailing = styleTrailing(Down2)
                             )
                         }
 
@@ -520,7 +514,8 @@ private fun MySideGestureSettings(
     direction: TriggerDirection,
     isLongSlide: Boolean,
     secondaryText: String,
-    text: String? = null
+    text: String? = null,
+    trailing: (@Composable () -> Unit)? = null
 ) {
     TextActionButton(
         onClick = onClick,
@@ -550,13 +545,8 @@ private fun MySideGestureSettings(
                 Position.Bottom -> stringResource(id = R.string.slide_to_right)
             }
         },
-        secondaryText = run {
-            if (secondaryText.isNotEmpty()) {
-                return@run secondaryText
-            }
-            stringResource(id = R.string.action_none)
-        },
         secondaryTextColor = MaterialTheme.colorScheme.primary,
+        trailing = trailing,
         prefix = {
             val imageVector = when (direction) {
                 Center2 -> Icons.Default.Adjust
@@ -611,19 +601,6 @@ private fun MySideGestureSettings(
                 tint = LocalContentColor.current
             )
         }
-    )
-}
-
-@Composable
-private fun LongSlideActionPanelStyleSettings(
-    onClick: () -> Unit,
-    style: ActionPanelStyles
-) {
-    TextActionButton(
-        onClick = onClick,
-        text = stringResource(R.string.action_panel_style),
-        secondaryText = actionPanelStyleText(style),
-        secondaryTextColor = MaterialTheme.colorScheme.primary
     )
 }
 
@@ -684,16 +661,5 @@ private fun actionPanelStyleText(style: ActionPanelStyles): String {
         ActionPanelStyles.TYPE_LIST -> stringResource(R.string.action_panel_style_list)
         ActionPanelStyles.TYPE_GRID -> stringResource(R.string.action_panel_style_grid)
         else -> stringResource(R.string.action_panel_style_arc)
-    }
-}
-
-private fun LongSlideActionPanelStyles.styleBy(direction: TriggerDirection): ActionPanelStyles {
-    return when (direction) {
-        Center -> center
-        Up -> up
-        Down -> down
-        Up2 -> up2
-        Down2 -> down2
-        Center2 -> center
     }
 }
