@@ -2,8 +2,14 @@ package hunoia.sideleap.ui.screen.frozenappmanage
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -181,48 +187,19 @@ fun FrozenAppManageScreen(
                     .fillMaxSize()
                     .padding(top = contentPadding.calculateTopPadding())
             ) {
-                AnimatedVisibility(visible = controlsVisible) {
-                    Column {
-                        FrozenAppSearchField(
-                            query = uiState.query,
-                            onQueryChange = vm::onQueryChange,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                        )
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 2.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(
-                                    id = R.string.frozen_app_count_info,
-                                    uiState.selectedCount,
-                                    uiState.frozenCount
-                                ),
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                            Spacer(Modifier.weight(1f))
-                            Text(
-                                text = stringResource(id = R.string.show_system_apps),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Switch(
-                                checked = uiState.showSystemApps,
-                                onCheckedChange = vm::onShowSystemAppsChange
-                            )
-                        }
-                    }
-                }
-
-                PullToRefreshBox(
-                    isRefreshing = uiState.refreshing,
-                    onRefresh = { vm.reloadApps() },
-                    modifier = Modifier.fillMaxSize()
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
                 ) {
-                    LazyVerticalGrid(
-                        state = gridState,
-                        columns = GridCells.Adaptive(minSize = 52.dp),
+                    PullToRefreshBox(
+                        isRefreshing = uiState.refreshing,
+                        onRefresh = { vm.reloadApps() },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        LazyVerticalGrid(
+                            state = gridState,
+                        columns = GridCells.Adaptive(minSize = 64.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         contentPadding = PaddingValues(
@@ -320,6 +297,50 @@ fun FrozenAppManageScreen(
                         }
                     }
                 }
+                }
+
+                    Column {
+                        AnimatedVisibility(
+                        visible = controlsVisible,
+                        enter = slideInVertically { height: Int -> -height } + fadeIn(),
+                        exit = slideOutVertically { height: Int -> -height } + fadeOut(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface)
+                    ) {
+                        Column {
+                            FrozenAppSearchField(
+                                query = uiState.query,
+                                onQueryChange = vm::onQueryChange,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(
+                                        id = R.string.frozen_app_count_info,
+                                        uiState.selectedCount,
+                                        uiState.frozenCount
+                                    ),
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                                Spacer(Modifier.weight(1f))
+                                Text(
+                                    text = stringResource(id = R.string.show_system_apps),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Switch(
+                                    checked = uiState.showSystemApps,
+                                    onCheckedChange = vm::onShowSystemAppsChange
+                                )
+                            }
+                        }
+                    }
+                    }
                 }
             }
         }

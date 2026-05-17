@@ -1,8 +1,14 @@
 package hunoia.sideleap.ui.screen.frozenappprotect
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -17,12 +23,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -43,7 +47,7 @@ import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppSelectableItem
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.widget.LabeledSwitch
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FrozenAppProtectContent(
     onDismiss: () -> Unit,
@@ -81,40 +85,14 @@ fun FrozenAppProtectContent(
         }
 
         Column(modifier = Modifier.fillMaxSize()) {
-            AnimatedVisibility(visible = controlsVisible) {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(stringResource(R.string.protected_list), style = MaterialTheme.typography.titleMedium)
-                        Spacer(modifier = Modifier.weight(1f))
-                        IconButton(onClick = vm::reloadApps) {
-                            Icon(Icons.Default.Refresh, contentDescription = stringResource(id = R.string.refresh))
-                        }
-                    }
-                    LabeledSwitch(
-                        onCheckedChange = vm::onShowSystemAppsChange,
-                        checked = uiState.showSystemApps,
-                        text = stringResource(id = R.string.show_system_apps)
-                    )
-
-                    FrozenAppSearchField(
-                        query = uiState.query,
-                        onQueryChange = vm::onQueryChange,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                    )
-                }
-            }
-
-            PullToRefreshBox(
-                isRefreshing = uiState.refreshing,
-                onRefresh = { vm.reloadApps() },
-                modifier = Modifier.fillMaxSize()
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
             ) {
                 LazyVerticalGrid(
                     state = gridState,
-                    columns = GridCells.Adaptive(minSize = 96.dp),
+                    columns = GridCells.Adaptive(minSize = 64.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     contentPadding = PaddingValues(
@@ -194,6 +172,39 @@ fun FrozenAppProtectContent(
                                 )
                             }
                         }
+                    }
+                }
+
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = controlsVisible,
+                    enter = slideInVertically { height: Int -> -height } + fadeIn(),
+                    exit = slideOutVertically { height: Int -> -height } + fadeOut(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(stringResource(R.string.protected_list), style = MaterialTheme.typography.titleMedium)
+                            Spacer(modifier = Modifier.weight(1f))
+                            IconButton(onClick = vm::reloadApps) {
+                                Icon(Icons.Default.Refresh, contentDescription = stringResource(id = R.string.refresh))
+                            }
+                        }
+                        LabeledSwitch(
+                            onCheckedChange = vm::onShowSystemAppsChange,
+                            checked = uiState.showSystemApps,
+                            text = stringResource(id = R.string.show_system_apps)
+                        )
+
+                        FrozenAppSearchField(
+                            query = uiState.query,
+                            onQueryChange = vm::onQueryChange,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                        )
                     }
                 }
             }
