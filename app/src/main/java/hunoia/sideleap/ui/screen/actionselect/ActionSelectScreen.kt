@@ -197,7 +197,7 @@ fun ActionSelectContent(
                                         vm.addNewShortcut(launcherInfo, shortcutInfo)
                                         if (uiState.longPressTargetIndex != null) {
                                             vm.selectLongPressAction(shortcutInfo)
-                                        } else if (uiState.selectedRecord.size < MAX_SELECT_COUNT) {
+                                        } else if (uiState.selectedRecord.size < uiState.maxSelectCount) {
                                             vm.select(shortcutInfo, true)
                                         }
                                     }
@@ -211,6 +211,7 @@ fun ActionSelectContent(
                                 createShortcuts = uiState.createShortcuts,
                                 launchShortcuts = uiState.launchShortcuts,
                                 selectedRecord = uiState.selectedRecord,
+                                maxSelectCount = uiState.maxSelectCount,
                                 longPressTargetIndex = uiState.longPressTargetIndex,
                                 selectSingle = uiState.selectSingle,
                                 snackbarHostState = snackbarHostState,

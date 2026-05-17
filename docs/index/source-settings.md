@@ -40,6 +40,7 @@
 - `BackupHelper` 负责导出与恢复。
 - `DataStore` 的实现细节被限制在 `settings/internal`。
 - 触钮角度作为 `GestureButton.angle` 随侧边/底部触钮列表保存。
+- 长滑动动作面板样式作为 `GestureButton.longSlideActionPanelStyles` 随触钮保存，样式定义位于 `settings/model/ActionPanelStyles.kt`。
 
 ## 依赖边界
 

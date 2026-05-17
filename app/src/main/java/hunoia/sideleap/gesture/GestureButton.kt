@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.blankj.utilcode.util.ColorUtils
 import com.blankj.utilcode.util.ConvertUtils
 import hunoia.sideleap.action.GestureActions
+import hunoia.sideleap.settings.model.LongSlideActionPanelStyles
 import kotlinx.serialization.Serializable
 
 object GestureButtonDefaults {
@@ -18,6 +19,7 @@ object GestureButtonDefaults {
     val Width = ConvertUtils.dp2px(16f)
     val SlideActions = GestureActions()
     val LongSlideActions = GestureActions()
+    val LongSlideActionPanelStyles = LongSlideActionPanelStyles()
     val TapActions = GestureActions()
     const val Color = android.graphics.Color.TRANSPARENT
     const val AlignRegion = true
@@ -67,6 +69,7 @@ data class GestureButton(
     val width: Int = GestureButtonDefaults.Width,
     val slideActions: GestureActions = GestureButtonDefaults.SlideActions,
     val longSlideActions: GestureActions = GestureButtonDefaults.LongSlideActions,
+    val longSlideActionPanelStyles: LongSlideActionPanelStyles = GestureButtonDefaults.LongSlideActionPanelStyles,
     val tapActions: GestureActions = GestureButtonDefaults.TapActions,
     val color: Int = GestureButtonDefaults.Color,
     val alignRegion: Boolean = GestureButtonDefaults.AlignRegion,

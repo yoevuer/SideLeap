@@ -13,12 +13,17 @@ import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,6 +61,9 @@ import hunoia.sideleap.gesture.TriggerDirection.Up
 import hunoia.sideleap.gesture.TriggerDirection.Up2
 import hunoia.sideleap.action.display.actionTextCompose
 import hunoia.sideleap.gesture.bounds
+import hunoia.sideleap.gesture.styleBy
+import hunoia.sideleap.settings.model.ActionPanelStyles
+import hunoia.sideleap.settings.model.LongSlideActionPanelStyles
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectContent
 import hunoia.sideleap.ui.screen.gestureangles.GestureButtonAngleContent
 import hunoia.sideleap.ui.theme.IconTextPadding
@@ -86,6 +94,7 @@ fun GestureButtonSettingsScreen(
     var showActionSelect by remember { mutableStateOf(false) }
     var pendingActionSelect by remember { mutableStateOf<ActionSelect?>(null) }
     var showGestureAngles by remember { mutableStateOf(false) }
+    var pendingActionPanelStyleDirection by remember { mutableStateOf<TriggerDirection?>(null) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -243,50 +252,53 @@ fun GestureButtonSettingsScreen(
                                 pendingActionSelect = actionSelect
                                 showActionSelect = true
                             }
+                            fun styleTrailing(direction: TriggerDirection): @Composable () -> Unit = {
+                                StyleTrailingDropdown(
+                                    currentStyle = gestureButton.longSlideActionPanelStyles.styleBy(direction),
+                                    onStyleSelected = { style ->
+                                        vm.updateLongSlideActionPanelStyle(direction, style)
+                                    }
+                                )
+                            }
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Center)
-                                },
+                                onClick = { navToActionSelect(Center) },
                                 gestureButton = gestureButton,
                                 direction = Center,
                                 isLongSlide = true,
-                                secondaryText = gestureButton.longSlideActions.center.actionTextCompose()
+                                secondaryText = gestureButton.longSlideActions.center.actionTextCompose(),
+                                trailing = styleTrailing(Center)
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Up)
-                                },
+                                onClick = { navToActionSelect(Up) },
                                 gestureButton = gestureButton,
                                 direction = Up,
                                 isLongSlide = true,
-                                secondaryText = gestureButton.longSlideActions.up.actionTextCompose()
+                                secondaryText = gestureButton.longSlideActions.up.actionTextCompose(),
+                                trailing = styleTrailing(Up)
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Down)
-                                },
+                                onClick = { navToActionSelect(Down) },
                                 gestureButton = gestureButton,
                                 direction = Down,
                                 isLongSlide = true,
-                                secondaryText = gestureButton.longSlideActions.down.actionTextCompose()
+                                secondaryText = gestureButton.longSlideActions.down.actionTextCompose(),
+                                trailing = styleTrailing(Down)
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Up2)
-                                },
+                                onClick = { navToActionSelect(Up2) },
                                 gestureButton = gestureButton,
                                 direction = Up2,
                                 isLongSlide = true,
-                                secondaryText = gestureButton.longSlideActions.up2.actionTextCompose()
+                                secondaryText = gestureButton.longSlideActions.up2.actionTextCompose(),
+                                trailing = styleTrailing(Up2)
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Down2)
-                                },
+                                onClick = { navToActionSelect(Down2) },
                                 gestureButton = gestureButton,
                                 direction = Down2,
                                 isLongSlide = true,
-                                secondaryText = gestureButton.longSlideActions.down2.actionTextCompose()
+                                secondaryText = gestureButton.longSlideActions.down2.actionTextCompose(),
+                                trailing = styleTrailing(Down2)
                             )
                         }
 
@@ -482,7 +494,8 @@ private fun MySideGestureSettings(
     direction: TriggerDirection,
     isLongSlide: Boolean,
     secondaryText: String,
-    text: String? = null
+    text: String? = null,
+    trailing: (@Composable () -> Unit)? = null
 ) {
     TextActionButton(
         onClick = onClick,
@@ -512,13 +525,8 @@ private fun MySideGestureSettings(
                 Position.Bottom -> stringResource(id = R.string.slide_to_right)
             }
         },
-        secondaryText = run {
-            if (secondaryText.isNotEmpty()) {
-                return@run secondaryText
-            }
-            stringResource(id = R.string.action_none)
-        },
         secondaryTextColor = MaterialTheme.colorScheme.primary,
+        trailing = trailing,
         prefix = {
             val imageVector = when (direction) {
                 Center2 -> Icons.Default.Adjust
@@ -574,4 +582,61 @@ private fun MySideGestureSettings(
             )
         }
     )
+}
+
+@Composable
+private fun StyleTrailingDropdown(
+    currentStyle: ActionPanelStyles,
+    onStyleSelected: (ActionPanelStyles) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        Surface(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            Text(
+                text = actionPanelStyleText(currentStyle),
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                onClick = {
+                    onStyleSelected(ActionPanelStyles.arc())
+                    expanded = false
+                },
+                text = { Text(stringResource(R.string.action_panel_style_arc)) }
+            )
+            DropdownMenuItem(
+                onClick = {
+                    onStyleSelected(ActionPanelStyles.list())
+                    expanded = false
+                },
+                text = { Text(stringResource(R.string.action_panel_style_list)) }
+            )
+            DropdownMenuItem(
+                onClick = {
+                    onStyleSelected(ActionPanelStyles.grid())
+                    expanded = false
+                },
+                text = { Text(stringResource(R.string.action_panel_style_grid)) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun actionPanelStyleText(style: ActionPanelStyles): String {
+    return when (style.type) {
+        ActionPanelStyles.TYPE_LIST -> stringResource(R.string.action_panel_style_list)
+        ActionPanelStyles.TYPE_GRID -> stringResource(R.string.action_panel_style_grid)
+        else -> stringResource(R.string.action_panel_style_arc)
+    }
 }

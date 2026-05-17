@@ -14,16 +14,36 @@ data class ActionPanelStyles(
 ) {
     companion object {
         const val TYPE_ARC = ActionPanelStylesDefaults.TYPE_ARC
+        const val TYPE_LIST = ActionPanelStylesDefaults.TYPE_LIST
+        const val TYPE_GRID = ActionPanelStylesDefaults.TYPE_GRID
+
+        fun arc(): ActionPanelStyles = ActionPanelStyles(TYPE_ARC)
+
+        fun list(): ActionPanelStyles = ActionPanelStyles(
+            type = TYPE_LIST,
+            json = JsonHelper.encodeToString(ListStyle())
+        )
+
+        fun grid(): ActionPanelStyles = ActionPanelStyles(
+            type = TYPE_GRID,
+            json = JsonHelper.encodeToString(GridStyle())
+        )
     }
 
     @Transient
     val value: ActionPanelStyle = run {
         val json = json
         if (json.isEmpty()) {
-            return@run ArcStyle()
+            return@run when (type) {
+                TYPE_LIST -> ListStyle()
+                TYPE_GRID -> GridStyle()
+                else -> ArcStyle()
+            }
         }
         when (type) {
             TYPE_ARC -> JsonHelper.decodeFromString<ArcStyle>(json)
+            TYPE_LIST -> JsonHelper.decodeFromString<ListStyle>(json)
+            TYPE_GRID -> JsonHelper.decodeFromString<GridStyle>(json)
             else -> error("Unknown ActionPanelStyle type: $type")
         }
     }
@@ -32,9 +52,13 @@ data class ActionPanelStyles(
 object ActionPanelStylesDefaults {
 
     const val TYPE_ARC = 1
+    const val TYPE_LIST = 2
+    const val TYPE_GRID = 3
 
     const val Type = TYPE_ARC
     val ArcStyleItemSize = ConvertUtils.dp2px(48f)
+    val ListStyleItemSize = ConvertUtils.dp2px(48f)
+    val GridStyleItemSize = ConvertUtils.dp2px(48f)
 }
 
 sealed interface ActionPanelStyle
@@ -44,3 +68,25 @@ sealed interface ActionPanelStyle
 data class ArcStyle(
     val itemSize: Int = ActionPanelStylesDefaults.ArcStyleItemSize
 ) : ActionPanelStyle
+
+@Serializable
+@Keep
+data class ListStyle(
+    val itemSize: Int = ActionPanelStylesDefaults.ListStyleItemSize
+) : ActionPanelStyle
+
+@Serializable
+@Keep
+data class GridStyle(
+    val itemSize: Int = ActionPanelStylesDefaults.GridStyleItemSize
+) : ActionPanelStyle
+
+@Serializable
+@Keep
+data class LongSlideActionPanelStyles(
+    val center: ActionPanelStyles = ActionPanelStyles(),
+    val up: ActionPanelStyles = ActionPanelStyles(),
+    val down: ActionPanelStyles = ActionPanelStyles(),
+    val up2: ActionPanelStyles = ActionPanelStyles(),
+    val down2: ActionPanelStyles = ActionPanelStyles()
+)

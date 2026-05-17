@@ -52,6 +52,7 @@ fun TextActionButton(
     secondaryText: String = "",
     secondaryTextColor: Color = MaterialTheme.colorScheme.secondary,
     prefix: (@Composable () -> Unit)? = null,
+    trailing: (@Composable () -> Unit)? = null,
     contentPadding: PaddingValues = PaddingValues(
         horizontal = ContentPaddingHorizontal,
         vertical = ContentPaddingVerticalWithSection
@@ -108,7 +109,9 @@ fun TextActionButton(
                 }
             }
         }
-        if (enabled) {
+        if (trailing != null) {
+            trailing()
+        } else if (enabled) {
             Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = text)
         }
     }

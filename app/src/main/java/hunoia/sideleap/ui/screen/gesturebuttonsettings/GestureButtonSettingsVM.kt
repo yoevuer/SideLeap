@@ -11,8 +11,10 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MinGestureButtonLength
 import hunoia.sideleap.gesture.GestureAngle
 import hunoia.sideleap.gesture.GestureButton
+import hunoia.sideleap.gesture.TriggerDirection
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.gesture.fraction
+import hunoia.sideleap.settings.model.ActionPanelStyles
 import hunoia.sideleap.system.window.rootSize
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsVM.UiState
@@ -163,6 +165,29 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
                 list.forEachIndexed { index, b ->
                     if (b.id == gestureButtonSettings.buttonId && b.position == gestureButtonSettings.position) {
                         list[index] = b.copy(angle = angle)
+                    }
+                }
+            }
+            it.copy(gestureButtons = l)
+        }
+        saveSettings()
+    }
+
+    fun updateLongSlideActionPanelStyle(direction: TriggerDirection, style: ActionPanelStyles) {
+        updateUiState {
+            val l = it.gestureButtons.toMutableList().also { list ->
+                list.forEachIndexed { index, b ->
+                    if (b.id == gestureButtonSettings.buttonId && b.position == gestureButtonSettings.position) {
+                        val styles = b.longSlideActionPanelStyles
+                        val newStyles = when (direction) {
+                            TriggerDirection.Center -> styles.copy(center = style)
+                            TriggerDirection.Up -> styles.copy(up = style)
+                            TriggerDirection.Down -> styles.copy(down = style)
+                            TriggerDirection.Up2 -> styles.copy(up2 = style)
+                            TriggerDirection.Down2 -> styles.copy(down2 = style)
+                            TriggerDirection.Center2 -> styles
+                        }
+                        list[index] = b.copy(longSlideActionPanelStyles = newStyles)
                     }
                 }
             }

@@ -476,8 +476,11 @@ class ActionSelectVM(
                 .take(1)
                 .collectLatest { (gestureSettings, gestureButtons) ->
                     updateUiState {
-                        it.copy(selectSingle = !actionSelect.isLongSlide
-                                || !gestureSettings.longSlideTriggerImmediately)
+                        val selectSingle = !actionSelect.isLongSlide || !gestureSettings.longSlideTriggerImmediately
+                        it.copy(
+                            selectSingle = selectSingle,
+                            maxSelectCount = if (selectSingle) MAX_SELECT_COUNT else LONG_SLIDE_MAX_SELECT_COUNT
+                        )
                     }
 
                     val button = gestureButtons.find {
@@ -745,6 +748,7 @@ class ActionSelectVM(
         val apps: List<AppInfo> = emptyList(),
         val createShortcuts: List<LauncherInfo> = emptyList(),
         val launchShortcuts: List<LauncherInfo> = emptyList(),
+        val maxSelectCount: Int = MAX_SELECT_COUNT,
         val selectedRecord: SelectedRecord = SelectedRecord(),
         val longPressTargetIndex: Int? = null,
         val actionSettingsDialog: ActionSettingsDialogValue = ActionSettingsDialogValue(false, Action.NONE),
