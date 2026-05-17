@@ -2,6 +2,11 @@ package hunoia.sideleap.ui.screen.frozenappmanage
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +36,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -44,7 +50,11 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -66,10 +76,21 @@ fun FrozenAppManageScreen(
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         var controlsExpanded by remember { mutableStateOf(false) }
         var controlsVisible by remember { mutableStateOf(true) }
-        var oneKeyExpanded by remember { mutableStateOf(true) }
+        var oneKeyExpanded by remember { mutableStateOf(false) }
         var controlsHeightPx by remember { mutableStateOf(0) }
         val density = LocalDensity.current
         val gridState = rememberLazyGridState()
+        val hideControlsOnUserScroll = remember {
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    if (source == NestedScrollSource.UserInput && available.y < 0f && controlsVisible) {
+                        controlsVisible = false
+                        controlsExpanded = false
+                    }
+                    return Offset.Zero
+                }
+            }
+        }
         LaunchedEffect(Unit) {
             vm.reloadApps()
         }
@@ -84,7 +105,7 @@ fun FrozenAppManageScreen(
                 if (scrollingDown) {
                     controlsVisible = false
                     controlsExpanded = false
-                } else if (scrollingUp || (index == 0 && offset == 0)) {
+                } else if (scrollingUp) {
                     controlsVisible = true
                 }
                 prevIndex = index
@@ -186,51 +207,22 @@ fun FrozenAppManageScreen(
                     .fillMaxSize()
                     .padding(top = contentPadding.calculateTopPadding())
                 ) {
-                val extraGridBottomPadding = if (controlsVisible) 0.dp else with(density) { controlsHeightPx.toDp() }
+                val gridTopPadding by animateDpAsState(
+                    targetValue = if (controlsVisible) with(density) { controlsHeightPx.toDp() } + 4.dp else 4.dp,
+                    label = "frozenManageGridTopPadding"
+                )
 
-                AnimatedVisibility(visible = controlsVisible) {
-                    Column(
-                        modifier = Modifier.onSizeChanged { controlsHeightPx = it.height }
-                    ) {
-                        FrozenAppSearchField(
-                            query = uiState.query,
-                            onQueryChange = vm::onQueryChange,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                        )
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 2.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(
-                                    id = R.string.frozen_app_count_info,
-                                    uiState.selectedCount,
-                                    uiState.frozenCount
-                                ),
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                            Spacer(Modifier.weight(1f))
-                            Text(
-                                text = stringResource(id = R.string.show_system_apps),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Switch(
-                                checked = uiState.showSystemApps,
-                                onCheckedChange = vm::onShowSystemAppsChange
-                            )
-                        }
-                    }
-                }
-
-                PullToRefreshBox(
-                    isRefreshing = uiState.refreshing,
-                    onRefresh = { vm.reloadApps() },
+                Box(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
+                        .nestedScroll(hideControlsOnUserScroll)
                 ) {
+                    PullToRefreshBox(
+                        isRefreshing = uiState.refreshing,
+                        onRefresh = { vm.reloadApps() },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
                     LazyVerticalGrid(
                         state = gridState,
                         columns = GridCells.Adaptive(minSize = 64.dp),
@@ -239,8 +231,8 @@ fun FrozenAppManageScreen(
                         contentPadding = PaddingValues(
                             start = 8.dp,
                             end = 8.dp,
-                            top = 4.dp,
-                            bottom = ScrollBottomPadding + extraGridBottomPadding
+                            top = gridTopPadding,
+                            bottom = ScrollBottomPadding
                         ),
                         modifier = Modifier.fillMaxSize()
                     ) {
@@ -332,6 +324,50 @@ fun FrozenAppManageScreen(
                     }
                 }
             }
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = controlsVisible,
+                        enter = slideInVertically { -it } + fadeIn(),
+                        exit = slideOutVertically { -it } + fadeOut(),
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .fillMaxWidth()
+                            .onSizeChanged { controlsHeightPx = it.height }
+                    ) {
+                        Surface(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
+                            Column {
+                                FrozenAppSearchField(
+                                    query = uiState.query,
+                                    onQueryChange = vm::onQueryChange,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 2.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = stringResource(
+                                            id = R.string.frozen_app_count_info,
+                                            uiState.selectedCount,
+                                            uiState.frozenCount
+                                        ),
+                                        style = MaterialTheme.typography.titleSmall
+                                    )
+                                    Spacer(Modifier.weight(1f))
+                                    Text(
+                                        text = stringResource(id = R.string.show_system_apps),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                    Switch(
+                                        checked = uiState.showSystemApps,
+                                        onCheckedChange = vm::onShowSystemAppsChange
+                                    )
+                                }
+                            }
+                        }
+                    }
+        }
         }
         }
 
