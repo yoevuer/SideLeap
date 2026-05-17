@@ -165,6 +165,14 @@ fun ActionPanel(
                         vibrations = vibrations
                     )
                 }
+                else -> {
+                    ArcActionPanel(
+                        modifier = Modifier.fillMaxSize(),
+                        actionPanelStyle = ArcStyle(),
+                        actionPanelState = actionPanelState,
+                        vibrations = vibrations
+                    )
+                }
             }
 
             AnimatedVisibility(
