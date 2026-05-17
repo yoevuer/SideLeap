@@ -10,14 +10,6 @@ import rikka.shizuku.Shizuku.UserServiceArgs
 import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.IShizukuCommandService
 import hunoia.sideleap.system.shizuku.ShizukuCommandService
-import java.util.concurrent.atomic.AtomicBoolean
-
-data class PackageCommandResult(
-    val success: Boolean,
-    val packageName: String,
-    val exitCode: Int = -1,
-    val error: String? = null
-)
 
 data class BatchFrozenResult(
     val requestedCount: Int,
@@ -31,57 +23,7 @@ data class BatchFrozenResult(
     val errorSummary: String? = null
 )
 
-data class EnablePackageResult(
-    val success: Boolean,
-    val packageName: String,
-    val exitCode: Int = -1,
-    val output: String = "",
-    val error: String? = null
-)
-
 object ShizukuCommand {
-
-    private fun createArgs(context: Context, suffix: String) = UserServiceArgs(
-        ComponentName(context.packageName, ShizukuCommandService::class.java.name)
-    ).processNameSuffix(suffix).tag("sideleap-frozen-app-action")
-        .version(1).debuggable(true).daemon(false)
-
-    private fun runWithBinder(
-        context: Context, packageName: String, suffix: String,
-        call: (IShizukuCommandService) -> String
-    ): PackageCommandResult {
-        val args = createArgs(context, suffix)
-        val latch = java.util.concurrent.CountDownLatch(1)
-        val timedOut = java.util.concurrent.atomic.AtomicBoolean(false)
-        var result = ""
-
-        val conn = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-                try {
-                    val service = IShizukuCommandService.Stub.asInterface(binder)
-                    result = call(service)
-                    try { service.destroy() } catch (_: Exception) {}
-                } catch (e: Exception) {
-                    result = "error: ${e::class.simpleName} ${e.message}"
-                } finally { latch.countDown() }
-            }
-            override fun onServiceDisconnected(name: ComponentName?) {}
-            override fun onBindingDied(name: ComponentName?) { latch.countDown() }
-            override fun onNullBinding(name: ComponentName?) { latch.countDown() }
-        }
-
-        try {
-            Shizuku.bindUserService(args, conn)
-            if (!latch.await(8, java.util.concurrent.TimeUnit.SECONDS)) timedOut.set(true)
-        } catch (e: Exception) {
-            result = "error: ${e::class.simpleName} ${e.message}"
-        } finally {
-            try { Shizuku.unbindUserService(args, conn, true) } catch (_: Exception) {}
-        }
-
-        if (timedOut.get()) return PackageCommandResult(false, packageName, error = "timeout")
-        return parseFrozenActionResult(packageName, result)
-    }
 
     fun disablePackage(context: Context, packageName: String): PackageCommandResult {
         return executePackageCommand(context, packageName, disable = true)
@@ -105,7 +47,7 @@ object ShizukuCommand {
             )
         }
 
-        val args = createArgs(context, "frozen_app_action")
+        val args = ShizukuBinderExecutor.createArgs(context, "frozen_app_action")
         val latch = java.util.concurrent.CountDownLatch(1)
         val timedOut = java.util.concurrent.atomic.AtomicBoolean(false)
         val results = mutableListOf<PackageCommandResult>()
@@ -129,7 +71,7 @@ object ShizukuCommand {
                             } else {
                                 service.enablePackageApi(packageName)
                             }
-                            val parsed = parseFrozenActionResult(packageName, apiResult)
+                            val parsed = ShizukuBinderExecutor.parseFrozenActionResult(packageName, apiResult)
                             results += parsed
                             if (!parsed.success) {
                                 Log.e(dt, "FAIL pkg=$packageName exitCode=${parsed.exitCode} error=${parsed.error}")
@@ -256,7 +198,7 @@ object ShizukuCommand {
         if (!ShizukuRuntime.isAvailable() || ShizukuRuntime.isPreV11OrUnsupported() || !ShizukuRuntime.checkPermission()) {
             return PackageCommandResult(false, packageName, error = "shizuku unavailable")
         }
-        return runWithBinder(context, packageName, "frozen_app_action") { service ->
+        return ShizukuBinderExecutor.runWithBinder(context, packageName, "frozen_app_action") { service ->
             if (disable) service.disablePackageApi(packageName) else service.enablePackageApi(packageName)
         }
     }
@@ -265,24 +207,9 @@ object ShizukuCommand {
         if (!ShizukuRuntime.awaitBinderReady()) {
             return PackageCommandResult(false, packageName, error = "shizuku binder not received")
         }
-        return runWithBinder(context, packageName, "frozen_app_action") { service ->
+        return ShizukuBinderExecutor.runWithBinder(context, packageName, "frozen_app_action") { service ->
             if (disable) service.disablePackageApi(packageName) else service.enablePackageApi(packageName)
         }
-    }
-
-    private fun parseFrozenActionResult(packageName: String, result: String): PackageCommandResult {
-        if (result.startsWith("error:")) {
-            return PackageCommandResult(false, packageName, error = result.removePrefix("error:").trim())
-        }
-        val exitCode = result.lines()
-            .firstOrNull { it.startsWith("exitCode=") }
-            ?.removePrefix("exitCode=")
-            ?.toIntOrNull() ?: -1
-        return PackageCommandResult(
-            success = exitCode == 0,
-            packageName = packageName,
-            exitCode = exitCode
-        )
     }
 
     private val enableLock = Any()
@@ -303,34 +230,34 @@ object ShizukuCommand {
 
     fun enablePackageForLauncher(context: Context, packageName: String): EnablePackageResult {
         if (!ShizukuRuntime.isAvailable()) {
-            Log.d("SideLeapLauncher", "shizuku_enable_launcher: unavailable")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: unavailable")
             return EnablePackageResult(false, packageName, error = "shizuku unavailable")
         }
         if (ShizukuRuntime.isPreV11OrUnsupported()) {
-            Log.d("SideLeapLauncher", "shizuku_enable_launcher: unsupported")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: unsupported")
             return EnablePackageResult(false, packageName, error = "shizuku unsupported")
         }
         if (!ShizukuRuntime.checkPermission()) {
-            Log.d("SideLeapLauncher", "shizuku_enable_launcher: permission denied")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: permission denied")
             return EnablePackageResult(false, packageName, error = "permission denied")
         }
 
-        Log.d("SideLeapLauncher", "shizuku_enable_launcher: target=$packageName")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: target=$packageName")
 
         var result = enableWithCachedService(context, packageName)
         if (result != null) {
-            Log.d("SideLeapLauncher", "shizuku_enable_launcher: result=${result.success}")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: result=${result.success}")
             return result
         }
 
         synchronized(enableLock) { clearEnableCache() }
         result = enableWithCachedService(context, packageName)
         if (result != null) {
-            Log.d("SideLeapLauncher", "shizuku_enable_launcher: result=${result.success} retry")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: result=${result.success} retry")
             return result
         }
 
-        Log.d("SideLeapLauncher", "shizuku_enable_launcher: failed after retry")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: failed after retry")
         return EnablePackageResult(false, packageName, error = "enable failed after retry")
     }
 
@@ -361,7 +288,7 @@ object ShizukuCommand {
             }
             return try {
                 val resultStr = cached.enablePackage(packageName)
-                parseLauncherResult(context, resultStr, packageName)
+                ShizukuBinderExecutor.parseLauncherResult(resultStr, packageName)
             } catch (e: android.os.DeadObjectException) {
                 if (BuildConfig.DEBUG) {
                     android.util.Log.d("LauncherPerf", "enable_package: bind_user_service dead pkg=$packageName ${e::class.simpleName}")
@@ -453,24 +380,6 @@ object ShizukuCommand {
             }
         }
 
-        return parseLauncherResult(context, result, packageName)
-    }
-
-    private fun parseLauncherResult(context: Context, result: String, packageName: String): EnablePackageResult {
-        val exitCode = result.lines()
-            .firstOrNull { it.startsWith("exitCode=") }
-            ?.removePrefix("exitCode=")
-            ?.toIntOrNull() ?: -1
-        val output = result.lines()
-            .firstOrNull { it.startsWith("output=") }
-            ?.removePrefix("output=") ?: ""
-        val success = exitCode == 0
-        Log.d("SideLeapLauncher", "shizuku_enable_launcher: exitCode=$exitCode success=$success")
-        for (line in result.lines()) {
-            if (line.isNotBlank()) {
-                Log.d("SideLeapLauncher", "shizuku_enable_launcher: $line")
-            }
-        }
-        return EnablePackageResult(success, packageName, exitCode, output)
+        return ShizukuBinderExecutor.parseLauncherResult(result, packageName)
     }
 }

@@ -61,21 +61,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.launcher.model.AppInfo
-import hunoia.sideleap.freeze.FrozenQuickAppLauncherQuery
+import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
-import hunoia.sideleap.settings.api.SettingsProvider
-import hunoia.sideleap.launcher.launch.QuickAppLaunch
 import hunoia.sideleap.ui.theme.AnimOverlayFade
 import hunoia.sideleap.ui.theme.AnimPanelShift
 import hunoia.sideleap.ui.theme.AnimPostHideDelay
-import hunoia.sideleap.launcher.query.AppSearch.key
-import hunoia.sideleap.launcher.query.AppSearch.sortApps
-import hunoia.sideleap.launcher.query.QuickAppLauncherAppList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.collectLatest
 import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 internal fun QuickAppLauncherContent(
@@ -90,81 +82,40 @@ internal fun QuickAppLauncherContent(
     val context = LocalContext.current
     val view = LocalView.current
     val coroutineScope = rememberCoroutineScope()
-    var appListState by remember { mutableStateOf(QuickAppLauncherAppList(emptyList(), emptySet())) }
-    var tokens by remember { mutableStateOf(emptyList<String>()) }
-    var launcherSettings by remember { mutableStateOf(initialSettings) }
-    var keyboardExpanded by remember { mutableStateOf(true) }
-    var panelVisible by remember { mutableStateOf(true) }
-    LaunchedEffect(Unit) {
-        SettingsProvider.quickAppLauncherSettings.collectLatest { launcherSettings = it }
-    }
-    LaunchedEffect(launcherSettings.showSystemApps) {
-        val state = kotlinx.coroutines.withContext(Dispatchers.IO) {
-            FrozenQuickAppLauncherQuery.queryApps(context, launcherSettings.showSystemApps)
-        }
-        appListState = state
-    }
-    val hiddenApps = launcherSettings.hiddenApps
-    val visibleApps = remember(appListState.apps, hiddenApps) {
-        appListState.apps.filter { app ->
-            if (hiddenApps.contains(app.key())) {
-                false
-            } else if (app.className.isEmpty()) {
-                hiddenApps.none { it.startsWith("${app.packageName}/") }
-            } else {
-                true
-            }
-        }
-    }
-    val filteredApps = remember(visibleApps, launcherSettings.recentLaunchTime, launcherSettings.launchCount, tokens) {
-        sortApps(context, visibleApps, launcherSettings, tokens)
+    val state = remember(coroutineScope) {
+        QuickAppLauncherState(
+            context = context,
+            coroutineScope = coroutineScope,
+            initialSettings = initialSettings,
+            quickLauncherAppLongPressLaunchPopup = quickLauncherAppLongPressLaunchPopup,
+            requestEnableFrozenPackage = requestEnableFrozenPackage,
+            onCloseAnimatedRaw = onCloseAnimated,
+            onToggleAdjust = onToggleAdjust,
+            onLaunch = onLaunch,
+            onRegisterCloseAnimated = onRegisterCloseAnimated,
+        )
     }
     val density = LocalDensity.current
     val screenWidthPx = remember { ScreenUtils.getScreenWidth() }
-    val panelWidthDp = with(density) { (screenWidthPx * launcherSettings.panelWidthFraction).toDp() }
-    val panelAlpha by animateFloatAsState(if (panelVisible) 1f else 0f, animationSpec = tween(AnimOverlayFade.toInt()), label = "panelAlpha")
-    val panelShiftY by animateFloatAsState(if (panelVisible) 0f else 18f, animationSpec = tween(AnimPanelShift.toInt()), label = "panelShiftY")
+    val panelWidthDp = with(density) { (screenWidthPx * state.launcherSettings.panelWidthFraction).toDp() }
+    val panelAlpha by animateFloatAsState(if (state.panelVisible) 1f else 0f, animationSpec = tween(AnimOverlayFade.toInt()), label = "panelAlpha")
+    val panelShiftY by animateFloatAsState(if (state.panelVisible) 0f else 18f, animationSpec = tween(AnimPanelShift.toInt()), label = "panelShiftY")
     var gridAtTop by remember { mutableStateOf(true) }
-    var closing by remember { mutableStateOf(false) }
-    val closeAnimated = {
-        if (!closing) {
-            closing = true
-            panelVisible = false
-            coroutineScope.launch {
-                delay(AnimPostHideDelay)
-                onCloseAnimated()
-            }
-        }
-    }
-    val launchApp = { app: AppInfo, isFrozen: Boolean, miniWindow: Boolean, debugPrefix: String? ->
-        QuickAppLaunch.launch(
-            context = context,
-            coroutineScope = coroutineScope,
-            app = app,
-            isFrozen = isFrozen,
-            miniWindow = miniWindow,
-            debugPrefix = debugPrefix,
-            requestEnableFrozenPackage = requestEnableFrozenPackage,
-            log = { message -> android.util.Log.d("SideLeapLauncher", message) },
-            onLaunch = onLaunch,
-            onLaunched = closeAnimated
-        )
-    }
-    LaunchedEffect(Unit) { onRegisterCloseAnimated?.invoke(closeAnimated) }
+    LaunchedEffect(Unit) { onRegisterCloseAnimated?.invoke(state.closeAnimated) }
     val gridState = rememberLazyGridState()
     LaunchedEffect(gridState) {
         snapshotFlow { gridState.firstVisibleItemIndex to gridState.firstVisibleItemScrollOffset }
             .collectLatest { (index, offset) -> gridAtTop = index == 0 && offset == 0 }
     }
-    val expandFromTopConnection = remember(gridAtTop, keyboardExpanded) {
+    val expandFromTopConnection = remember(gridAtTop, state.keyboardExpanded) {
         object : NestedScrollConnection {
             private var totalPull = 0f
 
             private fun updatePull(delta: Float) {
-                if (!keyboardExpanded && gridAtTop && delta > 0f) {
+                if (!state.keyboardExpanded && gridAtTop && delta > 0f) {
                     totalPull += delta
                     if (totalPull > 32f) {
-                        keyboardExpanded = true
+                        state.expandKeyboard()
                         totalPull = 0f
                     }
                 } else if (delta <= 0f) {
@@ -196,15 +147,15 @@ internal fun QuickAppLauncherContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .nestedScroll(expandFromTopConnection)
-                    .pointerInput(key1 = keyboardExpanded, key2 = gridAtTop) {
+                    .pointerInput(key1 = state.keyboardExpanded, key2 = gridAtTop) {
                         var totalDrag = 0f
                         detectVerticalDragGestures(
                             onDragStart = { totalDrag = 0f },
                             onVerticalDrag = { change, dragAmount ->
                                 change.consume()
                                 totalDrag += dragAmount
-                                if (keyboardExpanded && totalDrag < -32f) keyboardExpanded = false
-                                if (!keyboardExpanded && gridAtTop && totalDrag > 32f) keyboardExpanded = true
+                                if (state.keyboardExpanded && totalDrag < -32f) state.toggleKeyboard()
+                                if (!state.keyboardExpanded && gridAtTop && totalDrag > 32f) state.expandKeyboard()
                             }
                         )
                     }
@@ -215,12 +166,12 @@ internal fun QuickAppLauncherContent(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
-                        val contentHeightFraction = launcherSettings.contentHeightFraction
-                        val candidateRows = launcherSettings.candidateRows.coerceIn(1, 3)
-                        val chunkedApps = remember(filteredApps, candidateRows) { filteredApps.chunked(candidateRows) }
+                        val contentHeightFraction = state.launcherSettings.contentHeightFraction
+                        val candidateRows = state.launcherSettings.candidateRows.coerceIn(1, 3)
+                        val chunkedApps = remember(state.filteredApps, candidateRows) { state.filteredApps.chunked(candidateRows) }
                         val candidateHeight = candidateHeightFor(contentHeightFraction, candidateRows)
                         AnimatedContent(
-                            targetState = keyboardExpanded,
+                            targetState = state.keyboardExpanded,
                             transitionSpec = {
                                 fadeIn(animationSpec = tween(120)) togetherWith fadeOut(animationSpec = tween(90)) using SizeTransform(clip = false)
                             },
@@ -230,13 +181,13 @@ internal fun QuickAppLauncherContent(
                                 Column {
                                     CandidateAppRows(
                                         chunkedApps = chunkedApps,
-                                        frozenPkgs = appListState.frozenPkgs,
+                                        frozenPkgs = state.appListState.frozenPkgs,
                                         candidateHeight = candidateHeight,
                                         onClick = { app, isFrozen ->
-                                            launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
+                                            state.launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
                                         },
                                         onLongPress = { app, isFrozen ->
-                                            launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress")
+                                            state.launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress")
                                         }
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -244,46 +195,46 @@ internal fun QuickAppLauncherContent(
                                         view,
                                         listOf("QW" to "qw", "ER" to "er", "TY" to "ty", "UI" to "ui", "OP" to "op"),
                                         keyHeight = keyHeightFor(contentHeightFraction)
-                                    ) { token -> tokens = tokens + token }
+                                    ) { token -> state.addToken(token) }
                                     Spacer(modifier = Modifier.height(6.dp))
                                     KeyboardRow(
                                         view,
                                         listOf("AS" to "as", "DF" to "df", "GH" to "gh", "JK" to "jk", "L" to "l"),
                                         keyHeight = keyHeightFor(contentHeightFraction)
-                                    ) { token -> tokens = tokens + token }
+                                    ) { token -> state.addToken(token) }
                                     Spacer(modifier = Modifier.height(6.dp))
                                     KeyboardRow(
                                         view,
                                         listOf("调整" to null, "ZX" to "zx", "CV" to "cv", "BN" to "bn", "M" to "m", "删除" to null),
-                                        onDelete = { tokens = tokens.dropLast(1) },
-                                        onClear = { tokens = emptyList() },
+                                        onDelete = { state.deleteToken() },
+                                        onClear = { state.clearTokens() },
                                         onAdjust = onToggleAdjust,
                                         keyHeight = keyHeightFor(contentHeightFraction)
-                                    ) { token -> tokens = tokens + token }
+                                    ) { token -> state.addToken(token) }
                                 }
                             } else {
                                 AppGrid(
-                                    apps = filteredApps,
-                                    frozenPkgs = appListState.frozenPkgs,
+                                    apps = state.filteredApps,
+                                    frozenPkgs = state.appListState.frozenPkgs,
                                     gridState = gridState,
                                     gridAtTop = gridAtTop,
-                                    keyboardExpanded = keyboardExpanded,
+                                    keyboardExpanded = state.keyboardExpanded,
                                     contentHeightFraction = contentHeightFraction,
-                                    onExpandKeyboard = { keyboardExpanded = true },
+                                    onExpandKeyboard = { state.expandKeyboard() },
                                     onClick = { app, isFrozen ->
-                                        launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
+                                        state.launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
                                     },
                                     onLongPress = { app, isFrozen ->
-                                        launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress_grid")
+                                        state.launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress_grid")
                                     }
                                 )
                             }
                         }
                     }
                 }
+            }
         }
     }
-}
 }
 
 @Composable

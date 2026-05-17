@@ -6,6 +6,7 @@ import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.util.Log
 import android.view.MotionEvent
+import hunoia.sideleap.BuildConfig
 import android.view.View
 import android.view.WindowManager
 import androidx.compose.foundation.background
@@ -70,12 +71,11 @@ import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.settings.api.SettingsProvider
 import com.blankj.utilcode.util.ScreenUtils
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.lifecycle.setViewTreeViewModelStoreOwner
-import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
+import hunoia.sideleap.ui.theme.SideGestureTheme
+import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
+import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
@@ -104,19 +104,6 @@ interface QuickAppLauncherOverlayHost : LifecycleOwner, ViewModelStoreOwner, Sav
     val advancedSettings: AdvancedSettings?
 
     fun requestEnableFrozenPackage(packageName: String, onResult: (Boolean) -> Unit)
-
-    @Composable
-    fun RenderQuickAppLauncherContent(
-        initialSettings: QuickAppLauncherSettings,
-        quickLauncherAppLongPressLaunchPopup: Boolean,
-        onCloseAnimated: () -> Unit,
-        onToggleAdjust: () -> Unit,
-        onLaunch: (AppInfo, Boolean) -> Boolean,
-        onRegisterCloseAnimated: ((() -> Unit) -> Unit)? = null,
-    )
-
-    @Composable
-    fun RenderQuickAppLauncherAdjustPanel(onSettingsChanged: (QuickAppLauncherSettings) -> Unit)
 }
 
 class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
@@ -130,7 +117,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     var onAppLaunchRequested: ((AppInfo) -> Unit)? = null
 
     fun toggle() {
-        Log.d("SideLeapLauncher","toggle: overlayView=${overlayView != null}")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","toggle: overlayView=${overlayView != null}")
         if (overlayView != null) {
             close()
         } else {
@@ -140,13 +127,13 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
 
     fun close() {
         if (isHiding || overlayView == null) {
-            Log.d("SideLeapLauncher","close: skipped (isHiding=$isHiding overlayView=${overlayView != null})")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","close: skipped (isHiding=$isHiding overlayView=${overlayView != null})")
             return
         }
         val reason = "explicit close"
         isHiding = true
         lastCloseMs = System.currentTimeMillis()
-        Log.d("SideLeapLauncher","close: reason=$reason hasAnimation=${triggerCloseAnimated != null}")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","close: reason=$reason hasAnimation=${triggerCloseAnimated != null}")
         if (triggerCloseAnimated != null) {
             triggerCloseAnimated?.invoke()
         } else {
@@ -161,15 +148,15 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         isShowing = false
         isHiding = true
         lastCloseMs = System.currentTimeMillis()
-        Log.d("SideLeapLauncher", "closeImmediately: removing overlay")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "closeImmediately: removing overlay")
         removeOverlayView()
     }
 
     private fun removeOverlayView() {
-        Log.d("SideLeapLauncher","removeOverlayView: removing overlay")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","removeOverlayView: removing overlay")
         overlayView?.let {
             it.animate().cancel()
-            val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+            val wm = host.context.windowManager()
             runCatching { wm.removeView(it) }
         }
         overlayView = null
@@ -182,7 +169,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     fun show() {
         val now = System.currentTimeMillis()
         val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
-        Log.d("SideLeapLauncher","show: isShowing=$isShowing isHiding=$isHiding overlayView=${overlayView != null} intervalSinceLastClose=${interval}ms")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","show: isShowing=$isShowing isHiding=$isHiding overlayView=${overlayView != null} intervalSinceLastClose=${interval}ms")
         if (isShowing || isHiding || overlayView != null) return
         isShowing = true
 
@@ -202,7 +189,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
 
     private fun cleanupExistingOverlay() {
         if (overlayView != null && !isHiding) {
-            val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+            val wm = host.context.windowManager()
             runCatching { overlayView?.let { wm.removeView(it) } }
             overlayView = null
             overlayParams = null
@@ -210,13 +197,11 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     }
 
     private fun showOverlayView(initialSettings: QuickAppLauncherSettings) {
-        val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+        val wm = host.context.windowManager()
         val lp = createLayoutParams(initialSettings)
         val composeView = ComposeView(host.context).apply {
             setBackgroundColor(Color.TRANSPARENT)
-            setViewTreeLifecycleOwner(host)
-            setViewTreeViewModelStoreOwner(host)
-            setViewTreeSavedStateRegistryOwner(host)
+            applyOverlayViewTreeOwners(host)
 
             setOnTouchListener(createDismissOnOutsideTouch(onOutsideTouch = {
                 close()
@@ -225,36 +210,39 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
             setContent {
                 val advancedSettings = host.advancedSettings ?: AdvancedSettings()
                 val quickLauncherPopup = advancedSettings.quickLauncherAppLongPressLaunchPopup
-                host.RenderQuickAppLauncherContent(
-                    initialSettings = initialSettings,
-                    quickLauncherAppLongPressLaunchPopup = quickLauncherPopup,
-                    onCloseAnimated = {
-                        isShowing = false
-                        isHiding = true
-                        lastCloseMs = System.currentTimeMillis()
-                        Log.d("SideLeapLauncher","closeAnimated: triggered")
-                        removeOverlayView()
-                    },
-                    onToggleAdjust = { toggleAdjustPanel() },
-                    onLaunch = { appInfo, miniWindow ->
-                        val now = System.currentTimeMillis()
-                        val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
-                        Log.d("SideLeapLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
-                        val success = Launcher.launchAppInfo(
-                            host.context,
-                            appInfo,
-                            miniWindow,
-                            advancedSettings.miniWindowHorizontalBias,
-                            advancedSettings.miniWindowVerticalBias,
-                            advancedSettings.miniWindowVerticalEdgeMarginFraction,
-                            advancedSettings.miniWindowVerticalOffsetFraction,
-                        )
-                        Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
-                        if (success) onAppLaunchRequested?.invoke(appInfo)
-                        success
-                    },
-                    onRegisterCloseAnimated = { callback -> triggerCloseAnimated = callback }
-                )
+                SideGestureTheme {
+                    QuickAppLauncherContent(
+                        initialSettings = initialSettings,
+                        quickLauncherAppLongPressLaunchPopup = quickLauncherPopup,
+                        requestEnableFrozenPackage = host::requestEnableFrozenPackage,
+                        onCloseAnimated = {
+                            isShowing = false
+                            isHiding = true
+                            lastCloseMs = System.currentTimeMillis()
+                            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","closeAnimated: triggered")
+                            removeOverlayView()
+                        },
+                        onToggleAdjust = { toggleAdjustPanel() },
+                        onLaunch = { appInfo, miniWindow ->
+                            val now = System.currentTimeMillis()
+                            val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
+                            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
+                            val success = Launcher.launchAppInfo(
+                                host.context,
+                                appInfo,
+                                miniWindow,
+                                advancedSettings.miniWindowHorizontalBias,
+                                advancedSettings.miniWindowVerticalBias,
+                                advancedSettings.miniWindowVerticalEdgeMarginFraction,
+                                advancedSettings.miniWindowVerticalOffsetFraction,
+                            )
+                            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
+                            if (success) onAppLaunchRequested?.invoke(appInfo)
+                            success
+                        },
+                        onRegisterCloseAnimated = { callback -> triggerCloseAnimated = callback }
+                    )
+                }
             }
         }
         composeView.alpha = 0f
@@ -277,7 +265,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
 
     private fun closeAdjustPanel() {
         adjustView?.let {
-            val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+            val wm = host.context.windowManager()
             runCatching { wm.removeView(it) }
         }
         adjustView = null
@@ -285,7 +273,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
 
     private fun showAdjustPanel() {
         closeAdjustPanel()
-        val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+        val wm = host.context.windowManager()
         val lp = WindowManager.LayoutParams().apply {
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             format = PixelFormat.RGBA_8888
@@ -301,16 +289,16 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         }
         val view = ComposeView(host.context).apply {
             setBackgroundColor(Color.TRANSPARENT)
-            setViewTreeLifecycleOwner(host)
-            setViewTreeViewModelStoreOwner(host)
-            setViewTreeSavedStateRegistryOwner(host)
+            applyOverlayViewTreeOwners(host)
             setOnTouchListener(createDismissOnOutsideTouch(onOutsideTouch = {
                 closeAdjustPanel()
             }, logTag = "adjustTouch"))
             setContent {
-                    host.RenderQuickAppLauncherAdjustPanel(
+                SideGestureTheme {
+                    QuickAppLauncherAdjustPanel(
                         onSettingsChanged = { settings -> updateLayout(settings) }
                     )
+                }
             }
         }
         wm.addView(view, lp)
@@ -368,7 +356,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         val lp = overlayParams ?: return
         lp.applyPanelLayout(settings)
         runCatching {
-            val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+            val wm = host.context.windowManager()
             wm.updateViewLayout(view, lp)
         }
     }
@@ -380,12 +368,12 @@ private fun createDismissOnOutsideTouch(
     logTag: String,
 ): View.OnTouchListener = View.OnTouchListener { v, event ->
     if (event.action == MotionEvent.ACTION_OUTSIDE) {
-        Log.d("SideLeapLauncher", "$logTag: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "$logTag: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
         onOutsideTouch()
         v.performClick()
         true
     } else {
-        Log.d("SideLeapLauncher", "$logTag: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "$logTag: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
         false
     }
 }

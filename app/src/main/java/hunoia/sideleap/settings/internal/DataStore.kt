@@ -20,11 +20,13 @@ inline fun <reified T> Context.dataStore(fileName: String, defValue: T): DataSto
         override val defaultValue: T = defValue
 
         override suspend fun readFrom(input: InputStream): T {
+            val bytes = try { input.readBytes() } catch (_: Exception) { ByteArray(0) }
             return try {
-                val string = input.readBytes().decodeToString()
+                val string = bytes.decodeToString()
+                if (string.isBlank()) return defaultValue
                 JsonHelper.decodeFromString<T>(string)
             } catch (e: Exception) {
-                Log.e("DataStore", "read $fileName failed: ${e::class.simpleName} ${e.message}")
+                Log.e("DataStore", "read $fileName failed: ${e::class.simpleName} ${e.message} size=${bytes.size}")
                 defaultValue
             }
         }

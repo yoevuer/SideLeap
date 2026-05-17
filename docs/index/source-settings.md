@@ -30,10 +30,13 @@
 | `settings/model/DayNightMode.kt` | 明暗模式模型 |
 | `settings/model/AnimationStyles.kt` | 动画样式模型 |
 | `settings/model/ActionPanelStyles.kt` | 动作面板样式模型 |
+| `settings/api/GestureRuntimeSettingsProvider.kt` | 手势运行配置联合 Flow（触钮 + 手势/动作/高级设置） |
+| `settings/api/QuickLauncherSettingsProvider.kt` | 快捷启动器配置联合 Flow（启动器设置 + 冻结设置） |
 
 ## 关键入口
 
 - `SettingsProvider` 是配置读写入口。
+- `GestureRuntimeSettingsProvider` / `QuickLauncherSettingsProvider` 提供领域特定只读联合 Flow。
 - `BackupHelper` 负责导出与恢复。
 - `DataStore` 的实现细节被限制在 `settings/internal`。
 - 触钮角度作为 `GestureButton.angle` 随侧边/底部触钮列表保存。

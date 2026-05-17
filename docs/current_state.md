@@ -66,8 +66,20 @@
 - 用户继续上滑时会先隐藏控件，释放顶部可视空间，避免底部距离不足时出现回弹阻塞。
 - 一键名单和保护名单默认折叠；保护名单页弹窗高度为屏幕 70%，控件固定显示，默认不显示其他应用，仅搜索时展示匹配的其他应用。
 
+### 代码优化与架构清理（`refactor/optimize-logging-overlay`）
+
+- 全仓热路径 `Log.d` 加 `BuildConfig.DEBUG` 保护：`QuickAppLauncherOverlay`、`QuickAppLauncherActivity`、`ShizukuCommand.enablePackageForLauncher`。
+- 提取 `WindowManagerUtils.kt`（`Context.windowManager()`、`applyOverlayViewTreeOwners()`、`overlayLayoutParams()`）消除两个 Overlay 的窗口管理重复代码。
+- `QuickAppLauncherOverlayHost` 接口移除 `RenderQuickAppLauncherContent` / `RenderQuickAppLauncherAdjustPanel`，Overlay 直接调用 Compose 内容层。
+- `PasswordGeneratorPanel` 动画/状态封装为 `PasswordPanelContent`，`SideGestureService` 不再持有 Compose 渲染。
+- `QuickAppLauncherContent` 状态抽取到 `QuickAppLauncherState`，UI 不再直接执行查询/排序/启动。
+- 从 `ShizukuCommand`（476 行）拆分出 `ShizukuBinderExecutor`（绑定+超时+结果解析），减少 ShizukuCommand 到 372 行。
+- 新增 `GestureRuntimeSettingsProvider` / `QuickLauncherSettingsProvider` 提供领域特定联合 Flow。
+- `DataStore` 反序列化失败日志增加文件尺寸，空白文件跳过解码。
+- 新增单元测试：`ShizukuBinderExecutorTest`（12 cases）、`BatchFrozenResultTest`（4 cases）。
+
 ## 待办
 
-- 补充更多单元测试（Shizuku、Backup 等）
+- 实机验证快捷启动器、密码面板、手势识别、冻结功能正常
 - 人工验证密码生成器 overlay 在小屏、横屏和不同输入法下的交互
 - 定期更新本文档
