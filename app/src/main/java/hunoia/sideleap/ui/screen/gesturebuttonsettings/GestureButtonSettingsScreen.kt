@@ -56,6 +56,7 @@ import hunoia.sideleap.gesture.TriggerDirection.Up2
 import hunoia.sideleap.action.display.actionTextCompose
 import hunoia.sideleap.gesture.bounds
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectContent
+import hunoia.sideleap.ui.screen.gestureangles.GestureButtonAngleContent
 import hunoia.sideleap.ui.theme.IconTextPadding
 import hunoia.sideleap.ui.theme.MarkColorSize
 import hunoia.sideleap.ui.theme.SectionPadding
@@ -83,6 +84,7 @@ fun GestureButtonSettingsScreen(
 ) {
     var showActionSelect by remember { mutableStateOf(false) }
     var pendingActionSelect by remember { mutableStateOf<ActionSelect?>(null) }
+    var showGestureAngles by remember { mutableStateOf(false) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -297,6 +299,11 @@ fun GestureButtonSettingsScreen(
                         }
 
                         SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
+                            TextActionButton(
+                                onClick = { showGestureAngles = true },
+                                text = stringResource(id = R.string.gesture_angles),
+                                secondaryText = stringResource(id = R.string.gesture_button_angles_hint)
+                            )
                             MyTextSlider(
                                 value = gestureButton.width.toFloat(),
                                 onValueChange = { vm.onGestureButtonWidthChange(it) },
@@ -403,6 +410,24 @@ fun GestureButtonSettingsScreen(
                     onDismiss = { showActionSelect = false },
                     actionSelect = pendingActionSelect!!
                 )
+            }
+        }
+        if (showGestureAngles) {
+            val currentGestureButton = uiState.gestureButton
+            if (currentGestureButton != null) {
+                ModalBottomSheet(
+                    onDismissRequest = { showGestureAngles = false },
+                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                ) {
+                    GestureButtonAngleContent(
+                        gestureButton = currentGestureButton,
+                        onDismiss = { showGestureAngles = false },
+                        onSave = { angle ->
+                            vm.updateGestureButtonAngle(angle)
+                            showGestureAngles = false
+                        }
+                    )
+                }
             }
         }
     }

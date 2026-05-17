@@ -52,7 +52,6 @@ import hunoia.sideleap.system.vibration.VibrationDefaults.MaxCustomVibrationMs
 import hunoia.sideleap.system.vibration.VibrationDefaults.MinCustomVibrationMs
 import hunoia.sideleap.settings.api.SettingsUiDefaults.getPredefinedVibrationEffectText
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiEvent
-import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesContent
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.ItemPadding
@@ -61,7 +60,6 @@ import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.system.vibration.VibrationEffects
 import hunoia.sideleap.ui.widget.MyColumn
 import hunoia.sideleap.ui.widget.SectionCard
-import hunoia.sideleap.ui.widget.TextActionButton
 import hunoia.sideleap.ui.widget.MyTextSlider
 import hunoia.sideleap.ui.widget.LabeledSwitch
 import hunoia.sideleap.ui.widget.TopBar
@@ -78,7 +76,6 @@ fun GestureSettingsScreen(
     onBack: () -> Unit,
     vm: GestureSettingsVM = viewModel()
 ) {
-    var showGestureAngles by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     UDFComponent(
@@ -103,11 +100,6 @@ fun GestureSettingsScreen(
             )
             MyColumn(scrollState = scrollState) {
                 SectionCard {
-                    TextActionButton(
-                        onClick = { showGestureAngles = true },
-                        text = stringResource(id = R.string.gesture_angles),
-                        secondaryText = stringResource(id = R.string.gesture_angles_hint)
-                    )
                     LabeledSwitch(
                         onCheckedChange = { vm.onPreciseSlideTypeChange(it) },
                         checked = uiState.isPreciseSlideTypeEnabled,
@@ -280,15 +272,6 @@ fun GestureSettingsScreen(
                         )
                     }
                 }
-            }
-        }
-
-        if (showGestureAngles) {
-            ModalBottomSheet(
-                onDismissRequest = { showGestureAngles = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-            ) {
-                GestureAnglesContent(onDismiss = { showGestureAngles = false })
             }
         }
     }

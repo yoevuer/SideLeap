@@ -1,8 +1,6 @@
 package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
-import hunoia.sideleap.gesture.GestureAngles
-import hunoia.sideleap.settings.api.GestureSettingsDefaults.Angles
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.IsCustomVibration
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.IsPreciseSlideType
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.LongPressTriggerDelayMs
@@ -17,7 +15,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Keep
 data class GestureSettings(
-    val angles: GestureAngles = Angles,
     val slideTriggerDistance: Int = SlideTriggerDistance,
     val longPressTriggerDelayMs: Long = LongPressTriggerDelayMs,
     val longSlideTriggerDistance: Int = LongSlideTriggerDistance,

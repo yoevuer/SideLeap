@@ -22,6 +22,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+
 import hunoia.sideleap.ui.navigation.AdvancedSettings
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.ui.navigation.GestureSettings
@@ -29,6 +30,7 @@ import hunoia.sideleap.ui.navigation.FrozenAppManage
 import hunoia.sideleap.ui.navigation.Home
 import hunoia.sideleap.ui.navigation.Unlock
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsScreen
+
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsScreen
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsScreen
 import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppManageScreen

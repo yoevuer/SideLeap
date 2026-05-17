@@ -1,29 +1,28 @@
 package hunoia.sideleap.ui.screen.gestureangles
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -36,159 +35,159 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachIndexed
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.aaron.compose.component.UDFComponent
-import com.aaron.compose.component.UiBaseEvent
-import com.aaron.compose.ktx.clipToBackground
-import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
-import hunoia.sideleap.gesture.GestureAngle
-import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.GESTURE_ANGLE_BASE
-import hunoia.sideleap.gesture.copyNew
-import hunoia.sideleap.gesture.getArcDegrees
+import hunoia.sideleap.gesture.GestureAngle
+import hunoia.sideleap.gesture.GestureButton
+import hunoia.sideleap.gesture.Position
+import hunoia.sideleap.gesture.defaultGestureAngleFor
 import hunoia.sideleap.gesture.getDegree
 import hunoia.sideleap.gesture.getDegrees
 import hunoia.sideleap.gesture.getKProperty
-import hunoia.sideleap.system.api.showToast
+import hunoia.sideleap.settings.api.SettingsUiDefaults.GestureButtonColorAlpha
+import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
+import hunoia.sideleap.ui.theme.ContentPaddingVertical
 import hunoia.sideleap.ui.theme.ItemPadding
-import hunoia.sideleap.ui.theme.MinInteractiveSize
-import hunoia.sideleap.ui.widget.MyAlertDialog
-import kotlin.math.atan
-import kotlin.math.pow
+import hunoia.sideleap.ui.theme.SectionPadding
+import kotlin.math.atan2
+import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
-import kotlin.math.sqrt
 import kotlin.reflect.KProperty0
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/26
- */
-
 @Composable
-fun GestureAnglesContent(
+fun GestureButtonAngleContent(
+    gestureButton: GestureButton,
     onDismiss: () -> Unit,
-    vm: GestureAnglesVM = viewModel()
+    onSave: (GestureAngle) -> Unit
 ) {
-    UDFComponent(
-        component = vm.udfComponent,
-        onEvent = { },
-        onBaseEvent = { baseEvent ->
-            when (baseEvent) {
-                is UiBaseEvent.Finish -> { onDismiss(); true }
-                is UiBaseEvent.ResToast -> { showToast(baseEvent.res); true }
-                is UiBaseEvent.StringToast -> { showToast(baseEvent.text); true }
-                else -> false
-            }
-        }
-    ) { uiState ->
-        if (uiState.showResetWarningDialog) {
-            MyAlertDialog(
-                onDismissRequest = {
-                    vm.showResetWarningDialog(false)
-                },
-                title = stringResource(id = R.string.reset_default_settings_warning),
-                text = stringResource(id = R.string.reset_gesture_angles_warning_desc),
-                onConfirmClick = { vm.reset() }
-            )
-        }
-        Box {
-            Row(
+    var angle by remember(gestureButton.id, gestureButton.position, gestureButton.angle) {
+        mutableStateOf(gestureButton.angle)
+    }
+    val color = when (gestureButton.isDefault) {
+        true -> MaterialTheme.colorScheme.primary
+        else -> Color(gestureButton.color)
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVertical)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+        ) {
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(onClick = { vm.showResetWarningDialog(true) }) {
-                    Icon(Icons.Default.Restore, contentDescription = "Reset")
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(onClick = { vm.saveSettings() }) {
-                    Icon(Icons.Default.Done, contentDescription = "Save")
-                }
-            }
-            AdjustAngle(
-                modifier = Modifier
-                    .let { thisModifier ->
-                        if (uiState.position != Position.Bottom) thisModifier else {
-                            thisModifier.navigationBarsPadding()
-                        }
-                    }
-                    .fillMaxSize(),
-                angle = uiState.angle,
-                onAngleChange = {
-                    vm.updateGestureAngle(it)
-                },
-                position = uiState.position
+                    .size(18.dp)
+                    .background(color.copy(alpha = GestureButtonColorAlpha), CircleShape)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
             )
-
-            val iconBlock: @Composable BoxScope.(Position) -> Unit = @Composable { position ->
-                Icon(
-                    modifier = Modifier
-                        .align(
-                            alignment = when (position) {
-                                Position.Left -> Alignment.CenterStart
-                                Position.Right -> Alignment.CenterEnd
-                                Position.Bottom -> Alignment.BottomCenter
-                            }
-                        )
-                        .let {
-                            if (position != Position.Bottom) it else {
-                                it.navigationBarsPadding()
-                            }
-                        }
-                        .padding(ItemPadding)
-                        .size(MinInteractiveSize)
-                        .graphicsLayer {
-                            rotationZ = when (position) {
-                                Position.Left -> 180f
-                                Position.Right-> 0f
-                                Position.Bottom -> 90f
-                            }
-                        }
-                        .clipToBackground(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                            shape = CircleShape
-                        )
-                        .onClick {
-                            vm.switchPosition(position)
-                        },
-                    imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(id = R.string.gesture_angles),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = gestureButtonTitle(gestureButton.position),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
+            TextButton(onClick = { angle = defaultGestureAngleFor(gestureButton.position) }) {
+                Icon(Icons.Default.Restore, contentDescription = null)
+                Text(text = stringResource(id = R.string.reset))
+            }
+        }
 
-            when (uiState.position) {
-                Position.Left -> {
-                    iconBlock(Position.Right)
-                    iconBlock(Position.Bottom)
-                }
-                Position.Right -> {
-                    iconBlock(Position.Left)
-                    iconBlock(Position.Bottom)
-                }
-                Position.Bottom -> {
-                    iconBlock(Position.Left)
-                    iconBlock(Position.Right)
+        Spacer(modifier = Modifier.height(SectionPadding))
+
+        Text(
+            text = stringResource(id = R.string.gesture_button_angles_hint),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Spacer(modifier = Modifier.height(SectionPadding))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.55f),
+                    shape = MaterialTheme.shapes.extraLarge
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = MaterialTheme.shapes.extraLarge
+                )
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        ) {
+            Column {
+                AdjustAngle(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp),
+                    angle = angle,
+                    onAngleChange = { angle = it },
+                    position = gestureButton.position,
+                    color = color
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+                ) {
+                    angle.getDegrees().fastForEach { degree ->
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = "${degree.roundToInt()}°",
+                            color = color,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
                 }
             }
         }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = SectionPadding),
+            horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+        ) {
+            OutlinedButton(
+                modifier = Modifier.weight(1f),
+                onClick = onDismiss
+            ) {
+                Text(text = stringResource(id = R.string.cancel))
+            }
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = { onSave(angle) }
+            ) {
+                Text(text = stringResource(id = R.string.confirm))
+            }
+        }
+    }
+}
+
+@Composable
+private fun gestureButtonTitle(position: Position): String {
+    return when (position) {
+        Position.Left -> stringResource(id = R.string.left_gesture_button)
+        Position.Right -> stringResource(id = R.string.right_gesture_button)
+        Position.Bottom -> stringResource(id = R.string.bottom_gesture_button)
     }
 }
 
@@ -200,259 +199,201 @@ private fun AdjustAngle(
     position: Position = Position.Left,
     color: Color = MaterialTheme.colorScheme.primary
 ) {
-    val lineWidth = when (position == Position.Bottom) {
-        true -> (4.5).dp
-        else -> 6.dp
-    }
-    // 触点半径
-    val dragHandleRadius = when (position == Position.Bottom) {
-        true -> 15.dp
-        else -> 20.dp
-    }
-    // 触点所在轨道半圆半径
+    val lineWidth = 3.dp
+    val dragHandleRadius = 10.dp
+    val dragHitRadius = 26.dp
     var circleRadius by remember { mutableFloatStateOf(0f) }
-    // 触点所在轨道圆心
     var circleCenter by remember { mutableStateOf(Offset.Zero) }
     var viewBounds by remember { mutableStateOf(Rect.Zero) }
-    // 所有p值代表的角度
     val degrees = remember(angle) { angle.getDegrees() }
-    // 所有p值区间弧度代表的角度
-    val arcDegrees = remember(angle) { angle.getArcDegrees() }
-    val textMeasurer = rememberTextMeasurer()
-    val context = LocalContext.current
     Canvas(
         modifier = modifier.let {
-            val density = LocalDensity.current
-            // 两个拖拽触点间最少需要维持的夹角p值
-            val minGapP by remember(density, dragHandleRadius) {
-                derivedStateOf {
-                    // 对边
-                    val opposite = density.run { dragHandleRadius.toPx() }
-                    // 斜边
-                    val hypotenuse = circleRadius
-                    val sinVal = opposite.toDouble() / hypotenuse
-                    val radians = sin(sinVal)
-                    Math.toDegrees(radians) / GESTURE_ANGLE_BASE
-                }
-            }
             val curOnAngleChange by rememberUpdatedState(newValue = onAngleChange)
             val curAngle by rememberUpdatedState(newValue = angle)
             val curPosition by rememberUpdatedState(newValue = position)
-            it.pointerInput(dragHandleRadius) {
+            it.pointerInput(dragHitRadius) {
                 var dragOffset = Offset.Zero
+                var candidates = emptyList<KProperty0<Float>>()
                 var property: KProperty0<Float>? = null
                 detectDragGestures(
                     onDragStart = { offset ->
                         dragOffset = offset
-                        // 找到手指按住的那个拖拽触点
-                        val p = curAngle.ps.find { p ->
-                            val index = curAngle.ps.indexOf(p)
+                        candidates = curAngle.ps.mapIndexedNotNull { index, _ ->
                             val degree = curAngle.getDegree(index)
-                            // 计算触点坐标
-                            val pOffset = calcDragHandleOffset(curPosition, circleCenter, circleRadius, degree)
-                            val bounds = Rect(center = pOffset, radius = dragHandleRadius.toPx())
-                            bounds.contains(offset)
+                            val pOffset = calcOffset(circleCenter, circleRadius, toScreenDegree(curPosition, degree))
+                            val bounds = Rect(center = pOffset, radius = dragHitRadius.toPx())
+                            if (bounds.contains(offset)) curAngle.getKProperty(index) else null
                         }
-                        property = curAngle.getKProperty(p)
+                        property = candidates.singleOrNull()
                     },
                     onDrag = onDrag@{ _, dragAmount ->
                         dragOffset += dragAmount
-                        // 不在视图范围内
-                        if (!viewBounds.contains(dragOffset)) {
-                            return@onDrag
-                        }
-                        val _property = property ?: return@onDrag
-                        val opposite = when (curPosition) {
-                            Position.Left -> dragOffset.x
-                            Position.Right -> circleCenter.x - dragOffset.x
-                            Position.Bottom -> circleCenter.y - dragOffset.y
-                        }
-                        val neighbor = when (curPosition) {
-                            Position.Left, Position.Right -> circleCenter.y - dragOffset.y
-                            Position.Bottom -> circleCenter.x - dragOffset.x
-                        }
-                        val tanVal = opposite / neighbor
-                        val radians = atan(tanVal)
-                        var newDegree = Math.toDegrees(radians.toDouble())
-                        // 如果小于0表示处于下半区
-                        if (newDegree < 0f) {
-                            newDegree = 90f + (newDegree + 90f)
-                        }
-                        val newDegreeToP = newDegree / GESTURE_ANGLE_BASE
-                        val newAngle = curAngle.copyNew(
-                            fieldName = _property.name,
-                            newP = newDegreeToP.toFloat(),
-                            minGapP = minGapP.toFloat()
+                        if (!viewBounds.contains(dragOffset)) return@onDrag
+                        val newDegree = toGestureDegree(curPosition, dragOffset, circleCenter)
+                        val newP = newDegree / GESTURE_ANGLE_BASE
+                        val target = property ?: selectDragTarget(curAngle, candidates, newP) ?: return@onDrag
+                        property = target
+                        val newAngle = curAngle.copyNewNoGap(
+                            fieldName = target.name,
+                            newP = newP
                         )
                         curOnAngleChange(newAngle)
                     },
                     onDragEnd = {
                         dragOffset = Offset.Zero
+                        candidates = emptyList()
                         property = null
                     },
                     onDragCancel = {
                         dragOffset = Offset.Zero
+                        candidates = emptyList()
                         property = null
                     }
                 )
             }
         }
     ) {
-        val radius = when (position) {
-            Position.Left, Position.Right -> size.minDimension / 2f
-            Position.Bottom -> size.minDimension / 4f
-        }
-        val myCenter = when (position) {
-            Position.Left -> center.copy(x = 0f)
-            Position.Right -> center.copy(x = size.width)
-            Position.Bottom -> center.copy(y = size.height)
-        }
-        circleRadius = radius
+        val dialRadius = size.minDimension * 0.26f
+        val lineRadius = size.minDimension * 0.39f
+        circleRadius = lineRadius
+        val myCenter = center
         circleCenter = myCenter
         viewBounds = Rect(offset = Offset.Zero, size = size)
         val lineWidthPx = lineWidth.toPx()
         val pointRadiusPx = dragHandleRadius.toPx()
 
-        clipRect {
-            drawCircle(
+        drawCircle(color = color, radius = dialRadius, center = myCenter, alpha = 0.08f)
+        drawCircle(
+            color = color,
+            radius = dialRadius,
+            center = myCenter,
+            alpha = 0.25f,
+            style = Stroke(width = 2.dp.toPx())
+        )
+        drawCircle(
+            color = color,
+            radius = lineRadius,
+            center = myCenter,
+            alpha = 0.18f,
+            style = Stroke(width = 1.dp.toPx())
+        )
+
+        listOf(0f, GESTURE_ANGLE_BASE).fastForEach { degree ->
+            drawLine(
                 color = color,
-                radius = radius,
-                center = myCenter,
-                alpha = 0.1f
-            )
-            drawCircle(
-                color = color,
-                radius = radius,
-                center = myCenter,
-                alpha = 0.35f,
-                style = Stroke(width = 2.dp.toPx())
+                start = myCenter,
+                end = calcOffset(myCenter, lineRadius, toScreenDegree(position, degree)),
+                strokeWidth = 1.dp.toPx(),
+                alpha = 0.35f
             )
         }
 
         degrees.fastForEach { degree ->
-            val offset = calcDragHandleOffset(position, myCenter, radius, degree)
-            drawLine(
-                color = color,
-                start = myCenter,
-                end = offset,
-                strokeWidth = lineWidthPx
-            )
-            drawCircle(
-                color = color,
-                radius = pointRadiusPx,
-                center = offset
-            )
+            val offset = calcOffset(myCenter, lineRadius, toScreenDegree(position, degree))
+            drawLine(color = color, start = myCenter, end = offset, strokeWidth = lineWidthPx)
+            drawCircle(color = Color.White, radius = pointRadiusPx + 2.dp.toPx(), center = offset)
+            drawCircle(color = color, radius = pointRadiusPx, center = offset)
         }
 
-        drawCircle(
-            color = color,
-            radius = lineWidthPx,
-            center = myCenter
-        )
-
-        arcDegrees.fastForEachIndexed { index, arcDegree ->
-            val degree = degrees.getOrNull(index) ?: GESTURE_ANGLE_BASE
-            val (textX, textY) = calcDragHandleOffset(
-                position = position,
-                circleCenter = myCenter,
-                circleRadius = radius + 40.dp.toPx(),
-                pDegree = degree - (arcDegree / 2f)
-            )
-
-            // debug text,textY
-//            drawCircle(
-//                color = Color.Red,
-//                radius = 10.dp.toPx(),
-//                center = Offset(textX, textY)
-//            )
-
-            val displayArcDegree = "${arcDegree.roundToInt()}"
-            val hint = when (index) {
-                0 -> when (position) {
-                    Position.Left, Position.Right -> context.getString(R.string.gesture_to_top)
-                    Position.Bottom -> context.getString(R.string.gesture_to_left)
-                }
-                1 -> when (position) {
-                    Position.Left -> context.getString(R.string.gesture_to_right_top)
-                    Position.Right -> context.getString(R.string.gesture_to_left_top)
-                    Position.Bottom -> context.getString(R.string.gesture_to_top_left)
-                }
-                2 -> when (position) {
-                    Position.Left -> context.getString(R.string.gesture_to_right)
-                    Position.Right -> context.getString(R.string.gesture_to_left)
-                    Position.Bottom -> context.getString(R.string.gesture_to_top)
-                }
-                3 -> when (position) {
-                    Position.Left -> context.getString(R.string.gesture_to_right_bottom)
-                    Position.Right -> context.getString(R.string.gesture_to_left_bottom)
-                    Position.Bottom -> context.getString(R.string.gesture_to_top_right)
-                }
-                4 -> when (position) {
-                    Position.Left, Position.Right -> context.getString(R.string.gesture_to_bottom)
-                    Position.Bottom -> context.getString(R.string.gesture_to_right)
-                }
-                else -> ""
-            }
-            val displayText = when (position) {
-                Position.Left -> "$hint $displayArcDegree"
-                Position.Right -> "$displayArcDegree $hint"
-                Position.Bottom -> "$displayArcDegree\n$hint"
-            }
-            val x = when (position) {
-                Position.Left, Position.Bottom -> textX - textMeasurer.measure(displayText).size.width / 2f
-                Position.Right -> textX - textMeasurer.measure(displayText).size.width
-            }.coerceIn(0f, size.width)
-            val y = when (position) {
-                Position.Left, Position.Right -> textY - textMeasurer.measure(displayText).size.height / 2f
-                Position.Bottom -> textY - textMeasurer.measure(displayText).size.height
-            }.coerceIn(0f, size.height)
-            drawText(
-                textMeasurer = textMeasurer,
-                text = displayText,
-                topLeft = Offset(x = x, y = y),
-                style = TextStyle.Default.copy(
-                    color = color,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
+        drawCircle(color = color, radius = 7.dp.toPx(), center = myCenter)
+        drawCircle(color = Color.White, radius = 3.dp.toPx(), center = myCenter)
     }
 }
 
-private fun calcDragHandleOffset(
-    position: Position,
-    circleCenter: Offset,
-    circleRadius: Float,
-    pDegree: Float
-): Offset {
-    val transformedDegree = when (pDegree > 90f) {
-        // 当触点位于circle下半区需要转换一下，以保持和上半区角度一致
-        true -> GESTURE_ANGLE_BASE - pDegree
-        else -> pDegree
+private fun GestureAngle.copyNewNoGap(fieldName: String, newP: Float): GestureAngle {
+    val p = newP.coerceIn(0f, 1f)
+    return when (fieldName) {
+        ::p1.name -> copy(p1 = p.coerceAtMost(p2))
+        ::p2.name -> copy(p2 = p.coerceIn(p1, p3))
+        ::p3.name -> copy(p3 = p.coerceIn(p2, p4))
+        ::p4.name -> copy(p4 = p.coerceAtLeast(p3))
+        else -> this
     }
-    val radians = Math.toRadians(transformedDegree.toDouble())
-    val sin = sin(radians)
-    // 对边
-    val opposite = circleRadius * sin
-    // 邻边
-    val neighbor = sqrt(circleRadius.pow(2) - opposite.pow(2))
-    // 实际x坐标
-    val x = when (position) {
-        Position.Left -> circleCenter.x + opposite.toFloat()
-        Position.Right -> circleCenter.x - opposite.toFloat()
-        Position.Bottom -> when (pDegree > 90f) {
-            true -> circleCenter.x + neighbor.toFloat()
-            else -> circleCenter.x - neighbor.toFloat()
+}
+
+private fun selectDragTarget(
+    angle: GestureAngle,
+    candidates: List<KProperty0<Float>>,
+    newP: Float
+): KProperty0<Float>? {
+    if (candidates.isEmpty()) return null
+    if (candidates.size == 1) return candidates.first()
+    val baseline = candidates.map { angle.getP(it.name) }.average().toFloat()
+    return when (newP >= baseline) {
+        true -> candidates.maxBy { angle.indexOfP(it.name) }
+        false -> candidates.minBy { angle.indexOfP(it.name) }
+    }
+}
+
+private fun GestureAngle.getP(fieldName: String): Float {
+    return when (fieldName) {
+        ::p1.name -> p1
+        ::p2.name -> p2
+        ::p3.name -> p3
+        ::p4.name -> p4
+        else -> 0f
+    }
+}
+
+private fun GestureAngle.indexOfP(fieldName: String): Int {
+    return when (fieldName) {
+        ::p1.name -> 1
+        ::p2.name -> 2
+        ::p3.name -> 3
+        ::p4.name -> 4
+        else -> 0
+    }
+}
+
+private fun GestureAngle.getKProperty(index: Int): KProperty0<Float>? {
+    return when (index) {
+        0 -> ::p1
+        1 -> ::p2
+        2 -> ::p3
+        3 -> ::p4
+        else -> null
+    }
+}
+
+private fun calcOffset(center: Offset, radius: Float, degree: Float): Offset {
+    val radians = Math.toRadians(degree.toDouble())
+    return Offset(
+        x = center.x + radius * cos(radians).toFloat(),
+        y = center.y + radius * sin(radians).toFloat()
+    )
+}
+
+private fun toScreenDegree(position: Position, gestureDegree: Float): Float {
+    return when (position) {
+        Position.Left -> gestureDegree - 90f
+        Position.Right -> 270f - gestureDegree
+        Position.Bottom -> 180f + gestureDegree
+    }
+}
+
+private fun toGestureDegree(position: Position, offset: Offset, center: Offset): Float {
+    val dx = offset.x - center.x
+    val dy = offset.y - center.y
+    val screenDegree = normalizeDegree(Math.toDegrees(atan2(dy, dx).toDouble()).toFloat())
+    val degree = when (position) {
+        Position.Left -> {
+            val signed = if (screenDegree > 180f) screenDegree - 360f else screenDegree
+            signed + 90f
+        }
+        Position.Right -> 270f - screenDegree
+        Position.Bottom -> when {
+            screenDegree >= 180f -> screenDegree - 180f
+            screenDegree <= 90f -> GESTURE_ANGLE_BASE
+            else -> 0f
         }
     }
-    // 实际y坐标
-    val y = when (position) {
-        Position.Left, Position.Right -> when (pDegree > 90f) {
-            true -> circleCenter.y + neighbor.toFloat()
-            else -> circleCenter.y - neighbor.toFloat()
-        }
-        Position.Bottom -> circleCenter.y - opposite.toFloat()
+    return degree.coerceIn(0f, GESTURE_ANGLE_BASE)
+}
+
+private fun normalizeDegree(degree: Float): Float {
+    val normalized = degree % 360f
+    return when (normalized < 0f) {
+        true -> normalized + 360f
+        else -> normalized
     }
-    return Offset(x = x, y = y)
 }

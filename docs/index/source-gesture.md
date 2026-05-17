@@ -1,10 +1,10 @@
 # SideLeap 源码索引 - gesture/
 
-`gesture/` 承载手势按钮、方向、角度、触发槽位和输入识别语义。
+`gesture/` 承载手势按钮、方向、触钮独立角度、触发槽位和输入识别语义。
 
 ## 当前职责
 
-- 手势按钮与扩展语义：`gesture/GestureButton.kt`、`gesture/GestureButtonExt.kt`
+- 手势按钮与触钮独立角度：`gesture/GestureButton.kt`、`gesture/GestureButtonExt.kt`
 - 手势角度与方向：`gesture/GestureAngle.kt`、`gesture/TriggerDirection.kt`
 - 手势动作语义：`gesture/GestureActions.kt`
 - 位置与槽位：`gesture/Position.kt`
@@ -22,7 +22,8 @@
 ## 关键入口
 
 - `MotionEventDispatcher` 是手势输入到槽位识别的核心入口。
-- `GestureButton`、`GestureAngle`、`TriggerDirection`、`Position` 提供手势配置和解析所需的语义模型。
+- `GestureButton` 持有当前触钮的 `GestureAngle`，运行时按触钮独立判定方向。
+- `GestureAngle`、`TriggerDirection`、`Position` 提供手势配置和解析所需的语义模型。
 
 ## 依赖边界
 

@@ -26,6 +26,7 @@ object GestureButtonDefaults {
         GestureButton(
             id = ID_DEFAULT,
             position = Position.Left,
+            angle = defaultGestureAngleFor(Position.Left),
             start = 0.0f,
             end = 1.0f,
             slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.action.GlobalActions.BACK))
@@ -33,6 +34,7 @@ object GestureButtonDefaults {
         GestureButton(
             id = ID_DEFAULT,
             position = Position.Right,
+            angle = defaultGestureAngleFor(Position.Right),
             start = 0.0f,
             end = 1.0f,
             slideActions = GestureActions(center = hunoia.sideleap.action.Action.toList(hunoia.sideleap.action.GlobalActions.BACK))
@@ -42,6 +44,7 @@ object GestureButtonDefaults {
         GestureButton(
             id = ID_DEFAULT,
             position = Position.Bottom,
+            angle = defaultGestureAngleFor(Position.Bottom),
             enabled = false,
             start = 0.0f,
             end = 1.0f,
@@ -56,6 +59,7 @@ object GestureButtonDefaults {
 data class GestureButton(
     val id: String,
     val position: Position,
+    val angle: GestureAngle,
     val enabled: Boolean = GestureButtonDefaults.Enabled,
     val start: Float = GestureButtonDefaults.Start,
     val end: Float = GestureButtonDefaults.End,
@@ -81,11 +85,13 @@ data class GestureButton(
             val b1 = GestureButton(
                 id = id,
                 position = Position.Left,
+                angle = defaultGestureAngleFor(Position.Left),
                 color = color
             )
             val b2 = GestureButton(
                 id = id,
                 position = Position.Right,
+                angle = defaultGestureAngleFor(Position.Right),
                 color = color
             )
             return listOf(b1, b2)
@@ -98,6 +104,7 @@ data class GestureButton(
             return GestureButton(
                 id = id,
                 position = Position.Bottom,
+                angle = defaultGestureAngleFor(Position.Bottom),
                 color = color
             )
         }

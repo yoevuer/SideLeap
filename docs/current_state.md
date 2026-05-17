@@ -18,6 +18,15 @@
 - TopBar 中的操作按钮（Reset/Done/Save/Refresh）移入 BottomSheet 内容头部
 - 构建+人工测试通过
 
+### 触钮独立手势角度（`feat/per-button-gesture-angle`）
+
+- 手势角度从 `GestureSettings` 的按位置共享配置迁移到 `GestureButton.angle`
+- 运行时方向判定直接使用当前触钮角度
+- 全局手势角度入口移除，角度调整入口放入单个触钮设置页
+- 角度调整界面改为当前触钮专用底部弹窗
+
+### 密码生成器功能（`feat/password-generator`）
+
 ### AdvancedSettings 分节重组
 
 - 将 AdvancedSettings 从 4 节重构为清晰的 4 节：

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MinGestureButtonLength
+import hunoia.sideleap.gesture.GestureAngle
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.gesture.fraction
@@ -152,6 +153,20 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
     fun onGestureButtonAdjustFinish() {
         updateUiState {
             it.copy(isGestureButtonAdjusting = false)
+        }
+        saveSettings()
+    }
+
+    fun updateGestureButtonAngle(angle: GestureAngle) {
+        updateUiState {
+            val l = it.gestureButtons.toMutableList().also { list ->
+                list.forEachIndexed { index, b ->
+                    if (b.id == gestureButtonSettings.buttonId && b.position == gestureButtonSettings.position) {
+                        list[index] = b.copy(angle = angle)
+                    }
+                }
+            }
+            it.copy(gestureButtons = l)
         }
         saveSettings()
     }

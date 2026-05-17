@@ -28,6 +28,7 @@ data class IconResize(val ids: List<String>)
 @Serializable
 data object AdvancedSettings
 
+
 @Serializable
 @Keep
 data class GestureButtonSettings(
