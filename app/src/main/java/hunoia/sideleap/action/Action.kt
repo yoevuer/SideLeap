@@ -9,6 +9,7 @@ import kotlinx.serialization.Transient
 data class Action(
     val value: String = "0",
     val data: String = "",
+    val longPressAction: Action? = null,
     @Transient
     val extra: Any? = null
 ) {

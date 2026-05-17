@@ -5,6 +5,7 @@
 ## 当前职责
 
 - 动作核心模型：`action/Action.kt`、`action/ActionPayload.kt`、`action/ActionExecutionResult.kt`
+- 动作面板长按绑定：`Action.longPressAction` 可为单个面板动作保存长按动作，未设置时运行时回退短按动作
 - 动作定义与分类：`action/definition/*`
 - 动作常量：`action/GlobalActions.kt`
 - 动作分发：`action/ActionRegistry.kt`、`action/ActionHandler.kt`、`action/ActionHandlerContext.kt`
@@ -27,6 +28,7 @@
 ## 关键入口
 
 - `ActionCatalog` 和 `ActionDefinition` 定义有哪些动作。
+- `Action.longPressAction` 用于动作面板内的短按/长按分流；执行时仍通过同一个 `ActionRegistry` 分发。
 - `ActionRegistry` 将配置后的动作分发给对应 handler。
 - `SystemActionHandler`、`AppLaunchActionHandler`、`FreezeAppsActionHandler`、`ShortcutActionHandler`、`NavigationActionHandler` 是当前主要执行器。
 - `PasswordGeneratorActionHandler` 处理生成密码复制和打开密码生成器浮层动作。

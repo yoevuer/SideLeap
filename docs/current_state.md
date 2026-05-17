@@ -49,6 +49,14 @@
 - 打开应用动作、快捷启动器打开应用和当前应用小窗动作共用同一位置配置。
 - 小窗位置通过 `ActivityOptions.setLaunchBounds` 传入；部分厂商小窗模式可能由系统决定实际位置。
 
+### 动作面板长按动作配置（`feat/action-panel-long-press`）
+
+- 动作面板多动作列表支持给单个动作配置长按动作；长按未配置时继续执行短按动作。
+- 动作面板运行时根据 `TriggerType.Press / LongPress` 选择短按动作或 `longPressAction`，并保留原有打开应用长按小窗逻辑。
+- ActionSelect 的已选栏保持原 chip 样式，同时显示普通动作、应用和快捷方式。
+- 已选栏下方新增已选动作设置区，支持设置/清除长按动作和上移/下移排序。
+- 已选记录统一保存为 `Action`，应用和快捷方式通过 `EXTRA_LAUNCH_APP` / `EXTRA_LAUNCH_SHORTCUT` payload 表示。
+
 ### 冻结应用管理网格（`feat/frozen-app-grid`）
 
 - 冻结应用管理页和保护名单页改为自适应网格展示。

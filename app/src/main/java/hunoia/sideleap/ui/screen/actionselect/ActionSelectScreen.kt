@@ -194,7 +194,11 @@ fun ActionSelectContent(
                                             iconRes = iconRes, iconPath = null, iconBitmap = bitmap
                                         )
                                         vm.addNewShortcut(launcherInfo, shortcutInfo)
-                                        if (uiState.selectedRecord.size < MAX_SELECT_COUNT) vm.select(shortcutInfo, true)
+                                        if (uiState.longPressTargetIndex != null) {
+                                            vm.selectLongPressAction(shortcutInfo)
+                                        } else if (uiState.selectedRecord.size < MAX_SELECT_COUNT) {
+                                            vm.select(shortcutInfo, true)
+                                        }
                                     }
                                     currentLauncherInfo = null
                                 }
@@ -206,10 +210,16 @@ fun ActionSelectContent(
                                 createShortcuts = uiState.createShortcuts,
                                 launchShortcuts = uiState.launchShortcuts,
                                 selectedRecord = uiState.selectedRecord,
+                                longPressTargetIndex = uiState.longPressTargetIndex,
                                 selectSingle = uiState.selectSingle,
                                 snackbarHostState = snackbarHostState,
                                 permissionState = permissionState,
                                 onSelect = { action, selected -> vm.select(action, selected) },
+                                onSelectLongPress = { obj -> vm.selectLongPressAction(obj) },
+                                onSetLongPress = { index -> vm.startSetLongPressAction(index) },
+                                onClearLongPress = { index -> vm.clearLongPressAction(index) },
+                                onCancelLongPress = { vm.cancelSetLongPressAction() },
+                                onMoveSelected = { from, to -> vm.moveSelectedAction(from, to) },
                                 onSettingsClick = { action -> vm.actionSettingsDialog.show(true, action) },
                                 onSelectApp = { appInfo, selected -> vm.select(appInfo, selected) },
                                 onSelectShortcut = { shortcutInfo, selected -> vm.select(shortcutInfo, selected) },

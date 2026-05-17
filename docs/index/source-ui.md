@@ -38,6 +38,7 @@
 - 导航路由精简为 6 个全屏目的地（Home、Unlock、AdvancedSettings、GestureSettings、GestureButtonSettings、FrozenAppManage）。
 - 其余 Picker 页面（AppBlacklist、ActionSelect、IconResize、WaveAnimationStyle、AdjustGestureAngles、QuickAppLauncherHidden、FrozenAppProtect）改为 ModalBottomSheet，由父屏管理状态。
 - 各 `*VM` 承担页面/面板状态入口。
+- `ActionSelectContent` 的已选栏保持 chip 概览；已选栏下方的已选动作设置区负责长按动作配置和排序。
 
 ## 依赖边界
 

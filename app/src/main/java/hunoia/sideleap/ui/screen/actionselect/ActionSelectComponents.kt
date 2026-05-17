@@ -1,5 +1,6 @@
 package hunoia.sideleap.ui.screen.actionselect
 
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import androidx.compose.foundation.Image
@@ -24,6 +25,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Checkbox
@@ -82,8 +85,13 @@ import hunoia.sideleap.ui.theme.TopBarPaddingExtra
 internal fun ActionPage(
     onSettingsClick: (Action) -> Unit,
     onSelect: (Action, Boolean) -> Unit,
+    onSelectLongPress: (Any) -> Unit,
     onSelectApp: (AppInfo, Boolean) -> Unit,
     onSelectShortcut: (LauncherInfo.ShortcutInfo, Boolean) -> Unit,
+    onSetLongPress: (Int) -> Unit,
+    onClearLongPress: (Int) -> Unit,
+    onCancelLongPress: () -> Unit,
+    onMoveSelected: (Int, Int) -> Unit,
     onAppLongClick: (AppInfo) -> Unit,
     onShortcutClick: (LauncherInfo) -> Unit,
     modifier: Modifier = Modifier,
@@ -93,6 +101,7 @@ internal fun ActionPage(
     createShortcuts: List<LauncherInfo>,
     launchShortcuts: List<LauncherInfo>,
     selectedRecord: SelectedRecord,
+    longPressTargetIndex: Int?,
     selectSingle: Boolean,
     snackbarHostState: SnackbarHostState,
     permissionState: com.google.accompanist.permissions.PermissionState,
@@ -153,9 +162,8 @@ internal fun ActionPage(
         }
         map
     }
-    val selectedActions = remember(selectedRecord.list) {
-        selectedRecord.list.filterIsInstance<Action>()
-    }
+    val selectedItems = selectedRecord.list
+    val selectingLongPress = longPressTargetIndex != null
     val filteredApps = remember(appInfos, query, selectedType) {
         if (query.isNotBlank()) appInfos.filter { it.label.contains(query, ignoreCase = true) || it.packageName.contains(query, ignoreCase = true) }
         else if (selectedType != "app") emptyList()
@@ -237,14 +245,39 @@ internal fun ActionPage(
                 }
             }
         }
-        if (!selectSingle && selectedActions.isNotEmpty()) {
+        if (!selectSingle && selectedItems.isNotEmpty()) {
             item(key = "selected_bar") {
                 SelectedBar(
-                    selectedItems = selectedActions,
+                    selectedItems = selectedItems,
                     maxSelectCount = maxSelectCount,
-                    itemLabel = { context.actionText(it as Action, emptyIfNone = false) },
-                    onRemoveItem = { onSelect(it as Action, false) },
-                    onClearAll = { selectedActions.toList().forEach { onSelect(it, false) } }
+                    itemLabel = { context.selectedItemLabel(it) },
+                    onRemoveItem = { item ->
+                        when (item) {
+                            is Action -> onSelect(item, false)
+                            is AppInfo -> onSelectApp(item, false)
+                            is LauncherInfo.ShortcutInfo -> onSelectShortcut(item, false)
+                        }
+                    },
+                    onClearAll = {
+                        selectedItems.toList().forEach { item ->
+                            when (item) {
+                                is Action -> onSelect(item, false)
+                                is AppInfo -> onSelectApp(item, false)
+                                is LauncherInfo.ShortcutInfo -> onSelectShortcut(item, false)
+                            }
+                        }
+                    }
+                )
+            }
+            item(key = "selected_action_settings") {
+                SelectedActionSettings(
+                    selectedItems = selectedItems,
+                    longPressTargetIndex = longPressTargetIndex,
+                    itemLabel = { context.selectedItemLabel(it) },
+                    onSetLongPress = onSetLongPress,
+                    onClearLongPress = onClearLongPress,
+                    onCancelLongPress = onCancelLongPress,
+                    onMoveSelected = onMoveSelected
                 )
             }
         }
@@ -280,11 +313,11 @@ internal fun ActionPage(
                         ActionItem(
                             action = item,
                             selected = selectedRecord.isSelected(item),
-                            selectSingle = selectSingle,
-                            enabled = canActionEnabled(selectedRecord, item, maxSelectCount),
+                            selectSingle = selectSingle || selectingLongPress,
+                            enabled = selectingLongPress || canActionEnabled(selectedRecord, item, maxSelectCount),
                             snackbarHostState = snackbarHostState,
                             onSelect = { selected ->
-                                onSelect(item, selected)
+                                if (selectingLongPress) onSelectLongPress(item) else onSelect(item, selected)
                             },
                             showSettings = ActionCatalog.hasConfig(item.value),
                             onSettingsClick = {
@@ -296,9 +329,11 @@ internal fun ActionPage(
             }
             if (filteredApps.isNotEmpty()) {
                 items(items = filteredApps, key = { "app_${it.qualifiedName}" }) { item ->
-                    AppItem(appInfo = item, selected = selectedRecord.isSelected(item), selectSingle = selectSingle,
-                        enabled = canAppInfoEnabled(selectedRecord, item, maxSelectCount),
-                        onSelect = { selected -> onSelectApp(item, selected) }, onLongClick = { onAppLongClick(item) })
+                    AppItem(appInfo = item, selected = selectedRecord.isSelected(item), selectSingle = selectSingle || selectingLongPress,
+                        enabled = selectingLongPress || canAppInfoEnabled(selectedRecord, item, maxSelectCount),
+                        onSelect = { selected ->
+                            if (selectingLongPress) onSelectLongPress(item) else onSelectApp(item, selected)
+                        }, onLongClick = { onAppLongClick(item) })
                 }
             }
             if (filteredCreateShortcuts.isNotEmpty()) {
@@ -307,11 +342,13 @@ internal fun ActionPage(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = ContentPaddingHorizontal * 2, vertical = 8.dp))
                 }
                 items(items = filteredCreateShortcuts, key = { "cs_${it.qualifiedName}" }) { item ->
-                    LauncherInfoItem(launcherInfo = item, selectSingle = selectSingle,
-                        canLauncherInfoEnabled = { canLauncherInfoEnabled(selectedRecord, it, maxSelectCount) },
-                        canShortcutInfoEnabled = { canShortcutInfoEnabled(selectedRecord, it, maxSelectCount) },
+                    LauncherInfoItem(launcherInfo = item, selectSingle = selectSingle || selectingLongPress,
+                        canLauncherInfoEnabled = { selectingLongPress || canLauncherInfoEnabled(selectedRecord, it, maxSelectCount) },
+                        canShortcutInfoEnabled = { selectingLongPress || canShortcutInfoEnabled(selectedRecord, it, maxSelectCount) },
                         isShortcutInfoSelected = { selectedRecord.isSelected(it) },
-                        onSelect = { s, sel -> onSelectShortcut(s, sel) }, onClick = { onShortcutClick(item) })
+                        onSelect = { s, sel ->
+                            if (selectingLongPress) onSelectLongPress(s) else onSelectShortcut(s, sel)
+                        }, onClick = { onShortcutClick(item) })
                 }
             }
             if (filteredLaunchShortcuts.isNotEmpty()) {
@@ -320,11 +357,13 @@ internal fun ActionPage(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = ContentPaddingHorizontal * 2, vertical = 8.dp))
                 }
                 items(items = filteredLaunchShortcuts, key = { "ls_${it.qualifiedName}" }) { item ->
-                    LauncherInfoItem(launcherInfo = item, selectSingle = selectSingle,
-                        canLauncherInfoEnabled = { canLauncherInfoEnabled(selectedRecord, it, maxSelectCount) },
-                        canShortcutInfoEnabled = { canShortcutInfoEnabled(selectedRecord, it, maxSelectCount) },
+                    LauncherInfoItem(launcherInfo = item, selectSingle = selectSingle || selectingLongPress,
+                        canLauncherInfoEnabled = { selectingLongPress || canLauncherInfoEnabled(selectedRecord, it, maxSelectCount) },
+                        canShortcutInfoEnabled = { selectingLongPress || canShortcutInfoEnabled(selectedRecord, it, maxSelectCount) },
                         isShortcutInfoSelected = { selectedRecord.isSelected(it) },
-                        onSelect = { s, sel -> onSelectShortcut(s, sel) }, onClick = {})
+                        onSelect = { s, sel ->
+                            if (selectingLongPress) onSelectLongPress(s) else onSelectShortcut(s, sel)
+                        }, onClick = {})
                 }
             }
         }
@@ -466,6 +505,106 @@ internal fun ActionItem(
 }
 
 @Composable
+internal fun SelectedActionSettings(
+    selectedItems: List<Any>,
+    longPressTargetIndex: Int?,
+    itemLabel: (Any) -> String,
+    onSetLongPress: (Int) -> Unit,
+    onClearLongPress: (Int) -> Unit,
+    onCancelLongPress: () -> Unit,
+    onMoveSelected: (Int, Int) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ContentPaddingHorizontal * 2, vertical = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.selected_action_settings),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            if (longPressTargetIndex != null) {
+                TextButton(onClick = onCancelLongPress) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        }
+        selectedItems.forEachIndexed { index, item ->
+            val action = item as? Action
+            val longPressAction = action?.longPressAction
+            val shortPressText = itemLabel(item)
+            val longPressText = if (longPressAction != null) {
+                LocalContext.current.actionText(longPressAction, emptyIfNone = false)
+            } else {
+                stringResource(R.string.long_press_action_fallback)
+            }
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = if (longPressTargetIndex == index) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant
+                }
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "${index + 1}. ${shortPressText.take(2)} / ${longPressText.take(2)}",
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        if (longPressAction != null) {
+                            TextButton(
+                                onClick = { onClearLongPress(index) },
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
+                            ) {
+                                Text(stringResource(R.string.clear_long_press_action))
+                            }
+                        } else {
+                            TextButton(
+                                onClick = { onSetLongPress(index) },
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
+                            ) {
+                                Text(stringResource(R.string.set_long_press_action))
+                            }
+                        }
+                        IconButton(
+                            enabled = index > 0,
+                            onClick = { onMoveSelected(index, index - 1) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.move_up))
+                        }
+                        IconButton(
+                            enabled = index < selectedItems.lastIndex,
+                            onClick = { onMoveSelected(index, index + 1) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.move_down))
+                        }
+                    }
+                    if (longPressTargetIndex == index) {
+                        Text(
+                            text = stringResource(R.string.choose_long_press_action_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 internal fun SelectedBar(
     selectedItems: List<Any>,
     maxSelectCount: Int,
@@ -526,5 +665,14 @@ internal fun SelectedBar(
         ) {
             Text(stringResource(R.string.clear_all))
         }
+    }
+}
+
+private fun Context.selectedItemLabel(item: Any): String {
+    return when (item) {
+        is Action -> actionText(item, emptyIfNone = false)
+        is AppInfo -> item.label
+        is LauncherInfo.ShortcutInfo -> item.label
+        else -> ""
     }
 }

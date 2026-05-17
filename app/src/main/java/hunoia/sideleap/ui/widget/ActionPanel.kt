@@ -421,8 +421,14 @@ class ActionPanelState(private val coroutineScope: CoroutineScope) : LongSlideSt
         private set
     private val pendingActions: MutableMap<Int, Action> = mutableStateMapOf()
 
-    val selectedAction: Action by derivedStateOf {
+    private val selectedBaseAction: Action by derivedStateOf {
         pendingActions.values.find { it != Action.NONE } ?: Action.NONE
+    }
+    val selectedAction: Action by derivedStateOf {
+        when (triggerType) {
+            TriggerType.Press -> selectedBaseAction
+            TriggerType.LongPress -> selectedBaseAction.longPressAction ?: selectedBaseAction
+        }
     }
     var triggerType: TriggerType by mutableStateOf(TriggerType.Press)
         private set
