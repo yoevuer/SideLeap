@@ -13,7 +13,7 @@
 - 配置模型：`settings/model/*`
 - 手势角度随 `GestureButton` 持久化，不再由 `GestureSettings` 按位置保存
 - 密码生成器配置：`ActionSettings.PasswordGenerator`
-- 小窗打开位置：`AdvancedSettings.miniWindowHorizontalBias` / `miniWindowVerticalBias` / `miniWindowVerticalEdgeMarginFraction`
+- 小窗打开位置：`AdvancedSettings.miniWindowHorizontalBias` / `miniWindowVerticalBias` / `miniWindowVerticalEdgeMarginFraction` / `miniWindowVerticalOffsetFraction`
 
 ## 主要源码路径
 
@@ -43,5 +43,5 @@
 - `settings` 是配置权威边界。
 - 下游领域通过读取结果、状态快照或 updater 使用配置，不应各自持久化。
 - 密码生成器的长度和字符类型配置随 `ActionSettings` 持久化，当前生成密码和显示状态不持久化。
-- 应用小窗打开水平/垂直位置和垂直边缘留白随 `AdvancedSettings` 持久化，供打开应用动作、快捷启动器和当前应用小窗动作读取。
+- 应用小窗打开水平/垂直位置、垂直边缘留白和垂直补偿随 `AdvancedSettings` 持久化，供打开应用动作、快捷启动器和当前应用小窗动作读取。
 - `settings` 的对外依赖应保持最小，优先只依赖 `core`。

@@ -15,8 +15,9 @@ object FreezeLaunch {
         className: String,
         miniWindow: Boolean = false,
         miniWindowHorizontalBias: Float = 0.5f,
-        miniWindowVerticalBias: Float = 0.3f,
+        miniWindowVerticalBias: Float = 0.7f,
         miniWindowVerticalEdgeMarginFraction: Float = 0.05f,
+        miniWindowVerticalOffsetFraction: Float = 0f,
         unfreezePackage: suspend (context: Context, packageName: String) -> Boolean = { _, _ -> true }
     ): Boolean {
         if (FreezeState.isFrozen(context, packageName)) {
@@ -37,6 +38,7 @@ object FreezeLaunch {
             miniWindowHorizontalBias,
             miniWindowVerticalBias,
             miniWindowVerticalEdgeMarginFraction,
+            miniWindowVerticalOffsetFraction,
         )
     }
 
@@ -65,8 +67,9 @@ object FreezeLaunch {
         className: String,
         miniWindow: Boolean = false,
         miniWindowHorizontalBias: Float = 0.5f,
-        miniWindowVerticalBias: Float = 0.3f,
+        miniWindowVerticalBias: Float = 0.7f,
         miniWindowVerticalEdgeMarginFraction: Float = 0.05f,
+        miniWindowVerticalOffsetFraction: Float = 0f,
     ): Boolean {
         return Launcher.launchApp(
             context,
@@ -76,6 +79,7 @@ object FreezeLaunch {
             miniWindowHorizontalBias,
             miniWindowVerticalBias,
             miniWindowVerticalEdgeMarginFraction,
+            miniWindowVerticalOffsetFraction,
         )
     }
 
