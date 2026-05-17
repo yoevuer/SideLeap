@@ -29,6 +29,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
                     it.copy(
                         showSystemApps = settings.showSystemAppsInManagePage,
                         oneKeyPackageNames = settings.oneKeyPackageNames,
+                        pendingOneKeyPackageNames = settings.oneKeyPackageNames,
                         protectedPackageNames = settings.protectedPackageNames
                     )
                 }
@@ -56,21 +57,24 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
     }
 
     fun onOneKeyChecked(packageName: String, checked: Boolean) {
+        updateUiState {
+            val next = it.pendingOneKeyPackageNames.toMutableSet()
+            if (checked) next.add(packageName) else next.remove(packageName)
+            it.copy(pendingOneKeyPackageNames = next)
+        }
+    }
+
+    fun commitSelections() {
         viewModelScope.launch {
             SettingsProvider.updateFrozenAppSettings { settings ->
-                val next = settings.oneKeyPackageNames.toMutableSet()
-                if (checked) {
-                    next.add(packageName)
-                } else {
-                    next.remove(packageName)
-                }
-                settings.copy(oneKeyPackageNames = next)
+                settings.copy(oneKeyPackageNames = uiState.pendingOneKeyPackageNames)
             }
         }
     }
 
     fun reloadApps() {
         viewModelScope.launch {
+            commitSelections()
             updateUiState { it.copy(refreshing = true) }
             val apps = withContext(Dispatchers.IO) {
                 val context = AppContext.get()
@@ -172,6 +176,15 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
         }
     }
 
+    fun onOneKeySelectFrozen() {
+        val frozenPkgs = uiState.frozenStateByPackage.filter { it.value }.keys
+        updateUiState {
+            val next = it.pendingOneKeyPackageNames.toMutableSet()
+            next.addAll(frozenPkgs)
+            it.copy(pendingOneKeyPackageNames = next)
+        }
+    }
+
     private fun currentOneKeyTargetsInRange(): List<String> {
         return FreezeAction.computeOneKeyTargetsInRange(
             uiState.apps, uiState.oneKeyPackageNames, uiState.protectedPackageNames
@@ -229,6 +242,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
         val query: String = "",
         val showSystemApps: Boolean = false,
         val oneKeyPackageNames: Set<String> = FrozenAppSettings().oneKeyPackageNames,
+        val pendingOneKeyPackageNames: Set<String> = oneKeyPackageNames,
         val protectedPackageNames: Set<String> = FrozenAppSettings().protectedPackageNames,
         val selectedCount: Int = 0,
         val frozenCount: Int = 0,

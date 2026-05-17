@@ -1,15 +1,18 @@
 package hunoia.sideleap.ui.screen.frozenappmanage
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -18,15 +21,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.imageLoader
-import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.ext.icon
@@ -57,70 +63,68 @@ fun FrozenAppSearchField(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FrozenAppSelectableItem(
     app: AppInfo,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
     isFrozen: Boolean = false,
-    showFrozenIndicator: Boolean = false,
-    frozenActionEnabled: Boolean = false,
-    onFrozenActionClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    isPending: Boolean = false,
+    longClickEnabled: Boolean = true,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
 ) {
-    Row(
-        modifier = modifier
+    val overlayColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+
+    Box(
+        modifier = Modifier
             .fillMaxWidth()
-            .onClick { onCheckedChange(!checked) }
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = if (longClickEnabled) onLongClick else null,
+            )
+            .padding(2.dp)
+            .clip(RoundedCornerShape(12.dp))
     ) {
-        val context = LocalContext.current
-        AsyncImage(
-            model = app.icon,
-            contentDescription = null,
-            imageLoader = context.imageLoader,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.size(40.dp)
-        )
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 12.dp, end = 8.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = app.label,
-                style = MaterialTheme.typography.titleMedium,
-                color = if (isFrozen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = app.packageName,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        if (showFrozenIndicator) {
-            IconButton(
-                enabled = frozenActionEnabled,
-                onClick = {
-                    onFrozenActionClick?.invoke()
-                }
+            Box(
+                modifier = Modifier.size(40.dp)
             ) {
-                Icon(
-                    modifier = Modifier.alpha(if (isFrozen) 1f else 0.45f),
-                    imageVector = Icons.Default.AcUnit,
-                    contentDescription = stringResource(id = R.string.frozen_state_indicator),
-                    tint = if (isFrozen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                val context = LocalContext.current
+                AsyncImage(
+                    model = app.icon,
+                    contentDescription = null,
+                    imageLoader = context.imageLoader,
+                    contentScale = ContentScale.Crop,
+                    colorFilter = if (isFrozen) {
+                        ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+                    } else null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
                 )
             }
+            Text(
+                text = app.label,
+                style = MaterialTheme.typography.labelSmall,
+                color = if (isFrozen) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)
+            )
         }
-        Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange
-        )
+        if (isPending) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(overlayColor)
+            )
+        }
     }
 }

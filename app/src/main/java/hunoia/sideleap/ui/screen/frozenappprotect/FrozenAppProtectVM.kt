@@ -29,7 +29,8 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
                     it.copy(
                         showSystemApps = settings.showSystemAppsInProtectPage,
                         oneKeyPackageNames = settings.oneKeyPackageNames,
-                        protectedPackageNames = settings.protectedPackageNames
+                        protectedPackageNames = settings.protectedPackageNames,
+                        pendingProtectedPackageNames = settings.protectedPackageNames
                     )
                 }
                 recompute()
@@ -54,19 +55,21 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
     }
 
     fun onProtectedChecked(packageName: String, checked: Boolean) {
+        updateUiState {
+            val next = it.pendingProtectedPackageNames.toMutableSet()
+            if (checked) next.add(packageName) else next.remove(packageName)
+            it.copy(pendingProtectedPackageNames = next)
+        }
+    }
+
+    fun commitSelections() {
         viewModelScope.launch {
+            val pending = uiState.pendingProtectedPackageNames
             SettingsProvider.updateFrozenAppSettings { settings ->
-                val protected = settings.protectedPackageNames.toMutableSet()
-                val oneKey = settings.oneKeyPackageNames.toMutableSet()
-                if (checked) {
-                    protected.add(packageName)
-                    oneKey.remove(packageName)
-                } else {
-                    protected.remove(packageName)
-                }
+                val newOneKey = settings.oneKeyPackageNames - pending
                 settings.copy(
-                    protectedPackageNames = protected,
-                    oneKeyPackageNames = oneKey
+                    protectedPackageNames = pending,
+                    oneKeyPackageNames = newOneKey
                 )
             }
         }
@@ -74,6 +77,7 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
 
     fun reloadApps() {
         viewModelScope.launch {
+            commitSelections()
             updateUiState { it.copy(refreshing = true) }
             val apps = withContext(Dispatchers.IO) {
                 val context = AppContext.get()
@@ -144,15 +148,15 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
         }
 
         val protectedSet = uiState.protectedPackageNames
-        val protectedFirst = filtered.sortedWith(
-            compareByDescending<AppInfo> { it.packageName in protectedSet }
-                .thenBy { it.label.lowercase() }
-        )
+        val protectedApps = filtered.filter { it.packageName in protectedSet }
+        val unprotectedApps = filtered.filter { it.packageName !in protectedSet }
 
         updateUiState {
             it.copy(
                 visibleApps = filtered,
-                protectedAppsFirst = protectedFirst,
+                protectedAppsFirst = protectedApps + unprotectedApps,
+                protectedApps = protectedApps,
+                unprotectedApps = unprotectedApps,
                 hasAnyAppInRange = sorted.isNotEmpty(),
                 hasSearchResult = filtered.isNotEmpty()
             )
@@ -164,10 +168,13 @@ class FrozenAppProtectVM : BaseComposeVM<FrozenAppProtectVM.UiState, FrozenAppPr
         val apps: List<AppInfo> = emptyList(),
         val visibleApps: List<AppInfo> = emptyList(),
         val protectedAppsFirst: List<AppInfo> = emptyList(),
+        val protectedApps: List<AppInfo> = emptyList(),
+        val unprotectedApps: List<AppInfo> = emptyList(),
         val query: String = "",
         val showSystemApps: Boolean = false,
         val oneKeyPackageNames: Set<String> = FrozenAppSettings().oneKeyPackageNames,
         val protectedPackageNames: Set<String> = FrozenAppSettings().protectedPackageNames,
+        val pendingProtectedPackageNames: Set<String> = protectedPackageNames,
         val frozenStateByPackage: Map<String, Boolean> = emptyMap(),
         val shizukuReady: Boolean = false,
         val runningPackageActions: Set<String> = emptySet(),
