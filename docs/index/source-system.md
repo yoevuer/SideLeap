@@ -30,10 +30,11 @@
 | `system/vibration/*` | 震动封装与效果定义 |
 | `system/feedback/*` | Toast 封装 |
 | `system/api/Clipboard.kt` | 敏感剪贴板写入封装 |
+| `system/api/ShizukuBinderExecutor.kt` | Shizuku 绑定执行器（bind/call/unbind/超时/结果解析） |
 
 ## 关键入口
 
-- `Accessibility`、`Intents`、`WindowManager`、`ShizukuCommand`、`Vibrator` 是主要能力入口。
+- `Accessibility`、`Intents`、`WindowManager`、`ShizukuCommand`、`ShizukuBinderExecutor`、`Vibrator` 是主要能力入口。
 - `copySensitiveText()` 封装敏感剪贴板写入。
 - `system` 只提供能力，不承载业务规则。
 - `ContextSettings.kt` 已删除，Intent 跳转和权限判断已拆到 `system/intent` 与 `system/permission`。

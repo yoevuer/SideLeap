@@ -19,8 +19,9 @@
 
 ## 关键入口
 
-- `SideGestureService`（~320 行）是入口层，负责持有这些协作对象并转发生命周期与运行时请求。
-- `SideGestureService` 装配快捷启动器浮窗的 Compose 内容，但 overlay 领域不直接依赖具体 service。
+- `SideGestureService`（~300 行）是入口层，负责持有这些协作对象并转发生命周期与运行时请求。
+- `SideGestureService` 实现 `QuickAppLauncherOverlayHost` 但不持有 Compose 渲染——渲染已迁入 Overlay 内部。
+- 密码生成器面板通过 `RuntimePanelScope.PasswordPanelContent()` 渲染，`SideGestureService.openPasswordGeneratorPanel()` 仅作为转发入口。
 - 协作对象只做编排，不承载独立业务规则。
 
 ## 依赖边界
