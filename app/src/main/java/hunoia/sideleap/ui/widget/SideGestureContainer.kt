@@ -71,7 +71,7 @@ import kotlin.math.hypot
 
 @Composable
 fun SideGestureContainer(
-    onAction: (Action) -> Unit,
+    onAction: (Action, GestureButton?) -> Unit,
     buttons: List<GestureButton>,
     modifier: Modifier = Modifier,
     imePadding: Int = 0,
@@ -90,7 +90,7 @@ fun SideGestureContainer(
 
     SideEffect {
         sideGestureState.onLongPress = { action ->
-            curOnAction(action)
+            curOnAction(action, sideGestureState.button)
             sideGestureState.cancel()
         }
     }
@@ -126,7 +126,7 @@ fun SideGestureContainer(
                             moveScreenState.onDragStart(sideGestureState.finger)
                             sideGestureState.cancel()
                         } else {
-                            curOnAction(actions.first())
+                            curOnAction(actions.first(), button)
                             sideGestureState.cancel()
                         }
                     }
@@ -139,17 +139,17 @@ fun SideGestureContainer(
             if (actionPanelState.visible) {
                 val action = actionPanelState.done()
                 actionPanelState.onDragEnd()
-                curOnAction(action)
+                curOnAction(action, sideGestureState.button)
             }
             if (moveScreenState.visible) {
                 val action = moveScreenState.done()
                 moveScreenState.onDragEnd()
-                curOnAction(action)
+                curOnAction(action, sideGestureState.button)
             }
 
             if (!sideGestureState.isCanceled) {
                 val action = sideGestureState.onDragEnd()
-                curOnAction(action)
+                curOnAction(action, sideGestureState.button)
             }
         },
         onDragCancel = onDragCancel@{

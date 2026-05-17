@@ -62,7 +62,7 @@
 
 - 触钮设置页新增“单击/长按”分组；单击使用 `GestureButton.tapActions.center`，长按沿用原 `slideActions.center2`。
 - 运行时在未达到滑动阈值时触发单击动作，长按触发逻辑保持原有配置与时长。
-- “隐藏触钮”改为可选动作，执行后按 `ActionSettings.hideGestureButton.delayMs` 临时隐藏触钮，到期自动恢复。
+- “隐藏触钮”改为可选动作，执行后按 `ActionSettings.hideGestureButton.delayMs` 临时隐藏触发该动作的触钮，到期自动恢复。
 - 隐藏触钮动作设置弹窗显示当前时长，并提供 500..5000 ms 滑杆。
 
 ### 冻结应用管理网格（`feat/frozen-app-grid`）
