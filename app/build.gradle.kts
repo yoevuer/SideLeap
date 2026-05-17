@@ -14,8 +14,8 @@ android {
         applicationId = "hunoia.sideleap"
         minSdk = 24
         targetSdk = 36
-        versionCode = 10506
-        versionName = "1.5.6"
+        versionCode = 10507
+        versionName = "1.5.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
