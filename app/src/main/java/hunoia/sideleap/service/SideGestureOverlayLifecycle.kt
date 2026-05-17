@@ -8,7 +8,7 @@ internal class SideGestureOverlayLifecycle(
 
     fun onScreenLocked() {
         host.quickAppLauncherOverlay.closeImmediately()
-        host.runtimePanelOverlay.close()
+        host.runtimePanelOverlay.closeImmediately()
     }
 
     fun onDestroy() {

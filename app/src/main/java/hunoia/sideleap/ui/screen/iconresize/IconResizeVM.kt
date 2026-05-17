@@ -3,12 +3,9 @@ package hunoia.sideleap.ui.screen.iconresize
 import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.launcher.model.ScaleableDefaults.DEFAULT_SCALE
-import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.launcher.util.IconResizeCache
 import hunoia.sideleap.ui.event.IconResizeEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiEvent
@@ -23,9 +20,9 @@ import kotlinx.coroutines.launch
  * @author aaronzzxup@gmail.com
  * @since 2024/12/4
  */
-class IconResizeVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState, UiEvent>() {
-
-    private val iconResize: IconResize = savedStateHandle.toRoute()
+class IconResizeVM(
+    private val ids: List<String>
+) : BaseComposeVM<UiState, UiEvent>() {
 
     override val initialState: UiState = UiState()
 
@@ -148,7 +145,6 @@ class IconResizeVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState, 
                     val clipApps = advancedSettings.clipApps
                     val clipShortcuts = advancedSettings.clipShortcuts
                     val map = mutableMapOf<String, Float>()
-                    val ids = iconResize.ids
                     for (id in ids) {
                         map[id] = clipApps[id] ?: clipShortcuts[id] ?: DEFAULT_SCALE
                     }

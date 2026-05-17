@@ -14,13 +14,16 @@ import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,16 +38,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
+import hunoia.sideleap.ui.screen.frozenappprotect.FrozenAppProtectContent
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.widget.LabeledSwitch
 import hunoia.sideleap.ui.widget.TopBar
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FrozenAppManageScreen(
     onBack: () -> Unit,
-    onNavToProtectPage: () -> Unit,
     vm: FrozenAppManageVM = viewModel()
 ) {
+    var showProtectPage by remember { mutableStateOf(false) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         var fabExpanded by remember { mutableStateOf(false) }
         var fabVisible by remember { mutableStateOf(true) }
@@ -83,7 +88,7 @@ fun FrozenAppManageScreen(
                                 contentDescription = stringResource(id = R.string.refresh)
                             )
                         }
-                        IconButton(onClick = onNavToProtectPage) {
+                        IconButton(onClick = { showProtectPage = true }) {
                             Icon(
                                 imageVector = Icons.Default.Shield,
                                 contentDescription = stringResource(id = R.string.protected_list)
@@ -253,6 +258,15 @@ fun FrozenAppManageScreen(
                         }
                     }
                 }
+            }
+        }
+
+        if (showProtectPage) {
+            ModalBottomSheet(
+                onDismissRequest = { showProtectPage = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                FrozenAppProtectContent(onDismiss = { showProtectPage = false })
             }
         }
     }

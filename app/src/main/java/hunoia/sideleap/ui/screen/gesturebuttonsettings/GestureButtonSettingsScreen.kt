@@ -13,11 +13,18 @@ import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -48,6 +55,7 @@ import hunoia.sideleap.gesture.TriggerDirection.Up
 import hunoia.sideleap.gesture.TriggerDirection.Up2
 import hunoia.sideleap.action.display.actionTextCompose
 import hunoia.sideleap.gesture.bounds
+import hunoia.sideleap.ui.screen.actionselect.ActionSelectContent
 import hunoia.sideleap.ui.theme.IconTextPadding
 import hunoia.sideleap.ui.theme.MarkColorSize
 import hunoia.sideleap.ui.theme.SectionPadding
@@ -67,12 +75,14 @@ import hunoia.sideleap.ui.widget.TopBar
  * @since 2024/11/28
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GestureButtonSettingsScreen(
     onBack: () -> Unit,
-    onNavToActionSelect: (ActionSelect) -> Unit,
     vm: GestureButtonSettingsVM = viewModel()
 ) {
+    var showActionSelect by remember { mutableStateOf(false) }
+    var pendingActionSelect by remember { mutableStateOf<ActionSelect?>(null) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -165,7 +175,8 @@ fun GestureButtonSettingsScreen(
                                     isLongSlide = false,
                                     isSideButton = uiState.gestureButtonSettings.isSideButton
                                 )
-                                onNavToActionSelect(actionSelect)
+                                pendingActionSelect = actionSelect
+                                showActionSelect = true
                             }
                             MySideGestureSettings(
                                 onClick = {
@@ -235,7 +246,8 @@ fun GestureButtonSettingsScreen(
                                     isLongSlide = true,
                                     isSideButton = uiState.gestureButtonSettings.isSideButton
                                 )
-                                onNavToActionSelect(actionSelect)
+                                pendingActionSelect = actionSelect
+                                showActionSelect = true
                             }
                             MySideGestureSettings(
                                 onClick = {
@@ -380,6 +392,18 @@ fun GestureButtonSettingsScreen(
                         }
                     }
             )
+        }
+
+        if (showActionSelect && pendingActionSelect != null) {
+            ModalBottomSheet(
+                onDismissRequest = { showActionSelect = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                ActionSelectContent(
+                    onDismiss = { showActionSelect = false },
+                    actionSelect = pendingActionSelect!!
+                )
+            }
         }
     }
 }

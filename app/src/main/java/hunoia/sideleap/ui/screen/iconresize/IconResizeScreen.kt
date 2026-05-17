@@ -1,6 +1,7 @@
 package hunoia.sideleap.ui.screen.iconresize
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -11,9 +12,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -31,6 +37,7 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -51,15 +58,19 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.aaron.compose.component.UDFComponent
+import com.aaron.compose.component.UiBaseEvent
 import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
 import hunoia.sideleap.settings.api.SettingsUiDefaults.DimAlpha
 import hunoia.sideleap.launcher.model.ScaleableDefaults.DEFAULT_SCALE
 import hunoia.sideleap.launcher.model.ScaleableDefaults.MAX_SCALE
 import hunoia.sideleap.launcher.model.ScaleableDefaults.MIN_SCALE
+import hunoia.sideleap.system.api.showToast
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.ItemPadding
@@ -68,7 +79,6 @@ import hunoia.sideleap.ui.widget.ColorPickerDialog
 import hunoia.sideleap.ui.widget.MyAlertDialog
 import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.LabeledSwitch
-import hunoia.sideleap.ui.widget.TopBar
 
 /**
  * @author aaronzzxup@gmail.com
@@ -76,12 +86,31 @@ import hunoia.sideleap.ui.widget.TopBar
  */
 
 @Composable
-fun IconResizeScreen(
-    onBack: () -> Unit,
-    vm: IconResizeVM = viewModel()
+fun IconResizeContent(
+    onDismiss: () -> Unit,
+    ids: List<String>,
+    vm: IconResizeVM = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                @Suppress("UNCHECKED_CAST")
+                return IconResizeVM(ids) as T
+            }
+        }
+    )
 ) {
     val defaultBgColor = MaterialTheme.colorScheme.primary
-    UDFComponent(component = vm.udfComponent, onEvent = {}) { uiState ->
+    UDFComponent(
+        component = vm.udfComponent,
+        onEvent = {},
+        onBaseEvent = { baseEvent ->
+            when (baseEvent) {
+                is UiBaseEvent.Finish -> { onDismiss(); true }
+                is UiBaseEvent.ResToast -> { showToast(baseEvent.res); true }
+                is UiBaseEvent.StringToast -> { showToast(baseEvent.text); true }
+                else -> false
+            }
+        }
+    ) { uiState ->
         if (uiState.showResetWarningDialog) {
             MyAlertDialog(
                 onDismissRequest = { vm.showResetWarningDialog(false) },
@@ -104,18 +133,19 @@ fun IconResizeScreen(
 
         Box(modifier = Modifier.fillMaxSize()) {
             Column {
-                TopBar(
-                    onBack = onBack,
-                    title = stringResource(id = R.string.icon_resize),
-                    actions = {
-                        IconButton(onClick = { vm.showResetWarningDialog(true) }) {
-                            Icon(imageVector = Icons.Default.Restore, contentDescription = null)
-                        }
-                        IconButton(onClick = { vm.done() }) {
-                            Icon(imageVector = Icons.Default.Done, contentDescription = null)
-                        }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(stringResource(R.string.icon_resize), style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.weight(1f))
+                    IconButton(onClick = { vm.showResetWarningDialog(true) }) {
+                        Icon(imageVector = Icons.Default.Restore, contentDescription = null)
                     }
-                )
+                    IconButton(onClick = { vm.done() }) {
+                        Icon(imageVector = Icons.Default.Done, contentDescription = null)
+                    }
+                }
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(

@@ -1,9 +1,7 @@
 package hunoia.sideleap.ui.screen.actionselect
 
 import android.graphics.Bitmap
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.R
 import hunoia.sideleap.core.AppContext
@@ -11,12 +9,12 @@ import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.core.Paths
 import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.launcher.util.IconResizeCache
 import hunoia.sideleap.launcher.model.LauncherInfo
+import hunoia.sideleap.ui.navigation.ActionSelect
+import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
 import hunoia.sideleap.ui.event.IconResizeEvent
@@ -46,9 +44,9 @@ import java.io.FileOutputStream
  * @author aaronzzxup@gmail.com
  * @since 2024/12/2
  */
-class ActionSelectVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState, UiEvent>() {
-
-    private val actionSelect = savedStateHandle.toRoute<ActionSelect>()
+class ActionSelectVM(
+    private val actionSelect: ActionSelect
+) : BaseComposeVM<UiState, UiEvent>() {
 
     override val initialState: UiState = UiState(
         title = createTitle(),

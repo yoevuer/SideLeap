@@ -22,31 +22,17 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import hunoia.sideleap.ui.navigation.ActionSelect
-import hunoia.sideleap.ui.navigation.AdjustGestureAngles
 import hunoia.sideleap.ui.navigation.AdvancedSettings
-import hunoia.sideleap.ui.navigation.AppBlacklist
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
-import hunoia.sideleap.ui.navigation.QuickAppLauncherHidden
 import hunoia.sideleap.ui.navigation.GestureSettings
 import hunoia.sideleap.ui.navigation.FrozenAppManage
-import hunoia.sideleap.ui.navigation.FrozenAppProtect
 import hunoia.sideleap.ui.navigation.Home
-import hunoia.sideleap.ui.navigation.IconResize
 import hunoia.sideleap.ui.navigation.Unlock
-import hunoia.sideleap.ui.navigation.WaveAnimationStyle
-import hunoia.sideleap.ui.screen.actionselect.ActionSelectScreen
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsScreen
-import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleScreen
-import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistScreen
-import hunoia.sideleap.ui.screen.gestureangles.GestureAnglesScreen
 import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsScreen
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsScreen
 import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppManageScreen
-import hunoia.sideleap.ui.screen.frozenappprotect.FrozenAppProtectScreen
 import hunoia.sideleap.ui.screen.home.HomeScreen
-import hunoia.sideleap.ui.screen.iconresize.IconResizeScreen
-import hunoia.sideleap.ui.screen.quickapplaunchermanage.QuickAppLauncherManageScreen
 import hunoia.sideleap.ui.screen.unlock.UnlockScreen
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import hunoia.sideleap.ui.navigation.LocalNavController
@@ -97,56 +83,16 @@ fun SideGestureApp() {
                     UnlockScreen(onBack = { navController.navigateUp() })
                 }
                 myComposable<AdvancedSettings> {
-                    AdvancedSettingsScreen(
-                        onBack = { navController.navigateUp() },
-                        onNavToAppBlacklist = { navController.navigate(AppBlacklist) },
-                        onNavToQuickAppHidden = { navController.navigate(QuickAppLauncherHidden) },
-                        onNavToAnimationStyle = {
-                            navController.navigate(WaveAnimationStyle)
-                        }
-                    )
+                    AdvancedSettingsScreen(onBack = { navController.navigateUp() })
                 }
                 myComposable<GestureSettings> {
-                    GestureSettingsScreen(
-                        onNavToGestureAngles = { navController.navigate(AdjustGestureAngles) },
-                        onBack = { navController.navigateUp() }
-                    )
-                }
-                myComposable<AdjustGestureAngles> {
-                    GestureAnglesScreen(onBack = { navController.navigateUp() })
+                    GestureSettingsScreen(onBack = { navController.navigateUp() })
                 }
                 myComposable<GestureButtonSettings> {
-                    GestureButtonSettingsScreen(
-                        onBack = { navController.navigateUp() },
-                        onNavToActionSelect = { navController.navigate(it) }
-                    )
-                }
-                myComposable<AppBlacklist> {
-                    AppBlacklistScreen(onBack = { navController.navigateUp() })
-                }
-                myComposable<QuickAppLauncherHidden> {
-                    QuickAppLauncherManageScreen(onBack = { navController.navigateUp() })
-                }
-                myComposable<ActionSelect> {
-                    ActionSelectScreen(
-                        onBack = { navController.navigateUp() },
-                        onNavToIconResize = { navController.navigate(it) }
-                    )
-                }
-                myComposable<IconResize> {
-                    IconResizeScreen(onBack = { navController.navigateUp() })
-                }
-                myComposable<WaveAnimationStyle> {
-                    WaveStyleScreen(onBack = { navController.navigateUp() })
+                    GestureButtonSettingsScreen(onBack = { navController.navigateUp() })
                 }
                 myComposable<FrozenAppManage> {
-                    FrozenAppManageScreen(
-                        onBack = { navController.navigateUp() },
-                        onNavToProtectPage = { navController.navigate(FrozenAppProtect) }
-                    )
-                }
-                myComposable<FrozenAppProtect> {
-                    FrozenAppProtectScreen(onBack = { navController.navigateUp() })
+                    FrozenAppManageScreen(onBack = { navController.navigateUp() })
                 }
             }
         }

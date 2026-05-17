@@ -42,11 +42,10 @@ import hunoia.sideleap.R
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.TextActionButton
-import hunoia.sideleap.ui.widget.TopBar
 import hunoia.sideleap.ui.widget.quickapplaunch.rememberAppIconAsync
 
 @Composable
-fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageVM = viewModel()) {
+fun QuickAppLauncherManageContent(onDismiss: () -> Unit, vm: QuickAppLauncherManageVM = viewModel()) {
     UDFComponent(component = vm.udfComponent, onEvent = {}) { uiState ->
         val context = LocalContext.current
         val keyOf = remember { { app: hunoia.sideleap.launcher.model.AppInfo -> "${app.packageName}/${app.className}" } }
@@ -58,9 +57,7 @@ fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageV
                         it.packageName.contains(searchQuery, ignoreCase = true)
             }
         }
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopBar(onBack = onBack, title = "管理隐藏应用")
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
                 item(key = "clear_stats") {
                     SectionCard {
                         TextActionButton(onClick = { vm.clearStats() }, text = "清除最近/频率记录")
@@ -179,7 +176,6 @@ fun QuickAppLauncherManageScreen(onBack: () -> Unit, vm: QuickAppLauncherManageV
                             onCheckedChange = { vm.setHidden(app, it) }
                         )
                     }
-                }
             }
         }
     }

@@ -22,11 +22,11 @@
 | `ui/navigation/Routes.kt` | 路由定义 |
 | `ui/navigation/CompositionLocals.kt` | Compose 注入对象 |
 | `ui/screen/home/*` | 首页 |
-| `ui/screen/actionselect/*` | 动作选择页 |
+| `ui/screen/actionselect/*` | 动作选择面板（BottomSheet） |
 | `ui/screen/gesture*/*` | 手势配置页 |
-| `ui/screen/frozen*/*` | 冻结管理与保护页 |
-| `ui/screen/quickapplaunchermanage/*` | 快捷启动器管理页 |
-| `ui/screen/iconresize/*` | 图标尺寸设置页 |
+| `ui/screen/frozen*/*` | 冻结管理与保护面板（BottomSheet） |
+| `ui/screen/quickapplaunchermanage/*` | 快捷启动器管理面板（BottomSheet） |
+| `ui/screen/iconresize/*` | 图标尺寸设置面板（BottomSheet） |
 | `ui/widget/*` | 按钮、面板、弹层、拖拽等通用组件 |
 | `ui/widget/password/*` | 密码生成器运行时面板 |
 | `ui/theme/*` | 主题与配色 |
@@ -35,8 +35,9 @@
 ## 关键入口
 
 - `SideGestureApp` 负责装配 UI 栈。
-- 各 `*Screen` 和 `*VM` 作为页面入口与状态入口。
-- `ActionSelectScreen`、`HomeScreen`、`GestureSettingsScreen`、`FrozenAppManageScreen` 是当前主要页面入口。
+- 导航路由精简为 6 个全屏目的地（Home、Unlock、AdvancedSettings、GestureSettings、GestureButtonSettings、FrozenAppManage）。
+- 其余 Picker 页面（AppBlacklist、ActionSelect、IconResize、WaveAnimationStyle、AdjustGestureAngles、QuickAppLauncherHidden、FrozenAppProtect）改为 ModalBottomSheet，由父屏管理状态。
+- 各 `*VM` 承担页面/面板状态入口。
 
 ## 依赖边界
 

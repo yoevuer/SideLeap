@@ -1,28 +1,21 @@
 package hunoia.sideleap.ui.widget.password
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,11 +32,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -67,14 +58,12 @@ fun PasswordGeneratorPanel(
     var config by remember { mutableStateOf(ActionSettings.PasswordGenerator()) }
     var password by remember { mutableStateOf("") }
     var visible by remember { mutableStateOf(false) }
-    var manuallyEdited by remember { mutableStateOf(false) }
     var loaded by remember { mutableStateOf(false) }
 
     fun regenerate(nextConfig: ActionSettings.PasswordGenerator = config) {
         runCatching { PasswordGenerator.generate(nextConfig) }
             .onSuccess {
                 password = it
-                manuallyEdited = false
             }
             .onFailure { showToast(R.string.password_generate_failed) }
     }
@@ -96,44 +85,22 @@ fun PasswordGeneratorPanel(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .imePadding()
-            .background(Color.Transparent)
-            .clickable(onClick = onClose),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
+    if (loaded) {
+        Column(
             modifier = Modifier
-                .padding(20.dp)
                 .fillMaxWidth()
                 .heightIn(max = 560.dp)
-                .clickable(onClick = {}),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            if (loaded) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = password,
-                        onValueChange = { value ->
-                            val singleLine = value.replace('\n', ' ').replace('\r', ' ')
-                            if (singleLine.length > PasswordMaxLength) {
-                                showToast(R.string.password_max_length_hint)
-                            }
-                            password = singleLine.take(PasswordMaxLength)
-                            manuallyEdited = true
-                        },
+                        onValueChange = {},
+                        readOnly = true,
                         singleLine = true,
                         textStyle = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Monospace),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
                             IconButton(onClick = { visible = !visible }) {
@@ -147,15 +114,11 @@ fun PasswordGeneratorPanel(
 
                     Text(
                         text = context.getString(
-                            if (manuallyEdited) {
-                                R.string.password_estimated_entropy_bits
-                            } else {
-                                R.string.password_entropy_bits
-                            },
+                            R.string.password_entropy_bits,
                             PasswordGenerator.estimatedEntropyBits(password)
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
 
                     Row(
@@ -216,8 +179,6 @@ fun PasswordGeneratorPanel(
                     }
                 }
             }
-        }
-    }
 }
 
 @Composable

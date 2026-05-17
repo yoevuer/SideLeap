@@ -2,6 +2,8 @@ package hunoia.sideleap.ui.screen.frozenappprotect
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,10 +14,10 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -25,43 +27,32 @@ import hunoia.sideleap.R
 import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppSearchField
 import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppSelectableItem
 import hunoia.sideleap.ui.widget.LabeledSwitch
-import hunoia.sideleap.ui.widget.TopBar
 
 @Composable
-fun FrozenAppProtectScreen(
-    onBack: () -> Unit,
+fun FrozenAppProtectContent(
+    onDismiss: () -> Unit,
     vm: FrozenAppProtectVM = viewModel()
 ) {
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         LaunchedEffect(Unit) {
             vm.reloadApps()
         }
-        Scaffold(
-            topBar = {
-                TopBar(
-                    onBack = onBack,
-                    title = stringResource(id = R.string.protected_list),
-                    actions = {
-                        IconButton(onClick = vm::reloadApps) {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = stringResource(id = R.string.refresh)
-                            )
-                        }
-                    }
-                )
-            }
-        ) { contentPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = contentPadding.calculateTopPadding())
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                LabeledSwitch(
-                    onCheckedChange = vm::onShowSystemAppsChange,
-                    checked = uiState.showSystemApps,
-                    text = stringResource(id = R.string.show_system_apps)
-                )
+                Text(stringResource(R.string.protected_list), style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = vm::reloadApps) {
+                    Icon(Icons.Default.Refresh, contentDescription = stringResource(id = R.string.refresh))
+                }
+            }
+            LabeledSwitch(
+                onCheckedChange = vm::onShowSystemAppsChange,
+                checked = uiState.showSystemApps,
+                text = stringResource(id = R.string.show_system_apps)
+            )
 
                 FrozenAppSearchField(
                     query = uiState.query,
@@ -119,4 +110,3 @@ fun FrozenAppProtectScreen(
             }
         }
     }
-}
