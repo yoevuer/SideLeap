@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -381,7 +382,9 @@ fun FrozenAppManageScreen(
                 onDismissRequest = { showProtectPage = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ) {
-                FrozenAppProtectContent(onDismiss = { showProtectPage = false })
+                Box(modifier = Modifier.fillMaxHeight(0.7f)) {
+                    FrozenAppProtectContent(onDismiss = { showProtectPage = false })
+                }
             }
         }
     }

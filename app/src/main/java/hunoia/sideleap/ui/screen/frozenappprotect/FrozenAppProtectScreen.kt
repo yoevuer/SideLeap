@@ -1,15 +1,8 @@
 package hunoia.sideleap.ui.screen.frozenappprotect
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -37,16 +30,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -74,49 +60,37 @@ fun FrozenAppProtectContent(
             vm.reloadApps()
         }
 
-        var controlsVisible by remember { mutableStateOf(true) }
         var protectedExpanded by remember { mutableStateOf(false) }
-        var controlsHeightPx by remember { mutableStateOf(0) }
-        val density = LocalDensity.current
         val gridState = rememberLazyGridState()
-        val hideControlsOnUserScroll = remember {
-            object : NestedScrollConnection {
-                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                    if (source == NestedScrollSource.UserInput && available.y < 0f && controlsVisible) {
-                        controlsVisible = false
-                    }
-                    return Offset.Zero
-                }
-            }
-        }
-        LaunchedEffect(gridState) {
-            var prevIndex = 0
-            var prevOffset = 0
-            snapshotFlow {
-                gridState.firstVisibleItemIndex to gridState.firstVisibleItemScrollOffset
-            }.collect { (index, offset) ->
-                val scrollingDown = index > prevIndex || (index == prevIndex && offset > prevOffset)
-                val scrollingUp = index < prevIndex || (index == prevIndex && offset < prevOffset)
-                if (scrollingDown) {
-                    controlsVisible = false
-                } else if (scrollingUp) {
-                    controlsVisible = true
-                }
-                prevIndex = index
-                prevOffset = offset
-            }
-        }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .nestedScroll(hideControlsOnUserScroll)
-        ) {
-            val gridTopPadding by animateDpAsState(
-                targetValue = if (controlsVisible) with(density) { controlsHeightPx.toDp() } + 4.dp else 4.dp,
-                label = "frozenProtectGridTopPadding"
-            )
+        Column(modifier = Modifier.fillMaxSize()) {
             val showOtherApps = uiState.query.isNotBlank()
+
+            Surface(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(stringResource(R.string.protected_list), style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.weight(1f))
+                        IconButton(onClick = vm::reloadApps) {
+                            Icon(Icons.Default.Refresh, contentDescription = stringResource(id = R.string.refresh))
+                        }
+                    }
+                    LabeledSwitch(
+                        onCheckedChange = vm::onShowSystemAppsChange,
+                        checked = uiState.showSystemApps,
+                        text = stringResource(id = R.string.show_system_apps)
+                    )
+
+                    FrozenAppSearchField(
+                        query = uiState.query,
+                        onQueryChange = vm::onQueryChange,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                    )
+                }
+            }
 
             LazyVerticalGrid(
                 state = gridState,
@@ -126,10 +100,12 @@ fun FrozenAppProtectContent(
                 contentPadding = PaddingValues(
                     start = 8.dp,
                     end = 8.dp,
-                    top = gridTopPadding,
+                    top = 4.dp,
                     bottom = ScrollBottomPadding
                 ),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
             ) {
                     if (!uiState.hasAnyAppInRange) {
                         item(span = { GridItemSpan(this.maxLineSpan) }, key = "empty") {
@@ -216,42 +192,6 @@ fun FrozenAppProtectContent(
                             }
                         }
                     }
-            }
-
-            AnimatedVisibility(
-                visible = controlsVisible,
-                enter = slideInVertically { -it } + fadeIn(),
-                exit = slideOutVertically { -it } + fadeOut(),
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .fillMaxWidth()
-                    .onSizeChanged { controlsHeightPx = it.height }
-            ) {
-                Surface(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(stringResource(R.string.protected_list), style = MaterialTheme.typography.titleMedium)
-                            Spacer(modifier = Modifier.weight(1f))
-                            IconButton(onClick = vm::reloadApps) {
-                                Icon(Icons.Default.Refresh, contentDescription = stringResource(id = R.string.refresh))
-                            }
-                        }
-                        LabeledSwitch(
-                            onCheckedChange = vm::onShowSystemAppsChange,
-                            checked = uiState.showSystemApps,
-                            text = stringResource(id = R.string.show_system_apps)
-                        )
-
-                        FrozenAppSearchField(
-                            query = uiState.query,
-                            onQueryChange = vm::onQueryChange,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                        )
-                    }
-                }
             }
         }
     }
