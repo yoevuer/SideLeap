@@ -1,6 +1,32 @@
 # SideLeap Release Notes
 
-## v1.5.5
+## v1.5.7
+
+### 代码优化与架构清理
+- 全仓热路径 `Log.d` 加 `BuildConfig.DEBUG` 保护（QuickAppLauncherOverlay、QuickAppLauncherActivity、ShizukuCommand）
+- 提取共享 `WindowManagerUtils`（`Context.windowManager()`、`applyOverlayViewTreeOwners()`、`overlayLayoutParams()`），消除两个 Overlay 的窗口管理重复代码
+- `QuickAppLauncherOverlayHost` 接口移除 `RenderQuickAppLauncherContent`/`RenderQuickAppLauncherAdjustPanel`，Overlay 直接调用 Compose 内容层
+- `PasswordGeneratorPanel` 动画/状态封装为 `PasswordPanelContent`，`SideGestureService` 不再持有 Compose 渲染
+- `QuickAppLauncherContent` 状态抽取到 `QuickAppLauncherState`，UI 不再直接执行查询/排序/启动
+- 从 `ShizukuCommand`（476 行）拆分出 `ShizukuBinderExecutor`（绑定+超时+结果解析），ShizukuCommand 减至 372 行
+- 新增 `GestureRuntimeSettingsProvider`/`QuickLauncherSettingsProvider` 领域特定联合 Flow
+- `DataStore` 反序列化失败日志增加文件尺寸，空白文件跳过解码
+
+### 测试
+- 新增 `ShizukuBinderExecutorTest`（12 cases）
+- 新增 `BatchFrozenResultTest`（4 cases）
+
+### 验证
+- testDebugUnitTest 通过
+- assembleRelease 通过（2.6MB APK）
+
+## v1.5.6
+
+### 新功能
+- 动作面板长按动作配置：支持给单个动作配置长按动作，长按未配置时继续执行短按动作
+- 冻结应用管理网格：冻结应用管理页和保护名单页改为自适应网格展示，支持搜索/筛选、待提交选择状态
+- 小窗打开位置设置：新增水平/垂直位置滑杆、垂直边缘留白和垂直补偿设置
+- 应用冻结优化与小窗改进
 
 ### 性能与结构优化
 - DataStore 7 个实例全量懒加载，减少冷启动初始化
