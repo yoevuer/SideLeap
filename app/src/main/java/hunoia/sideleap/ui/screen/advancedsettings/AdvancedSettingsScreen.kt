@@ -34,6 +34,7 @@ import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleContent
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistContent
 import hunoia.sideleap.ui.screen.quickapplaunchermanage.QuickAppLauncherManageContent
+import hunoia.sideleap.ui.widget.BottomSheetNestedContent
 import hunoia.sideleap.ui.widget.MyColumn
 import hunoia.sideleap.ui.widget.MyAlertDialog
 import hunoia.sideleap.ui.widget.SectionCard
@@ -244,7 +245,9 @@ fun AdvancedSettingsScreen(
                 onDismissRequest = { showAppBlacklist = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ) {
-                AppBlacklistContent(onDismiss = { showAppBlacklist = false })
+                BottomSheetNestedContent {
+                    AppBlacklistContent(onDismiss = { showAppBlacklist = false })
+                }
             }
         }
         if (showQuickAppHidden) {
@@ -252,7 +255,9 @@ fun AdvancedSettingsScreen(
                 onDismissRequest = { showQuickAppHidden = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ) {
-                QuickAppLauncherManageContent(onDismiss = { showQuickAppHidden = false })
+                BottomSheetNestedContent {
+                    QuickAppLauncherManageContent(onDismiss = { showQuickAppHidden = false })
+                }
             }
         }
         if (showAnimationStyle) {
@@ -260,7 +265,9 @@ fun AdvancedSettingsScreen(
                 onDismissRequest = { showAnimationStyle = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ) {
-                WaveStyleContent(onDismiss = { showAnimationStyle = false })
+                BottomSheetNestedContent {
+                    WaveStyleContent(onDismiss = { showAnimationStyle = false })
+                }
             }
         }
     }

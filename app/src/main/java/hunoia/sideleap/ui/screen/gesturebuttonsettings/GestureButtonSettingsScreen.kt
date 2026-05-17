@@ -45,6 +45,7 @@ import hunoia.sideleap.settings.api.SettingsUiDefaults.MinGestureButtonPosition
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MinGestureButtonWidth
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.gesture.GestureButton
+import hunoia.sideleap.ui.widget.BottomSheetNestedContent
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
 import hunoia.sideleap.gesture.TriggerDirection.Center
@@ -406,10 +407,12 @@ fun GestureButtonSettingsScreen(
                 onDismissRequest = { showActionSelect = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ) {
-                ActionSelectContent(
-                    onDismiss = { showActionSelect = false },
-                    actionSelect = pendingActionSelect!!
-                )
+                BottomSheetNestedContent {
+                    ActionSelectContent(
+                        onDismiss = { showActionSelect = false },
+                        actionSelect = pendingActionSelect!!
+                    )
+                }
             }
         }
         if (showGestureAngles) {
@@ -419,14 +422,16 @@ fun GestureButtonSettingsScreen(
                     onDismissRequest = { showGestureAngles = false },
                     sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                 ) {
-                    GestureButtonAngleContent(
-                        gestureButton = currentGestureButton,
-                        onDismiss = { showGestureAngles = false },
-                        onSave = { angle ->
-                            vm.updateGestureButtonAngle(angle)
-                            showGestureAngles = false
-                        }
-                    )
+                    BottomSheetNestedContent {
+                        GestureButtonAngleContent(
+                            gestureButton = currentGestureButton,
+                            onDismiss = { showGestureAngles = false },
+                            onSave = { angle ->
+                                vm.updateGestureButtonAngle(angle)
+                                showGestureAngles = false
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -47,6 +47,7 @@ import com.aaron.compose.component.UiBaseEvent
 import hunoia.sideleap.R
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.GlobalActions
+import hunoia.sideleap.ui.widget.BottomSheetNestedContent
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.launcher.query.LauncherIconQuery
 import hunoia.sideleap.ui.navigation.ActionSelect
@@ -242,10 +243,12 @@ fun ActionSelectContent(
                     onDismissRequest = { showIconResize = false },
                     sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                 ) {
-                    IconResizeContent(
-                        onDismiss = { showIconResize = false },
-                        ids = iconResizeIds
-                    )
+                    BottomSheetNestedContent {
+                        IconResizeContent(
+                            onDismiss = { showIconResize = false },
+                            ids = iconResizeIds
+                        )
+                    }
                 }
             }
         }

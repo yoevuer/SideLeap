@@ -65,6 +65,7 @@ import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
 import hunoia.sideleap.ui.screen.frozenappprotect.FrozenAppProtectContent
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
+import hunoia.sideleap.ui.widget.BottomSheetNestedContent
 import hunoia.sideleap.ui.widget.TopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -382,7 +383,7 @@ fun FrozenAppManageScreen(
                 onDismissRequest = { showProtectPage = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ) {
-                Box(modifier = Modifier.fillMaxHeight(0.7f)) {
+                BottomSheetNestedContent {
                     FrozenAppProtectContent(onDismiss = { showProtectPage = false })
                 }
             }
