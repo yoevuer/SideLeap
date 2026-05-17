@@ -65,6 +65,7 @@ import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
 import hunoia.sideleap.system.api.copySensitiveText
 import hunoia.sideleap.ui.widget.password.PasswordGeneratorPanel
+import hunoia.sideleap.ui.widget.password.PasswordPanelContent
 import com.blankj.utilcode.util.ScreenUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -297,93 +298,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     }
 
     fun openPasswordGeneratorPanel() {
-        runtimePanelOverlay.show {
-            SideGestureTheme {
-                val coroutineScope = rememberCoroutineScope()
-                var panelVisible by remember { mutableStateOf(false) }
-                var closing by remember { mutableStateOf(false) }
-                val panelAlpha by animateFloatAsState(
-                    targetValue = if (panelVisible) 1f else 0f,
-                    animationSpec = tween(AnimOverlayFade.toInt()),
-                    label = "passwordPanelAlpha"
-                )
-                val panelShiftY by animateFloatAsState(
-                    targetValue = if (panelVisible) 0f else 18f,
-                    animationSpec = tween(AnimPanelShift.toInt()),
-                    label = "passwordPanelShiftY"
-                )
-                val closeAnimated = {
-                    if (!closing) {
-                        closing = true
-                        panelVisible = false
-                        coroutineScope.launch {
-                            delay(AnimPostHideDelay)
-                            onCloseAnimated()
-                        }
-                    }
-                }
-                LaunchedEffect(Unit) {
-                    onRegisterCloseAnimated?.invoke(closeAnimated)
-                    panelVisible = true
-                }
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .graphicsLayer {
-                            alpha = panelAlpha
-                            translationY = panelShiftY
-                        }
-                        .onSizeChanged { size ->
-                            updatePanelSize(size.width, size.height)
-                        },
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-                ) {
-                    PasswordGeneratorPanel(
-                        onClose = closeAnimated,
-                        onCopyPassword = { password ->
-                            copySensitiveText(
-                                context = applicationContext,
-                                label = "Generated Password",
-                                text = password,
-                            )
-                        }
-                    )
-                }
-            }
-        }
-    }
-
-    @Composable
-    override fun RenderQuickAppLauncherContent(
-        initialSettings: QuickAppLauncherSettings,
-        quickLauncherAppLongPressLaunchPopup: Boolean,
-        onCloseAnimated: () -> Unit,
-        onToggleAdjust: () -> Unit,
-        onLaunch: (AppInfo, Boolean) -> Boolean,
-        onRegisterCloseAnimated: ((() -> Unit) -> Unit)?,
-    ) {
-        SideGestureTheme {
-            QuickAppLauncherContent(
-                initialSettings = initialSettings,
-                quickLauncherAppLongPressLaunchPopup = quickLauncherAppLongPressLaunchPopup,
-                requestEnableFrozenPackage = ::requestEnableFrozenPackage,
-                onCloseAnimated = onCloseAnimated,
-                onToggleAdjust = onToggleAdjust,
-                onLaunch = onLaunch,
-                onRegisterCloseAnimated = onRegisterCloseAnimated,
-            )
-        }
-    }
-
-    @Composable
-    override fun RenderQuickAppLauncherAdjustPanel(onSettingsChanged: (QuickAppLauncherSettings) -> Unit) {
-        SideGestureTheme {
-            QuickAppLauncherAdjustPanel(onSettingsChanged = onSettingsChanged)
-        }
+        runtimePanelOverlay.show { PasswordPanelContent(applicationContext = applicationContext) }
     }
 
 }

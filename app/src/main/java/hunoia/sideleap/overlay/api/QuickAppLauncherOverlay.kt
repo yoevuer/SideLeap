@@ -73,6 +73,9 @@ import hunoia.sideleap.settings.api.SettingsProvider
 import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
+import hunoia.sideleap.ui.theme.SideGestureTheme
+import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
+import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
@@ -101,19 +104,6 @@ interface QuickAppLauncherOverlayHost : LifecycleOwner, ViewModelStoreOwner, Sav
     val advancedSettings: AdvancedSettings?
 
     fun requestEnableFrozenPackage(packageName: String, onResult: (Boolean) -> Unit)
-
-    @Composable
-    fun RenderQuickAppLauncherContent(
-        initialSettings: QuickAppLauncherSettings,
-        quickLauncherAppLongPressLaunchPopup: Boolean,
-        onCloseAnimated: () -> Unit,
-        onToggleAdjust: () -> Unit,
-        onLaunch: (AppInfo, Boolean) -> Boolean,
-        onRegisterCloseAnimated: ((() -> Unit) -> Unit)? = null,
-    )
-
-    @Composable
-    fun RenderQuickAppLauncherAdjustPanel(onSettingsChanged: (QuickAppLauncherSettings) -> Unit)
 }
 
 class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
@@ -220,36 +210,39 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
             setContent {
                 val advancedSettings = host.advancedSettings ?: AdvancedSettings()
                 val quickLauncherPopup = advancedSettings.quickLauncherAppLongPressLaunchPopup
-                host.RenderQuickAppLauncherContent(
-                    initialSettings = initialSettings,
-                    quickLauncherAppLongPressLaunchPopup = quickLauncherPopup,
-                    onCloseAnimated = {
-                        isShowing = false
-                        isHiding = true
-                        lastCloseMs = System.currentTimeMillis()
-                        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","closeAnimated: triggered")
-                        removeOverlayView()
-                    },
-                    onToggleAdjust = { toggleAdjustPanel() },
-                    onLaunch = { appInfo, miniWindow ->
-                        val now = System.currentTimeMillis()
-                        val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
-                        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
-                        val success = Launcher.launchAppInfo(
-                            host.context,
-                            appInfo,
-                            miniWindow,
-                            advancedSettings.miniWindowHorizontalBias,
-                            advancedSettings.miniWindowVerticalBias,
-                            advancedSettings.miniWindowVerticalEdgeMarginFraction,
-                            advancedSettings.miniWindowVerticalOffsetFraction,
-                        )
-                        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
-                        if (success) onAppLaunchRequested?.invoke(appInfo)
-                        success
-                    },
-                    onRegisterCloseAnimated = { callback -> triggerCloseAnimated = callback }
-                )
+                SideGestureTheme {
+                    QuickAppLauncherContent(
+                        initialSettings = initialSettings,
+                        quickLauncherAppLongPressLaunchPopup = quickLauncherPopup,
+                        requestEnableFrozenPackage = host::requestEnableFrozenPackage,
+                        onCloseAnimated = {
+                            isShowing = false
+                            isHiding = true
+                            lastCloseMs = System.currentTimeMillis()
+                            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","closeAnimated: triggered")
+                            removeOverlayView()
+                        },
+                        onToggleAdjust = { toggleAdjustPanel() },
+                        onLaunch = { appInfo, miniWindow ->
+                            val now = System.currentTimeMillis()
+                            val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
+                            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
+                            val success = Launcher.launchAppInfo(
+                                host.context,
+                                appInfo,
+                                miniWindow,
+                                advancedSettings.miniWindowHorizontalBias,
+                                advancedSettings.miniWindowVerticalBias,
+                                advancedSettings.miniWindowVerticalEdgeMarginFraction,
+                                advancedSettings.miniWindowVerticalOffsetFraction,
+                            )
+                            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
+                            if (success) onAppLaunchRequested?.invoke(appInfo)
+                            success
+                        },
+                        onRegisterCloseAnimated = { callback -> triggerCloseAnimated = callback }
+                    )
+                }
             }
         }
         composeView.alpha = 0f
@@ -301,9 +294,11 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
                 closeAdjustPanel()
             }, logTag = "adjustTouch"))
             setContent {
-                    host.RenderQuickAppLauncherAdjustPanel(
+                SideGestureTheme {
+                    QuickAppLauncherAdjustPanel(
                         onSettingsChanged = { settings -> updateLayout(settings) }
                     )
+                }
             }
         }
         wm.addView(view, lp)
