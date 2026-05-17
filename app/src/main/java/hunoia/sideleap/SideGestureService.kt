@@ -7,6 +7,12 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -14,6 +20,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aaron.composeaccessibility.ComponentAccessibilityService
 import hunoia.sideleap.settings.model.ActionSettings
@@ -282,16 +290,29 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     fun openPasswordGeneratorPanel() {
         runtimePanelOverlay.show {
             SideGestureTheme {
-                PasswordGeneratorPanel(
-                    onClose = close,
-                    onCopyPassword = { password ->
-                        copySensitiveText(
-                            context = applicationContext,
-                            label = "Generated Password",
-                            text = password,
-                        )
-                    }
-                )
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .onSizeChanged { size ->
+                            updatePanelSize(size.width, size.height)
+                        },
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    PasswordGeneratorPanel(
+                        onClose = close,
+                        onCopyPassword = { password ->
+                            copySensitiveText(
+                                context = applicationContext,
+                                label = "Generated Password",
+                                text = password,
+                            )
+                        }
+                    )
+                }
             }
         }
     }

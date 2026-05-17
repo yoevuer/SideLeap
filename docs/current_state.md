@@ -27,6 +27,12 @@
   - **显示**: 动画风格、动态配色、深色模式
 - 消除"触钮扩展"节名下视觉设置与手势行为混放的混乱
 
+### 密码生成器运行时面板
+
+- 密码生成器面板由 `RuntimePanelOverlay` 承载，窗口使用 `TYPE_ACCESSIBILITY_OVERLAY`、透明背景和内容实测尺寸。
+- 可见 Card 在 `SideGestureTheme` 内渲染，使用动态取色；窗口尺寸随 Card 实测宽高回写到 `WindowManager.LayoutParams`。
+- `PasswordGeneratorPanel` 只保留内容层，关闭、外部触摸、圆角和底部定位由运行时 overlay 负责。
+
 ## 待办
 
 - 补充更多单元测试（Shizuku、Backup 等）

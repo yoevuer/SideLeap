@@ -1,16 +1,12 @@
 package hunoia.sideleap.ui.widget.password
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -21,8 +17,6 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,7 +33,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -96,30 +89,15 @@ fun PasswordGeneratorPanel(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .imePadding()
-            .background(Color.Transparent)
-            .clickable(onClick = onClose),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
+    if (loaded) {
+        Column(
             modifier = Modifier
-                .padding(20.dp)
                 .fillMaxWidth()
                 .heightIn(max = 560.dp)
-                .clickable(onClick = {}),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            if (loaded) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = password,
@@ -216,8 +194,6 @@ fun PasswordGeneratorPanel(
                     }
                 }
             }
-        }
-    }
 }
 
 @Composable
