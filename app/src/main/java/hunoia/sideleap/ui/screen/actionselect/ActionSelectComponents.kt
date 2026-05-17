@@ -39,6 +39,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -112,16 +113,19 @@ internal fun ActionPage(
     var selectedCategory by rememberSaveable { mutableStateOf<ActionCategory?>(null) }
     var selectedType by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
-    val categoryChips = remember {
-        listOf<Pair<Any?, String>>(
-            null to context.getString(R.string.all_categories),
-            "selected" to context.getString(R.string.tab_selected),
-            ActionCategory.NAVIGATION to ActionCategory.NAVIGATION.displayName,
-            ActionCategory.SYSTEM to ActionCategory.SYSTEM.displayName,
-            ActionCategory.TOOL to ActionCategory.TOOL.displayName,
-            "app" to context.getString(R.string.tab_apps),
-            "shortcut" to context.getString(R.string.tab_shortcuts),
-        )
+    val categoryChips = remember(selectSingle) {
+        buildList {
+            add(null to context.getString(R.string.all_categories))
+            if (!selectSingle) add("selected" to context.getString(R.string.tab_selected))
+            add(ActionCategory.NAVIGATION to ActionCategory.NAVIGATION.displayName)
+            add(ActionCategory.SYSTEM to ActionCategory.SYSTEM.displayName)
+            add(ActionCategory.TOOL to ActionCategory.TOOL.displayName)
+            add("app" to context.getString(R.string.tab_apps))
+            add("shortcut" to context.getString(R.string.tab_shortcuts))
+        }
+    }
+    LaunchedEffect(selectSingle) {
+        if (selectSingle) selectedType = null
     }
     val filteredActions = remember(actions, query, selectedCategory, selectedType) {
         if (query.isNotBlank()) {
