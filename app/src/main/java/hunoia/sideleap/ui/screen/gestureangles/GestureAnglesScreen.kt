@@ -218,12 +218,11 @@ private fun AdjustAngle(
                 detectDragGestures(
                     onDragStart = { offset ->
                         dragOffset = offset
-                        candidates = curAngle.ps.mapNotNull { p ->
-                            val index = curAngle.ps.indexOf(p)
+                        candidates = curAngle.ps.mapIndexedNotNull { index, _ ->
                             val degree = curAngle.getDegree(index)
                             val pOffset = calcOffset(circleCenter, circleRadius, toScreenDegree(curPosition, degree))
                             val bounds = Rect(center = pOffset, radius = dragHitRadius.toPx())
-                            if (bounds.contains(offset)) curAngle.getKProperty(p) else null
+                            if (bounds.contains(offset)) curAngle.getKProperty(index) else null
                         }
                         property = candidates.singleOrNull()
                     },
@@ -343,6 +342,16 @@ private fun GestureAngle.indexOfP(fieldName: String): Int {
         ::p3.name -> 3
         ::p4.name -> 4
         else -> 0
+    }
+}
+
+private fun GestureAngle.getKProperty(index: Int): KProperty0<Float>? {
+    return when (index) {
+        0 -> ::p1
+        1 -> ::p2
+        2 -> ::p3
+        3 -> ::p4
+        else -> null
     }
 }
 
