@@ -70,6 +70,7 @@
     <string name="frozen_one_key_actions">一键冻结操作</string>
     <string name="frozen_one_key_freeze">一键冻结</string>
     <string name="frozen_one_key_unfreeze">一键解冻</string>
+    <string name="frozen_one_key_select_frozen">全选已冻结</string>
     <string name="bulk_frozen_count">已冻结：%1$d</string>
     <string name="bulk_unfrozen_count">已解冻：%1$d</string>
     <string name="clear_quick_app_stats">清除最近/频率记录</string>
