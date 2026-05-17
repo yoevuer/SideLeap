@@ -85,6 +85,13 @@
 - `DataStore` 反序列化失败日志增加文件尺寸，空白文件跳过解码。
 - 新增单元测试：`ShizukuBinderExecutorTest`（12 cases）、`BatchFrozenResultTest`（4 cases）。
 
+### 模拟点击当前位置（`feat/click-current-position`）
+
+- 新增「模拟点击当前位置」动作，放入动作选择器「窗口」分类。
+- 动作触发时通过 `ActionRuntimeInfo` 临时携带当前手势触摸坐标，不写入配置。
+- 执行层复用 gesture 分支的 sourceButton 隐藏机制，仅临时隐藏触发该动作的手势触钮，再调用无障碍 `Accessibility.click`；Android 7.0+ 可用，坐标缺失、越界或版本过低时静默忽略。
+- 单击、普通滑动、长按、动作面板选择和移动屏幕收尾分发均会附带当前触摸坐标。
+
 ## 待办
 
 - 实机验证快捷启动器、密码面板、手势识别、冻结功能正常

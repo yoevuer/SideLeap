@@ -29,6 +29,7 @@ object ActionCatalog {
         ActionDefinition(GlobalActions.MOVE_SCREEN, ActionCategory.WINDOW, ActionConfigKind.MOVE_SCREEN, "move_screen", "move_screen"),
         ActionDefinition(GlobalActions.BACK_TO_TOP, ActionCategory.WINDOW, ActionConfigKind.NONE, "back_to_top", "back_to_top"),
         ActionDefinition(GlobalActions.GOTO_BOTTOM, ActionCategory.WINDOW, ActionConfigKind.GOTO_BOTTOM, "goto_bottom", "goto_bottom"),
+        ActionDefinition(GlobalActions.CLICK_CURRENT_POSITION, ActionCategory.WINDOW, ActionConfigKind.NONE, "click_current_position", "click_current_position"),
         ActionDefinition(GlobalActions.OPEN_APP_OR_URL, ActionCategory.LAUNCHER, ActionConfigKind.OPEN_APP_OR_URL, "open_app_or_url", "open_app_or_url"),
         ActionDefinition(GlobalActions.QUICK_APP_LAUNCHER, ActionCategory.LAUNCHER, ActionConfigKind.NONE, "quick_app_launcher", "quick_app_launcher"),
         ActionDefinition(GlobalActions.RANDOM_NAME, ActionCategory.TOOL, ActionConfigKind.NONE, "random_name", "random_name"),

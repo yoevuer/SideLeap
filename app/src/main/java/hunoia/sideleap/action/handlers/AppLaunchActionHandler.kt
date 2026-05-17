@@ -12,9 +12,10 @@ import hunoia.sideleap.action.Action
 import hunoia.sideleap.launcher.model.OpenAppOrUrlData
 import hunoia.sideleap.freeze.api.FreezeLaunch
 import hunoia.sideleap.action.appInfo
+import hunoia.sideleap.action.TriggerType
 import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.system.api.queryIntentActivitiesCompat
-import hunoia.sideleap.action.TriggerType
+import hunoia.sideleap.action.runtimeTriggerType
 import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -76,7 +77,7 @@ object AppLaunchActionHandler : ActionHandler {
         val appInfo = action.appInfo
         if (appInfo != null) {
             val longPressLaunchPopup = advancedSettings.actionPanelAppLongPressLaunchPopup
-            val triggerType = action.extra as? TriggerType
+            val triggerType = action.runtimeTriggerType()
             val miniWindow = triggerType?.let {
                 when (it) {
                     TriggerType.Press -> !longPressLaunchPopup
