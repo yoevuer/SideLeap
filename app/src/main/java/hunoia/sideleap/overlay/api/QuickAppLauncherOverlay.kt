@@ -71,10 +71,6 @@ import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.settings.api.SettingsProvider
 import com.blankj.utilcode.util.ScreenUtils
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.lifecycle.setViewTreeViewModelStoreOwner
-import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
 import androidx.lifecycle.LifecycleOwner
@@ -170,7 +166,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","removeOverlayView: removing overlay")
         overlayView?.let {
             it.animate().cancel()
-            val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+            val wm = host.context.windowManager()
             runCatching { wm.removeView(it) }
         }
         overlayView = null
@@ -203,7 +199,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
 
     private fun cleanupExistingOverlay() {
         if (overlayView != null && !isHiding) {
-            val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+            val wm = host.context.windowManager()
             runCatching { overlayView?.let { wm.removeView(it) } }
             overlayView = null
             overlayParams = null
@@ -211,13 +207,11 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     }
 
     private fun showOverlayView(initialSettings: QuickAppLauncherSettings) {
-        val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+        val wm = host.context.windowManager()
         val lp = createLayoutParams(initialSettings)
         val composeView = ComposeView(host.context).apply {
             setBackgroundColor(Color.TRANSPARENT)
-            setViewTreeLifecycleOwner(host)
-            setViewTreeViewModelStoreOwner(host)
-            setViewTreeSavedStateRegistryOwner(host)
+            applyOverlayViewTreeOwners(host)
 
             setOnTouchListener(createDismissOnOutsideTouch(onOutsideTouch = {
                 close()
@@ -278,7 +272,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
 
     private fun closeAdjustPanel() {
         adjustView?.let {
-            val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+            val wm = host.context.windowManager()
             runCatching { wm.removeView(it) }
         }
         adjustView = null
@@ -286,7 +280,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
 
     private fun showAdjustPanel() {
         closeAdjustPanel()
-        val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+        val wm = host.context.windowManager()
         val lp = WindowManager.LayoutParams().apply {
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             format = PixelFormat.RGBA_8888
@@ -302,9 +296,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         }
         val view = ComposeView(host.context).apply {
             setBackgroundColor(Color.TRANSPARENT)
-            setViewTreeLifecycleOwner(host)
-            setViewTreeViewModelStoreOwner(host)
-            setViewTreeSavedStateRegistryOwner(host)
+            applyOverlayViewTreeOwners(host)
             setOnTouchListener(createDismissOnOutsideTouch(onOutsideTouch = {
                 closeAdjustPanel()
             }, logTag = "adjustTouch"))
@@ -369,7 +361,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         val lp = overlayParams ?: return
         lp.applyPanelLayout(settings)
         runCatching {
-            val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
+            val wm = host.context.windowManager()
             wm.updateViewLayout(view, lp)
         }
     }
