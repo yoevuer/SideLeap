@@ -2,6 +2,7 @@ package hunoia.sideleap
 
 import android.content.res.Configuration
 import android.os.Build
+import android.os.SystemClock
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -60,7 +61,9 @@ import hunoia.sideleap.overlay.api.QuickAppLauncherOverlayHost
 import hunoia.sideleap.overlay.api.RuntimePanelOverlay
 import hunoia.sideleap.overlay.api.RuntimePanelOverlayHost
 import hunoia.sideleap.freeze.FrozenPackageEnabler
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.service.hiddenKey
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.widget.quickapplaunch.QuickAppLauncherContent
 import hunoia.sideleap.system.api.copySensitiveText
@@ -120,6 +123,8 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                 isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE,
                 isInLauncher = nowInLauncher(),
                 imePadding = imeInsetObserver.flow.value,
+                hiddenGestureButtons = hiddenGestureButtons.toMap(),
+                nowMs = SystemClock.uptimeMillis(),
             )
         },
     )
@@ -159,6 +164,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     private var orientation = if (ScreenUtils.isLandscape()) 2 else 1
 
     private var isNowInLockScreenPage = false
+    private val hiddenGestureButtons = mutableMapOf<String, Long>()
 
     var initialSettings: InitialSettings? = null
         private set
@@ -247,8 +253,8 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                             true -> advancedSettings.animationStyles.value
                             else -> null
                         },
-                        onAction = { action ->
-                            proxy.onAction(action)
+                        onAction = { action, sourceButton ->
+                            proxy.onAction(action, sourceButton)
                         },
                         onTakeScreenshot = {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -299,6 +305,19 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     fun openPasswordGeneratorPanel() {
         runtimePanelOverlay.show { PasswordPanelContent(applicationContext = applicationContext) }
+    }
+
+    fun hideGestureButtonTemporarily(button: GestureButton, delayMs: Long) {
+        val key = button.hiddenKey()
+        hiddenGestureButtons[key] = SystemClock.uptimeMillis() + delayMs
+        updateGestureButtons()
+        coroutineScope.launch {
+            delay(delayMs)
+            if ((hiddenGestureButtons[key] ?: 0L) <= SystemClock.uptimeMillis()) {
+                hiddenGestureButtons.remove(key)
+                updateGestureButtons()
+            }
+        }
     }
 
 }

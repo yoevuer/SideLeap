@@ -22,7 +22,6 @@ object AdvancedSettingsDefaults {
     const val HideLandscape = false
     const val HideScreenLock = false
     const val HideHomeScreen = false
-    const val HideTemporary = false
     const val ExcludeFromRecents = false
     const val DynamicColor = false
     val DayNightMode = hunoia.sideleap.settings.model.DayNightMode.Auto
@@ -60,4 +59,5 @@ object ActionSettingsDefaults {
     const val PasswordUppercaseEnabled = true
     const val PasswordDigitsEnabled = true
     const val PasswordSymbolsEnabled = true
+    const val HideGestureButtonDelayMs = 1000L
 }

@@ -5,5 +5,6 @@ enum class ActionConfigKind {
     PREVIOUS_APP,
     MOVE_SCREEN,
     GOTO_BOTTOM,
-    OPEN_APP_OR_URL
+    OPEN_APP_OR_URL,
+    HIDE_GESTURE_BUTTON
 }

@@ -14,7 +14,6 @@ import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.FitSoftKeyboard
 import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideHomeScreen
 import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideLandscape
 import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideScreenLock
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideTemporary
 import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.MiniWindowHorizontalBias
 import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.MiniWindowVerticalBias
 import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.MiniWindowVerticalEdgeMarginFraction
@@ -38,7 +37,6 @@ data class AdvancedSettings(
     val hideLandscape: Boolean = HideLandscape,
     val hideScreenLock: Boolean = HideScreenLock,
     val hideHomeScreen: Boolean = HideHomeScreen,
-    val hideTemporary: Boolean = HideTemporary,
     val excludeFromRecents: Boolean = ExcludeFromRecents,
     val dynamicColor: Boolean = DynamicColor,
     val dayNightMode: DayNightMode = DayNightMode,

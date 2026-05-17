@@ -71,7 +71,7 @@ import kotlin.math.hypot
 
 @Composable
 fun SideGestureContainer(
-    onAction: (Action) -> Unit,
+    onAction: (Action, GestureButton?) -> Unit,
     buttons: List<GestureButton>,
     modifier: Modifier = Modifier,
     imePadding: Int = 0,
@@ -90,7 +90,7 @@ fun SideGestureContainer(
 
     SideEffect {
         sideGestureState.onLongPress = { action ->
-            curOnAction(action)
+            curOnAction(action, sideGestureState.button)
             sideGestureState.cancel()
         }
     }
@@ -126,7 +126,7 @@ fun SideGestureContainer(
                             moveScreenState.onDragStart(sideGestureState.finger)
                             sideGestureState.cancel()
                         } else {
-                            curOnAction(actions.first())
+                            curOnAction(actions.first(), button)
                             sideGestureState.cancel()
                         }
                     }
@@ -139,17 +139,17 @@ fun SideGestureContainer(
             if (actionPanelState.visible) {
                 val action = actionPanelState.done()
                 actionPanelState.onDragEnd()
-                curOnAction(action)
+                curOnAction(action, sideGestureState.button)
             }
             if (moveScreenState.visible) {
                 val action = moveScreenState.done()
                 moveScreenState.onDragEnd()
-                curOnAction(action)
+                curOnAction(action, sideGestureState.button)
             }
 
             if (!sideGestureState.isCanceled) {
                 val action = sideGestureState.onDragEnd()
-                curOnAction(action)
+                curOnAction(action, sideGestureState.button)
             }
         },
         onDragCancel = onDragCancel@{
@@ -268,12 +268,12 @@ class SideGestureState(
         val button = button ?: return
         val gestureSettings = gestureSettings
 
-        val action = button.slideActions.center2.firstOrNull()
-        if (action != null && action != Action.NONE) {
+        val longPressAction = button.slideActions.center2.firstOrNull()
+        if (longPressAction != null && longPressAction != Action.NONE) {
             calcLongPressJob = coroutineScope.launch {
                 delay(gestureSettings.longPressTriggerDelayMs)
                 gestureSettings.vibrations.tryVibrateForSlide()
-                onLongPress(action)
+                onLongPress(longPressAction)
             }
         }
 
@@ -382,6 +382,19 @@ class SideGestureState(
                     gestureSettings.vibrations.tryVibrateForSlide()
                 }
                 returnAction = action
+            }
+        }
+
+        if (returnAction == Action.NONE) {
+            val distance = hypot(finger.x - origin.x, finger.y - origin.y)
+            if (distance <= viewConfiguration.scaledTouchSlop) {
+                val tapAction = button.tapActions.center.firstOrNull()
+                if (tapAction != null && tapAction != Action.NONE) {
+                    if (!slideVibrationFlags) {
+                        gestureSettings.vibrations.tryVibrateForSlide()
+                    }
+                    returnAction = tapAction
+                }
             }
         }
 

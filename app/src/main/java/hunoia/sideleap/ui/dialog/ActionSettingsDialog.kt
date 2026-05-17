@@ -509,3 +509,36 @@ fun GotoBottomSettingsContent(vm: ActionSettingsVM = viewModel()) {
         }
     }
 }
+
+@Composable
+fun HideGestureButtonSettingsContent(vm: ActionSettingsVM = viewModel()) {
+    UDFComponent(
+        component = vm.udfComponent,
+        onEvent = {}
+    ) { uiState ->
+        LoadingComponent(
+            modifier = Modifier.fillMaxWidth(),
+            component = vm.loadingComponent
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(ItemPadding)
+            ) {
+                val delayMs = uiState.actionSettings.hideGestureButton.delayMs
+                Text(
+                    text = stringResource(id = R.string.current_value_ms, delayMs),
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                MyTextSlider(
+                    value = delayMs.toFloat(),
+                    onValueChange = { vm.onHideGestureButtonDelayChange(it) },
+                    onValueChangeFinished = { vm.saveSettings() },
+                    text = stringResource(id = R.string.hide_gesture_button_delay_ms),
+                    sliderValueHint = "500" to "5000",
+                    valueRange = 500f..5000f
+                )
+            }
+        }
+    }
+}

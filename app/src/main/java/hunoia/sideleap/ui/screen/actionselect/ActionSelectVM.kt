@@ -50,7 +50,7 @@ class ActionSelectVM(
 
     override val initialState: UiState = UiState(
         title = createTitle(),
-        selectSingle = !actionSelect.isLongSlide
+        selectSingle = !actionSelect.isLongSlide || actionSelect.isTap
     )
 
     private val eventHandler = EventHandler()
@@ -418,6 +418,13 @@ class ActionSelectVM(
     private fun createTitle(): String {
         val context = AppContext.get()
         val actionSelect = actionSelect
+        if (actionSelect.isTap) {
+            return when (actionSelect.direction) {
+                TriggerDirection.Center -> context.getString(R.string.tap_action)
+                TriggerDirection.Center2 -> context.getString(R.string.long_press)
+                else -> ""
+            }
+        }
         val str1 = when (actionSelect.direction) {
             TriggerDirection.Center -> when (actionSelect.position) {
                 Position.Left -> context.getString(R.string.slide_to_right)
@@ -478,8 +485,9 @@ class ActionSelectVM(
                     }
                     if (button != null) {
                         val actionSelect = actionSelect
-                        val gestureActions = when (actionSelect.isLongSlide) {
-                            true -> button.longSlideActions
+                        val gestureActions = when {
+                            actionSelect.isTap -> button.tapActions
+                            actionSelect.isLongSlide -> button.longSlideActions
                             else -> button.slideActions
                         }
                         val actions = when (actionSelect.direction) {
@@ -569,8 +577,9 @@ class ActionSelectVM(
                     }
                     else -> selectedList
                 }
-                val gestureActions = when (actionSelect.isLongSlide) {
-                    true -> button.longSlideActions
+                val gestureActions = when {
+                    actionSelect.isTap -> button.tapActions
+                    actionSelect.isLongSlide -> button.longSlideActions
                     else -> button.slideActions
                 }
                 fun tryDeleteShortcutIcons(old: List<Action>, new: List<Action>) {
@@ -623,10 +632,10 @@ class ActionSelectVM(
                         gestureActions.copy(down2 = newActions)
                     }
                 }
-                button = if (actionSelect.isLongSlide) {
-                    button.copy(longSlideActions = newGestureActions)
-                } else {
-                    button.copy(slideActions = newGestureActions)
+                button = when {
+                    actionSelect.isTap -> button.copy(tapActions = newGestureActions)
+                    actionSelect.isLongSlide -> button.copy(longSlideActions = newGestureActions)
+                    else -> button.copy(slideActions = newGestureActions)
                 }
                 mutableList.apply {
                     set(index, button)

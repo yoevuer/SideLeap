@@ -2,6 +2,7 @@ package hunoia.sideleap.service
 
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.action.Action
+import hunoia.sideleap.gesture.GestureButton
 
 /**
  * @author aaronzzxup@gmail.com
@@ -90,7 +91,7 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
         actionCoordinator.onAccessibilityEvent(event)
     }
 
-    fun onAction(action: Action) {
-        actionCoordinator.onAction(action)
+    fun onAction(action: Action, sourceButton: GestureButton?) {
+        actionCoordinator.onAction(action, sourceButton)
     }
 }

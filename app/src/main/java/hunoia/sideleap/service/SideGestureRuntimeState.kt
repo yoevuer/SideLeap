@@ -10,6 +10,8 @@ internal data class SideGestureRuntimeState(
     val isLandscape: Boolean,
     val isInLauncher: Boolean,
     val imePadding: Int,
+    val hiddenGestureButtons: Map<String, Long>,
+    val nowMs: Long,
 )
 
 internal data class GestureButtonRefreshState(
@@ -19,6 +21,7 @@ internal data class GestureButtonRefreshState(
 ) {
     fun shouldShow(button: GestureButton): Boolean {
         return initialSettings.gestureEnabled &&
+            (runtimeState.hiddenGestureButtons[button.hiddenKey()] ?: 0L) <= runtimeState.nowMs &&
             !(advancedSettings.hideLandscape && runtimeState.isLandscape) &&
             !(advancedSettings.hideHomeScreen && runtimeState.isInLauncher) &&
             !(advancedSettings.hideScreenLock && runtimeState.isNowInLockScreenPage) &&
@@ -26,3 +29,5 @@ internal data class GestureButtonRefreshState(
             button.enabled
     }
 }
+
+internal fun GestureButton.hiddenKey(): String = "${position.name}:$id"

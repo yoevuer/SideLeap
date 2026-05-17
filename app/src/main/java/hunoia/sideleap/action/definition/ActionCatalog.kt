@@ -35,6 +35,7 @@ object ActionCatalog {
         ActionDefinition(GlobalActions.ONE_KEY_FREEZE_APPS, ActionCategory.TOOL, ActionConfigKind.NONE, "one_key_freeze", "one_key_freeze"),
         ActionDefinition(GlobalActions.GENERATE_PASSWORD_COPY, ActionCategory.TOOL, ActionConfigKind.NONE, "generate_password_copy", "generate_password_copy"),
         ActionDefinition(GlobalActions.OPEN_PASSWORD_GENERATOR, ActionCategory.TOOL, ActionConfigKind.NONE, "open_password_generator", "open_password_generator"),
+        ActionDefinition(GlobalActions.HIDE_GESTURE_BUTTON, ActionCategory.SYSTEM, ActionConfigKind.HIDE_GESTURE_BUTTON, "hide_gesture_button", "hide_gesture_button"),
     )
 
     private val byIdMap: Map<String, ActionDefinition> = definitions.associateBy { it.actionId }

@@ -22,6 +22,7 @@ data class ActionHandlerContext(
     val toggleQuickAppLauncher: () -> Unit = {},
     val openPasswordGenerator: () -> Unit = {},
     val toggleKeepScreenOn: () -> Unit = {},
+    val hideGestureButton: (Long) -> Unit = {},
     val showVersionTooLowToast: (Int) -> Unit = {},
     val previousApp: suspend () -> Unit = {},
 )

@@ -10,6 +10,7 @@ import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.api.ActionHandlerContext
 import hunoia.sideleap.action.api.ActionRegistry
+import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.system.api.showToast
 import hunoia.sideleap.system.api.showToastLong
@@ -65,14 +66,14 @@ internal class SideGestureServiceProxyActionCoordinator(
         }
     }
 
-    fun onAction(action: Action) {
+    fun onAction(action: Action, sourceButton: GestureButton?) {
         val scope = scopeProvider()
         scope.launch {
-            ActionRegistry.execute(action, buildActionHandlerContext())
+            ActionRegistry.execute(action, buildActionHandlerContext(sourceButton))
         }
     }
 
-    private fun buildActionHandlerContext(): ActionHandlerContext {
+    private fun buildActionHandlerContext(sourceButton: GestureButton?): ActionHandlerContext {
         return ActionHandlerContext(
             accessibilityService = host,
             appContext = host.applicationContext,
@@ -89,6 +90,11 @@ internal class SideGestureServiceProxyActionCoordinator(
             },
             toggleQuickAppLauncher = { host.quickAppLauncherOverlay.toggle() },
             openPasswordGenerator = { host.openPasswordGeneratorPanel() },
+            hideGestureButton = { delayMs ->
+                if (sourceButton != null) {
+                    host.hideGestureButtonTemporarily(sourceButton, delayMs)
+                }
+            },
             toggleKeepScreenOn = {
                 if (wakeLock != null) {
                     safeReleaseWakeLock()
