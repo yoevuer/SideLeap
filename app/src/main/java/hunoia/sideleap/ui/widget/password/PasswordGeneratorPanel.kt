@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
@@ -36,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -60,14 +58,12 @@ fun PasswordGeneratorPanel(
     var config by remember { mutableStateOf(ActionSettings.PasswordGenerator()) }
     var password by remember { mutableStateOf("") }
     var visible by remember { mutableStateOf(false) }
-    var manuallyEdited by remember { mutableStateOf(false) }
     var loaded by remember { mutableStateOf(false) }
 
     fun regenerate(nextConfig: ActionSettings.PasswordGenerator = config) {
         runCatching { PasswordGenerator.generate(nextConfig) }
             .onSuccess {
                 password = it
-                manuallyEdited = false
             }
             .onFailure { showToast(R.string.password_generate_failed) }
     }
@@ -101,17 +97,10 @@ fun PasswordGeneratorPanel(
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = password,
-                        onValueChange = { value ->
-                            val singleLine = value.replace('\n', ' ').replace('\r', ' ')
-                            if (singleLine.length > PasswordMaxLength) {
-                                showToast(R.string.password_max_length_hint)
-                            }
-                            password = singleLine.take(PasswordMaxLength)
-                            manuallyEdited = true
-                        },
+                        onValueChange = {},
+                        readOnly = true,
                         singleLine = true,
                         textStyle = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Monospace),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
                             IconButton(onClick = { visible = !visible }) {
@@ -125,15 +114,11 @@ fun PasswordGeneratorPanel(
 
                     Text(
                         text = context.getString(
-                            if (manuallyEdited) {
-                                R.string.password_estimated_entropy_bits
-                            } else {
-                                R.string.password_entropy_bits
-                            },
+                            R.string.password_entropy_bits,
                             PasswordGenerator.estimatedEntropyBits(password)
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
 
                     Row(

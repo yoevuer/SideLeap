@@ -11,8 +11,6 @@ import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -35,7 +33,6 @@ class RuntimePanelScope internal constructor(
 
 class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
     private var overlayView: View? = null
-    private var imeHeight: Int = 0
     private var isShowing = false
     private var isHiding = false
     private var hasPanelSize = false
@@ -62,19 +59,6 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
                 } else false
             }
 
-            ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
-                val nextImeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-                val keyboardVisible = nextImeHeight > 0 ||
-                    (Build.VERSION.SDK_INT < Build.VERSION_CODES.R &&
-                     insets.isVisible(WindowInsetsCompat.Type.ime()))
-                val newImeHeight = if (keyboardVisible) nextImeHeight else 0
-                if (imeHeight != newImeHeight) {
-                    imeHeight = newImeHeight
-                    updatePanelLayout(wm, view, lp, lp.width, lp.height)
-                }
-                insets
-            }
-
             setContent {
                 RuntimePanelScope(
                     close = ::close,
@@ -93,8 +77,6 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
 
         wm.addView(composeView, lp)
         overlayView = composeView
-        ViewCompat.requestApplyInsets(composeView)
-        composeView.post { ViewCompat.requestApplyInsets(composeView) }
     }
 
     fun close() {
@@ -109,12 +91,10 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
         val target = view ?: return
         target.animate().cancel()
         if (overlayView === target) overlayView = null
-        imeHeight = 0
         isShowing = false
         isHiding = false
         hasPanelSize = false
         triggerCloseAnimated = null
-        ViewCompat.setOnApplyWindowInsetsListener(target, null)
         val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
         runCatching { wm.removeView(target) }
     }
@@ -133,7 +113,7 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
         val nextWidth = width.coerceIn(1, screenWidth)
         val nextHeight = height.coerceIn(1, screenHeight)
         val nextX = ((screenWidth - nextWidth) / 2).coerceAtLeast(0)
-        val nextY = (screenHeight - nextHeight - BottomMarginPx - imeHeight).coerceAtLeast(0)
+        val nextY = (screenHeight - nextHeight - BottomMarginPx).coerceAtLeast(0)
         val firstLayout = !hasPanelSize
         hasPanelSize = true
         if (lp.width == nextWidth && lp.height == nextHeight && lp.x == nextX && lp.y == nextY) {
@@ -174,11 +154,9 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
             width = panelWidth
             height = panelHeight
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-            softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
