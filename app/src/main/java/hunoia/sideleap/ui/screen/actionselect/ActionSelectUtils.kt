@@ -7,6 +7,7 @@ import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 
 internal const val MAX_SELECT_COUNT = 5
+internal const val LONG_SLIDE_MAX_SELECT_COUNT = 10
 internal const val PAGE_UNIFIED = 0
 internal val PAGES = listOf(PAGE_UNIFIED)
 
