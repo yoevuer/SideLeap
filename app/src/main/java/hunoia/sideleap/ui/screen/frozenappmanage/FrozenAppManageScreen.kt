@@ -2,6 +2,7 @@ package hunoia.sideleap.ui.screen.frozenappmanage
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Shield
@@ -41,6 +43,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -60,6 +63,7 @@ fun FrozenAppManageScreen(
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         var controlsExpanded by remember { mutableStateOf(false) }
         var controlsVisible by remember { mutableStateOf(true) }
+        var oneKeyExpanded by remember { mutableStateOf(true) }
         val gridState = rememberLazyGridState()
         LaunchedEffect(Unit) {
             vm.reloadApps()
@@ -218,7 +222,7 @@ fun FrozenAppManageScreen(
                 ) {
                     LazyVerticalGrid(
                         state = gridState,
-                        columns = GridCells.Adaptive(minSize = 96.dp),
+                        columns = GridCells.Adaptive(minSize = 52.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         contentPadding = PaddingValues(
@@ -254,25 +258,41 @@ fun FrozenAppManageScreen(
                     } else {
                         if (uiState.oneKeyApps.isNotEmpty()) {
                             item(span = { GridItemSpan(this.maxLineSpan) }, key = "one_key_title") {
-                                Text(
+                                Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
+                                        .clickable { oneKeyExpanded = !oneKeyExpanded }
                                         .padding(horizontal = 8.dp, vertical = 8.dp),
-                                    text = stringResource(id = R.string.one_key_list),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .graphicsLayer {
+                                                rotationX = if (oneKeyExpanded) 0f else 180f
+                                            }
+                                    )
+                                    Spacer(Modifier.padding(4.dp))
+                                    Text(
+                                        text = stringResource(id = R.string.one_key_list),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
                             }
-                            items(uiState.oneKeyApps, key = { it.packageName }) { app ->
+                            if (oneKeyExpanded) {
+                                items(uiState.oneKeyApps, key = { it.packageName }) { app ->
                                 val isPending = app.packageName in uiState.pendingOneKeyPackageNames != app.packageName in uiState.oneKeyPackageNames
                                 FrozenAppSelectableItem(
                                     app = app,
                                     isFrozen = uiState.frozenStateByPackage[app.packageName] == true,
                                     isPending = isPending,
                                     longClickEnabled = uiState.shizukuReady && !uiState.bulkActionRunning && app.packageName !in uiState.runningPackageActions,
-                                    onClick = { vm.onOneKeyChecked(app.packageName, app.packageName !in uiState.oneKeyPackageNames) },
+                                    onClick = { vm.onOneKeyChecked(app.packageName, app.packageName !in uiState.pendingOneKeyPackageNames) },
                                     onLongClick = { vm.onToggleFrozen(app.packageName) }
                                 )
+                                }
                             }
                         }
                         if (uiState.otherApps.isNotEmpty()) {
@@ -293,7 +313,7 @@ fun FrozenAppManageScreen(
                                     isFrozen = uiState.frozenStateByPackage[app.packageName] == true,
                                     isPending = isPending,
                                     longClickEnabled = uiState.shizukuReady && !uiState.bulkActionRunning && app.packageName !in uiState.runningPackageActions,
-                                    onClick = { vm.onOneKeyChecked(app.packageName, app.packageName !in uiState.oneKeyPackageNames) },
+                                    onClick = { vm.onOneKeyChecked(app.packageName, app.packageName !in uiState.pendingOneKeyPackageNames) },
                                     onLongClick = { vm.onToggleFrozen(app.packageName) }
                                 )
                             }

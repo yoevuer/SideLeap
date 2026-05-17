@@ -1,7 +1,7 @@
 package hunoia.sideleap.ui.screen.frozenappmanage
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
@@ -73,8 +72,6 @@ fun FrozenAppSelectableItem(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
-    val overlayColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -83,14 +80,21 @@ fun FrozenAppSelectableItem(
                 onLongClick = if (longClickEnabled) onLongClick else null,
             )
             .padding(2.dp)
-            .clip(RoundedCornerShape(12.dp))
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
+                    .then(
+                        if (isPending) Modifier.border(
+                            2.dp,
+                            MaterialTheme.colorScheme.primary,
+                            RoundedCornerShape(12.dp)
+                        ) else Modifier
+                    )
             ) {
                 val context = LocalContext.current
                 AsyncImage(
@@ -116,14 +120,6 @@ fun FrozenAppSelectableItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 4.dp)
-            )
-        }
-        if (isPending) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(overlayColor)
             )
         }
     }
