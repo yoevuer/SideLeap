@@ -16,28 +16,35 @@ data class ActionPanelStyles(
         const val TYPE_ARC = ActionPanelStylesDefaults.TYPE_ARC
         const val TYPE_LIST = ActionPanelStylesDefaults.TYPE_LIST
         const val TYPE_GRID = ActionPanelStylesDefaults.TYPE_GRID
+
+        fun arc(): ActionPanelStyles = ActionPanelStyles(TYPE_ARC)
+
+        fun list(): ActionPanelStyles = ActionPanelStyles(
+            type = TYPE_LIST,
+            json = JsonHelper.encodeToString(ListStyle())
+        )
+
+        fun grid(): ActionPanelStyles = ActionPanelStyles(
+            type = TYPE_GRID,
+            json = JsonHelper.encodeToString(GridStyle())
+        )
     }
 
     @Transient
     val value: ActionPanelStyle = run {
         val json = json
         if (json.isEmpty()) {
-            return@run ArcStyle()
+            return@run when (type) {
+                TYPE_LIST -> ListStyle()
+                TYPE_GRID -> GridStyle()
+                else -> ArcStyle()
+            }
         }
         when (type) {
             TYPE_ARC -> JsonHelper.decodeFromString<ArcStyle>(json)
             TYPE_LIST -> JsonHelper.decodeFromString<ListStyle>(json)
             TYPE_GRID -> JsonHelper.decodeFromString<GridStyle>(json)
             else -> error("Unknown ActionPanelStyle type: $type")
-        }
-    }
-
-    fun displayName(): String {
-        return when (type) {
-            TYPE_ARC -> "弧形"
-            TYPE_LIST -> "自适应列表"
-            TYPE_GRID -> "自适应网格"
-            else -> "未知"
         }
     }
 }

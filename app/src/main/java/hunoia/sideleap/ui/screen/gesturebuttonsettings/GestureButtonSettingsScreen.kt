@@ -13,12 +13,15 @@ import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,6 +59,8 @@ import hunoia.sideleap.gesture.TriggerDirection.Up
 import hunoia.sideleap.gesture.TriggerDirection.Up2
 import hunoia.sideleap.action.display.actionTextCompose
 import hunoia.sideleap.gesture.bounds
+import hunoia.sideleap.settings.model.ActionPanelStyles
+import hunoia.sideleap.settings.model.LongSlideActionPanelStyles
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectContent
 import hunoia.sideleap.ui.screen.gestureangles.GestureButtonAngleContent
 import hunoia.sideleap.ui.theme.IconTextPadding
@@ -86,6 +91,7 @@ fun GestureButtonSettingsScreen(
     var showActionSelect by remember { mutableStateOf(false) }
     var pendingActionSelect by remember { mutableStateOf<ActionSelect?>(null) }
     var showGestureAngles by remember { mutableStateOf(false) }
+    var pendingActionPanelStyleDirection by remember { mutableStateOf<TriggerDirection?>(null) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -116,6 +122,18 @@ fun GestureButtonSettingsScreen(
                     vm.colorPickerDialog.confirm()
                 },
                 initialColor = uiState.colorPickerDialog.second
+            )
+        }
+        val styleDirection = pendingActionPanelStyleDirection
+        val styleButton = uiState.gestureButton
+        if (styleDirection != null && styleButton != null) {
+            ActionPanelStyleDialog(
+                onDismissRequest = { pendingActionPanelStyleDirection = null },
+                selectedStyle = styleButton.longSlideActionPanelStyles.styleBy(styleDirection),
+                onStyleSelected = { style ->
+                    vm.updateLongSlideActionPanelStyle(styleDirection, style)
+                    pendingActionPanelStyleDirection = null
+                }
             )
         }
 
@@ -252,6 +270,10 @@ fun GestureButtonSettingsScreen(
                                 isLongSlide = true,
                                 secondaryText = gestureButton.longSlideActions.center.actionTextCompose()
                             )
+                            LongSlideActionPanelStyleSettings(
+                                onClick = { pendingActionPanelStyleDirection = Center },
+                                style = gestureButton.longSlideActionPanelStyles.center
+                            )
                             MySideGestureSettings(
                                 onClick = {
                                     navToActionSelect(Up)
@@ -260,6 +282,10 @@ fun GestureButtonSettingsScreen(
                                 direction = Up,
                                 isLongSlide = true,
                                 secondaryText = gestureButton.longSlideActions.up.actionTextCompose()
+                            )
+                            LongSlideActionPanelStyleSettings(
+                                onClick = { pendingActionPanelStyleDirection = Up },
+                                style = gestureButton.longSlideActionPanelStyles.up
                             )
                             MySideGestureSettings(
                                 onClick = {
@@ -270,6 +296,10 @@ fun GestureButtonSettingsScreen(
                                 isLongSlide = true,
                                 secondaryText = gestureButton.longSlideActions.down.actionTextCompose()
                             )
+                            LongSlideActionPanelStyleSettings(
+                                onClick = { pendingActionPanelStyleDirection = Down },
+                                style = gestureButton.longSlideActionPanelStyles.down
+                            )
                             MySideGestureSettings(
                                 onClick = {
                                     navToActionSelect(Up2)
@@ -279,6 +309,10 @@ fun GestureButtonSettingsScreen(
                                 isLongSlide = true,
                                 secondaryText = gestureButton.longSlideActions.up2.actionTextCompose()
                             )
+                            LongSlideActionPanelStyleSettings(
+                                onClick = { pendingActionPanelStyleDirection = Up2 },
+                                style = gestureButton.longSlideActionPanelStyles.up2
+                            )
                             MySideGestureSettings(
                                 onClick = {
                                     navToActionSelect(Down2)
@@ -287,6 +321,10 @@ fun GestureButtonSettingsScreen(
                                 direction = Down2,
                                 isLongSlide = true,
                                 secondaryText = gestureButton.longSlideActions.down2.actionTextCompose()
+                            )
+                            LongSlideActionPanelStyleSettings(
+                                onClick = { pendingActionPanelStyleDirection = Down2 },
+                                style = gestureButton.longSlideActionPanelStyles.down2
                             )
                         }
 
@@ -574,4 +612,88 @@ private fun MySideGestureSettings(
             )
         }
     )
+}
+
+@Composable
+private fun LongSlideActionPanelStyleSettings(
+    onClick: () -> Unit,
+    style: ActionPanelStyles
+) {
+    TextActionButton(
+        onClick = onClick,
+        text = stringResource(R.string.action_panel_style),
+        secondaryText = actionPanelStyleText(style),
+        secondaryTextColor = MaterialTheme.colorScheme.primary
+    )
+}
+
+@Composable
+private fun ActionPanelStyleDialog(
+    onDismissRequest: () -> Unit,
+    selectedStyle: ActionPanelStyles,
+    onStyleSelected: (ActionPanelStyles) -> Unit
+) {
+    AlertDialog(
+        containerColor = MaterialTheme.colorScheme.surface,
+        onDismissRequest = onDismissRequest,
+        title = { Text(stringResource(R.string.action_panel_style)) },
+        text = {
+            Column {
+                ActionPanelStyleOption(
+                    selected = selectedStyle.type == ActionPanelStyles.TYPE_ARC,
+                    text = stringResource(R.string.action_panel_style_arc),
+                    onClick = { onStyleSelected(ActionPanelStyles.arc()) }
+                )
+                ActionPanelStyleOption(
+                    selected = selectedStyle.type == ActionPanelStyles.TYPE_LIST,
+                    text = stringResource(R.string.action_panel_style_list),
+                    onClick = { onStyleSelected(ActionPanelStyles.list()) }
+                )
+                ActionPanelStyleOption(
+                    selected = selectedStyle.type == ActionPanelStyles.TYPE_GRID,
+                    text = stringResource(R.string.action_panel_style_grid),
+                    onClick = { onStyleSelected(ActionPanelStyles.grid()) }
+                )
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+private fun ActionPanelStyleOption(
+    selected: Boolean,
+    text: String,
+    onClick: () -> Unit
+) {
+    TextActionButton(
+        onClick = onClick,
+        text = text,
+        secondaryText = if (selected) stringResource(R.string.selected) else ""
+    )
+}
+
+@Composable
+private fun actionPanelStyleText(style: ActionPanelStyles): String {
+    return when (style.type) {
+        ActionPanelStyles.TYPE_LIST -> stringResource(R.string.action_panel_style_list)
+        ActionPanelStyles.TYPE_GRID -> stringResource(R.string.action_panel_style_grid)
+        else -> stringResource(R.string.action_panel_style_arc)
+    }
+}
+
+private fun LongSlideActionPanelStyles.styleBy(direction: TriggerDirection): ActionPanelStyles {
+    return when (direction) {
+        Center -> center
+        Up -> up
+        Down -> down
+        Up2 -> up2
+        Down2 -> down2
+        Center2 -> center
+    }
 }
