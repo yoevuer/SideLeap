@@ -87,6 +87,10 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
         triggerCloseAnimated?.invoke() ?: removeOverlayView(view)
     }
 
+    fun closeImmediately() {
+        removeOverlayView()
+    }
+
     private fun removeOverlayView(view: View? = overlayView) {
         val target = view ?: return
         target.animate().cancel()
