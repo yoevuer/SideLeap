@@ -13,17 +13,17 @@ import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Surface
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -125,18 +125,6 @@ fun GestureButtonSettingsScreen(
                     vm.colorPickerDialog.confirm()
                 },
                 initialColor = uiState.colorPickerDialog.second
-            )
-        }
-        val styleDirection = pendingActionPanelStyleDirection
-        val styleButton = uiState.gestureButton
-        if (styleDirection != null && styleButton != null) {
-            ActionPanelStyleDialog(
-                onDismissRequest = { pendingActionPanelStyleDirection = null },
-                selectedStyle = styleButton.longSlideActionPanelStyles.styleBy(styleDirection),
-                onStyleSelected = { style ->
-                    vm.updateLongSlideActionPanelStyle(styleDirection, style)
-                    pendingActionPanelStyleDirection = null
-                }
             )
         }
 
@@ -265,20 +253,12 @@ fun GestureButtonSettingsScreen(
                                 showActionSelect = true
                             }
                             fun styleTrailing(direction: TriggerDirection): @Composable () -> Unit = {
-                                Surface(
-                                    onClick = { pendingActionPanelStyleDirection = direction },
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = MaterialTheme.colorScheme.surfaceVariant
-                                ) {
-                                    Text(
-                                        text = actionPanelStyleText(
-                                            gestureButton.longSlideActionPanelStyles.styleBy(direction)
-                                        ),
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
+                                StyleTrailingDropdown(
+                                    currentStyle = gestureButton.longSlideActionPanelStyles.styleBy(direction),
+                                    onStyleSelected = { style ->
+                                        vm.updateLongSlideActionPanelStyle(direction, style)
+                                    }
+                                )
                             }
                             MySideGestureSettings(
                                 onClick = { navToActionSelect(Center) },
@@ -605,54 +585,51 @@ private fun MySideGestureSettings(
 }
 
 @Composable
-private fun ActionPanelStyleDialog(
-    onDismissRequest: () -> Unit,
-    selectedStyle: ActionPanelStyles,
+private fun StyleTrailingDropdown(
+    currentStyle: ActionPanelStyles,
     onStyleSelected: (ActionPanelStyles) -> Unit
 ) {
-    AlertDialog(
-        containerColor = MaterialTheme.colorScheme.surface,
-        onDismissRequest = onDismissRequest,
-        title = { Text(stringResource(R.string.action_panel_style)) },
-        text = {
-            Column {
-                ActionPanelStyleOption(
-                    selected = selectedStyle.type == ActionPanelStyles.TYPE_ARC,
-                    text = stringResource(R.string.action_panel_style_arc),
-                    onClick = { onStyleSelected(ActionPanelStyles.arc()) }
-                )
-                ActionPanelStyleOption(
-                    selected = selectedStyle.type == ActionPanelStyles.TYPE_LIST,
-                    text = stringResource(R.string.action_panel_style_list),
-                    onClick = { onStyleSelected(ActionPanelStyles.list()) }
-                )
-                ActionPanelStyleOption(
-                    selected = selectedStyle.type == ActionPanelStyles.TYPE_GRID,
-                    text = stringResource(R.string.action_panel_style_grid),
-                    onClick = { onStyleSelected(ActionPanelStyles.grid()) }
-                )
-            }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text(stringResource(R.string.cancel))
-            }
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        Surface(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            Text(
+                text = actionPanelStyleText(currentStyle),
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-    )
-}
-
-@Composable
-private fun ActionPanelStyleOption(
-    selected: Boolean,
-    text: String,
-    onClick: () -> Unit
-) {
-    TextActionButton(
-        onClick = onClick,
-        text = text,
-        secondaryText = if (selected) stringResource(R.string.selected) else ""
-    )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                onClick = {
+                    onStyleSelected(ActionPanelStyles.arc())
+                    expanded = false
+                },
+                text = { Text(stringResource(R.string.action_panel_style_arc)) }
+            )
+            DropdownMenuItem(
+                onClick = {
+                    onStyleSelected(ActionPanelStyles.list())
+                    expanded = false
+                },
+                text = { Text(stringResource(R.string.action_panel_style_list)) }
+            )
+            DropdownMenuItem(
+                onClick = {
+                    onStyleSelected(ActionPanelStyles.grid())
+                    expanded = false
+                },
+                text = { Text(stringResource(R.string.action_panel_style_grid)) }
+            )
+        }
+    }
 }
 
 @Composable
