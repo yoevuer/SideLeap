@@ -3,6 +3,7 @@ package hunoia.sideleap.settings.model
 import androidx.annotation.Keep
 import com.blankj.utilcode.util.ConvertUtils
 import hunoia.sideleap.settings.api.ActionSettingsDefaults.GotoBottomStrength
+import hunoia.sideleap.settings.api.ActionSettingsDefaults.HideGestureButtonDelayMs
 import hunoia.sideleap.settings.api.ActionSettingsDefaults.MoveScreenHoverDelayMs
 import hunoia.sideleap.settings.api.ActionSettingsDefaults.MoveScreenRate
 import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordDefaultLength
@@ -18,7 +19,8 @@ data class ActionSettings(
     val moveScreen: MoveScreen = MoveScreen(),
     val previousApp: PreviousApp = PreviousApp(),
     val gotoBottom: GotoBottom = GotoBottom(),
-    val passwordGenerator: PasswordGenerator = PasswordGenerator()
+    val passwordGenerator: PasswordGenerator = PasswordGenerator(),
+    val hideGestureButton: HideGestureButton = HideGestureButton()
 ) {
     @Serializable
     @Keep
@@ -39,6 +41,12 @@ data class ActionSettings(
     @Serializable
     @Keep
     data class GotoBottom(val strength: Int = GotoBottomStrength)
+
+    @Serializable
+    @Keep
+    data class HideGestureButton(
+        val delayMs: Long = HideGestureButtonDelayMs
+    )
 
     @Serializable
     @Keep

@@ -226,15 +226,6 @@ fun GestureButtonSettingsScreen(
                                 isLongSlide = false,
                                 secondaryText = gestureButton.slideActions.down2.actionTextCompose()
                             )
-                            MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Center2)
-                                },
-                                gestureButton = gestureButton,
-                                direction = Center2,
-                                isLongSlide = false,
-                                secondaryText = gestureButton.slideActions.center2.actionTextCompose()
-                            )
                         }
 
                         SectionCard(
@@ -296,6 +287,52 @@ fun GestureButtonSettingsScreen(
                                 direction = Down2,
                                 isLongSlide = true,
                                 secondaryText = gestureButton.longSlideActions.down2.actionTextCompose()
+                            )
+                        }
+
+                        SectionCard(
+                            modifier = Modifier.padding(top = SectionPadding),
+                            title = stringResource(id = R.string.tap_and_long_press_action)
+                        ) {
+                            val navToTapActionSelect: (TriggerDirection) -> Unit = { direction ->
+                                val actionSelect = ActionSelect(
+                                    gestureButtonId = gestureButton.id,
+                                    position = gestureButton.position,
+                                    direction = direction,
+                                    isLongSlide = false,
+                                    isSideButton = uiState.gestureButtonSettings.isSideButton,
+                                    isTap = true
+                                )
+                                pendingActionSelect = actionSelect
+                                showActionSelect = true
+                            }
+                            MySideGestureSettings(
+                                onClick = {
+                                    navToTapActionSelect(Center)
+                                },
+                                gestureButton = gestureButton,
+                                direction = Center,
+                                isLongSlide = false,
+                                secondaryText = gestureButton.tapActions.center.actionTextCompose(),
+                                text = stringResource(id = R.string.tap_action)
+                            )
+                            MySideGestureSettings(
+                                onClick = {
+                                    val actionSelect = ActionSelect(
+                                        gestureButtonId = gestureButton.id,
+                                        position = gestureButton.position,
+                                        direction = Center2,
+                                        isLongSlide = false,
+                                        isSideButton = uiState.gestureButtonSettings.isSideButton
+                                    )
+                                    pendingActionSelect = actionSelect
+                                    showActionSelect = true
+                                },
+                                gestureButton = gestureButton,
+                                direction = Center2,
+                                isLongSlide = false,
+                                secondaryText = gestureButton.slideActions.center2.actionTextCompose(),
+                                text = stringResource(id = R.string.long_press)
                             )
                         }
 
@@ -444,11 +481,12 @@ private fun MySideGestureSettings(
     gestureButton: GestureButton,
     direction: TriggerDirection,
     isLongSlide: Boolean,
-    secondaryText: String
+    secondaryText: String,
+    text: String? = null
 ) {
     TextActionButton(
         onClick = onClick,
-        text = when (direction) {
+        text = text ?: when (direction) {
             Center -> when (gestureButton.position) {
                 Position.Left -> stringResource(id = R.string.slide_to_right)
                 Position.Right -> stringResource(id = R.string.slide_to_left)

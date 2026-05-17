@@ -89,6 +89,9 @@ internal class SideGestureServiceProxyActionCoordinator(
             },
             toggleQuickAppLauncher = { host.quickAppLauncherOverlay.toggle() },
             openPasswordGenerator = { host.openPasswordGeneratorPanel() },
+            hideGestureButton = { delayMs ->
+                host.hideGestureButtonsTemporarily(delayMs)
+            },
             toggleKeepScreenOn = {
                 if (wakeLock != null) {
                     safeReleaseWakeLock()

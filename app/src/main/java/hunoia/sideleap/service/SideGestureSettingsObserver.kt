@@ -32,7 +32,6 @@ class SideGestureSettingsObserver(
             observeLatestSettings()
             observeGestureButtonChanges()
             observeGestureVisibilityChanges()
-            observeTemporaryHideChanges()
             observeImeInsetChanges()
         }
     }
@@ -58,15 +57,6 @@ class SideGestureSettingsObserver(
             SettingsProvider
                 .initialSettings
                 .distinctUntilChangedBy { it.gestureEnabled }
-                .collectLatest { onRefreshGestureButtons() }
-        }
-    }
-
-    private fun CoroutineScope.observeTemporaryHideChanges() {
-        launch {
-            SettingsProvider
-                .advancedSettings
-                .distinctUntilChangedBy { it.hideTemporary }
                 .collectLatest { onRefreshGestureButtons() }
         }
     }

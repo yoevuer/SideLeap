@@ -62,6 +62,7 @@ import com.blankj.utilcode.util.ToastUtils
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import hunoia.sideleap.ui.dialog.GotoBottomSettingsContent
+import hunoia.sideleap.ui.dialog.HideGestureButtonSettingsContent
 import hunoia.sideleap.ui.dialog.MoveScreenSettingsContent
 import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
 import hunoia.sideleap.ui.dialog.PreviousAppSettingsContent
@@ -343,6 +344,10 @@ fun ActionSettingsDialog(
                             }
                         }
                     )
+                }
+
+                GlobalActions.HIDE_GESTURE_BUTTON -> {
+                    HideGestureButtonSettingsContent()
                 }
             }
         },

@@ -58,6 +58,13 @@
 - 已选栏下方新增已选动作设置区，支持设置/清除长按动作和上移/下移排序。
 - 已选记录统一保存为 `Action`，应用和快捷方式通过 `EXTRA_LAUNCH_APP` / `EXTRA_LAUNCH_SHORTCUT` payload 表示。
 
+### 手势按钮单击动作（`feat/gesture-button-tap`）
+
+- 触钮设置页新增“单击/长按”分组；单击使用 `GestureButton.tapActions.center`，长按沿用原 `slideActions.center2`。
+- 运行时在未达到滑动阈值时触发单击动作，长按触发逻辑保持原有配置与时长。
+- “隐藏触钮”改为可选动作，执行后按 `ActionSettings.hideGestureButton.delayMs` 临时隐藏触钮，到期自动恢复。
+- 隐藏触钮动作设置弹窗显示当前时长，并提供 500..5000 ms 滑杆。
+
 ### 冻结应用管理网格（`feat/frozen-app-grid`）
 
 - 冻结应用管理页和保护名单页改为自适应网格展示。

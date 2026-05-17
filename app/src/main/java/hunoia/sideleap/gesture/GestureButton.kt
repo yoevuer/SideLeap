@@ -18,6 +18,7 @@ object GestureButtonDefaults {
     val Width = ConvertUtils.dp2px(16f)
     val SlideActions = GestureActions()
     val LongSlideActions = GestureActions()
+    val TapActions = GestureActions()
     const val Color = android.graphics.Color.TRANSPARENT
     const val AlignRegion = true
     const val ExcludeSystemGestureRects = false
@@ -66,6 +67,7 @@ data class GestureButton(
     val width: Int = GestureButtonDefaults.Width,
     val slideActions: GestureActions = GestureButtonDefaults.SlideActions,
     val longSlideActions: GestureActions = GestureButtonDefaults.LongSlideActions,
+    val tapActions: GestureActions = GestureButtonDefaults.TapActions,
     val color: Int = GestureButtonDefaults.Color,
     val alignRegion: Boolean = GestureButtonDefaults.AlignRegion,
     val excludeSystemGestureRects: Boolean = GestureButtonDefaults.ExcludeSystemGestureRects,

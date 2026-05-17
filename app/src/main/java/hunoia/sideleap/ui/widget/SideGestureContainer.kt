@@ -268,12 +268,12 @@ class SideGestureState(
         val button = button ?: return
         val gestureSettings = gestureSettings
 
-        val action = button.slideActions.center2.firstOrNull()
-        if (action != null && action != Action.NONE) {
+        val longPressAction = button.slideActions.center2.firstOrNull()
+        if (longPressAction != null && longPressAction != Action.NONE) {
             calcLongPressJob = coroutineScope.launch {
                 delay(gestureSettings.longPressTriggerDelayMs)
                 gestureSettings.vibrations.tryVibrateForSlide()
-                onLongPress(action)
+                onLongPress(longPressAction)
             }
         }
 
@@ -382,6 +382,19 @@ class SideGestureState(
                     gestureSettings.vibrations.tryVibrateForSlide()
                 }
                 returnAction = action
+            }
+        }
+
+        if (returnAction == Action.NONE) {
+            val distance = hypot(finger.x - origin.x, finger.y - origin.y)
+            if (distance <= viewConfiguration.scaledTouchSlop) {
+                val tapAction = button.tapActions.center.firstOrNull()
+                if (tapAction != null && tapAction != Action.NONE) {
+                    if (!slideVibrationFlags) {
+                        gestureSettings.vibrations.tryVibrateForSlide()
+                    }
+                    returnAction = tapAction
+                }
             }
         }
 

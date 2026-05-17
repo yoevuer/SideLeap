@@ -30,6 +30,7 @@ object SystemActionHandler : ActionHandler {
         GlobalActions.ASSIST_APP,
         GlobalActions.SCREENSHOT,
         GlobalActions.KEEP_SCREEN_ON,
+        GlobalActions.HIDE_GESTURE_BUTTON,
     )
 
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
@@ -41,6 +42,7 @@ object SystemActionHandler : ActionHandler {
             GlobalActions.ASSIST_APP -> context.appContext.launchAssist()
             GlobalActions.SCREENSHOT -> handleScreenshot(context)
             GlobalActions.KEEP_SCREEN_ON -> context.toggleKeepScreenOn()
+            GlobalActions.HIDE_GESTURE_BUTTON -> context.hideGestureButton(context.actionSettings.hideGestureButton.delayMs)
             else -> return ActionExecutionResult.Ignored
         }
         return ActionExecutionResult.Success

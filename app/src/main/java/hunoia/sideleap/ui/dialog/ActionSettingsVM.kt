@@ -70,6 +70,16 @@ class ActionSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
+    fun onHideGestureButtonDelayChange(delayMs: Float) {
+        updateUiState {
+            it.copy(
+                actionSettings = it.actionSettings.copy(
+                    hideGestureButton = it.actionSettings.hideGestureButton.copy(delayMs = delayMs.toLong())
+                )
+            )
+        }
+    }
+
     fun saveSettings() {
         viewModelScope.launchWithLoading {
             SettingsProvider.updateActionSettings {

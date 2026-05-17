@@ -17,7 +17,8 @@ data class ActionSelect(
     val position: Position,
     val direction: TriggerDirection,
     val isLongSlide: Boolean,
-    val isSideButton: Boolean
+    val isSideButton: Boolean,
+    val isTap: Boolean = false
 )
 
 @Keep

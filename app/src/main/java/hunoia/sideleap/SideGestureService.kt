@@ -2,6 +2,7 @@ package hunoia.sideleap
 
 import android.content.res.Configuration
 import android.os.Build
+import android.os.SystemClock
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -120,6 +121,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                 isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE,
                 isInLauncher = nowInLauncher(),
                 imePadding = imeInsetObserver.flow.value,
+                isGestureButtonTemporarilyHidden = SystemClock.uptimeMillis() < gestureButtonHiddenUntilMs,
             )
         },
     )
@@ -159,6 +161,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     private var orientation = if (ScreenUtils.isLandscape()) 2 else 1
 
     private var isNowInLockScreenPage = false
+    private var gestureButtonHiddenUntilMs = 0L
 
     var initialSettings: InitialSettings? = null
         private set
@@ -299,6 +302,17 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     fun openPasswordGeneratorPanel() {
         runtimePanelOverlay.show { PasswordPanelContent(applicationContext = applicationContext) }
+    }
+
+    fun hideGestureButtonsTemporarily(delayMs: Long) {
+        gestureButtonHiddenUntilMs = SystemClock.uptimeMillis() + delayMs
+        updateGestureButtons()
+        coroutineScope.launch {
+            delay(delayMs)
+            if (SystemClock.uptimeMillis() >= gestureButtonHiddenUntilMs) {
+                updateGestureButtons()
+            }
+        }
     }
 
 }

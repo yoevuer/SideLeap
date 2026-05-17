@@ -166,11 +166,6 @@ fun AdvancedSettingsScreen(
                         checked = uiState.hideHomeScreen,
                         text = stringResource(id = R.string.launcher)
                     )
-                    LabeledSwitch(
-                        onCheckedChange = { vm.onHideTemporaryChange(it) },
-                        checked = uiState.hideTemporary,
-                        text = stringResource(id = R.string.click_to_hide_button_temporary)
-                    )
                 }
                 SectionCard(
                     modifier = Modifier.padding(top = SectionPadding),

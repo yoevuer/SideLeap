@@ -2,7 +2,6 @@ package hunoia.sideleap.service
 
 import android.view.View
 import android.view.WindowManager
-import androidx.core.view.postDelayed
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
@@ -50,25 +49,6 @@ internal class SideGestureButtonRefreshCoordinator(
         if (button.position != Position.Bottom) {
             lp.y += -state.runtimeState.imePadding
         }
-        updateTemporaryHideClickListener(view, state.advancedSettings.hideTemporary)
         lp.setFlags(state.shouldShow(button))
-    }
-
-    private fun updateTemporaryHideClickListener(view: View, enabled: Boolean) {
-        if (enabled) {
-            view.setOnClickListener { v ->
-                val lp = v.layoutParams as WindowManager.LayoutParams
-                lp.setFlags(false)
-                host.updateWindowLayout(v, lp)
-                v.postDelayed(1000) {
-                    val lp2 = v.layoutParams as WindowManager.LayoutParams
-                    val gestureButton = (view.tag as? GestureButton)?.enabled == true
-                    lp2.setFlags(gestureButton)
-                    host.updateWindowLayout(v, lp2)
-                }
-            }
-        } else {
-            view.setOnClickListener(null)
-        }
     }
 }
