@@ -23,6 +23,7 @@
 
 - `MotionEventDispatcher` 是手势输入到槽位识别的核心入口。
 - `GestureButton` 持有当前触钮的 `GestureAngle`，运行时按触钮独立判定方向。
+- `GestureButton.longSlideActionPanelStyles` 保存每个长滑方向的动作面板展开样式。
 - `GestureAngle`、`TriggerDirection`、`Position` 提供手势配置和解析所需的语义模型。
 
 ## 依赖边界
