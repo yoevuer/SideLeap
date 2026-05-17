@@ -6,6 +6,7 @@ import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.util.Log
 import android.view.MotionEvent
+import hunoia.sideleap.BuildConfig
 import android.view.View
 import android.view.WindowManager
 import androidx.compose.foundation.background
@@ -130,7 +131,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     var onAppLaunchRequested: ((AppInfo) -> Unit)? = null
 
     fun toggle() {
-        Log.d("SideLeapLauncher","toggle: overlayView=${overlayView != null}")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","toggle: overlayView=${overlayView != null}")
         if (overlayView != null) {
             close()
         } else {
@@ -140,13 +141,13 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
 
     fun close() {
         if (isHiding || overlayView == null) {
-            Log.d("SideLeapLauncher","close: skipped (isHiding=$isHiding overlayView=${overlayView != null})")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","close: skipped (isHiding=$isHiding overlayView=${overlayView != null})")
             return
         }
         val reason = "explicit close"
         isHiding = true
         lastCloseMs = System.currentTimeMillis()
-        Log.d("SideLeapLauncher","close: reason=$reason hasAnimation=${triggerCloseAnimated != null}")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","close: reason=$reason hasAnimation=${triggerCloseAnimated != null}")
         if (triggerCloseAnimated != null) {
             triggerCloseAnimated?.invoke()
         } else {
@@ -161,12 +162,12 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         isShowing = false
         isHiding = true
         lastCloseMs = System.currentTimeMillis()
-        Log.d("SideLeapLauncher", "closeImmediately: removing overlay")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "closeImmediately: removing overlay")
         removeOverlayView()
     }
 
     private fun removeOverlayView() {
-        Log.d("SideLeapLauncher","removeOverlayView: removing overlay")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","removeOverlayView: removing overlay")
         overlayView?.let {
             it.animate().cancel()
             val wm = ContextCompat.getSystemService(host.context, WindowManager::class.java)!!
@@ -182,7 +183,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     fun show() {
         val now = System.currentTimeMillis()
         val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
-        Log.d("SideLeapLauncher","show: isShowing=$isShowing isHiding=$isHiding overlayView=${overlayView != null} intervalSinceLastClose=${interval}ms")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","show: isShowing=$isShowing isHiding=$isHiding overlayView=${overlayView != null} intervalSinceLastClose=${interval}ms")
         if (isShowing || isHiding || overlayView != null) return
         isShowing = true
 
@@ -232,14 +233,14 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
                         isShowing = false
                         isHiding = true
                         lastCloseMs = System.currentTimeMillis()
-                        Log.d("SideLeapLauncher","closeAnimated: triggered")
+                        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","closeAnimated: triggered")
                         removeOverlayView()
                     },
                     onToggleAdjust = { toggleAdjustPanel() },
                     onLaunch = { appInfo, miniWindow ->
                         val now = System.currentTimeMillis()
                         val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
-                        Log.d("SideLeapLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
+                        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
                         val success = Launcher.launchAppInfo(
                             host.context,
                             appInfo,
@@ -249,7 +250,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
                             advancedSettings.miniWindowVerticalEdgeMarginFraction,
                             advancedSettings.miniWindowVerticalOffsetFraction,
                         )
-                        Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
+                        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","appClick: ${appInfo.label} launchResult=$success")
                         if (success) onAppLaunchRequested?.invoke(appInfo)
                         success
                     },
@@ -380,12 +381,12 @@ private fun createDismissOnOutsideTouch(
     logTag: String,
 ): View.OnTouchListener = View.OnTouchListener { v, event ->
     if (event.action == MotionEvent.ACTION_OUTSIDE) {
-        Log.d("SideLeapLauncher", "$logTag: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "$logTag: ACTION_OUTSIDE at (${event.rawX.toInt()}, ${event.rawY.toInt()}) → close")
         onOutsideTouch()
         v.performClick()
         true
     } else {
-        Log.d("SideLeapLauncher", "$logTag: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "$logTag: action=${event.action} at (${event.rawX.toInt()}, ${event.rawY.toInt()})")
         false
     }
 }

@@ -303,34 +303,34 @@ object ShizukuCommand {
 
     fun enablePackageForLauncher(context: Context, packageName: String): EnablePackageResult {
         if (!ShizukuRuntime.isAvailable()) {
-            Log.d("SideLeapLauncher", "shizuku_enable_launcher: unavailable")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: unavailable")
             return EnablePackageResult(false, packageName, error = "shizuku unavailable")
         }
         if (ShizukuRuntime.isPreV11OrUnsupported()) {
-            Log.d("SideLeapLauncher", "shizuku_enable_launcher: unsupported")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: unsupported")
             return EnablePackageResult(false, packageName, error = "shizuku unsupported")
         }
         if (!ShizukuRuntime.checkPermission()) {
-            Log.d("SideLeapLauncher", "shizuku_enable_launcher: permission denied")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: permission denied")
             return EnablePackageResult(false, packageName, error = "permission denied")
         }
 
-        Log.d("SideLeapLauncher", "shizuku_enable_launcher: target=$packageName")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: target=$packageName")
 
         var result = enableWithCachedService(context, packageName)
         if (result != null) {
-            Log.d("SideLeapLauncher", "shizuku_enable_launcher: result=${result.success}")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: result=${result.success}")
             return result
         }
 
         synchronized(enableLock) { clearEnableCache() }
         result = enableWithCachedService(context, packageName)
         if (result != null) {
-            Log.d("SideLeapLauncher", "shizuku_enable_launcher: result=${result.success} retry")
+            if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: result=${result.success} retry")
             return result
         }
 
-        Log.d("SideLeapLauncher", "shizuku_enable_launcher: failed after retry")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: failed after retry")
         return EnablePackageResult(false, packageName, error = "enable failed after retry")
     }
 
@@ -465,10 +465,10 @@ object ShizukuCommand {
             .firstOrNull { it.startsWith("output=") }
             ?.removePrefix("output=") ?: ""
         val success = exitCode == 0
-        Log.d("SideLeapLauncher", "shizuku_enable_launcher: exitCode=$exitCode success=$success")
+        if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: exitCode=$exitCode success=$success")
         for (line in result.lines()) {
             if (line.isNotBlank()) {
-                Log.d("SideLeapLauncher", "shizuku_enable_launcher: $line")
+                if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "shizuku_enable_launcher: $line")
             }
         }
         return EnablePackageResult(success, packageName, exitCode, output)
