@@ -338,6 +338,11 @@
     <string name="virtual_mouse_long_press_hint">光标停住达到延迟后触发长按，移动超过容差会重新计时</string>
     <string name="virtual_mouse_long_press_delay">长按延迟：%1$d ms</string>
     <string name="virtual_mouse_long_press_tolerance">停留容差：%1$d dp</string>
+    <string name="virtual_mouse_action_mode">鼠标模式</string>
+    <string name="virtual_mouse_action_mode_default">跟随全局</string>
+    <string name="virtual_mouse_action_mode_continuous">连续</string>
+    <string name="virtual_mouse_action_mode_single">单次</string>
+    <string name="action_setting_hint_virtual_mouse">配置虚拟鼠标的连续模式</string>
     <string name="hover_trigger_delay">悬停触发延迟</string>
     <string name="intercept_system_back_gesture">拦截系统返回手势</string>
     <string name="intercept_system_back_gesture_hint">使用系统接口拦截，可能有兼容性问题</string>

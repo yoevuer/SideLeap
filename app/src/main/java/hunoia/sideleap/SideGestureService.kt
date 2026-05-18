@@ -118,6 +118,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     override val coroutineScope = MainScope()
     private val windowController = SideGestureWindowController(this)
     private var virtualMouseOverlay: VirtualMouseOverlay? = null
+    private var virtualMouseSessionSettings: GestureSettings.VirtualMouse? = null
     private var volumeScrubOverlay: VolumeScrubOverlay? = null
     private val buttonRefreshCoordinator = SideGestureButtonRefreshCoordinator(
         host = this,
@@ -357,11 +358,15 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         runtimePanelOverlay.show { PasswordPanelContent(applicationContext = applicationContext) }
     }
 
-    fun showVirtualMouseOverlay(): Boolean {
+    fun showVirtualMouseOverlay(continuousModeOverride: Boolean? = null): Boolean {
         if (!beginVirtualMouseMode()) return false
         val overlay = virtualMouseOverlay ?: VirtualMouseOverlay(this).also { virtualMouseOverlay = it }
+        val settings = (gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse()).let {
+            if (continuousModeOverride == null) it else it.copy(continuousMode = continuousModeOverride)
+        }
+        virtualMouseSessionSettings = settings
         overlay.show(
-            settings = gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse(),
+            settings = settings,
             onPointerAction = { x, y, keepActive, action ->
                 performVirtualMouseActionAtPosition(x, y, keepActive, action)
             },
@@ -382,6 +387,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         if (!isMouseMode && virtualMouseOverlay == null) return
         isMouseMode = false
         virtualMouseOverlay?.closeImmediately()
+        virtualMouseSessionSettings = null
         updateGestureButtons()
     }
 
@@ -425,7 +431,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             if (keepActive && isMouseMode) {
                 val overlay = virtualMouseOverlay ?: VirtualMouseOverlay(this@SideGestureService).also { virtualMouseOverlay = it }
                 overlay.show(
-                    settings = gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse(),
+                    settings = virtualMouseSessionSettings ?: gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse(),
                     previousPosition = virtualMouseLastPosition,
                     onPointerAction = { nextX, nextY, nextKeepActive, nextAction ->
                         performVirtualMouseActionAtPosition(nextX, nextY, nextKeepActive, nextAction)
