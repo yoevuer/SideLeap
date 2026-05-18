@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 
 class SideGestureSettingsObserver(
     private val scope: CoroutineScope,
-    private val imeInsetObserver: ImeInsetObserver,
     private val onInitialSettings: (InitialSettings) -> Unit,
     private val onAdvancedSettings: (AdvancedSettings) -> Unit,
     private val onGestureSettings: (GestureSettings) -> Unit,
@@ -32,7 +31,7 @@ class SideGestureSettingsObserver(
             observeLatestSettings()
             observeGestureButtonChanges()
             observeGestureVisibilityChanges()
-            observeImeInsetChanges()
+            observeKeyboardInputSettingChanges()
         }
     }
 
@@ -61,19 +60,12 @@ class SideGestureSettingsObserver(
         }
     }
 
-    private fun CoroutineScope.observeImeInsetChanges() {
-        launch { imeInsetObserver.flow.collectLatest { onRefreshGestureButtons() } }
+    private fun CoroutineScope.observeKeyboardInputSettingChanges() {
         launch {
             SettingsProvider
                 .advancedSettings
                 .distinctUntilChangedBy { it.fitSoftKeyboard }
-                .collectLatest {
-                    if (it.fitSoftKeyboard) {
-                        imeInsetObserver.register()
-                    } else {
-                        imeInsetObserver.unregister()
-                    }
-                }
+                .collectLatest { onRefreshGestureButtons() }
         }
     }
 }

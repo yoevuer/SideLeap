@@ -4,7 +4,6 @@ import android.view.View
 import android.view.WindowManager
 import hunoia.sideleap.SideGestureService
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.system.window.setFlags
@@ -46,9 +45,6 @@ internal class SideGestureButtonRefreshCoordinator(
         state: GestureButtonRefreshState,
     ) {
         lp.updateGestureButton(button)
-        if (button.position != Position.Bottom) {
-            lp.y += -state.runtimeState.imePadding
-        }
         lp.setFlags(state.shouldShow(button))
     }
 }

@@ -9,7 +9,7 @@ internal data class SideGestureRuntimeState(
     val isNowInLockScreenPage: Boolean,
     val isLandscape: Boolean,
     val isInLauncher: Boolean,
-    val imePadding: Int,
+    val isKeyboardInputActive: Boolean,
     val hiddenGestureButtons: Map<String, Long>,
     val isMouseMode: Boolean,
     val nowMs: Long,
@@ -24,6 +24,7 @@ internal data class GestureButtonRefreshState(
         return initialSettings.gestureEnabled &&
             (runtimeState.hiddenGestureButtons[button.hiddenKey()] ?: 0L) <= runtimeState.nowMs &&
             !runtimeState.isMouseMode &&
+            !(advancedSettings.fitSoftKeyboard && runtimeState.isKeyboardInputActive) &&
             !(advancedSettings.hideLandscape && runtimeState.isLandscape) &&
             !(advancedSettings.hideHomeScreen && runtimeState.isInLauncher) &&
             !(advancedSettings.hideScreenLock && runtimeState.isNowInLockScreenPage) &&

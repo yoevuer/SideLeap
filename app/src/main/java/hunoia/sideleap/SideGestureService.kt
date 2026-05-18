@@ -6,6 +6,7 @@ import android.os.SystemClock
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -44,7 +45,6 @@ import hunoia.sideleap.service.SideGestureButtonRefreshCoordinator
 import hunoia.sideleap.service.SideGestureOverlayLifecycle
 import hunoia.sideleap.service.SideGestureRuntime
 import hunoia.sideleap.service.SideGestureRuntimeState
-import hunoia.sideleap.service.ImeInsetObserver
 import hunoia.sideleap.service.ScreenLockObserver
 import hunoia.sideleap.service.SideGestureSettingsObserver
 import hunoia.sideleap.service.SideGestureWindowController
@@ -131,7 +131,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                 isNowInLockScreenPage = isNowInLockScreenPage,
                 isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE,
                 isInLauncher = nowInLauncher(),
-                imePadding = imeInsetObserver.flow.value,
+                isKeyboardInputActive = isKeyboardInputActive,
                 hiddenGestureButtons = hiddenGestureButtons.toMap(),
                 isMouseMode = isMouseMode,
                 nowMs = SystemClock.uptimeMillis(),
@@ -139,10 +139,8 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         },
     )
 
-    private val imeInsetObserver = ImeInsetObserver(this) { windowController.mainView }
     private val settingsObserver = SideGestureSettingsObserver(
         scope = coroutineScope,
-        imeInsetObserver = imeInsetObserver,
         onInitialSettings = { initialSettings = it },
         onAdvancedSettings = { advancedSettings = it },
         onGestureSettings = { gestureSettings = it },
@@ -176,6 +174,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     private var isNowInLockScreenPage = false
     private var isMouseMode = false
     private var isVolumeScrubMode = false
+    private var isKeyboardInputActive = false
     private var virtualMouseLastPosition = Offset.Unspecified
     private val hiddenGestureButtons = mutableMapOf<String, Long>()
 
@@ -198,6 +197,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         proxy.onAccessibilityEvent(event)
+        event?.let { updateKeyboardInputState(it) }
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             updateGestureButtons()
         }
@@ -217,7 +217,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         proxy.onRelease()
         screenLockObserver.unregister()
         wallpaperChangeObserver.unregister()
-        imeInsetObserver.unregister()
     }
 
     override fun onSetOverlay() {
@@ -254,16 +253,12 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                     val gestureSettings by SettingsProvider
                         .gestureSettings
                         .collectAsStateWithLifecycle(initialValue = GestureSettings())
-                    val imePadding by imeInsetObserver
-                        .flow
-                        .collectAsStateWithLifecycle()
                     val actionSettings by SettingsProvider
                         .actionSettings
                         .collectAsStateWithLifecycle(initialValue = ActionSettings())
                     SideGestureContainer(
                         modifier = Modifier.matchParentSize(),
                         buttons = sideButtons + bottomButtons,
-                        imePadding = imePadding,
                         animationStyle = when (advancedSettings.animationStyles.isAnimationEnabled) {
                             true -> advancedSettings.animationStyles.value
                             else -> null
@@ -310,6 +305,40 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     private fun updateGestureButtons() {
         buttonRefreshCoordinator.refresh()
+    }
+
+    private fun updateKeyboardInputState(event: AccessibilityEvent) {
+        if (advancedSettings?.fitSoftKeyboard != true) {
+            setKeyboardInputActive(false)
+            return
+        }
+        val active = when (event.eventType) {
+            AccessibilityEvent.TYPE_VIEW_FOCUSED,
+            AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED,
+            AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED -> isEditableInput(event.source) || hasEditableInputFocus()
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> hasEditableInputFocus()
+            else -> return
+        }
+        setKeyboardInputActive(active)
+    }
+
+    private fun setKeyboardInputActive(active: Boolean) {
+        if (isKeyboardInputActive == active) return
+        isKeyboardInputActive = active
+        updateGestureButtons()
+    }
+
+    private fun hasEditableInputFocus(): Boolean {
+        return isEditableInput(rootInActiveWindow?.findFocus(AccessibilityNodeInfo.FOCUS_INPUT))
+    }
+
+    private fun isEditableInput(node: AccessibilityNodeInfo?): Boolean {
+        if (node == null) return false
+        val className = node.className?.toString().orEmpty()
+        return node.isEditable ||
+            className.endsWith("EditText") ||
+            node.actionList.any { it.id == AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_TEXT.id }
     }
 
     fun getCurrentPackageName(): String {
