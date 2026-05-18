@@ -6,37 +6,24 @@ import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowCircleDown
 import androidx.compose.material.icons.filled.Assistant
-import androidx.compose.material.icons.filled.BackHand
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.BrightnessHigh
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.FlashlightOn
-import androidx.compose.material.icons.filled.Forward
 import androidx.compose.material.icons.filled.Gesture
-import androidx.compose.material.icons.filled.Handyman
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.InvertColors
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mouse
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.OpenWith
-import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Password
-import androidx.compose.material.icons.filled.RotateLeft
-import androidx.compose.material.icons.filled.RotateRight
+import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.ScreenLockPortrait
-import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Screenshot
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Splitscreen
-import androidx.compose.material.icons.filled.SportsBaseball
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.VerticalAlignBottom
 import androidx.compose.material.icons.filled.VerticalAlignTop
 import androidx.compose.material.icons.filled.ViewCarousel
@@ -61,8 +48,6 @@ private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.BACK to R.string.action_back,
     GlobalActions.HOME to R.string.action_home,
     GlobalActions.RECENT to R.string.action_recent,
-    GlobalActions.MENU to R.string.action_menu,
-    GlobalActions.SEARCH_IN_APP to R.string.action_search_in_app,
     GlobalActions.VOLUME_UP to R.string.action_volume_up,
     GlobalActions.VOLUME_DOWN to R.string.action_volume_down,
     GlobalActions.MUTE to R.string.action_mute,
@@ -70,33 +55,15 @@ private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.LAST_SONG to R.string.action_last_song,
     GlobalActions.NEXT_SONG to R.string.action_next_song,
     GlobalActions.PREVIOUS_APP to R.string.action_previous_app,
-    GlobalActions.APP_SCREEN to R.string.action_app_screen,
-    GlobalActions.WEB_FORWARD to R.string.action_web_forward,
     GlobalActions.OPEN_NOTIFICATION_PANEL to R.string.action_open_notification_panel,
     GlobalActions.OPEN_QUICK_PANEL to R.string.action_open_quick_panel,
     GlobalActions.LOCK_SCREEN to R.string.action_lock_screen,
-    GlobalActions.KILL_APP to R.string.action_kill_app,
     GlobalActions.FLASHLIGHT to R.string.action_flashlight,
     GlobalActions.SPLIT_SCREEN to R.string.action_split_screen,
     GlobalActions.POPUP_SCREEN to R.string.action_popup_screen,
     GlobalActions.ASSIST_APP to R.string.action_assist_app,
-    GlobalActions.SEARCH to R.string.action_search,
     GlobalActions.SCREENSHOT to R.string.action_screenshot,
-    GlobalActions.RECORD_SCREEN to R.string.action_record_screen,
-    GlobalActions.SHOW_HIDE_NAV_BAR to R.string.action_show_hide_nav_bar,
-    GlobalActions.PULL_SCREEN_DOWN to R.string.action_pull_screen_down,
-    GlobalActions.EASY_ONE_HAND to R.string.action_easy_one_hand,
     GlobalActions.POWER_BUTTON to R.string.action_power_button,
-    GlobalActions.AUTO_ROTATE to R.string.action_auto_rotate,
-    GlobalActions.ROTATE_RIGHT to R.string.action_rotate_right,
-    GlobalActions.ROTATE_LEFT to R.string.action_rotate_left,
-    GlobalActions.INVERSE_COLOR to R.string.action_inverse_color,
-    GlobalActions.QUICK_APP_PANEL to R.string.action_quick_app_panel,
-    GlobalActions.LAUNCH_APP to R.string.action_launch_app,
-    GlobalActions.LAUNCH_APP_IN_POPUP to R.string.action_launch_app_in_popup,
-    GlobalActions.TASK_SWITCHER to R.string.action_task_switcher,
-    GlobalActions.QUICK_TOOLS to R.string.action_quick_tools,
-    GlobalActions.FLOAT_BALL to R.string.action_float_ball,
     GlobalActions.HIDE_GESTURE_BUTTON to R.string.action_hide_gesture_button,
     GlobalActions.MOVE_SCREEN to R.string.action_move_screen,
     GlobalActions.KEEP_SCREEN_ON to R.string.action_keep_screen_on,
@@ -116,8 +83,6 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.BACK to Icons.Default.ArrowBack,
     GlobalActions.HOME to Icons.Default.Home,
     GlobalActions.RECENT to Icons.Default.ViewCarousel,
-    GlobalActions.MENU to Icons.Default.Menu,
-    GlobalActions.SEARCH_IN_APP to Icons.Default.Search,
     GlobalActions.VOLUME_UP to Icons.Default.VolumeUp,
     GlobalActions.VOLUME_DOWN to Icons.Default.VolumeDown,
     GlobalActions.MUTE to Icons.Default.VolumeMute,
@@ -125,32 +90,15 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.LAST_SONG to Icons.Default.SkipPrevious,
     GlobalActions.NEXT_SONG to Icons.Default.SkipNext,
     GlobalActions.PREVIOUS_APP to Icons.Default.SwapHoriz,
-    GlobalActions.WEB_FORWARD to Icons.Default.Forward,
     GlobalActions.OPEN_NOTIFICATION_PANEL to Icons.Default.Notifications,
     GlobalActions.OPEN_QUICK_PANEL to Icons.Default.Dashboard,
     GlobalActions.LOCK_SCREEN to Icons.Default.ScreenLockPortrait,
-    GlobalActions.KILL_APP to Icons.Default.Close,
     GlobalActions.FLASHLIGHT to Icons.Default.FlashlightOn,
     GlobalActions.SPLIT_SCREEN to Icons.Default.Splitscreen,
     GlobalActions.POPUP_SCREEN to Icons.Default.Window,
     GlobalActions.ASSIST_APP to Icons.Default.Assistant,
-    GlobalActions.SEARCH to Icons.Default.Search,
     GlobalActions.SCREENSHOT to Icons.Default.Screenshot,
-    GlobalActions.RECORD_SCREEN to Icons.Default.Screenshot,
-    GlobalActions.SHOW_HIDE_NAV_BAR to Icons.Default.BarChart,
-    GlobalActions.PULL_SCREEN_DOWN to Icons.Default.ArrowCircleDown,
-    GlobalActions.EASY_ONE_HAND to Icons.Default.BackHand,
     GlobalActions.POWER_BUTTON to Icons.Default.PowerSettingsNew,
-    GlobalActions.AUTO_ROTATE to Icons.Default.ScreenRotation,
-    GlobalActions.ROTATE_RIGHT to Icons.Default.RotateRight,
-    GlobalActions.ROTATE_LEFT to Icons.Default.RotateLeft,
-    GlobalActions.INVERSE_COLOR to Icons.Default.InvertColors,
-    GlobalActions.QUICK_APP_PANEL to Icons.Default.Apps,
-    GlobalActions.LAUNCH_APP to Icons.Default.Android,
-    GlobalActions.LAUNCH_APP_IN_POPUP to Icons.Default.Window,
-    GlobalActions.TASK_SWITCHER to Icons.Default.ViewCarousel,
-    GlobalActions.QUICK_TOOLS to Icons.Default.Handyman,
-    GlobalActions.FLOAT_BALL to Icons.Default.SportsBaseball,
     GlobalActions.HIDE_GESTURE_BUTTON to Icons.Default.Gesture,
     GlobalActions.MOVE_SCREEN to Icons.Default.OpenWith,
     GlobalActions.KEEP_SCREEN_ON to Icons.Default.BrightnessHigh,
