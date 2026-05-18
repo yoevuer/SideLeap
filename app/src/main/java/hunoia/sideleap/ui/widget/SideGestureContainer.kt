@@ -86,13 +86,15 @@ fun SideGestureContainer(
     onTakeScreenshot: (suspend () -> Bitmap?)? = null,
     onVirtualMouseStart: () -> Boolean = { false },
     onVirtualMouseEnd: () -> Unit = {},
-    onClickAtPosition: (Int, Int, Boolean) -> Unit = { _, _, _ -> },
+    virtualMousePreviousPosition: () -> Offset = { Offset.Unspecified },
+    onPointerActionAtPosition: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit = { _, _, _, _ -> },
 ) {
     val context = LocalContext.current
     val curOnAction by rememberUpdatedState(newValue = onAction)
     val curOnVirtualMouseStart by rememberUpdatedState(newValue = onVirtualMouseStart)
     val curOnVirtualMouseEnd by rememberUpdatedState(newValue = onVirtualMouseEnd)
-    val curOnClickAtPosition by rememberUpdatedState(newValue = onClickAtPosition)
+    val curOnPointerActionAtPosition by rememberUpdatedState(newValue = onPointerActionAtPosition)
+    val coroutineScope = rememberCoroutineScope()
     val sideGestureState = rememberSideGestureState(buttons, advancedSettings, gestureSettings)
     val actionPanelState = rememberActionPanelState()
     val moveScreenState = rememberMoveScreenState(gestureSettings, actionSettings.moveScreen)
@@ -101,33 +103,61 @@ fun SideGestureContainer(
     var virtualMouseTouchPosition by remember { mutableStateOf(Offset.Unspecified) }
     var virtualMouseLeftCancelEdge by remember { mutableStateOf(false) }
     var virtualMouseClickPulseKey by remember { mutableStateOf(0) }
+    var virtualMouseLongPressJob by remember { mutableStateOf<Job?>(null) }
+    var virtualMouseLongPressTriggered by remember { mutableStateOf(false) }
+
+    fun scheduleVirtualMouseLongPress() {
+        virtualMouseLongPressJob?.cancel()
+        virtualMouseLongPressJob = null
+        val settings = gestureSettings.virtualMouse
+        if (!settings.longPressEnabled || settings.longPressDelayMs <= 0L || virtualMouseLongPressTriggered) return
+        virtualMouseLongPressJob = coroutineScope.launch {
+            delay(settings.longPressDelayMs)
+            if (!isVirtualMouseMode || virtualMouseLongPressTriggered) return@launch
+            val target = cursorPosition
+            virtualMouseLongPressTriggered = true
+            virtualMouseClickPulseKey += 1
+            curOnPointerActionAtPosition(
+                target.x.roundToInt(),
+                target.y.roundToInt(),
+                settings.continuousMode,
+                VirtualMousePointerAction.LongPress,
+            )
+        }
+    }
 
     fun startVirtualMouseMode(): Boolean {
         if (isVirtualMouseMode) return false
         if (!curOnVirtualMouseStart()) return false
-        cursorPosition = virtualMouseInitialPosition(gestureSettings.virtualMouse)
+        cursorPosition = virtualMouseInitialPosition(gestureSettings.virtualMouse, virtualMousePreviousPosition())
         virtualMouseTouchPosition = sideGestureState.finger
         virtualMouseLeftCancelEdge = false
+        virtualMouseLongPressTriggered = false
         isVirtualMouseMode = true
+        scheduleVirtualMouseLongPress()
         return true
     }
 
     fun finishVirtualMouseMode(click: Boolean) {
         if (!isVirtualMouseMode) return
+        virtualMouseLongPressJob?.cancel()
+        virtualMouseLongPressJob = null
         val target = cursorPosition
         isVirtualMouseMode = false
-        if (click) {
+        if (click && !virtualMouseLongPressTriggered) {
             virtualMouseClickPulseKey += 1
-            curOnClickAtPosition(
+            curOnPointerActionAtPosition(
                 target.x.roundToInt(),
                 target.y.roundToInt(),
                 gestureSettings.virtualMouse.continuousMode,
+                VirtualMousePointerAction.Click,
             )
         } else {
             curOnVirtualMouseEnd()
         }
         virtualMouseTouchPosition = Offset.Unspecified
         virtualMouseLeftCancelEdge = false
+        virtualMouseLongPressTriggered = false
     }
 
     SideEffect {
@@ -144,6 +174,10 @@ fun SideGestureContainer(
         onDrag = onDrag@{ dragAmount ->
             if (isVirtualMouseMode) {
                 virtualMouseTouchPosition = virtualMouseTouchPosition + dragAmount
+                val stillMovement = isVirtualMouseStillMovement(dragAmount, gestureSettings.virtualMouse)
+                if (!stillMovement && !virtualMouseLongPressTriggered) {
+                    scheduleVirtualMouseLongPress()
+                }
                 val inCancelEdge = isVirtualMouseCancelGesture(virtualMouseTouchPosition, gestureSettings.virtualMouse)
                 if (!inCancelEdge) {
                     virtualMouseLeftCancelEdge = true

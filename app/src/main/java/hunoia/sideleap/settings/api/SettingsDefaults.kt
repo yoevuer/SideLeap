@@ -46,12 +46,11 @@ object GestureSettingsDefaults {
     const val VirtualMouseContinuousMode = false
     const val VirtualMouseContinuousModeTimeoutMs = 15000L
     const val VirtualMouseCursorSizeDp = 28
-    const val VirtualMouseCursorColor = 0xFF2196F3L
     const val VirtualMouseCursorAlpha = 0.9f
-    const val VirtualMouseOuterRingEnabled = true
-    const val VirtualMouseShadowEnabled = true
     const val VirtualMouseClickAnimationEnabled = true
-    const val VirtualMouseTrailEnabled = true
+    const val VirtualMouseMovementDeadZoneDp = 3
+    const val VirtualMouseLongPressEnabled = false
+    const val VirtualMouseLongPressDelayMs = 600L
     val Vibrations = VibrationModel()
 }
 

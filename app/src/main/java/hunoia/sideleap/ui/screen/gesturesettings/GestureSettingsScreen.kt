@@ -6,8 +6,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
@@ -35,11 +31,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -48,6 +41,7 @@ import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
 import hunoia.sideleap.settings.model.GestureSettings
+import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MaxLongPressTriggerDelayMs
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MaxLongSlideTriggerDelayMs
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MaxLongSlideTriggerDistance
@@ -71,11 +65,16 @@ import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.MyTextSlider
 import hunoia.sideleap.ui.widget.LabeledSwitch
 import hunoia.sideleap.ui.widget.TopBar
-import hunoia.sideleap.ui.widget.ColorPickerDialog
 import hunoia.sideleap.ui.widget.BottomSheetNestedContent
 import kotlinx.coroutines.launch
 
 private val VirtualMouseTimeoutOptions = listOf(0L, 5_000L, 10_000L, 15_000L, 30_000L)
+private val VirtualMouseLongPressDelayOptions = listOf(400L, 600L, 800L, 1_000L)
+private val VirtualMouseTrailStyleOptions = listOf(
+    VirtualMouseTrailStyle.None,
+    VirtualMouseTrailStyle.Dots,
+    VirtualMouseTrailStyle.LightBand,
+)
 
 /**
  * @author aaronzzxup@gmail.com
@@ -107,16 +106,6 @@ fun GestureSettingsScreen(
             }
         }
     ) { uiState ->
-        if (uiState.showVirtualMouseColorPicker) {
-            ColorPickerDialog(
-                onDismissRequest = { vm.showVirtualMouseColorPicker(false) },
-                onColorPicked = { color ->
-                    vm.onVirtualMouseChange(uiState.virtualMouse.copy(cursorColor = color.toArgb().toLong() and 0xFFFFFFFFL))
-                    vm.saveSettings()
-                },
-                initialColor = Color(uiState.virtualMouse.cursorColor.toInt())
-            )
-        }
         if (showVirtualMouseSettings) {
             ModalBottomSheet(
                 onDismissRequest = { showVirtualMouseSettings = false },
@@ -367,6 +356,8 @@ private fun VirtualMouseSettingsContent(
 ) {
     val virtualMouse = uiState.virtualMouse
     var showTimeoutDropdown by remember { mutableStateOf(false) }
+    var showTrailStyleDropdown by remember { mutableStateOf(false) }
+    var showLongPressDelayDropdown by remember { mutableStateOf(false) }
     Column {
         LabeledSwitch(
             onCheckedChange = { vm.onVirtualMouseContinuousModeChange(it) },
@@ -464,44 +455,107 @@ private fun VirtualMouseSettingsContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = MinItemHeightNoSecondary)
-                .onSingleClick { vm.showVirtualMouseColorPicker(true) }
+                .onSingleClick { showTrailStyleDropdown = true }
                 .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(ItemPadding)
         ) {
             Text(
                 modifier = Modifier.weight(1f),
-                text = stringResource(id = R.string.virtual_mouse_cursor_color),
+                text = stringResource(id = R.string.virtual_mouse_trail),
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1
             )
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
-                    .background(Color(virtualMouse.cursorColor.toInt()), CircleShape)
-            )
+            Box {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = virtualMouseTrailStyleText(virtualMouse.trailStyle),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null
+                    )
+                }
+                DropdownMenu(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    shape = MaterialTheme.shapes.medium,
+                    expanded = showTrailStyleDropdown,
+                    onDismissRequest = { showTrailStyleDropdown = false }
+                ) {
+                    VirtualMouseTrailStyleOptions.fastForEach { style ->
+                        DropdownMenuItem(
+                            onClick = {
+                                vm.onVirtualMouseTrailStyleChange(style)
+                                showTrailStyleDropdown = false
+                            },
+                            text = { Text(virtualMouseTrailStyleText(style)) }
+                        )
+                    }
+                }
+            }
         }
-        LabeledSwitch(
-            onCheckedChange = { vm.onVirtualMouseOuterRingChange(it) },
-            checked = virtualMouse.outerRingEnabled,
-            text = stringResource(id = R.string.virtual_mouse_outer_ring)
-        )
-        LabeledSwitch(
-            onCheckedChange = { vm.onVirtualMouseShadowChange(it) },
-            checked = virtualMouse.shadowEnabled,
-            text = stringResource(id = R.string.virtual_mouse_shadow)
-        )
         LabeledSwitch(
             onCheckedChange = { vm.onVirtualMouseClickAnimationChange(it) },
             checked = virtualMouse.clickAnimationEnabled,
             text = stringResource(id = R.string.virtual_mouse_click_animation)
         )
         LabeledSwitch(
-            onCheckedChange = { vm.onVirtualMouseTrailChange(it) },
-            checked = virtualMouse.trailEnabled,
-            text = stringResource(id = R.string.virtual_mouse_trail)
+            onCheckedChange = { vm.onVirtualMouseLongPressEnabledChange(it) },
+            checked = virtualMouse.longPressEnabled,
+            text = stringResource(id = R.string.virtual_mouse_long_press),
+            secondaryText = stringResource(id = R.string.virtual_mouse_long_press_hint)
         )
+        if (virtualMouse.longPressEnabled) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = MinItemHeightNoSecondary)
+                    .onSingleClick { showLongPressDelayDropdown = true }
+                    .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+            ) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = stringResource(id = R.string.virtual_mouse_long_press_delay),
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1
+                )
+                Box {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = virtualMouseLongPressDelayText(virtualMouse.longPressDelayMs),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = null
+                        )
+                    }
+                    DropdownMenu(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        shape = MaterialTheme.shapes.medium,
+                        expanded = showLongPressDelayDropdown,
+                        onDismissRequest = { showLongPressDelayDropdown = false }
+                    ) {
+                        VirtualMouseLongPressDelayOptions.fastForEach { delayMs ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    vm.onVirtualMouseLongPressDelayChange(delayMs)
+                                    showLongPressDelayDropdown = false
+                                },
+                                text = { Text(virtualMouseLongPressDelayText(delayMs)) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -552,11 +606,22 @@ private fun slideSettingsSummaryText(uiState: GestureSettingsVM.UiState): String
 
 private fun virtualMouseSummaryText(settings: GestureSettings.VirtualMouse): String {
     val mode = if (settings.continuousMode) "连续" else "单次"
-    return "${settings.sensitivityX.format1()}x / ${settings.sensitivityY.format1()}x · 加速 ${settings.acceleration.format1()} · $mode · ${virtualMouseTimeoutText(settings.continuousModeTimeoutMs)}"
+    val longPress = if (settings.longPressEnabled) "长按 ${settings.longPressDelayMs}ms" else "长按关闭"
+    return "${settings.sensitivityX.format1()}x / ${settings.sensitivityY.format1()}x · ${virtualMouseTrailStyleText(settings.trailStyle)} · $mode · $longPress"
 }
 
 private fun virtualMouseTimeoutText(timeoutMs: Long): String {
     return if (timeoutMs <= 0L) "关闭" else "${timeoutMs / 1000} 秒"
+}
+
+private fun virtualMouseLongPressDelayText(delayMs: Long): String = "${delayMs} ms"
+
+private fun virtualMouseTrailStyleText(style: VirtualMouseTrailStyle): String {
+    return when (style) {
+        VirtualMouseTrailStyle.None -> "关闭"
+        VirtualMouseTrailStyle.Dots -> "残影点"
+        VirtualMouseTrailStyle.LightBand -> "光带"
+    }
 }
 
 private fun Float.format1(): String = String.format("%.1f", this)

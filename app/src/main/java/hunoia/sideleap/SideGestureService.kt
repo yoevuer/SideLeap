@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
@@ -55,6 +56,8 @@ import hunoia.sideleap.ui.theme.AnimOverlayFade
 import hunoia.sideleap.ui.theme.AnimPanelShift
 import hunoia.sideleap.ui.theme.AnimPostHideDelay
 import hunoia.sideleap.ui.widget.SideGestureContainer
+import hunoia.sideleap.ui.widget.VirtualMousePointerAction
+import hunoia.sideleap.ui.widget.clampVirtualMousePosition
 import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.overlay.api.QuickAppLauncherOverlay
 import hunoia.sideleap.overlay.api.QuickAppLauncherOverlayHost
@@ -170,6 +173,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     private var isNowInLockScreenPage = false
     private var isMouseMode = false
+    private var virtualMouseLastPosition = Offset.Unspecified
     private val hiddenGestureButtons = mutableMapOf<String, Long>()
 
     var initialSettings: InitialSettings? = null
@@ -265,7 +269,10 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                         },
                         onVirtualMouseStart = { beginVirtualMouseMode() },
                         onVirtualMouseEnd = { endVirtualMouseMode() },
-                        onClickAtPosition = { x, y, keepActive -> clickVirtualMouseAtPosition(x, y, keepActive) },
+                        virtualMousePreviousPosition = { virtualMouseLastPosition },
+                        onPointerActionAtPosition = { x, y, keepActive, action ->
+                            performVirtualMouseActionAtPosition(x, y, keepActive, action)
+                        },
                         onTakeScreenshot = {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                                 screenshotService.takeScreenshot()
@@ -322,7 +329,10 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         val overlay = virtualMouseOverlay ?: VirtualMouseOverlay(this).also { virtualMouseOverlay = it }
         overlay.show(
             settings = gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse(),
-            onClick = { x, y, keepActive -> clickVirtualMouseAtPosition(x, y, keepActive) },
+            onPointerAction = { x, y, keepActive, action ->
+                performVirtualMouseActionAtPosition(x, y, keepActive, action)
+            },
+            previousPosition = virtualMouseLastPosition,
             onDismiss = { endVirtualMouseMode() },
         )
         return true
@@ -342,19 +352,29 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         updateGestureButtons()
     }
 
-    private fun clickVirtualMouseAtPosition(x: Int, y: Int, keepActive: Boolean) {
+    private fun performVirtualMouseActionAtPosition(
+        x: Int,
+        y: Int,
+        keepActive: Boolean,
+        action: VirtualMousePointerAction,
+    ) {
+        virtualMouseLastPosition = clampVirtualMousePosition(Offset(x.toFloat(), y.toFloat()))
         virtualMouseOverlay?.closeImmediately()
         coroutineScope.launch {
             delay(80)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Accessibility.click(this@SideGestureService, x, y)
+                when (action) {
+                    VirtualMousePointerAction.Click -> Accessibility.click(this@SideGestureService, x, y)
+                    VirtualMousePointerAction.LongPress -> Accessibility.longPress(this@SideGestureService, x, y)
+                }
             }
-            if (keepActive && isMouseMode) {
+            if (keepActive && action == VirtualMousePointerAction.Click && isMouseMode) {
                 val overlay = virtualMouseOverlay ?: VirtualMouseOverlay(this@SideGestureService).also { virtualMouseOverlay = it }
                 overlay.show(
                     settings = gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse(),
-                    onClick = { nextX, nextY, nextKeepActive ->
-                        clickVirtualMouseAtPosition(nextX, nextY, nextKeepActive)
+                    previousPosition = virtualMouseLastPosition,
+                    onPointerAction = { nextX, nextY, nextKeepActive, nextAction ->
+                        performVirtualMouseActionAtPosition(nextX, nextY, nextKeepActive, nextAction)
                     },
                     onDismiss = { endVirtualMouseMode() },
                 )

@@ -40,6 +40,7 @@
 - 各 `*VM` 承担页面/面板状态入口。
 - `ActionSelectContent` 的已选栏保持 chip 概览；已选栏下方的已选动作设置区负责长按动作配置和排序。
 - 长滑动多动作 `ActionPanel` 支持多层弧形和网格布局，样式由触钮长滑方向配置决定。
+- `VirtualMouseCursor` 绘制动态色圆环准星、点击反馈和拖尾样式；`SideGestureContainer` 承接手势未断触路径的虚拟鼠标移动、防抖、连续位置和停留长按。
 
 ## 依赖边界
 

@@ -14,12 +14,13 @@
 - 手势角度随 `GestureButton` 持久化，不再由 `GestureSettings` 按位置保存
 - 密码生成器配置：`ActionSettings.PasswordGenerator`
 - 小窗打开位置：`AdvancedSettings.miniWindowHorizontalBias` / `miniWindowVerticalBias` / `miniWindowVerticalEdgeMarginFraction` / `miniWindowVerticalOffsetFraction`
+- 虚拟鼠标配置：`GestureSettings.VirtualMouse`，包含灵敏度、加速、连续模式、准星大小/透明度、拖尾样式、防抖和停留长按。
 
 ## 主要源码路径
 
 | 路径 | 作用 |
 |---|---|
-| `settings/model/GestureSettings.kt` | 手势距离、振动、精确滑动等全局手势配置 |
+| `settings/model/GestureSettings.kt` | 手势距离、振动、精确滑动和虚拟鼠标等全局手势配置 |
 | `settings/model/ActionSettings.kt` | 动作配置 |
 | `settings/model/ActionSettings.kt#PasswordGenerator` | 密码生成器长度和字符类型配置 |
 | `settings/model/AdvancedSettings.kt` | 高级设置 |
@@ -41,6 +42,7 @@
 - `DataStore` 的实现细节被限制在 `settings/internal`。
 - 触钮角度作为 `GestureButton.angle` 随侧边/底部触钮列表保存。
 - 长滑动动作面板样式作为 `GestureButton.longSlideActionPanelStyles` 随触钮保存，样式定义位于 `settings/model/ActionPanelStyles.kt`。
+- 虚拟鼠标默认值集中在 `GestureSettingsDefaults`；旧光标颜色、外圈、阴影字段删除后依赖 JSON 忽略未知字段兼容旧配置。
 
 ## 依赖边界
 
