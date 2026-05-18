@@ -113,7 +113,7 @@
     <string name="long_slide_trigger_distance">长距离滑动触发距离</string>
     <string name="action_panel_style">动作面板样式</string>
     <string name="action_panel_style_arc">弧形</string>
-    <string name="action_panel_style_grid">自适应网格</string>
+    <string name="action_panel_style_grid">网格</string>
     <string name="vibration">振动</string>
     <string name="vibration_hint">识别或触发手势时振动</string>
     <string name="vibrate_immediately">快速振动</string>

@@ -492,8 +492,13 @@ private fun gridActionOffset(
         Position.Bottom -> PanelRect(padding, padding, parentSize.width - padding, origin.y - originGap)
     }.validOrFallback(parentSize, padding)
     val cell = itemSizePx + gapPx
-    val availableWidth = (rect.right - rect.left).coerceAtLeast(itemSizePx)
-    val availableHeight = (rect.bottom - rect.top).coerceAtLeast(itemSizePx)
+    val compactRect = rect.limitHeight(
+        maxHeight = itemSizePx * 5f + gapPx * 4f,
+        anchorY = origin.y,
+        alignBottom = position == Position.Bottom
+    )
+    val availableWidth = (compactRect.right - compactRect.left).coerceAtLeast(itemSizePx)
+    val availableHeight = (compactRect.bottom - compactRect.top).coerceAtLeast(itemSizePx)
     val maxColumns = floor((availableWidth + gapPx) / cell).toInt().coerceAtLeast(1).coerceAtMost(actionCount)
     val maxRows = floor((availableHeight + gapPx) / cell).toInt().coerceAtLeast(1)
     val minColumns = ceil(actionCount / maxRows.toFloat()).toInt().coerceAtLeast(1)
@@ -502,13 +507,13 @@ private fun gridActionOffset(
     val gridWidth = columns * itemSizePx + (columns - 1) * gapPx
     val gridHeight = rows * itemSizePx + (rows - 1) * gapPx
     val left = when (position) {
-        Position.Left -> rect.left
-        Position.Right -> rect.right - gridWidth
-        Position.Bottom -> (origin.x - gridWidth / 2f).coerceSafely(rect.left, rect.right - gridWidth)
+        Position.Left -> compactRect.left
+        Position.Right -> compactRect.right - gridWidth
+        Position.Bottom -> (origin.x - gridWidth / 2f).coerceSafely(compactRect.left, compactRect.right - gridWidth)
     }
     val top = when (position) {
-        Position.Left, Position.Right -> (origin.y - gridHeight / 2f).coerceSafely(rect.top, rect.bottom - gridHeight)
-        Position.Bottom -> rect.bottom - gridHeight
+        Position.Left, Position.Right -> (origin.y - gridHeight / 2f).coerceSafely(compactRect.top, compactRect.bottom - gridHeight)
+        Position.Bottom -> compactRect.bottom - gridHeight
     }
     val col = index % columns
     val row = index / columns
@@ -528,6 +533,16 @@ private data class PanelRect(
     fun validOrFallback(parentSize: Size, padding: Float): PanelRect {
         return if (right > left && bottom > top) this
         else PanelRect(padding, padding, parentSize.width - padding, parentSize.height - padding)
+    }
+
+    fun limitHeight(maxHeight: Float, anchorY: Float, alignBottom: Boolean): PanelRect {
+        val currentHeight = bottom - top
+        if (currentHeight <= maxHeight) return this
+        if (alignBottom) {
+            return copy(top = bottom - maxHeight)
+        }
+        val limitedTop = (anchorY - maxHeight / 2f).coerceIn(top, bottom - maxHeight)
+        return copy(top = limitedTop, bottom = limitedTop + maxHeight)
     }
 }
 
