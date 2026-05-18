@@ -94,6 +94,7 @@ internal fun ShortcutPage(
                             SelectedBar(
                                 selectedItems = selectedShortcuts,
                                 maxSelectCount = maxSelectCount,
+                                showMaxSelectCount = selectSingle,
                                 itemLabel = { (it as LauncherInfo.ShortcutInfo).label },
                                 onRemoveItem = { shortcutInfo -> onSelect(shortcutInfo as LauncherInfo.ShortcutInfo, false) },
                                 onClearAll = { selectedShortcuts.toList().forEach { onSelect(it, false) } }

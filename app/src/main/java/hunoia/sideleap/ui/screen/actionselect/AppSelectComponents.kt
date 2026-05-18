@@ -98,6 +98,7 @@ internal fun AppPage(
                             SelectedBar(
                                 selectedItems = selectedApps,
                                 maxSelectCount = maxSelectCount,
+                                showMaxSelectCount = selectSingle,
                                 itemLabel = { (it as AppInfo).label },
                                 onRemoveItem = { appInfo -> onSelect(appInfo as AppInfo, false) },
                                 onClearAll = { selectedApps.toList().forEach { onSelect(it, false) } }

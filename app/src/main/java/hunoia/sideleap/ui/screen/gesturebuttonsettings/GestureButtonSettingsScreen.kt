@@ -619,13 +619,6 @@ private fun StyleTrailingDropdown(
             )
             DropdownMenuItem(
                 onClick = {
-                    onStyleSelected(ActionPanelStyles.list())
-                    expanded = false
-                },
-                text = { Text(stringResource(R.string.action_panel_style_list)) }
-            )
-            DropdownMenuItem(
-                onClick = {
                     onStyleSelected(ActionPanelStyles.grid())
                     expanded = false
                 },
@@ -638,7 +631,6 @@ private fun StyleTrailingDropdown(
 @Composable
 private fun actionPanelStyleText(style: ActionPanelStyles): String {
     return when (style.type) {
-        ActionPanelStyles.TYPE_LIST -> stringResource(R.string.action_panel_style_list)
         ActionPanelStyles.TYPE_GRID -> stringResource(R.string.action_panel_style_grid)
         else -> stringResource(R.string.action_panel_style_arc)
     }
