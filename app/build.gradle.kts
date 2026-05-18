@@ -117,6 +117,7 @@ dependencies {
     implementation(libs.com.tiann.freereflection)
     implementation(libs.jetbrains.kotlin.serialization)
     implementation(libs.androidx.datastore)
+    implementation(libs.material3)
     implementation(libs.compose.colorpicker)
     implementation(libs.material.icons.extended)
     implementation(libs.pinyin)
