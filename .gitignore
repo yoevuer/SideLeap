@@ -51,6 +51,7 @@ keystore.properties
 # Generated theme files
 /app/src/main/java/hunoia/sideleap/ui/theme/generator/Color.kt
 
-# Local agent instructions
+# Local agent instructions / docs
 AGENTS.md
 REQUIREMENTS.md
+docs/
