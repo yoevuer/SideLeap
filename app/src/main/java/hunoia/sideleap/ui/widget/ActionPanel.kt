@@ -83,6 +83,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -442,7 +443,12 @@ private fun arcActionOffset(
     itemSizePx: Float
 ): Offset {
     if (parentSize.isEmpty() || actionCount <= 0) return Offset.Zero
-    val maxItemsPerLayer = 8
+    val minGapPx = itemSizePx * 0.2f
+    val maxItemsPerLayer = arcLayerCapacity(
+        radius = itemSizePx * 2.0f,
+        itemSizePx = itemSizePx,
+        minGapPx = minGapPx
+    )
     val layerCount = ceil(actionCount / maxItemsPerLayer.toFloat()).toInt().coerceAtLeast(1)
     val itemsPerLayer = ceil(actionCount / layerCount.toFloat()).toInt().coerceAtLeast(1)
     val layer = index / itemsPerLayer
@@ -469,6 +475,14 @@ private fun arcActionOffset(
         Position.Bottom -> Offset(origin.x + y, origin.y - x)
     }.coerceInside(parentSize, itemSizePx)
     return targetCenter - origin
+}
+
+private fun arcLayerCapacity(radius: Float, itemSizePx: Float, minGapPx: Float): Int {
+    val minDistance = itemSizePx + minGapPx
+    val diameter = radius * 2f
+    if (diameter <= minDistance) return 1
+    val minAngle = Math.toDegrees(2.0 * asin((minDistance / diameter).coerceAtMost(1f).toDouble())).toFloat()
+    return floor(170f / minAngle).toInt().coerceAtLeast(1) + 1
 }
 
 private fun gridActionOffset(
