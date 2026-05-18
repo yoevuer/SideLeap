@@ -197,19 +197,34 @@ class ActionSelectVM(
 
     private fun selectShortcutInfo(shortcutInfo: LauncherInfo.ShortcutInfo, selected: Boolean) {
         updateUiState {
-            it.copy(selectedRecord = it.selectedRecord.selectShortcutInfo(shortcutInfo, selected))
+            val record = if (it.selectSingle && selected) {
+                it.selectedRecord.copy(list = listOf(shortcutInfo.toAction()))
+            } else {
+                it.selectedRecord.selectShortcutInfo(shortcutInfo, selected)
+            }
+            it.copy(selectedRecord = record)
         }
     }
 
     private fun selectAppInfo(appInfo: AppInfo, selected: Boolean) {
         updateUiState {
-            it.copy(selectedRecord = it.selectedRecord.selectAppInfo(appInfo, selected))
+            val record = if (it.selectSingle && selected) {
+                it.selectedRecord.copy(list = listOf(appInfo.toAction()))
+            } else {
+                it.selectedRecord.selectAppInfo(appInfo, selected)
+            }
+            it.copy(selectedRecord = record)
         }
     }
 
     private fun selectAction(action: Action, selected: Boolean) {
         updateUiState {
-            it.copy(selectedRecord = it.selectedRecord.selectAction(action, selected))
+            val record = if (it.selectSingle && selected) {
+                it.selectedRecord.copy(list = listOf(action))
+            } else {
+                it.selectedRecord.selectAction(action, selected)
+            }
+            it.copy(selectedRecord = record)
         }
     }
 
@@ -479,7 +494,7 @@ class ActionSelectVM(
                         val selectSingle = !actionSelect.isLongSlide || !gestureSettings.longSlideTriggerImmediately
                         it.copy(
                             selectSingle = selectSingle,
-                            maxSelectCount = if (selectSingle) MAX_SELECT_COUNT else LONG_SLIDE_SOFT_MAX_SELECT_COUNT
+                            maxSelectCount = if (selectSingle) 1 else LONG_SLIDE_SOFT_MAX_SELECT_COUNT
                         )
                     }
 

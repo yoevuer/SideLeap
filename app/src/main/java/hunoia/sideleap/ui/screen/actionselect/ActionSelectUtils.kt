@@ -26,6 +26,7 @@ internal fun canActionEnabled(
     ) {
         return false
     }
+    if (maxSelectCount <= 1) return true
     return !(selectedRecord.size >= maxSelectCount && !selectedRecord.isSelected(item))
 }
 
@@ -40,6 +41,7 @@ internal fun canAppInfoEnabled(
     if (isMoveScreenSelected) {
         return false
     }
+    if (maxSelectCount <= 1) return true
     return !(selectedRecord.size >= maxSelectCount && !selectedRecord.isSelected(item))
 }
 
@@ -54,6 +56,7 @@ internal fun canLauncherInfoEnabled(
     if (isMoveScreenSelected) {
         return false
     }
+    if (maxSelectCount <= 1) return true
     return !(selectedRecord.size >= maxSelectCount && !item.shortcuts.any { selectedRecord.isSelected(it) })
 }
 
@@ -68,5 +71,6 @@ internal fun canShortcutInfoEnabled(
     if (isMoveScreenSelected) {
         return false
     }
+    if (maxSelectCount <= 1) return true
     return !(selectedRecord.size >= maxSelectCount && !selectedRecord.isSelected(item))
 }
