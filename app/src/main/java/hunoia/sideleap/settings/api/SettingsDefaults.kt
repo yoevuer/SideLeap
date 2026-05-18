@@ -44,6 +44,7 @@ object GestureSettingsDefaults {
     const val VirtualMouseInitialYRatio = 0.35f
     const val VirtualMouseEdgeCancelThresholdDp = 24
     const val VirtualMouseContinuousMode = false
+    const val VirtualMouseContinuousModeTimeoutMs = 15000L
     const val VirtualMouseCursorSizeDp = 28
     const val VirtualMouseCursorColor = 0xFF2196F3L
     const val VirtualMouseCursorAlpha = 0.9f

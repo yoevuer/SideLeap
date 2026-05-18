@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -29,6 +31,8 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
     private var overlayView: View? = null
     private var lastTouch = Offset.Unspecified
     private var clickPulseKey = 0
+    private val timeoutHandler = Handler(Looper.getMainLooper())
+    private var timeoutRunnable: Runnable? = null
 
     fun show(
         settings: GestureSettings.VirtualMouse,
@@ -40,16 +44,27 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
         val cursorPosition = mutableStateOf(virtualMouseInitialPosition(settings))
         val clickPulse = mutableStateOf(clickPulseKey)
         var leftCancelEdge = false
+        fun resetTimeout() {
+            timeoutRunnable?.let(timeoutHandler::removeCallbacks)
+            timeoutRunnable = null
+            if (!settings.continuousMode || settings.continuousModeTimeoutMs <= 0L) return
+            timeoutRunnable = Runnable {
+                closeImmediately()
+                onDismiss()
+            }.also { timeoutHandler.postDelayed(it, settings.continuousModeTimeoutMs) }
+        }
         val composeView = ComposeView(host.context).apply {
             setBackgroundColor(Color.TRANSPARENT)
             applyOverlayViewTreeOwners(host)
             setOnTouchListener { view, event ->
                 when (event.actionMasked) {
                     MotionEvent.ACTION_DOWN -> {
+                        resetTimeout()
                         lastTouch = Offset(event.rawX, event.rawY)
                         true
                     }
                     MotionEvent.ACTION_MOVE -> {
+                        resetTimeout()
                         val current = Offset(event.rawX, event.rawY)
                         val previous = lastTouch
                         if (previous != Offset.Unspecified) {
@@ -67,6 +82,7 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                         true
                     }
                     MotionEvent.ACTION_UP -> {
+                        resetTimeout()
                         view.performClick()
                         val target = cursorPosition.value
                         clickPulseKey += 1
@@ -94,9 +110,12 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
         }
         wm.addView(composeView, createLayoutParams())
         overlayView = composeView
+        resetTimeout()
     }
 
     fun closeImmediately() {
+        timeoutRunnable?.let(timeoutHandler::removeCallbacks)
+        timeoutRunnable = null
         val view = overlayView ?: return
         overlayView = null
         lastTouch = Offset.Unspecified

@@ -140,6 +140,11 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
+    fun onVirtualMouseContinuousModeTimeoutChange(value: Long) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(continuousModeTimeoutMs = value))
+        saveSettings()
+    }
+
     fun onVirtualMouseOuterRingChange(value: Boolean) {
         onVirtualMouseChange(uiState.virtualMouse.copy(outerRingEnabled = value))
         saveSettings()

@@ -11,6 +11,7 @@ import hunoia.sideleap.settings.api.GestureSettingsDefaults.SlideTriggerDistance
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseAcceleration
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseClickAnimationEnabled
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseContinuousMode
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseContinuousModeTimeoutMs
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseCursorAlpha
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseCursorColor
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseCursorSizeDp
@@ -47,6 +48,7 @@ data class GestureSettings(
         val initialYRatio: Float = VirtualMouseInitialYRatio,
         val edgeCancelThresholdDp: Int = VirtualMouseEdgeCancelThresholdDp,
         val continuousMode: Boolean = VirtualMouseContinuousMode,
+        val continuousModeTimeoutMs: Long = VirtualMouseContinuousModeTimeoutMs,
         val cursorSizeDp: Int = VirtualMouseCursorSizeDp,
         val cursorColor: Long = VirtualMouseCursorColor,
         val cursorAlpha: Float = VirtualMouseCursorAlpha,

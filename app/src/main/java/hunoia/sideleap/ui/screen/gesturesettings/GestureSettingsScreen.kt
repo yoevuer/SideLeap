@@ -47,6 +47,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
+import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MaxLongPressTriggerDelayMs
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MaxLongSlideTriggerDelayMs
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MaxLongSlideTriggerDistance
@@ -71,7 +72,10 @@ import hunoia.sideleap.ui.widget.MyTextSlider
 import hunoia.sideleap.ui.widget.LabeledSwitch
 import hunoia.sideleap.ui.widget.TopBar
 import hunoia.sideleap.ui.widget.ColorPickerDialog
+import hunoia.sideleap.ui.widget.BottomSheetNestedContent
 import kotlinx.coroutines.launch
+
+private val VirtualMouseTimeoutOptions = listOf(0L, 5_000L, 10_000L, 15_000L, 30_000L)
 
 /**
  * @author aaronzzxup@gmail.com
@@ -86,6 +90,7 @@ fun GestureSettingsScreen(
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+    var showVirtualMouseSettings by remember { mutableStateOf(false) }
     UDFComponent(
         component = vm.udfComponent,
         onEvent = { event ->
@@ -110,6 +115,21 @@ fun GestureSettingsScreen(
                 },
                 initialColor = Color(uiState.virtualMouse.cursorColor.toInt())
             )
+        }
+        if (showVirtualMouseSettings) {
+            ModalBottomSheet(
+                onDismissRequest = { showVirtualMouseSettings = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                BottomSheetNestedContent {
+                    MyColumn(scrollState = rememberScrollState()) {
+                        VirtualMouseSettingsContent(
+                            uiState = uiState,
+                            vm = vm,
+                        )
+                    }
+                }
+            }
         }
         Column {
             TopBar(
@@ -189,94 +209,34 @@ fun GestureSettingsScreen(
                     modifier = Modifier.padding(top = SectionPadding),
                     title = stringResource(id = R.string.virtual_mouse)
                 ) {
-                    LabeledSwitch(
-                        onCheckedChange = { vm.onVirtualMouseContinuousModeChange(it) },
-                        checked = uiState.virtualMouse.continuousMode,
-                        text = stringResource(id = R.string.virtual_mouse_continuous_mode),
-                        secondaryText = stringResource(id = R.string.virtual_mouse_continuous_mode_hint)
-                    )
-                    MyTextSlider(
-                        value = uiState.virtualMouse.sensitivityX,
-                        onValueChange = { vm.onVirtualMouseChange(uiState.virtualMouse.copy(sensitivityX = it)) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.virtual_mouse_sensitivity_x, uiState.virtualMouse.sensitivityX),
-                        sliderValueHint = "0.5x" to "4.0x",
-                        valueRange = 0.5f..4f
-                    )
-                    MyTextSlider(
-                        value = uiState.virtualMouse.sensitivityY,
-                        onValueChange = { vm.onVirtualMouseChange(uiState.virtualMouse.copy(sensitivityY = it)) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.virtual_mouse_sensitivity_y, uiState.virtualMouse.sensitivityY),
-                        sliderValueHint = "0.5x" to "4.0x",
-                        valueRange = 0.5f..4f
-                    )
-                    MyTextSlider(
-                        value = uiState.virtualMouse.acceleration,
-                        onValueChange = { vm.onVirtualMouseChange(uiState.virtualMouse.copy(acceleration = it)) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.virtual_mouse_acceleration, uiState.virtualMouse.acceleration),
-                        sliderValueHint = "0.0" to "2.0",
-                        valueRange = 0f..2f
-                    )
-                    MyTextSlider(
-                        value = uiState.virtualMouse.cursorSizeDp.toFloat(),
-                        onValueChange = { vm.onVirtualMouseChange(uiState.virtualMouse.copy(cursorSizeDp = it.toInt())) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.virtual_mouse_cursor_size, uiState.virtualMouse.cursorSizeDp),
-                        sliderValueHint = "12dp" to "64dp",
-                        valueRange = 12f..64f
-                    )
-                    MyTextSlider(
-                        value = uiState.virtualMouse.cursorAlpha,
-                        onValueChange = { vm.onVirtualMouseChange(uiState.virtualMouse.copy(cursorAlpha = it)) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.virtual_mouse_cursor_alpha, (uiState.virtualMouse.cursorAlpha * 100).toInt()),
-                        sliderValueHint = "20%" to "100%",
-                        valueRange = 0.2f..1f
-                    )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(min = MinItemHeightNoSecondary)
-                            .onSingleClick { vm.showVirtualMouseColorPicker(true) }
+                            .onSingleClick { showVirtualMouseSettings = true }
                             .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(ItemPadding)
                     ) {
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = stringResource(id = R.string.virtual_mouse_cursor_color),
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1
-                        )
-                        Box(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
-                                .background(Color(uiState.virtualMouse.cursorColor.toInt()), CircleShape)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(id = R.string.virtual_mouse),
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = virtualMouseSummaryText(uiState.virtualMouse),
+                                color = MaterialTheme.colorScheme.secondary,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    LabeledSwitch(
-                        onCheckedChange = { vm.onVirtualMouseOuterRingChange(it) },
-                        checked = uiState.virtualMouse.outerRingEnabled,
-                        text = stringResource(id = R.string.virtual_mouse_outer_ring)
-                    )
-                    LabeledSwitch(
-                        onCheckedChange = { vm.onVirtualMouseShadowChange(it) },
-                        checked = uiState.virtualMouse.shadowEnabled,
-                        text = stringResource(id = R.string.virtual_mouse_shadow)
-                    )
-                    LabeledSwitch(
-                        onCheckedChange = { vm.onVirtualMouseClickAnimationChange(it) },
-                        checked = uiState.virtualMouse.clickAnimationEnabled,
-                        text = stringResource(id = R.string.virtual_mouse_click_animation)
-                    )
-                    LabeledSwitch(
-                        onCheckedChange = { vm.onVirtualMouseTrailChange(it) },
-                        checked = uiState.virtualMouse.trailEnabled,
-                        text = stringResource(id = R.string.virtual_mouse_trail)
-                    )
                 }
                 SectionCard(
                     modifier = Modifier.padding(top = SectionPadding),
@@ -387,3 +347,159 @@ fun GestureSettingsScreen(
         }
     }
 }
+
+@Composable
+private fun VirtualMouseSettingsContent(
+    uiState: GestureSettingsVM.UiState,
+    vm: GestureSettingsVM,
+) {
+    val virtualMouse = uiState.virtualMouse
+    var showTimeoutDropdown by remember { mutableStateOf(false) }
+    Column {
+        LabeledSwitch(
+            onCheckedChange = { vm.onVirtualMouseContinuousModeChange(it) },
+            checked = virtualMouse.continuousMode,
+            text = stringResource(id = R.string.virtual_mouse_continuous_mode),
+            secondaryText = stringResource(id = R.string.virtual_mouse_continuous_mode_hint)
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = MinItemHeightNoSecondary)
+                .onSingleClick { showTimeoutDropdown = true }
+                .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+        ) {
+            Text(
+                modifier = Modifier.weight(1f),
+                text = stringResource(id = R.string.virtual_mouse_continuous_timeout),
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1
+            )
+            Box {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = virtualMouseTimeoutText(virtualMouse.continuousModeTimeoutMs),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null
+                    )
+                }
+                DropdownMenu(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    shape = MaterialTheme.shapes.medium,
+                    expanded = showTimeoutDropdown,
+                    onDismissRequest = { showTimeoutDropdown = false }
+                ) {
+                    VirtualMouseTimeoutOptions.fastForEach { timeoutMs ->
+                        DropdownMenuItem(
+                            onClick = {
+                                vm.onVirtualMouseContinuousModeTimeoutChange(timeoutMs)
+                                showTimeoutDropdown = false
+                            },
+                            text = { Text(virtualMouseTimeoutText(timeoutMs)) }
+                        )
+                    }
+                }
+            }
+        }
+        MyTextSlider(
+            value = virtualMouse.sensitivityX,
+            onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(sensitivityX = it)) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = stringResource(id = R.string.virtual_mouse_sensitivity_x, virtualMouse.sensitivityX),
+            sliderValueHint = "0.5x" to "4.0x",
+            valueRange = 0.5f..4f
+        )
+        MyTextSlider(
+            value = virtualMouse.sensitivityY,
+            onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(sensitivityY = it)) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = stringResource(id = R.string.virtual_mouse_sensitivity_y, virtualMouse.sensitivityY),
+            sliderValueHint = "0.5x" to "4.0x",
+            valueRange = 0.5f..4f
+        )
+        MyTextSlider(
+            value = virtualMouse.acceleration,
+            onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(acceleration = it)) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = stringResource(id = R.string.virtual_mouse_acceleration, virtualMouse.acceleration),
+            sliderValueHint = "0.0" to "2.0",
+            valueRange = 0f..2f
+        )
+        MyTextSlider(
+            value = virtualMouse.cursorSizeDp.toFloat(),
+            onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(cursorSizeDp = it.toInt())) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = stringResource(id = R.string.virtual_mouse_cursor_size, virtualMouse.cursorSizeDp),
+            sliderValueHint = "12dp" to "64dp",
+            valueRange = 12f..64f
+        )
+        MyTextSlider(
+            value = virtualMouse.cursorAlpha,
+            onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(cursorAlpha = it)) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = stringResource(id = R.string.virtual_mouse_cursor_alpha, (virtualMouse.cursorAlpha * 100).toInt()),
+            sliderValueHint = "20%" to "100%",
+            valueRange = 0.2f..1f
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = MinItemHeightNoSecondary)
+                .onSingleClick { vm.showVirtualMouseColorPicker(true) }
+                .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+        ) {
+            Text(
+                modifier = Modifier.weight(1f),
+                text = stringResource(id = R.string.virtual_mouse_cursor_color),
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1
+            )
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                    .background(Color(virtualMouse.cursorColor.toInt()), CircleShape)
+            )
+        }
+        LabeledSwitch(
+            onCheckedChange = { vm.onVirtualMouseOuterRingChange(it) },
+            checked = virtualMouse.outerRingEnabled,
+            text = stringResource(id = R.string.virtual_mouse_outer_ring)
+        )
+        LabeledSwitch(
+            onCheckedChange = { vm.onVirtualMouseShadowChange(it) },
+            checked = virtualMouse.shadowEnabled,
+            text = stringResource(id = R.string.virtual_mouse_shadow)
+        )
+        LabeledSwitch(
+            onCheckedChange = { vm.onVirtualMouseClickAnimationChange(it) },
+            checked = virtualMouse.clickAnimationEnabled,
+            text = stringResource(id = R.string.virtual_mouse_click_animation)
+        )
+        LabeledSwitch(
+            onCheckedChange = { vm.onVirtualMouseTrailChange(it) },
+            checked = virtualMouse.trailEnabled,
+            text = stringResource(id = R.string.virtual_mouse_trail)
+        )
+    }
+}
+
+private fun virtualMouseSummaryText(settings: GestureSettings.VirtualMouse): String {
+    val mode = if (settings.continuousMode) "连续" else "单次"
+    return "${settings.sensitivityX.format1()}x / ${settings.sensitivityY.format1()}x · 加速 ${settings.acceleration.format1()} · $mode · ${virtualMouseTimeoutText(settings.continuousModeTimeoutMs)}"
+}
+
+private fun virtualMouseTimeoutText(timeoutMs: Long): String {
+    return if (timeoutMs <= 0L) "关闭" else "${timeoutMs / 1000} 秒"
+}
+
+private fun Float.format1(): String = String.format("%.1f", this)

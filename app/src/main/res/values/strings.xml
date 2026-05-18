@@ -325,6 +325,7 @@
     <string name="virtual_mouse">虚拟鼠标</string>
     <string name="virtual_mouse_continuous_mode">连续模式</string>
     <string name="virtual_mouse_continuous_mode_hint">点击后保持鼠标模式，滑回屏幕边缘退出</string>
+    <string name="virtual_mouse_continuous_timeout">连续模式超时</string>
     <string name="virtual_mouse_sensitivity_x">X 灵敏度：%1$.1fx</string>
     <string name="virtual_mouse_sensitivity_y">Y 灵敏度：%1$.1fx</string>
     <string name="virtual_mouse_acceleration">加速曲线：%1$.1f</string>
