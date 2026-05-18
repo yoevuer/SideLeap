@@ -79,7 +79,8 @@ private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.RANDOM_NAME to R.string.action_random_name,
     GlobalActions.ONE_KEY_FREEZE_APPS to R.string.action_one_key_freeze_apps,
     GlobalActions.GENERATE_PASSWORD_COPY to R.string.action_generate_password_copy,
-    GlobalActions.OPEN_PASSWORD_GENERATOR to R.string.action_open_password_generator
+    GlobalActions.OPEN_PASSWORD_GENERATOR to R.string.action_open_password_generator,
+    GlobalActions.VOLUME_SCRUB to R.string.action_volume_scrub
 )
 
 private val actionIconMap: Map<String, Any> = mapOf(
@@ -114,7 +115,8 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.RANDOM_NAME to Icons.Default.AutoAwesome,
     GlobalActions.ONE_KEY_FREEZE_APPS to Icons.Default.AcUnit,
     GlobalActions.GENERATE_PASSWORD_COPY to Icons.Default.ContentCopy,
-    GlobalActions.OPEN_PASSWORD_GENERATOR to Icons.Default.Password
+    GlobalActions.OPEN_PASSWORD_GENERATOR to Icons.Default.Password,
+    GlobalActions.VOLUME_SCRUB to Icons.Default.VolumeUp
 )
 
 fun Context.actionText(action: Action, emptyIfNone: Boolean = true): String = when (action.value) {
