@@ -7,6 +7,7 @@ import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiState
 import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.settings.model.GestureSettings
+import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle
 import hunoia.sideleap.system.vibration.VibrationEffects
 import hunoia.sideleap.system.vibration.Vibrations
 import kotlinx.coroutines.flow.collectLatest
@@ -145,28 +146,24 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
-    fun onVirtualMouseOuterRingChange(value: Boolean) {
-        onVirtualMouseChange(uiState.virtualMouse.copy(outerRingEnabled = value))
-        saveSettings()
-    }
-
-    fun onVirtualMouseShadowChange(value: Boolean) {
-        onVirtualMouseChange(uiState.virtualMouse.copy(shadowEnabled = value))
-        saveSettings()
-    }
-
     fun onVirtualMouseClickAnimationChange(value: Boolean) {
         onVirtualMouseChange(uiState.virtualMouse.copy(clickAnimationEnabled = value))
         saveSettings()
     }
 
-    fun onVirtualMouseTrailChange(value: Boolean) {
-        onVirtualMouseChange(uiState.virtualMouse.copy(trailEnabled = value))
+    fun onVirtualMouseTrailStyleChange(value: VirtualMouseTrailStyle) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(trailStyle = value))
         saveSettings()
     }
 
-    fun showVirtualMouseColorPicker(show: Boolean) {
-        updateUiState { it.copy(showVirtualMouseColorPicker = show) }
+    fun onVirtualMouseLongPressEnabledChange(value: Boolean) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(longPressEnabled = value))
+        saveSettings()
+    }
+
+    fun onVirtualMouseLongPressDelayChange(value: Long) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(longPressDelayMs = value))
+        saveSettings()
     }
 
     private fun loadData() {
@@ -203,7 +200,6 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         val showPredefinedVibrationDropdown: Boolean = false,
         val isPreciseSlideTypeEnabled: Boolean = false,
         val virtualMouse: GestureSettings.VirtualMouse = GestureSettings.VirtualMouse(),
-        val showVirtualMouseColorPicker: Boolean = false,
     )
 
     sealed interface UiEvent {

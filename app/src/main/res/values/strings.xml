@@ -314,11 +314,11 @@
     <string name="virtual_mouse_acceleration">加速曲线：%1$.1f</string>
     <string name="virtual_mouse_cursor_size">光标大小：%1$d dp</string>
     <string name="virtual_mouse_cursor_alpha">光标透明度：%1$d%%</string>
-    <string name="virtual_mouse_cursor_color">光标颜色</string>
-    <string name="virtual_mouse_outer_ring">外圈</string>
-    <string name="virtual_mouse_shadow">阴影</string>
     <string name="virtual_mouse_click_animation">点击动画</string>
     <string name="virtual_mouse_trail">拖尾轨迹</string>
+    <string name="virtual_mouse_long_press">停留长按</string>
+    <string name="virtual_mouse_long_press_hint">光标停住后触发长按，抬手时不再点击</string>
+    <string name="virtual_mouse_long_press_delay">长按延迟</string>
     <string name="hover_trigger_delay">悬停触发延迟</string>
     <string name="intercept_system_back_gesture">拦截系统返回手势</string>
     <string name="intercept_system_back_gesture_hint">使用系统接口拦截，可能有兼容性问题</string>

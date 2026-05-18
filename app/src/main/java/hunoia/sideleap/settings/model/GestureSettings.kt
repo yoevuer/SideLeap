@@ -13,15 +13,14 @@ import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseClickAni
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseContinuousMode
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseContinuousModeTimeoutMs
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseCursorAlpha
-import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseCursorColor
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseCursorSizeDp
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseEdgeCancelThresholdDp
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseInitialYRatio
-import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseOuterRingEnabled
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseLongPressDelayMs
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseLongPressEnabled
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseMovementDeadZoneDp
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseSensitivityX
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseSensitivityY
-import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseShadowEnabled
-import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseTrailEnabled
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.Vibrations as DefaultVibrations
 import hunoia.sideleap.system.vibration.Vibrations
 import kotlinx.serialization.Serializable
@@ -50,11 +49,19 @@ data class GestureSettings(
         val continuousMode: Boolean = VirtualMouseContinuousMode,
         val continuousModeTimeoutMs: Long = VirtualMouseContinuousModeTimeoutMs,
         val cursorSizeDp: Int = VirtualMouseCursorSizeDp,
-        val cursorColor: Long = VirtualMouseCursorColor,
         val cursorAlpha: Float = VirtualMouseCursorAlpha,
-        val outerRingEnabled: Boolean = VirtualMouseOuterRingEnabled,
-        val shadowEnabled: Boolean = VirtualMouseShadowEnabled,
         val clickAnimationEnabled: Boolean = VirtualMouseClickAnimationEnabled,
-        val trailEnabled: Boolean = VirtualMouseTrailEnabled,
+        val trailStyle: VirtualMouseTrailStyle = VirtualMouseTrailStyle.Dots,
+        val movementDeadZoneDp: Int = VirtualMouseMovementDeadZoneDp,
+        val longPressEnabled: Boolean = VirtualMouseLongPressEnabled,
+        val longPressDelayMs: Long = VirtualMouseLongPressDelayMs,
     )
+
+    @Serializable
+    @Keep
+    enum class VirtualMouseTrailStyle {
+        None,
+        Dots,
+        LightBand,
+    }
 }

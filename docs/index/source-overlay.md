@@ -6,6 +6,7 @@
 
 - 快捷启动器浮窗：`overlay/api/QuickAppLauncherOverlay.kt`
 - 通用运行时面板浮窗：`overlay/api/RuntimePanelOverlay.kt`
+- 已断触虚拟鼠标覆盖层：`overlay/api/VirtualMouseOverlay.kt`
 - 共享窗口管理工具：`overlay/api/WindowManagerUtils.kt`
 
 ## 主要源码路径
@@ -14,12 +15,14 @@
 |---|---|
 | `overlay/api/QuickAppLauncherOverlay.kt` | 快捷启动器浮窗 |
 | `overlay/api/RuntimePanelOverlay.kt` | 通用运行时面板浮窗 |
+| `overlay/api/VirtualMouseOverlay.kt` | 已断触入口的虚拟鼠标全屏触摸覆盖层 |
 | `overlay/api/WindowManagerUtils.kt` | 共享 WindowManager 获取、ViewTree owner 设置、通用 overlay LayoutParams |
 
 ## 关键入口
 
 - `QuickAppLauncherOverlay` 是快捷启动器浮窗入口。
 - `RuntimePanelOverlay` 是工具类运行时面板入口，当前用于密码生成器面板。
+- `VirtualMouseOverlay` 是面板选择、单击、长按等已断触入口的虚拟鼠标入口，负责捕获下一次触摸、绘制准星、处理点击/停留长按和连续模式超时。
 - `QuickAppLauncherOverlayHost` 由入口层实现，负责提供 context、协程、settings、解冻请求。Compose 内容渲染已迁入 Overlay 内部，不再通过 Host 接口回调。
 - 锁屏关闭走立即关闭路径，普通关闭保留动画路径。
 

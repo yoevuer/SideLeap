@@ -2,6 +2,7 @@ package hunoia.sideleap.ui.widget
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,9 +13,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import hunoia.sideleap.settings.model.GestureSettings
+import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle
 import kotlinx.coroutines.delay
 
 @Composable
@@ -26,10 +29,11 @@ fun VirtualMouseCursor(
 ) {
     val trail = remember { mutableStateListOf<Offset>() }
     var pulse by remember { mutableStateOf(0f) }
-    LaunchedEffect(position, settings.trailEnabled) {
-        if (settings.trailEnabled && position.x.isFinite() && position.y.isFinite()) {
+    val accentColor = MaterialTheme.colorScheme.primary
+    LaunchedEffect(position, settings.trailStyle) {
+        if (settings.trailStyle != VirtualMouseTrailStyle.None && position.x.isFinite() && position.y.isFinite()) {
             trail.add(position)
-            while (trail.size > 8) trail.removeAt(0)
+            while (trail.size > 7) trail.removeAt(0)
         } else {
             trail.clear()
         }
@@ -45,45 +49,54 @@ fun VirtualMouseCursor(
     }
     Canvas(modifier = modifier.fillMaxSize()) {
         if (!position.x.isFinite() || !position.y.isFinite()) return@Canvas
-        val baseColor = Color(settings.cursorColor.toInt()).copy(alpha = settings.cursorAlpha)
+        val baseColor = accentColor.copy(alpha = settings.cursorAlpha)
         val radius = settings.cursorSizeDp.dp.toPx() / 2f
-        if (settings.trailEnabled) {
-            trail.forEachIndexed { index, offset ->
-                val alpha = (index + 1).toFloat() / trail.size * settings.cursorAlpha * 0.35f
-                drawCircle(
+        val ringRadius = radius * (1f - pulse * 0.12f)
+        if (settings.trailStyle == VirtualMouseTrailStyle.Dots) {
+            trail.dropLast(1).forEachIndexed { index, offset ->
+                val alpha = (index + 1).toFloat() / trail.size * settings.cursorAlpha * 0.24f
+                drawCircle(color = baseColor.copy(alpha = alpha), radius = radius * 0.18f, center = offset)
+            }
+        } else if (settings.trailStyle == VirtualMouseTrailStyle.LightBand) {
+            trail.zipWithNext().forEachIndexed { index, (start, end) ->
+                val alpha = (index + 1).toFloat() / trail.size * settings.cursorAlpha * 0.28f
+                drawLine(
                     color = baseColor.copy(alpha = alpha),
-                    radius = radius * 0.65f,
-                    center = offset,
+                    start = start,
+                    end = end,
+                    strokeWidth = radius * 0.22f,
+                    cap = StrokeCap.Round,
                 )
             }
         }
-        if (settings.shadowEnabled) {
+        if (pulse > 0f) {
             drawCircle(
-                color = Color.Black.copy(alpha = 0.22f * settings.cursorAlpha),
-                radius = radius * 1.25f,
-                center = position + Offset(radius * 0.12f, radius * 0.12f),
-            )
-        }
-        drawCircle(
-            color = baseColor,
-            radius = radius,
-            center = position,
-        )
-        if (settings.outerRingEnabled) {
-            drawCircle(
-                color = Color.White.copy(alpha = 0.7f * settings.cursorAlpha),
-                radius = radius * 1.22f,
+                color = baseColor.copy(alpha = pulse * 0.26f),
+                radius = radius * (1.25f + (1f - pulse) * 1.1f),
                 center = position,
                 style = Stroke(width = 2.dp.toPx()),
             )
         }
-        if (pulse > 0f) {
-            drawCircle(
-                color = baseColor.copy(alpha = pulse * 0.35f),
-                radius = radius * (1.4f + (1f - pulse) * 1.6f),
-                center = position,
-                style = Stroke(width = 3.dp.toPx()),
-            )
-        }
+        drawCircle(
+            color = Color.Black.copy(alpha = 0.75f * settings.cursorAlpha),
+            radius = ringRadius,
+            center = position,
+            style = Stroke(width = 4.dp.toPx()),
+        )
+        drawCircle(
+            color = Color.White.copy(alpha = 0.9f * settings.cursorAlpha),
+            radius = ringRadius,
+            center = position,
+            style = Stroke(width = 2.dp.toPx()),
+        )
+        drawCircle(
+            color = baseColor,
+            radius = ringRadius,
+            center = position,
+            style = Stroke(width = 1.2.dp.toPx()),
+        )
+        drawCircle(color = Color.Black.copy(alpha = 0.75f * settings.cursorAlpha), radius = radius * 0.16f, center = position)
+        drawCircle(color = Color.White.copy(alpha = 0.9f * settings.cursorAlpha), radius = radius * 0.1f, center = position)
+        drawCircle(color = baseColor, radius = radius * 0.06f, center = position)
     }
 }

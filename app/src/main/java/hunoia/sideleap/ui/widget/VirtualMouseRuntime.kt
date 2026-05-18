@@ -6,7 +6,18 @@ import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.settings.model.GestureSettings
 import kotlin.math.hypot
 
-fun virtualMouseInitialPosition(settings: GestureSettings.VirtualMouse): Offset {
+enum class VirtualMousePointerAction {
+    Click,
+    LongPress,
+}
+
+fun virtualMouseInitialPosition(
+    settings: GestureSettings.VirtualMouse,
+    previousPosition: Offset = Offset.Unspecified,
+): Offset {
+    if (settings.continuousMode && previousPosition.x.isFinite() && previousPosition.y.isFinite()) {
+        return clampVirtualMousePosition(previousPosition)
+    }
     return Offset(
         x = ScreenUtils.getScreenWidth() * 0.5f,
         y = ScreenUtils.getScreenHeight() * settings.initialYRatio.coerceIn(0f, 1f),
@@ -19,13 +30,23 @@ fun moveVirtualMouseCursor(
     settings: GestureSettings.VirtualMouse,
 ): Offset {
     val speed = hypot(dragAmount.x, dragAmount.y)
+    if (speed < 0.1f) return position
+    val precisionFactor = 0.38f + (speed / 36f).coerceIn(0f, 1f) * 0.62f
     val factor = 1f + settings.acceleration * (speed / 80f).coerceAtMost(2f)
     return clampVirtualMousePosition(
         Offset(
-            x = position.x + dragAmount.x * settings.sensitivityX * factor,
-            y = position.y + dragAmount.y * settings.sensitivityY * factor,
+            x = position.x + dragAmount.x * settings.sensitivityX * precisionFactor * factor,
+            y = position.y + dragAmount.y * settings.sensitivityY * precisionFactor * factor,
         )
     )
+}
+
+fun isVirtualMouseStillMovement(
+    dragAmount: Offset,
+    settings: GestureSettings.VirtualMouse,
+): Boolean {
+    val deadZone = ConvertUtils.dp2px(settings.movementDeadZoneDp.toFloat()).toFloat()
+    return hypot(dragAmount.x, dragAmount.y) <= deadZone
 }
 
 fun isVirtualMouseCancelGesture(
@@ -42,7 +63,7 @@ fun isVirtualMouseCancelGesture(
         touchPosition.y >= height - threshold
 }
 
-private fun clampVirtualMousePosition(position: Offset): Offset {
+fun clampVirtualMousePosition(position: Offset): Offset {
     return Offset(
         x = position.x.coerceIn(0f, ScreenUtils.getScreenWidth().toFloat()),
         y = position.y.coerceIn(0f, ScreenUtils.getScreenHeight().toFloat()),
