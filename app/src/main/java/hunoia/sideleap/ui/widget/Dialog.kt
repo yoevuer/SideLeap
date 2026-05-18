@@ -67,6 +67,7 @@ import hunoia.sideleap.ui.dialog.MoveScreenSettingsContent
 import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
 import hunoia.sideleap.ui.dialog.PreviousAppSettingsContent
 import hunoia.sideleap.ui.dialog.ShellCommandSettingsContent
+import hunoia.sideleap.ui.dialog.VirtualMouseActionSettingsContent
 
 /**
  * @author aaronzzxup@gmail.com
@@ -349,6 +350,18 @@ fun ActionSettingsDialog(
 
                 GlobalActions.EXECUTE_SHELL_COMMAND -> {
                     ShellCommandSettingsContent(
+                        action = action,
+                        onConfirm = {
+                            onActionDataChanged(it)
+                            if (autoDismiss) {
+                                onDismissRequest()
+                            }
+                        }
+                    )
+                }
+
+                GlobalActions.VIRTUAL_MOUSE -> {
+                    VirtualMouseActionSettingsContent(
                         action = action,
                         onConfirm = {
                             onActionDataChanged(it)

@@ -74,6 +74,7 @@ import androidx.compose.ui.platform.LocalContext
 import hunoia.sideleap.launcher.model.OpenAppOrUrlData
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.action.ShellCommandData
+import hunoia.sideleap.action.VirtualMouseActionData
 import hunoia.sideleap.system.api.ShizukuBinderExecutor
 import hunoia.sideleap.system.api.showToast
 import kotlinx.coroutines.Dispatchers
@@ -365,6 +366,65 @@ fun OpenAppOrUrlSettingsContent(
                     Icon(imageVector = Icons.Default.Check, contentDescription = null)
                     Text(text = stringResource(id = R.string.confirm))
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun VirtualMouseActionSettingsContent(
+    action: hunoia.sideleap.action.Action,
+    onConfirm: (String) -> Unit
+) {
+    val existingData = remember(action.data) {
+        runCatching { JsonHelper.decodeFromString<VirtualMouseActionData>(action.data) }.getOrNull()
+    }
+    var mode by remember(action.data) { mutableStateOf(existingData?.mode ?: VirtualMouseActionData.Mode.Default) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ItemPadding),
+        verticalArrangement = Arrangement.spacedBy(ItemPadding)
+    ) {
+        Text(
+            text = stringResource(R.string.virtual_mouse_action_mode),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        listOf(
+            VirtualMouseActionData.Mode.Default to R.string.virtual_mouse_action_mode_default,
+            VirtualMouseActionData.Mode.Continuous to R.string.virtual_mouse_action_mode_continuous,
+            VirtualMouseActionData.Mode.Single to R.string.virtual_mouse_action_mode_single,
+        ).forEach { (option, labelRes) ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onSingleClick { mode = option }
+                    .padding(vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+            ) {
+                RadioButton(
+                    selected = mode == option,
+                    onClick = { mode = option }
+                )
+                Text(
+                    text = stringResource(labelRes),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(
+                onClick = { onConfirm(JsonHelper.encodeToString(VirtualMouseActionData(mode))) }
+            ) {
+                Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                Text(text = stringResource(id = R.string.confirm))
             }
         }
     }

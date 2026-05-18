@@ -7,5 +7,6 @@ enum class ActionConfigKind {
     GOTO_BOTTOM,
     OPEN_APP_OR_URL,
     SHELL_COMMAND,
+    VIRTUAL_MOUSE,
     HIDE_GESTURE_BUTTON
 }

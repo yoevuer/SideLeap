@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import hunoia.sideleap.R
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
+import hunoia.sideleap.action.virtualMouseSettings
 import hunoia.sideleap.action.withRuntimeTouchPosition
 import hunoia.sideleap.settings.model.ActionPanelStyle
 import hunoia.sideleap.settings.model.ActionPanelStyles
@@ -102,6 +103,7 @@ fun SideGestureContainer(
     val moveScreenState = rememberMoveScreenState(gestureSettings, actionSettings.moveScreen)
     var isVirtualMouseMode by remember { mutableStateOf(false) }
     var cursorPosition by remember { mutableStateOf(virtualMouseInitialPosition(gestureSettings.virtualMouse)) }
+    var virtualMouseSettings by remember { mutableStateOf(gestureSettings.virtualMouse) }
     var virtualMouseTouchPosition by remember { mutableStateOf(Offset.Unspecified) }
     var virtualMouseLeftCancelEdge by remember { mutableStateOf(false) }
     var virtualMouseClickPulseKey by remember { mutableStateOf(0) }
@@ -116,7 +118,7 @@ fun SideGestureContainer(
     fun scheduleVirtualMouseLongPress() {
         virtualMouseLongPressJob?.cancel()
         virtualMouseLongPressJob = null
-        val settings = gestureSettings.virtualMouse
+        val settings = virtualMouseSettings
         if (!settings.longPressEnabled || settings.longPressDelayMs <= 0L || virtualMouseLongPressTriggered) return
         virtualMouseLongPressAnchor = virtualMouseTouchPosition
         virtualMouseLongPressJob = coroutineScope.launch {
@@ -135,10 +137,11 @@ fun SideGestureContainer(
         }
     }
 
-    fun startVirtualMouseMode(): Boolean {
+    fun startVirtualMouseMode(action: Action): Boolean {
         if (isVirtualMouseMode) return false
         if (!curOnVirtualMouseStart()) return false
-        cursorPosition = virtualMouseInitialPosition(gestureSettings.virtualMouse, virtualMousePreviousPosition())
+        virtualMouseSettings = action.virtualMouseSettings(gestureSettings.virtualMouse)
+        cursorPosition = virtualMouseInitialPosition(virtualMouseSettings, virtualMousePreviousPosition())
         virtualMouseTouchPosition = sideGestureState.finger
         virtualMouseLeftCancelEdge = false
         virtualMouseLongPressTriggered = false
@@ -159,7 +162,7 @@ fun SideGestureContainer(
             curOnPointerActionAtPosition(
                 target.x.roundToInt(),
                 target.y.roundToInt(),
-                gestureSettings.virtualMouse.continuousMode,
+                virtualMouseSettings.continuousMode,
                 VirtualMousePointerAction.Click,
             )
         } else {
@@ -188,20 +191,20 @@ fun SideGestureContainer(
                 val stillForLongPress = isVirtualMouseWithinLongPressTolerance(
                     virtualMouseLongPressAnchor,
                     virtualMouseTouchPosition,
-                    gestureSettings.virtualMouse
+                    virtualMouseSettings
                 )
                 if (!stillForLongPress && !virtualMouseLongPressTriggered) {
                     scheduleVirtualMouseLongPress()
                 }
-                val inCancelEdge = gestureSettings.virtualMouse.continuousMode &&
-                    isVirtualMouseCancelGesture(virtualMouseTouchPosition, gestureSettings.virtualMouse)
+                val inCancelEdge = virtualMouseSettings.continuousMode &&
+                    isVirtualMouseCancelGesture(virtualMouseTouchPosition, virtualMouseSettings)
                 if (!inCancelEdge) {
                     virtualMouseLeftCancelEdge = true
                 } else if (virtualMouseLeftCancelEdge) {
                     finishVirtualMouseMode(click = false)
                     return@onDrag
                 }
-                cursorPosition = moveVirtualMouseCursor(cursorPosition, dragAmount, gestureSettings.virtualMouse)
+                cursorPosition = moveVirtualMouseCursor(cursorPosition, dragAmount, virtualMouseSettings)
                 return@onDrag
             }
             if (isVolumeScrubMode) {
@@ -243,7 +246,7 @@ fun SideGestureContainer(
                             volumeScrubAccumulator = 0f
                             sideGestureState.cancel()
                         } else if (action.value == GlobalActions.VIRTUAL_MOUSE) {
-                            startVirtualMouseMode()
+                            startVirtualMouseMode(action)
                             sideGestureState.cancel()
                         } else if (action.value == GlobalActions.MOVE_SCREEN) {
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
@@ -350,7 +353,7 @@ fun SideGestureContainer(
             VirtualMouseCursor(
                 position = cursorPosition,
                 modifier = Modifier.matchParentSize(),
-                settings = gestureSettings.virtualMouse,
+                settings = virtualMouseSettings,
                 clickPulseKey = virtualMouseClickPulseKey,
             )
         }
