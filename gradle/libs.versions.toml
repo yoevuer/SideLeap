@@ -10,6 +10,7 @@ fastCompose = "dev-SNAPSHOT"
 kotlinSerialization = "1.9.0"
 dataStore = "1.1.1"
 compose = "1.7.5"
+material3 = "1.4.0"
 colorpicker = "1.1.2"
 pinyin = "1.0.7"
 freereflection = "3.2.2"
@@ -27,6 +28,7 @@ com-aaronzzx-fastcompose-compose-accessibility = { group = "com.github.aaronzzx.
 jetbrains-kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "dataStore" }
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "compose" }
+material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 compose-colorpicker = { group = "com.github.skydoves", name = "colorpicker-compose", version.ref = "colorpicker" }
 pinyin = { group = "cn.lalaki", name = "pinyin4j-chinese-simplified", version.ref = "pinyin" }
 com-tiann-freereflection = { group = "com.github.tiann", name = "FreeReflection", version.ref = "freereflection" }

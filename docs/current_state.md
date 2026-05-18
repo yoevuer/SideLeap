@@ -65,6 +65,11 @@
 - “隐藏触钮”改为可选动作，执行后按 `ActionSettings.hideGestureButton.delayMs` 临时隐藏触发该动作的触钮，到期自动恢复。
 - 隐藏触钮动作设置弹窗显示当前时长，并提供 500..5000 ms 滑杆。
 
+### 动作选择 BottomSheet 关闭行为
+
+- 项目显式声明 `androidx.compose.material3:material3`，用于使用 `ModalBottomSheet` 的 `sheetGesturesEnabled` 参数。
+- 触钮设置页弹出的动作选择 BottomSheet 禁用下滑关闭，仍保留遮罩和内容内关闭入口。
+
 ### 长滑动动作面板样式（`feat/long-slide-action-panel-styles`）
 
 - 长滑动即时触发模式的多动作上限调整为 10，短滑、单击、长按和非即时长滑仍保持单动作语义。
