@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:description="@string/accessibility_description"
     android:settingsActivity="hunoia.sideleap.MainActivity"
-    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeViewFocused|typeViewTextChanged|typeViewTextSelectionChanged|typeWindowContentChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagDefault|flagRequestFilterKeyEvents"
     android:notificationTimeout="0"

@@ -41,8 +41,8 @@
     <string name="exclude_app">应用黑名单</string>
     <string name="exclude_app_hint">选择不识别手势的应用</string>
     <string name="animation_style">动画风格</string>
-    <string name="fit_soft_keyboard">适配软键盘</string>
-    <string name="fit_soft_keyboard_hint">软键盘弹出时抬高侧边触钮</string>
+    <string name="fit_soft_keyboard">输入时隐藏触钮</string>
+    <string name="fit_soft_keyboard_hint">输入框获得焦点时隐藏所有触钮，避免遮挡输入区域</string>
     <string name="exclude_from_recents">在最近任务列表中隐藏</string>
     <string name="exclude_from_recents_hint">隐藏后部分机型可能会被清理后台，可尝试将后台卡片上锁后再开启</string>
     <string name="gesture_button_extension">触钮扩展</string>
