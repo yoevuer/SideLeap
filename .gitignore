@@ -55,3 +55,6 @@ keystore.properties
 AGENTS.md
 REQUIREMENTS.md
 docs/
+.agents
+.codex
+
