@@ -9,13 +9,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
@@ -64,6 +63,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.os.Build
 import hunoia.sideleap.ui.permission.rememberGetInstalledAppsPermissionState
+import hunoia.sideleap.ui.theme.ScrollBottomPadding
 
 
 /**
@@ -138,7 +138,6 @@ fun ActionSelectContent(
         }
 
         val snackbarHostState = remember { SnackbarHostState() }
-        val pagerState = rememberPagerState { PAGES.size }
         val coroutineScope = rememberCoroutineScope()
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -168,75 +167,67 @@ fun ActionSelectContent(
                         vm.updateShortcutInfos()
                     }
                 }
-                HorizontalPager(
-                    modifier = Modifier.fillMaxSize(),
-                    state = pagerState
-                ) { page ->
-                    when (page) {
-                        PAGE_UNIFIED -> {
-                            val context = LocalContext.current
-                            var currentLauncherInfo: LauncherInfo? by remember { mutableStateOf(null) }
-                            val shortcutLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                                coroutineScope.launch {
-                                    val launcherInfo = currentLauncherInfo
-                                    if (result.resultCode == Activity.RESULT_OK && launcherInfo != null) {
-                                        val bitmap = result.data?.shortcutParcelableExtraCompat(shortcutIconExtraKey(), Bitmap::class.java)
-                                        val shortcutIconRes = result.data?.shortcutParcelableExtraCompat(shortcutIconResourceExtraKey(), ShortcutIconResource::class.java)
-                                        val intent = result.data?.shortcutParcelableExtraCompat(shortcutIntentExtraKey(), Intent::class.java)?.toUri(Intent.URI_INTENT_SCHEME)
-                                        val label = result.data?.shortcutStringExtraCompat(shortcutNameExtraKey()).orEmpty()
-                                        val iconRes = if (shortcutIconRes != null) {
-                                            withContext(Dispatchers.IO) {
-                                                LauncherIconQuery.resolveShortcutIconResourceId(context, shortcutIconRes)
-                                            }
-                                        } else 0
-                                        val shortcutInfo = LauncherInfo.ShortcutInfo(
-                                            packageName = launcherInfo.packageName, className = launcherInfo.className,
-                                            intents = intent?.let { listOf(it) } ?: emptyList(), label = label,
-                                            iconRes = iconRes, iconPath = null, iconBitmap = bitmap
-                                        )
-                                        vm.addNewShortcut(launcherInfo, shortcutInfo)
-                                        if (uiState.longPressTargetIndex != null) {
-                                            vm.selectLongPressAction(shortcutInfo)
-                                        } else if (uiState.selectedRecord.size < uiState.maxSelectCount) {
-                                            vm.select(shortcutInfo, true)
-                                        }
-                                    }
-                                    currentLauncherInfo = null
+                val context = LocalContext.current
+                var currentLauncherInfo: LauncherInfo? by remember { mutableStateOf(null) }
+                val shortcutLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                    coroutineScope.launch {
+                        val launcherInfo = currentLauncherInfo
+                        if (result.resultCode == Activity.RESULT_OK && launcherInfo != null) {
+                            val bitmap = result.data?.shortcutParcelableExtraCompat(shortcutIconExtraKey(), Bitmap::class.java)
+                            val shortcutIconRes = result.data?.shortcutParcelableExtraCompat(shortcutIconResourceExtraKey(), ShortcutIconResource::class.java)
+                            val intent = result.data?.shortcutParcelableExtraCompat(shortcutIntentExtraKey(), Intent::class.java)?.toUri(Intent.URI_INTENT_SCHEME)
+                            val label = result.data?.shortcutStringExtraCompat(shortcutNameExtraKey()).orEmpty()
+                            val iconRes = if (shortcutIconRes != null) {
+                                withContext(Dispatchers.IO) {
+                                    LauncherIconQuery.resolveShortcutIconResourceId(context, shortcutIconRes)
                                 }
-                            }
-                            ActionPage(
-                                modifier = Modifier.fillMaxSize(),
-                                actions = uiState.actions,
-                                appInfos = uiState.apps,
-                                createShortcuts = uiState.createShortcuts,
-                                launchShortcuts = uiState.launchShortcuts,
-                                selectedRecord = uiState.selectedRecord,
-                                maxSelectCount = uiState.maxSelectCount,
-                                longPressTargetIndex = uiState.longPressTargetIndex,
-                                selectSingle = uiState.selectSingle,
-                                snackbarHostState = snackbarHostState,
-                                permissionState = permissionState,
-                                onSelect = { action, selected -> vm.select(action, selected) },
-                                onSelectLongPress = { obj -> vm.selectLongPressAction(obj) },
-                                onSetLongPress = { index -> vm.startSetLongPressAction(index) },
-                                onClearLongPress = { index -> vm.clearLongPressAction(index) },
-                                onCancelLongPress = { vm.cancelSetLongPressAction() },
-                                onMoveSelected = { from, to -> vm.moveSelectedAction(from, to) },
-                                onSettingsClick = { action -> vm.actionSettingsDialog.show(true, action) },
-                                onSelectApp = { appInfo, selected -> vm.select(appInfo, selected) },
-                                onSelectShortcut = { shortcutInfo, selected -> vm.select(shortcutInfo, selected) },
-                                onAppLongClick = { appInfo -> vm.toggleMiniWindow(appInfo) },
-                                onShortcutClick = { launcherInfo ->
-                                    try {
-                                        currentLauncherInfo = launcherInfo
-                                        shortcutLauncher.launch(Intent().apply { setClassName(launcherInfo.packageName, launcherInfo.className) })
-                                    } catch (ignored: Exception) { currentLauncherInfo = null }
-                                },
-                                onOpenAppOrUrl = { showOpenAppOrUrlDialog = true }
+                            } else 0
+                            val shortcutInfo = LauncherInfo.ShortcutInfo(
+                                packageName = launcherInfo.packageName, className = launcherInfo.className,
+                                intents = intent?.let { listOf(it) } ?: emptyList(), label = label,
+                                iconRes = iconRes, iconPath = null, iconBitmap = bitmap
                             )
+                            vm.addNewShortcut(launcherInfo, shortcutInfo)
+                            if (uiState.longPressTargetIndex != null) {
+                                vm.selectLongPressAction(shortcutInfo)
+                            } else if (uiState.selectedRecord.size < uiState.maxSelectCount) {
+                                vm.select(shortcutInfo, true)
+                            }
                         }
+                        currentLauncherInfo = null
                     }
                 }
+                ActionPage(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentPadding = PaddingValues(bottom = ScrollBottomPadding),
+                    actions = uiState.actions,
+                    appInfos = uiState.apps,
+                    createShortcuts = uiState.createShortcuts,
+                    launchShortcuts = uiState.launchShortcuts,
+                    selectedRecord = uiState.selectedRecord,
+                    maxSelectCount = uiState.maxSelectCount,
+                    longPressTargetIndex = uiState.longPressTargetIndex,
+                    selectSingle = uiState.selectSingle,
+                    snackbarHostState = snackbarHostState,
+                    permissionState = permissionState,
+                    onSelect = { action, selected -> vm.select(action, selected) },
+                    onSelectLongPress = { obj -> vm.selectLongPressAction(obj) },
+                    onSetLongPress = { index -> vm.startSetLongPressAction(index) },
+                    onClearLongPress = { index -> vm.clearLongPressAction(index) },
+                    onCancelLongPress = { vm.cancelSetLongPressAction() },
+                    onMoveSelected = { from, to -> vm.moveSelectedAction(from, to) },
+                    onSettingsClick = { action -> vm.actionSettingsDialog.show(true, action) },
+                    onSelectApp = { appInfo, selected -> vm.select(appInfo, selected) },
+                    onSelectShortcut = { shortcutInfo, selected -> vm.select(shortcutInfo, selected) },
+                    onAppLongClick = { appInfo -> vm.toggleMiniWindow(appInfo) },
+                    onShortcutClick = { launcherInfo ->
+                        try {
+                            currentLauncherInfo = launcherInfo
+                            shortcutLauncher.launch(Intent().apply { setClassName(launcherInfo.packageName, launcherInfo.className) })
+                        } catch (ignored: Exception) { currentLauncherInfo = null }
+                    },
+                    onOpenAppOrUrl = { showOpenAppOrUrlDialog = true }
+                )
             }
 
             if (showIconResize) {

@@ -29,7 +29,7 @@ private class BottomSheetNestedScrollConnection : NestedScrollConnection {
         available: Offset,
         source: NestedScrollSource
     ): Offset {
-        return Offset.Zero
+        return Offset(x = 0f, y = available.y)
     }
 
     override suspend fun onPreFling(available: Velocity): Velocity {
@@ -37,6 +37,6 @@ private class BottomSheetNestedScrollConnection : NestedScrollConnection {
     }
 
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-        return Velocity.Zero
+        return Velocity(x = 0f, y = available.y)
     }
 }
