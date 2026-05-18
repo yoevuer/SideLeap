@@ -526,6 +526,8 @@ private fun MySideGestureSettings(
                 Position.Bottom -> stringResource(id = R.string.slide_to_right)
             }
         },
+        secondaryText = if (secondaryText.isNotEmpty()) secondaryText
+            else stringResource(id = R.string.action_none),
         secondaryTextColor = MaterialTheme.colorScheme.primary,
         trailing = trailing,
         prefix = {
