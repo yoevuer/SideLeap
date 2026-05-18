@@ -96,7 +96,8 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                             if (!isVirtualMouseStillMovement(dragAmount, settings) && !longPressTriggered) {
                                 resetLongPress()
                             }
-                            val inCancelEdge = isVirtualMouseCancelGesture(current, settings)
+                            val inCancelEdge = settings.continuousMode &&
+                                isVirtualMouseCancelGesture(current, settings)
                             if (!inCancelEdge) {
                                 leftCancelEdge = true
                             } else if (leftCancelEdge) {

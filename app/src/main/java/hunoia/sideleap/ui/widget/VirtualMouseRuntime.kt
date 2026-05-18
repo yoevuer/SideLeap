@@ -57,10 +57,9 @@ fun isVirtualMouseCancelGesture(
     val threshold = ConvertUtils.dp2px(settings.edgeCancelThresholdDp.toFloat()).toFloat()
     val width = ScreenUtils.getScreenWidth().toFloat()
     val height = ScreenUtils.getScreenHeight().toFloat()
-    return touchPosition.x <= threshold ||
-        touchPosition.y <= threshold ||
-        touchPosition.x >= width - threshold ||
-        touchPosition.y >= height - threshold
+    val atBottom = touchPosition.y >= height - threshold
+    return (touchPosition.x <= threshold && atBottom) ||
+        (touchPosition.x >= width - threshold && atBottom)
 }
 
 fun clampVirtualMousePosition(position: Offset): Offset {

@@ -178,7 +178,8 @@ fun SideGestureContainer(
                 if (!stillMovement && !virtualMouseLongPressTriggered) {
                     scheduleVirtualMouseLongPress()
                 }
-                val inCancelEdge = isVirtualMouseCancelGesture(virtualMouseTouchPosition, gestureSettings.virtualMouse)
+                val inCancelEdge = gestureSettings.virtualMouse.continuousMode &&
+                    isVirtualMouseCancelGesture(virtualMouseTouchPosition, gestureSettings.virtualMouse)
                 if (!inCancelEdge) {
                     virtualMouseLeftCancelEdge = true
                 } else if (virtualMouseLeftCancelEdge) {
