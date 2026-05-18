@@ -13,7 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ComposeView
 import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.ui.widget.VirtualMouseCursor
+import hunoia.sideleap.ui.widget.isVirtualMouseCancelGesture
+import hunoia.sideleap.ui.widget.moveVirtualMouseCursor
+import hunoia.sideleap.ui.widget.virtualMouseInitialPosition
 
 interface VirtualMouseOverlayHost : androidx.lifecycle.LifecycleOwner,
     androidx.lifecycle.ViewModelStoreOwner,
@@ -24,14 +28,18 @@ interface VirtualMouseOverlayHost : androidx.lifecycle.LifecycleOwner,
 class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
     private var overlayView: View? = null
     private var lastTouch = Offset.Unspecified
+    private var clickPulseKey = 0
 
     fun show(
-        onClick: (Int, Int) -> Unit,
+        settings: GestureSettings.VirtualMouse,
+        onClick: (Int, Int, Boolean) -> Unit,
         onDismiss: () -> Unit,
     ) {
         closeImmediately()
         val wm = host.context.windowManager()
-        val cursorPosition = mutableStateOf(screenCenter())
+        val cursorPosition = mutableStateOf(virtualMouseInitialPosition(settings))
+        val clickPulse = mutableStateOf(clickPulseKey)
+        var leftCancelEdge = false
         val composeView = ComposeView(host.context).apply {
             setBackgroundColor(Color.TRANSPARENT)
             applyOverlayViewTreeOwners(host)
@@ -45,7 +53,15 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                         val current = Offset(event.rawX, event.rawY)
                         val previous = lastTouch
                         if (previous != Offset.Unspecified) {
-                            cursorPosition.value = clamp(cursorPosition.value + current - previous)
+                            val inCancelEdge = isVirtualMouseCancelGesture(current, settings)
+                            if (!inCancelEdge) {
+                                leftCancelEdge = true
+                            } else if (leftCancelEdge) {
+                                closeImmediately()
+                                onDismiss()
+                                return@setOnTouchListener true
+                            }
+                            cursorPosition.value = moveVirtualMouseCursor(cursorPosition.value, current - previous, settings)
                         }
                         lastTouch = current
                         true
@@ -53,8 +69,10 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                     MotionEvent.ACTION_UP -> {
                         view.performClick()
                         val target = cursorPosition.value
+                        clickPulseKey += 1
+                        clickPulse.value = clickPulseKey
                         closeImmediately()
-                        onClick(target.x.toInt(), target.y.toInt())
+                        onClick(target.x.toInt(), target.y.toInt(), settings.continuousMode)
                         true
                     }
                     MotionEvent.ACTION_CANCEL -> {
@@ -69,6 +87,8 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                 VirtualMouseCursor(
                     position = cursorPosition.value,
                     modifier = Modifier,
+                    settings = settings,
+                    clickPulseKey = clickPulse.value,
                 )
             }
         }
@@ -101,15 +121,4 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
             }
         }
     }
-}
-
-private fun screenCenter(): Offset {
-    return Offset(ScreenUtils.getScreenWidth() / 2f, ScreenUtils.getScreenHeight() / 2f)
-}
-
-private fun clamp(position: Offset): Offset {
-    return Offset(
-        x = position.x.coerceIn(0f, ScreenUtils.getScreenWidth().toFloat()),
-        y = position.y.coerceIn(0f, ScreenUtils.getScreenHeight().toFloat()),
-    )
 }

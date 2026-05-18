@@ -56,7 +56,6 @@ import hunoia.sideleap.system.api.tryVibrateForSlide
 import hunoia.sideleap.ui.widget.DragGestureHandler
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
 import com.blankj.utilcode.util.ConvertUtils
-import com.blankj.utilcode.util.ScreenUtils
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -87,7 +86,7 @@ fun SideGestureContainer(
     onTakeScreenshot: (suspend () -> Bitmap?)? = null,
     onVirtualMouseStart: () -> Boolean = { false },
     onVirtualMouseEnd: () -> Unit = {},
-    onClickAtPosition: (Int, Int) -> Unit = { _, _ -> },
+    onClickAtPosition: (Int, Int, Boolean) -> Unit = { _, _, _ -> },
 ) {
     val context = LocalContext.current
     val curOnAction by rememberUpdatedState(newValue = onAction)
@@ -98,12 +97,17 @@ fun SideGestureContainer(
     val actionPanelState = rememberActionPanelState()
     val moveScreenState = rememberMoveScreenState(gestureSettings, actionSettings.moveScreen)
     var isVirtualMouseMode by remember { mutableStateOf(false) }
-    var cursorPosition by remember { mutableStateOf(screenCenter()) }
+    var cursorPosition by remember { mutableStateOf(virtualMouseInitialPosition(gestureSettings.virtualMouse)) }
+    var virtualMouseTouchPosition by remember { mutableStateOf(Offset.Unspecified) }
+    var virtualMouseLeftCancelEdge by remember { mutableStateOf(false) }
+    var virtualMouseClickPulseKey by remember { mutableStateOf(0) }
 
     fun startVirtualMouseMode(): Boolean {
         if (isVirtualMouseMode) return false
         if (!curOnVirtualMouseStart()) return false
-        cursorPosition = screenCenter()
+        cursorPosition = virtualMouseInitialPosition(gestureSettings.virtualMouse)
+        virtualMouseTouchPosition = sideGestureState.finger
+        virtualMouseLeftCancelEdge = false
         isVirtualMouseMode = true
         return true
     }
@@ -113,10 +117,17 @@ fun SideGestureContainer(
         val target = cursorPosition
         isVirtualMouseMode = false
         if (click) {
-            curOnClickAtPosition(target.x.roundToInt(), target.y.roundToInt())
+            virtualMouseClickPulseKey += 1
+            curOnClickAtPosition(
+                target.x.roundToInt(),
+                target.y.roundToInt(),
+                gestureSettings.virtualMouse.continuousMode,
+            )
         } else {
             curOnVirtualMouseEnd()
         }
+        virtualMouseTouchPosition = Offset.Unspecified
+        virtualMouseLeftCancelEdge = false
     }
 
     SideEffect {
@@ -132,7 +143,15 @@ fun SideGestureContainer(
         },
         onDrag = onDrag@{ dragAmount ->
             if (isVirtualMouseMode) {
-                cursorPosition = clampToScreen(cursorPosition + dragAmount)
+                virtualMouseTouchPosition = virtualMouseTouchPosition + dragAmount
+                val inCancelEdge = isVirtualMouseCancelGesture(virtualMouseTouchPosition, gestureSettings.virtualMouse)
+                if (!inCancelEdge) {
+                    virtualMouseLeftCancelEdge = true
+                } else if (virtualMouseLeftCancelEdge) {
+                    finishVirtualMouseMode(click = false)
+                    return@onDrag
+                }
+                cursorPosition = moveVirtualMouseCursor(cursorPosition, dragAmount, gestureSettings.virtualMouse)
                 return@onDrag
             }
             if (actionPanelState.visible) {
@@ -252,20 +271,14 @@ fun SideGestureContainer(
         }
 
         if (isVirtualMouseMode) {
-            VirtualMouseCursor(position = cursorPosition, modifier = Modifier.matchParentSize())
+            VirtualMouseCursor(
+                position = cursorPosition,
+                modifier = Modifier.matchParentSize(),
+                settings = gestureSettings.virtualMouse,
+                clickPulseKey = virtualMouseClickPulseKey,
+            )
         }
     }
-}
-
-private fun screenCenter(): Offset {
-    return Offset(ScreenUtils.getScreenWidth() / 2f, ScreenUtils.getScreenHeight() / 2f)
-}
-
-private fun clampToScreen(position: Offset): Offset {
-    return Offset(
-        x = position.x.coerceIn(0f, ScreenUtils.getScreenWidth().toFloat()),
-        y = position.y.coerceIn(0f, ScreenUtils.getScreenHeight().toFloat()),
-    )
 }
 
 private fun Action.withTouchPosition(position: Offset): Action {

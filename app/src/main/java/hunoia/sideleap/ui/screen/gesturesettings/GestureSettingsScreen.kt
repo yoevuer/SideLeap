@@ -6,6 +6,8 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +15,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
@@ -34,7 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
@@ -63,6 +70,7 @@ import hunoia.sideleap.ui.widget.SectionCard
 import hunoia.sideleap.ui.widget.MyTextSlider
 import hunoia.sideleap.ui.widget.LabeledSwitch
 import hunoia.sideleap.ui.widget.TopBar
+import hunoia.sideleap.ui.widget.ColorPickerDialog
 import kotlinx.coroutines.launch
 
 /**
@@ -93,6 +101,16 @@ fun GestureSettingsScreen(
             }
         }
     ) { uiState ->
+        if (uiState.showVirtualMouseColorPicker) {
+            ColorPickerDialog(
+                onDismissRequest = { vm.showVirtualMouseColorPicker(false) },
+                onColorPicked = { color ->
+                    vm.onVirtualMouseChange(uiState.virtualMouse.copy(cursorColor = color.toArgb().toLong() and 0xFFFFFFFFL))
+                    vm.saveSettings()
+                },
+                initialColor = Color(uiState.virtualMouse.cursorColor.toInt())
+            )
+        }
         Column {
             TopBar(
                 onBack = onBack,
@@ -165,6 +183,99 @@ fun GestureSettingsScreen(
                         text = stringResource(id = R.string.long_slide_trigger_delay_ms),
                         sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
                         valueRange = MinLongSlideTriggerDelayMs.toFloat()..MaxLongSlideTriggerDelayMs.toFloat()
+                    )
+                }
+                SectionCard(
+                    modifier = Modifier.padding(top = SectionPadding),
+                    title = stringResource(id = R.string.virtual_mouse)
+                ) {
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onVirtualMouseContinuousModeChange(it) },
+                        checked = uiState.virtualMouse.continuousMode,
+                        text = stringResource(id = R.string.virtual_mouse_continuous_mode),
+                        secondaryText = stringResource(id = R.string.virtual_mouse_continuous_mode_hint)
+                    )
+                    MyTextSlider(
+                        value = uiState.virtualMouse.sensitivityX,
+                        onValueChange = { vm.onVirtualMouseChange(uiState.virtualMouse.copy(sensitivityX = it)) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = stringResource(id = R.string.virtual_mouse_sensitivity_x, uiState.virtualMouse.sensitivityX),
+                        sliderValueHint = "0.5x" to "4.0x",
+                        valueRange = 0.5f..4f
+                    )
+                    MyTextSlider(
+                        value = uiState.virtualMouse.sensitivityY,
+                        onValueChange = { vm.onVirtualMouseChange(uiState.virtualMouse.copy(sensitivityY = it)) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = stringResource(id = R.string.virtual_mouse_sensitivity_y, uiState.virtualMouse.sensitivityY),
+                        sliderValueHint = "0.5x" to "4.0x",
+                        valueRange = 0.5f..4f
+                    )
+                    MyTextSlider(
+                        value = uiState.virtualMouse.acceleration,
+                        onValueChange = { vm.onVirtualMouseChange(uiState.virtualMouse.copy(acceleration = it)) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = stringResource(id = R.string.virtual_mouse_acceleration, uiState.virtualMouse.acceleration),
+                        sliderValueHint = "0.0" to "2.0",
+                        valueRange = 0f..2f
+                    )
+                    MyTextSlider(
+                        value = uiState.virtualMouse.cursorSizeDp.toFloat(),
+                        onValueChange = { vm.onVirtualMouseChange(uiState.virtualMouse.copy(cursorSizeDp = it.toInt())) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = stringResource(id = R.string.virtual_mouse_cursor_size, uiState.virtualMouse.cursorSizeDp),
+                        sliderValueHint = "12dp" to "64dp",
+                        valueRange = 12f..64f
+                    )
+                    MyTextSlider(
+                        value = uiState.virtualMouse.cursorAlpha,
+                        onValueChange = { vm.onVirtualMouseChange(uiState.virtualMouse.copy(cursorAlpha = it)) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = stringResource(id = R.string.virtual_mouse_cursor_alpha, (uiState.virtualMouse.cursorAlpha * 100).toInt()),
+                        sliderValueHint = "20%" to "100%",
+                        valueRange = 0.2f..1f
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = MinItemHeightNoSecondary)
+                            .onSingleClick { vm.showVirtualMouseColorPicker(true) }
+                            .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+                    ) {
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = stringResource(id = R.string.virtual_mouse_cursor_color),
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1
+                        )
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                                .background(Color(uiState.virtualMouse.cursorColor.toInt()), CircleShape)
+                        )
+                    }
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onVirtualMouseOuterRingChange(it) },
+                        checked = uiState.virtualMouse.outerRingEnabled,
+                        text = stringResource(id = R.string.virtual_mouse_outer_ring)
+                    )
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onVirtualMouseShadowChange(it) },
+                        checked = uiState.virtualMouse.shadowEnabled,
+                        text = stringResource(id = R.string.virtual_mouse_shadow)
+                    )
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onVirtualMouseClickAnimationChange(it) },
+                        checked = uiState.virtualMouse.clickAnimationEnabled,
+                        text = stringResource(id = R.string.virtual_mouse_click_animation)
+                    )
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onVirtualMouseTrailChange(it) },
+                        checked = uiState.virtualMouse.trailEnabled,
+                        text = stringResource(id = R.string.virtual_mouse_trail)
                     )
                 }
                 SectionCard(

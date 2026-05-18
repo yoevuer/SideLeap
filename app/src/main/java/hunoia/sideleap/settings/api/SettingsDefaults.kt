@@ -38,6 +38,19 @@ object GestureSettingsDefaults {
     const val LongSlideTriggerDelayMs = 100L
     const val IsCustomVibration = false
     const val IsPreciseSlideType = true
+    const val VirtualMouseSensitivityX = 1.6f
+    const val VirtualMouseSensitivityY = 1.6f
+    const val VirtualMouseAcceleration = 0.8f
+    const val VirtualMouseInitialYRatio = 0.35f
+    const val VirtualMouseEdgeCancelThresholdDp = 24
+    const val VirtualMouseContinuousMode = false
+    const val VirtualMouseCursorSizeDp = 28
+    const val VirtualMouseCursorColor = 0xFF2196F3L
+    const val VirtualMouseCursorAlpha = 0.9f
+    const val VirtualMouseOuterRingEnabled = true
+    const val VirtualMouseShadowEnabled = true
+    const val VirtualMouseClickAnimationEnabled = true
+    const val VirtualMouseTrailEnabled = true
     val Vibrations = VibrationModel()
 }
 

@@ -8,6 +8,19 @@ import hunoia.sideleap.settings.api.GestureSettingsDefaults.LongSlideTriggerDela
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.LongSlideTriggerDistance
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.LongSlideTriggerImmediately
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.SlideTriggerDistance
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseAcceleration
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseClickAnimationEnabled
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseContinuousMode
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseCursorAlpha
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseCursorColor
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseCursorSizeDp
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseEdgeCancelThresholdDp
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseInitialYRatio
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseOuterRingEnabled
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseSensitivityX
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseSensitivityY
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseShadowEnabled
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseTrailEnabled
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.Vibrations as DefaultVibrations
 import hunoia.sideleap.system.vibration.Vibrations
 import kotlinx.serialization.Serializable
@@ -22,5 +35,24 @@ data class GestureSettings(
     val longSlideTriggerDelayMs: Long = LongSlideTriggerDelayMs,
     val isCustomVibration: Boolean = IsCustomVibration,
     val vibrations: Vibrations = DefaultVibrations,
-    val isPreciseSlideType: Boolean = IsPreciseSlideType
-)
+    val isPreciseSlideType: Boolean = IsPreciseSlideType,
+    val virtualMouse: VirtualMouse = VirtualMouse()
+) {
+    @Serializable
+    @Keep
+    data class VirtualMouse(
+        val sensitivityX: Float = VirtualMouseSensitivityX,
+        val sensitivityY: Float = VirtualMouseSensitivityY,
+        val acceleration: Float = VirtualMouseAcceleration,
+        val initialYRatio: Float = VirtualMouseInitialYRatio,
+        val edgeCancelThresholdDp: Int = VirtualMouseEdgeCancelThresholdDp,
+        val continuousMode: Boolean = VirtualMouseContinuousMode,
+        val cursorSizeDp: Int = VirtualMouseCursorSizeDp,
+        val cursorColor: Long = VirtualMouseCursorColor,
+        val cursorAlpha: Float = VirtualMouseCursorAlpha,
+        val outerRingEnabled: Boolean = VirtualMouseOuterRingEnabled,
+        val shadowEnabled: Boolean = VirtualMouseShadowEnabled,
+        val clickAnimationEnabled: Boolean = VirtualMouseClickAnimationEnabled,
+        val trailEnabled: Boolean = VirtualMouseTrailEnabled,
+    )
+}

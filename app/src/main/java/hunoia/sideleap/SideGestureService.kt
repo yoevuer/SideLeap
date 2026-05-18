@@ -265,7 +265,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                         },
                         onVirtualMouseStart = { beginVirtualMouseMode() },
                         onVirtualMouseEnd = { endVirtualMouseMode() },
-                        onClickAtPosition = { x, y -> clickVirtualMouseAtPosition(x, y) },
+                        onClickAtPosition = { x, y, keepActive -> clickVirtualMouseAtPosition(x, y, keepActive) },
                         onTakeScreenshot = {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                                 screenshotService.takeScreenshot()
@@ -321,7 +321,8 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         if (!beginVirtualMouseMode()) return false
         val overlay = virtualMouseOverlay ?: VirtualMouseOverlay(this).also { virtualMouseOverlay = it }
         overlay.show(
-            onClick = { x, y -> clickVirtualMouseAtPosition(x, y) },
+            settings = gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse(),
+            onClick = { x, y, keepActive -> clickVirtualMouseAtPosition(x, y, keepActive) },
             onDismiss = { endVirtualMouseMode() },
         )
         return true
@@ -341,14 +342,25 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         updateGestureButtons()
     }
 
-    private fun clickVirtualMouseAtPosition(x: Int, y: Int) {
+    private fun clickVirtualMouseAtPosition(x: Int, y: Int, keepActive: Boolean) {
         virtualMouseOverlay?.closeImmediately()
         coroutineScope.launch {
             delay(80)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 Accessibility.click(this@SideGestureService, x, y)
             }
-            endVirtualMouseMode()
+            if (keepActive && isMouseMode) {
+                val overlay = virtualMouseOverlay ?: VirtualMouseOverlay(this@SideGestureService).also { virtualMouseOverlay = it }
+                overlay.show(
+                    settings = gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse(),
+                    onClick = { nextX, nextY, nextKeepActive ->
+                        clickVirtualMouseAtPosition(nextX, nextY, nextKeepActive)
+                    },
+                    onDismiss = { endVirtualMouseMode() },
+                )
+            } else {
+                endVirtualMouseMode()
+            }
         }
     }
 
