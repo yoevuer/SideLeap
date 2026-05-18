@@ -479,7 +479,7 @@ class ActionSelectVM(
                         val selectSingle = !actionSelect.isLongSlide || !gestureSettings.longSlideTriggerImmediately
                         it.copy(
                             selectSingle = selectSingle,
-                            maxSelectCount = if (selectSingle) MAX_SELECT_COUNT else LONG_SLIDE_MAX_SELECT_COUNT
+                            maxSelectCount = if (selectSingle) MAX_SELECT_COUNT else LONG_SLIDE_SOFT_MAX_SELECT_COUNT
                         )
                     }
 

@@ -17,15 +17,12 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +41,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
@@ -52,7 +48,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
@@ -73,7 +68,6 @@ import hunoia.sideleap.action.Action
 import hunoia.sideleap.settings.model.ActionPanelStyle
 import hunoia.sideleap.settings.model.ArcStyle
 import hunoia.sideleap.settings.model.GridStyle
-import hunoia.sideleap.settings.model.ListStyle
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.system.vibration.Vibrations
 import hunoia.sideleap.action.display.actionIcon
@@ -91,8 +85,9 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.math.cos
 import kotlin.math.ceil
-import kotlin.math.pow
-import kotlin.math.sqrt
+import kotlin.math.floor
+import kotlin.math.min
+import kotlin.math.sin
 
 /**
  * @author aaronzzxup@gmail.com
@@ -163,26 +158,19 @@ fun ActionPanel(
             }
 
             when (val style = actionPanelState.actionPanelStyle ?: actionPanelStyle) {
-                is ArcStyle -> {
-                    ArcActionPanel(
-                        modifier = Modifier.fillMaxSize(),
-                        actionPanelStyle = style,
-                        actionPanelState = actionPanelState,
-                        vibrations = vibrations
-                    )
-                }
-                is ListStyle -> {
-                    LinearActionPanel(
-                        modifier = Modifier.fillMaxSize(),
-                        actionPanelStyle = style,
-                        actionPanelState = actionPanelState,
-                        vibrations = vibrations
-                    )
-                }
                 is GridStyle -> {
                     GridActionPanel(
                         modifier = Modifier.fillMaxSize(),
                         actionPanelStyle = style,
+                        actionPanelState = actionPanelState,
+                        vibrations = vibrations
+                    )
+                }
+
+                else -> {
+                    ArcActionPanel(
+                        modifier = Modifier.fillMaxSize(),
+                        actionPanelStyle = style as? ArcStyle ?: ArcStyle(),
                         actionPanelState = actionPanelState,
                         vibrations = vibrations
                     )
@@ -220,9 +208,8 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
     vibrations: Vibrations? = null
 ) {
     val itemSize = actionPanelStyle.itemSize.toDp()
-    // 斜边，从origin原点到item中心的距离，值越大item散得越开
     val actionCount = actionPanelState.actions.size
-    val hypot = itemSize.toPx() * if (actionCount > 5) 2.6f else 2f
+    val itemSizePx = itemSize.toPx()
     var parentSize by remember { mutableStateOf(Size.Zero) }
     Box(modifier = modifier) {
         Box(
@@ -233,28 +220,6 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                 .matchParentSize()
         )
 
-        val selectedLabel: String = actionText(actionPanelState.selectedAction)
-        val animationSpec = spring<Float>(stiffness = Spring.StiffnessHigh)
-        AnimatedVisibility(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .displayCutoutPadding()
-                .padding(RootPadding),
-            visible = selectedLabel.isNotEmpty(),
-            enter = fadeIn(animationSpec) + scaleIn(animationSpec, 0.9f),
-            exit = fadeOut(animationSpec) + scaleOut(animationSpec, 0.9f)
-        ) {
-            Text(
-                text = selectedLabel,
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    shadow = Shadow(
-                        color = Color.Black, offset = Offset(2.0f, 2.0f), blurRadius = 3f
-                    )
-                ),
-                color = Color.White
-            )
-        }
-
         Box(
             modifier = Modifier
                 .run {
@@ -262,28 +227,9 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                     graphicsLayer {
                         if (parentSize.isEmpty()) return@graphicsLayer
                         val itemSizeHalf = itemSize.toPx() / 2f
-                        // 限制展开位置，防止显示不全
-                        val iconOffset = itemSize.toPx() * 3f
-                        val ox = origin.x.let {
-                            when (actionPanelState.position) {
-                                Position.Left -> it.coerceAtMost(parentSize.width / 2f)
-                                Position.Right -> it.coerceAtLeast(parentSize.width / 2f)
-                                Position.Bottom -> it.coerceIn(
-                                    iconOffset,
-                                    parentSize.width - iconOffset
-                                )
-                            }
-                        }
-                        val oy = origin.y.let {
-                            when (actionPanelState.position) {
-                                Position.Left, Position.Right -> it.coerceIn(
-                                    minimumValue = iconOffset,
-                                    maximumValue = parentSize.height - iconOffset
-                                )
-
-                                Position.Bottom -> it.coerceAtLeast(parentSize.height / 2f)
-                            }
-                        }
+                        val panelOrigin = actionPanelOrigin(parentSize, origin, actionPanelState.position, itemSize.toPx())
+                        val ox = panelOrigin.x
+                        val oy = panelOrigin.y
                         translationX = ox - itemSizeHalf
                         translationY = oy - itemSizeHalf
                     }
@@ -293,34 +239,21 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
             val transition = transition
             actionPanelState.actions.fastForEachIndexed { index, action ->
                 key(index) {
-                    val targetAnimOffset = remember {
-                        // 平均每个块之间的角度
-                        val avgAngleDegree = if (actionPanelState.actions.size > 5) {
-                            180.0 / (actionPanelState.actions.size - 1).coerceAtLeast(1)
-                        } else 35.0
-                        val totalAngleDegree = avgAngleDegree * (actionPanelState.actions.size - 1)
-                        val angleDegree = -90.0 - totalAngleDegree / 2.0 + avgAngleDegree * index
-                        val radians = Math.toRadians(angleDegree)
-                        val neighbor = hypot * cos(radians)
-                        val opposite = sqrt(hypot.pow(2) - neighbor.pow(2))
-                        // 需要移动的x距离
-                        val transX = when (actionPanelState.position) {
-                            Position.Left -> opposite
-                            Position.Right -> -opposite
-                            Position.Bottom -> neighbor
-                        }
-                        // 需要移动的y距离
-                        val transY = when (actionPanelState.position) {
-                            Position.Left, Position.Right -> neighbor
-                            Position.Bottom -> -opposite
-                        }
-                        Offset(x = transX.toFloat(), y = transY.toFloat())
+                    val targetAnimOffset = remember(parentSize, actionPanelState.position, actionPanelState.actions.size, index) {
+                        arcActionOffset(
+                            parentSize = parentSize,
+                            origin = actionPanelOrigin(parentSize, actionPanelState.origin, actionPanelState.position, itemSizePx),
+                            position = actionPanelState.position,
+                            actionCount = actionCount,
+                            index = index,
+                            itemSizePx = itemSizePx
+                        )
                     }
+                    val panelOrigin = actionPanelOrigin(parentSize, actionPanelState.origin, actionPanelState.position, itemSizePx)
                     var isHovered by remember { mutableStateOf(false) }
                     val scale by animateFloatAsState(if (isHovered) 1.15f else 1f, tween(AnimNormal.toInt()), label = "actionScale")
 
-                    var originBounds by remember { mutableStateOf(Rect.Zero) }
-                    LaunchedEffect(transition, actionPanelState, index, action) {
+                    LaunchedEffect(transition, actionPanelState, index, action, panelOrigin, targetAnimOffset) {
                         snapshotFlow { actionPanelState.finger }
                             .filter {
                                 it.isSpecified &&
@@ -328,8 +261,7 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                                         transition.currentState == Visible
                             }
                             .collect { finger ->
-                                val transFinger = finger - targetAnimOffset
-                                if (originBounds.contains(transFinger)) {
+                                if (actionPanelHitContains(finger, panelOrigin, targetAnimOffset, itemSizePx)) {
                                     if (!actionPanelState.isSelected(action)) {
                                         isHovered = true
                                         actionPanelState.select(index, action)
@@ -347,9 +279,6 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                     val actionIcon = actionIcon(action = action)
                     Box(
                         modifier = Modifier
-                            .onGloballyPositioned {
-                                originBounds = it.boundsInRoot()
-                            }
                             .graphicsLayer {
                                 translationX = targetAnimOffset.x
                                 translationY = targetAnimOffset.y
@@ -429,74 +358,6 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
 }
 
 @Composable
-private fun AnimatedVisibilityScope.LinearActionPanel(
-    actionPanelStyle: ListStyle,
-    actionPanelState: ActionPanelState,
-    modifier: Modifier = Modifier,
-    vibrations: Vibrations? = null
-) {
-    val itemSize = actionPanelStyle.itemSize.toDp()
-    val itemWidth = itemSize * 3.5f
-    val itemGapPx = itemSize.toPx() * 0.3f
-    val itemHeightPx = itemSize.toPx()
-    val itemWidthPx = itemWidth.toPx()
-    val origin = remember(actionPanelState) { actionPanelState.origin }
-    Box(modifier = modifier) {
-        Box(
-            modifier = Modifier
-                .graphicsLayer {
-                    translationX = origin.x - itemSize.toPx() / 2f
-                    translationY = origin.y - itemSize.toPx() / 2f
-                }
-                .size(itemSize)
-        ) {
-            actionPanelState.actions.fastForEachIndexed { index, action ->
-                key(index) {
-                    val offset = remember(actionPanelState.position, actionPanelState.actions.size, index) {
-                        val centerOffset = index - (actionPanelState.actions.size - 1) / 2f
-                        when (actionPanelState.position) {
-                            Position.Left -> Offset(itemHeightPx * 1.3f, centerOffset * (itemHeightPx + itemGapPx))
-                            Position.Right -> Offset(-itemWidthPx - itemHeightPx * 0.3f, centerOffset * (itemHeightPx + itemGapPx))
-                            Position.Bottom -> {
-                                if (actionPanelState.actions.size <= 4) {
-                                    Offset(centerOffset * (itemWidthPx + itemGapPx), -itemHeightPx * 1.4f)
-                                } else {
-                                    Offset(-itemWidthPx / 2f, -(index + 1) * (itemHeightPx + itemGapPx))
-                                }
-                            }
-                        }
-                    }
-                    ActionPanelSelectableItem(
-                        actionPanelState = actionPanelState,
-                        index = index,
-                        action = action,
-                        targetAnimOffset = offset,
-                        vibrations = vibrations,
-                        modifier = Modifier.size(width = itemWidth, height = itemSize),
-                        shape = RoundedCornerShape(999.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            ActionPanelIcon(action = action, iconSize = itemSize * 0.58f)
-                            Text(
-                                text = actionText(action),
-                                modifier = Modifier.width(itemWidth - itemSize),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                maxLines = 1
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun AnimatedVisibilityScope.GridActionPanel(
     actionPanelStyle: GridStyle,
     actionPanelState: ActionPanelState,
@@ -506,41 +367,43 @@ private fun AnimatedVisibilityScope.GridActionPanel(
     val itemSize = actionPanelStyle.itemSize.toDp()
     val itemSizePx = itemSize.toPx()
     val gapPx = itemSizePx * 0.35f
-    val columns = when (actionPanelState.actions.size) {
-        in 1..4 -> 1
-        in 5..6 -> 2
-        else -> 3
-    }
-    val rows = ceil(actionPanelState.actions.size / columns.toFloat()).toInt().coerceAtLeast(1)
     val origin = remember(actionPanelState) { actionPanelState.origin }
+    var parentSize by remember { mutableStateOf(Size.Zero) }
+    val panelOrigin = actionPanelOrigin(parentSize, origin, actionPanelState.position, itemSizePx)
     Box(modifier = modifier) {
         Box(
             modifier = Modifier
+                .onGloballyPositioned { parentSize = it.size.toSize() }
+                .matchParentSize()
+        )
+        Box(
+            modifier = Modifier
                 .graphicsLayer {
-                    translationX = origin.x - itemSizePx / 2f
-                    translationY = origin.y - itemSizePx / 2f
+                    translationX = panelOrigin.x - itemSizePx / 2f
+                    translationY = panelOrigin.y - itemSizePx / 2f
                 }
                 .size(itemSize)
         ) {
             actionPanelState.actions.fastForEachIndexed { index, action ->
                 key(index) {
-                    val offset = remember(actionPanelState.position, actionPanelState.actions.size, index) {
-                        val col = index % columns
-                        val row = index / columns
-                        val cell = itemSizePx + gapPx
-                        val gridWidth = (columns - 1) * cell
-                        val gridHeight = (rows - 1) * cell
-                        when (actionPanelState.position) {
-                            Position.Left -> Offset(itemSizePx * 1.4f + col * cell, row * cell - gridHeight / 2f)
-                            Position.Right -> Offset(-itemSizePx * 1.4f - gridWidth + col * cell, row * cell - gridHeight / 2f)
-                            Position.Bottom -> Offset(col * cell - gridWidth / 2f, -itemSizePx * 1.4f - gridHeight + row * cell)
-                        }
+                    val offset = remember(parentSize, actionPanelState.position, actionPanelState.actions.size, index) {
+                        gridActionOffset(
+                            parentSize = parentSize,
+                            origin = panelOrigin,
+                            position = actionPanelState.position,
+                            actionCount = actionPanelState.actions.size,
+                            index = index,
+                            itemSizePx = itemSizePx,
+                            gapPx = gapPx
+                        )
                     }
                     ActionPanelSelectableItem(
                         actionPanelState = actionPanelState,
                         index = index,
                         action = action,
                         targetAnimOffset = offset,
+                        panelOrigin = panelOrigin,
+                        itemSizePx = itemSizePx,
                         vibrations = vibrations,
                         modifier = Modifier.size(itemSize),
                         shape = RoundedCornerShape(14.dp)
@@ -553,12 +416,153 @@ private fun AnimatedVisibilityScope.GridActionPanel(
     }
 }
 
+private fun actionPanelOrigin(
+    parentSize: Size,
+    origin: Offset,
+    position: Position,
+    itemSizePx: Float
+): Offset {
+    if (parentSize.isEmpty()) return origin
+    val safePadding = itemSizePx * 1.5f
+    val x = when (position) {
+        Position.Left -> origin.x.coerceAtMost(parentSize.width / 2f)
+        Position.Right -> origin.x.coerceAtLeast(parentSize.width / 2f)
+        Position.Bottom -> origin.x.coerceIn(safePadding, parentSize.width - safePadding)
+    }
+    val y = when (position) {
+        Position.Left, Position.Right -> origin.y.coerceIn(safePadding, parentSize.height - safePadding)
+        Position.Bottom -> origin.y.coerceAtLeast(parentSize.height / 2f)
+    }
+    return Offset(x, y)
+}
+
+private fun arcActionOffset(
+    parentSize: Size,
+    origin: Offset,
+    position: Position,
+    actionCount: Int,
+    index: Int,
+    itemSizePx: Float
+): Offset {
+    if (parentSize.isEmpty() || actionCount <= 0) return Offset.Zero
+    val maxItemsPerLayer = 8
+    val layerCount = ceil(actionCount / maxItemsPerLayer.toFloat()).toInt().coerceAtLeast(1)
+    val itemsPerLayer = ceil(actionCount / layerCount.toFloat()).toInt().coerceAtLeast(1)
+    val layer = index / itemsPerLayer
+    val indexInLayer = index % itemsPerLayer
+    val firstIndexInLayer = layer * itemsPerLayer
+    val countInLayer = min(itemsPerLayer, actionCount - firstIndexInLayer).coerceAtLeast(1)
+    val radius = itemSizePx * (2.0f + layer * 1.25f)
+    val maxRadius = when (position) {
+        Position.Left -> parentSize.width - origin.x - itemSizePx
+        Position.Right -> origin.x - itemSizePx
+        Position.Bottom -> origin.y - itemSizePx
+    }.coerceAtLeast(itemSizePx * 1.5f)
+    val resolvedRadius = min(radius, maxRadius)
+    val sweepDegree = if (countInLayer == 1) 0f else min(170f, 35f * (countInLayer - 1))
+    val angleDegree = if (countInLayer == 1) 0f else {
+        -sweepDegree / 2f + sweepDegree * indexInLayer / (countInLayer - 1)
+    }
+    val radians = Math.toRadians(angleDegree.toDouble())
+    val x = cos(radians).toFloat() * resolvedRadius
+    val y = sin(radians).toFloat() * resolvedRadius
+    val targetCenter = when (position) {
+        Position.Left -> Offset(origin.x + x, origin.y + y)
+        Position.Right -> Offset(origin.x - x, origin.y + y)
+        Position.Bottom -> Offset(origin.x + y, origin.y - x)
+    }.coerceInside(parentSize, itemSizePx)
+    return targetCenter - origin
+}
+
+private fun gridActionOffset(
+    parentSize: Size,
+    origin: Offset,
+    position: Position,
+    actionCount: Int,
+    index: Int,
+    itemSizePx: Float,
+    gapPx: Float
+): Offset {
+    if (parentSize.isEmpty() || actionCount <= 0) return Offset.Zero
+    val padding = itemSizePx * 0.75f
+    val originGap = itemSizePx * 1.35f
+    val rect = when (position) {
+        Position.Left -> PanelRect(origin.x + originGap, padding, parentSize.width - padding, parentSize.height - padding)
+        Position.Right -> PanelRect(padding, padding, origin.x - originGap, parentSize.height - padding)
+        Position.Bottom -> PanelRect(padding, padding, parentSize.width - padding, origin.y - originGap)
+    }.validOrFallback(parentSize, padding)
+    val cell = itemSizePx + gapPx
+    val availableWidth = (rect.right - rect.left).coerceAtLeast(itemSizePx)
+    val availableHeight = (rect.bottom - rect.top).coerceAtLeast(itemSizePx)
+    val maxColumns = floor((availableWidth + gapPx) / cell).toInt().coerceAtLeast(1).coerceAtMost(actionCount)
+    val maxRows = floor((availableHeight + gapPx) / cell).toInt().coerceAtLeast(1)
+    val minColumns = ceil(actionCount / maxRows.toFloat()).toInt().coerceAtLeast(1)
+    val columns = minColumns.coerceIn(1, maxColumns)
+    val rows = ceil(actionCount / columns.toFloat()).toInt().coerceAtLeast(1)
+    val gridWidth = columns * itemSizePx + (columns - 1) * gapPx
+    val gridHeight = rows * itemSizePx + (rows - 1) * gapPx
+    val left = when (position) {
+        Position.Left -> rect.left
+        Position.Right -> rect.right - gridWidth
+        Position.Bottom -> (origin.x - gridWidth / 2f).coerceSafely(rect.left, rect.right - gridWidth)
+    }
+    val top = when (position) {
+        Position.Left, Position.Right -> (origin.y - gridHeight / 2f).coerceSafely(rect.top, rect.bottom - gridHeight)
+        Position.Bottom -> rect.bottom - gridHeight
+    }
+    val col = index % columns
+    val row = index / columns
+    val targetCenter = Offset(
+        x = left + col * cell + itemSizePx / 2f,
+        y = top + row * cell + itemSizePx / 2f
+    ).coerceInside(parentSize, itemSizePx)
+    return targetCenter - origin
+}
+
+private data class PanelRect(
+    val left: Float,
+    val top: Float,
+    val right: Float,
+    val bottom: Float
+) {
+    fun validOrFallback(parentSize: Size, padding: Float): PanelRect {
+        return if (right > left && bottom > top) this
+        else PanelRect(padding, padding, parentSize.width - padding, parentSize.height - padding)
+    }
+}
+
+private fun Offset.coerceInside(parentSize: Size, itemSizePx: Float): Offset {
+    val padding = itemSizePx / 2f
+    return Offset(
+        x = x.coerceIn(padding, parentSize.width - padding),
+        y = y.coerceIn(padding, parentSize.height - padding)
+    )
+}
+
+private fun Float.coerceSafely(minimumValue: Float, maximumValue: Float): Float {
+    return if (minimumValue <= maximumValue) coerceIn(minimumValue, maximumValue) else minimumValue
+}
+
+private fun actionPanelHitContains(
+    finger: Offset,
+    panelOrigin: Offset,
+    targetAnimOffset: Offset,
+    itemSizePx: Float
+): Boolean {
+    val targetCenter = panelOrigin + targetAnimOffset
+    val halfSize = itemSizePx / 2f
+    return finger.x in (targetCenter.x - halfSize)..(targetCenter.x + halfSize) &&
+            finger.y in (targetCenter.y - halfSize)..(targetCenter.y + halfSize)
+}
+
 @Composable
 private fun AnimatedVisibilityScope.ActionPanelSelectableItem(
     actionPanelState: ActionPanelState,
     index: Int,
     action: Action,
     targetAnimOffset: Offset,
+    panelOrigin: Offset,
+    itemSizePx: Float,
     vibrations: Vibrations?,
     modifier: Modifier,
     shape: androidx.compose.ui.graphics.Shape,
@@ -567,13 +571,11 @@ private fun AnimatedVisibilityScope.ActionPanelSelectableItem(
     val transition = transition
     var isHovered by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(if (isHovered) 1.08f else 1f, tween(AnimNormal.toInt()), label = "actionScale")
-    var originBounds by remember { mutableStateOf(Rect.Zero) }
-    LaunchedEffect(transition, actionPanelState, index, action) {
+    LaunchedEffect(transition, actionPanelState, index, action, panelOrigin, targetAnimOffset) {
         snapshotFlow { actionPanelState.finger }
             .filter { it.isSpecified && !transition.isRunning && transition.currentState == Visible }
             .collect { finger ->
-                val transFinger = finger - targetAnimOffset
-                if (originBounds.contains(transFinger)) {
+                if (actionPanelHitContains(finger, panelOrigin, targetAnimOffset, itemSizePx)) {
                     if (!actionPanelState.isSelected(action)) {
                         isHovered = true
                         actionPanelState.select(index, action)
@@ -587,7 +589,6 @@ private fun AnimatedVisibilityScope.ActionPanelSelectableItem(
     }
     Box(
         modifier = modifier
-            .onGloballyPositioned { originBounds = it.boundsInRoot() }
             .graphicsLayer {
                 translationX = targetAnimOffset.x
                 translationY = targetAnimOffset.y

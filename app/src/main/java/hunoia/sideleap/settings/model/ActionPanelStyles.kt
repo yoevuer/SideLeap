@@ -19,11 +19,6 @@ data class ActionPanelStyles(
 
         fun arc(): ActionPanelStyles = ActionPanelStyles(TYPE_ARC)
 
-        fun list(): ActionPanelStyles = ActionPanelStyles(
-            type = TYPE_LIST,
-            json = JsonHelper.encodeToString(ListStyle())
-        )
-
         fun grid(): ActionPanelStyles = ActionPanelStyles(
             type = TYPE_GRID,
             json = JsonHelper.encodeToString(GridStyle())
@@ -35,14 +30,13 @@ data class ActionPanelStyles(
         val json = json
         if (json.isEmpty()) {
             return@run when (type) {
-                TYPE_LIST -> ListStyle()
                 TYPE_GRID -> GridStyle()
                 else -> ArcStyle()
             }
         }
         when (type) {
             TYPE_ARC -> JsonHelper.decodeFromString<ArcStyle>(json)
-            TYPE_LIST -> JsonHelper.decodeFromString<ListStyle>(json)
+            TYPE_LIST -> ArcStyle()
             TYPE_GRID -> JsonHelper.decodeFromString<GridStyle>(json)
             else -> error("Unknown ActionPanelStyle type: $type")
         }
@@ -57,7 +51,6 @@ object ActionPanelStylesDefaults {
 
     const val Type = TYPE_ARC
     val ArcStyleItemSize = ConvertUtils.dp2px(48f)
-    val ListStyleItemSize = ConvertUtils.dp2px(48f)
     val GridStyleItemSize = ConvertUtils.dp2px(48f)
 }
 
@@ -67,12 +60,6 @@ sealed interface ActionPanelStyle
 @Keep
 data class ArcStyle(
     val itemSize: Int = ActionPanelStylesDefaults.ArcStyleItemSize
-) : ActionPanelStyle
-
-@Serializable
-@Keep
-data class ListStyle(
-    val itemSize: Int = ActionPanelStylesDefaults.ListStyleItemSize
 ) : ActionPanelStyle
 
 @Serializable

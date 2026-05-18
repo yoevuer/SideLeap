@@ -246,6 +246,7 @@ internal fun ActionPage(
                 SelectedBar(
                     selectedItems = selectedItems,
                     maxSelectCount = maxSelectCount,
+                    showMaxSelectCount = selectSingle,
                     itemLabel = { context.selectedItemLabel(it) },
                     onRemoveItem = { item ->
                         when (item) {
@@ -604,6 +605,7 @@ internal fun SelectedActionSettings(
 internal fun SelectedBar(
     selectedItems: List<Any>,
     maxSelectCount: Int,
+    showMaxSelectCount: Boolean,
     itemLabel: (Any) -> String,
     onRemoveItem: (Any) -> Unit,
     onClearAll: () -> Unit,
@@ -616,7 +618,11 @@ internal fun SelectedBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(R.string.selected_count, selectedItems.size, maxSelectCount),
+            text = if (showMaxSelectCount) {
+                stringResource(R.string.selected_count, selectedItems.size, maxSelectCount)
+            } else {
+                stringResource(R.string.selected_count_no_limit, selectedItems.size)
+            },
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary
         )
