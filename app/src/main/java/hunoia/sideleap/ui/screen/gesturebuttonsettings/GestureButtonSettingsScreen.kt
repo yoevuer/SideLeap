@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -454,7 +455,9 @@ fun GestureButtonSettingsScreen(
         if (showActionSelect && pendingActionSelect != null) {
             ModalBottomSheet(
                 onDismissRequest = { showActionSelect = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                sheetState = rememberModalBottomSheetState(
+                    confirmValueChange = { it != SheetValue.Hidden }
+                )
             ) {
                 BottomSheetNestedContent {
                     ActionSelectContent(
