@@ -269,6 +269,9 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                         },
                         onVirtualMouseStart = { beginVirtualMouseMode() },
                         onVirtualMouseEnd = { endVirtualMouseMode() },
+                        onVirtualMouseSettingsUpdate = { settings ->
+                            virtualMouseSessionSettings = settings
+                        },
                         virtualMousePreviousPosition = { virtualMouseLastPosition },
                         onPointerActionAtPosition = { x, y, keepActive, action ->
                             performVirtualMouseActionAtPosition(x, y, keepActive, action)

@@ -89,6 +89,7 @@ fun SideGestureContainer(
     onTakeScreenshot: (suspend () -> Bitmap?)? = null,
     onVirtualMouseStart: () -> Boolean = { false },
     onVirtualMouseEnd: () -> Unit = {},
+    onVirtualMouseSettingsUpdate: (GestureSettings.VirtualMouse) -> Unit = {},
     virtualMousePreviousPosition: () -> Offset = { Offset.Unspecified },
     onPointerActionAtPosition: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit = { _, _, _, _ -> },
 ) {
@@ -96,6 +97,7 @@ fun SideGestureContainer(
     val curOnAction by rememberUpdatedState(newValue = onAction)
     val curOnVirtualMouseStart by rememberUpdatedState(newValue = onVirtualMouseStart)
     val curOnVirtualMouseEnd by rememberUpdatedState(newValue = onVirtualMouseEnd)
+    val curOnVirtualMouseSettingsUpdate by rememberUpdatedState(newValue = onVirtualMouseSettingsUpdate)
     val curOnPointerActionAtPosition by rememberUpdatedState(newValue = onPointerActionAtPosition)
     val coroutineScope = rememberCoroutineScope()
     val sideGestureState = rememberSideGestureState(buttons, advancedSettings, gestureSettings)
@@ -141,6 +143,7 @@ fun SideGestureContainer(
         if (isVirtualMouseMode) return false
         if (!curOnVirtualMouseStart()) return false
         virtualMouseSettings = action.virtualMouseSettings(gestureSettings.virtualMouse)
+        curOnVirtualMouseSettingsUpdate(virtualMouseSettings)
         cursorPosition = virtualMouseInitialPosition(virtualMouseSettings, virtualMousePreviousPosition())
         virtualMouseTouchPosition = sideGestureState.finger
         virtualMouseLeftCancelEdge = false
@@ -165,7 +168,7 @@ fun SideGestureContainer(
                 virtualMouseSettings.continuousMode,
                 VirtualMousePointerAction.Click,
             )
-        } else {
+        } else if (!virtualMouseLongPressTriggered) {
             curOnVirtualMouseEnd()
         }
         virtualMouseTouchPosition = Offset.Unspecified
