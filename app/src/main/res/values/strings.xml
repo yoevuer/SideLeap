@@ -286,7 +286,7 @@
     <string name="frequent_tag">常用</string>
     <string name="no_available_apps">暂无可选应用</string>
     <string name="no_available_shortcuts">暂无可选快捷方式</string>
-    <string name="search_hint_all">搜索动作、应用或快捷方式</string>
+    <string name="search_hint_all">搜索</string>
     <string name="open_app_or_url_card_title">打开 Activity / 链接</string>
     <string name="open_app_or_url_card_desc">选择 Activity 或输入链接</string>
     <string name="search_clear_cd">清除</string>
