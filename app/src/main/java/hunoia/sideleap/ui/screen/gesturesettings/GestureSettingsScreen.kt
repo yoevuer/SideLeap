@@ -69,7 +69,6 @@ import hunoia.sideleap.ui.widget.BottomSheetNestedContent
 import kotlinx.coroutines.launch
 
 private val VirtualMouseTimeoutOptions = listOf(0L, 5_000L, 10_000L, 15_000L, 30_000L)
-private val VirtualMouseLongPressDelayOptions = listOf(400L, 600L, 800L, 1_000L)
 private val VirtualMouseTrailStyleOptions = listOf(
     VirtualMouseTrailStyle.None,
     VirtualMouseTrailStyle.Dots,
@@ -357,7 +356,6 @@ private fun VirtualMouseSettingsContent(
     val virtualMouse = uiState.virtualMouse
     var showTimeoutDropdown by remember { mutableStateOf(false) }
     var showTrailStyleDropdown by remember { mutableStateOf(false) }
-    var showLongPressDelayDropdown by remember { mutableStateOf(false) }
     Column {
         LabeledSwitch(
             onCheckedChange = { vm.onVirtualMouseContinuousModeChange(it) },
@@ -497,6 +495,24 @@ private fun VirtualMouseSettingsContent(
                 }
             }
         }
+        if (virtualMouse.trailStyle != VirtualMouseTrailStyle.None) {
+            MyTextSlider(
+                value = virtualMouse.trailStrength,
+                onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(trailStrength = it)) },
+                onValueChangeFinished = { vm.saveSettings() },
+                text = stringResource(id = R.string.virtual_mouse_trail_strength, virtualMouse.trailStrength),
+                sliderValueHint = "0.5" to "2.0",
+                valueRange = 0.5f..2f
+            )
+            MyTextSlider(
+                value = virtualMouse.trailAlpha,
+                onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(trailAlpha = it)) },
+                onValueChangeFinished = { vm.saveSettings() },
+                text = stringResource(id = R.string.virtual_mouse_trail_alpha, (virtualMouse.trailAlpha * 100).toInt()),
+                sliderValueHint = "20%" to "100%",
+                valueRange = 0.2f..1f
+            )
+        }
         LabeledSwitch(
             onCheckedChange = { vm.onVirtualMouseClickAnimationChange(it) },
             checked = virtualMouse.clickAnimationEnabled,
@@ -509,52 +525,22 @@ private fun VirtualMouseSettingsContent(
             secondaryText = stringResource(id = R.string.virtual_mouse_long_press_hint)
         )
         if (virtualMouse.longPressEnabled) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = MinItemHeightNoSecondary)
-                    .onSingleClick { showLongPressDelayDropdown = true }
-                    .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(ItemPadding)
-            ) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = stringResource(id = R.string.virtual_mouse_long_press_delay),
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1
-                )
-                Box {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = virtualMouseLongPressDelayText(virtualMouse.longPressDelayMs),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1
-                        )
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = null
-                        )
-                    }
-                    DropdownMenu(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        shape = MaterialTheme.shapes.medium,
-                        expanded = showLongPressDelayDropdown,
-                        onDismissRequest = { showLongPressDelayDropdown = false }
-                    ) {
-                        VirtualMouseLongPressDelayOptions.fastForEach { delayMs ->
-                            DropdownMenuItem(
-                                onClick = {
-                                    vm.onVirtualMouseLongPressDelayChange(delayMs)
-                                    showLongPressDelayDropdown = false
-                                },
-                                text = { Text(virtualMouseLongPressDelayText(delayMs)) }
-                            )
-                        }
-                    }
-                }
-            }
+            MyTextSlider(
+                value = virtualMouse.longPressDelayMs.toFloat(),
+                onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(longPressDelayMs = it.toLong())) },
+                onValueChangeFinished = { vm.saveSettings() },
+                text = stringResource(id = R.string.virtual_mouse_long_press_delay, virtualMouse.longPressDelayMs),
+                sliderValueHint = "400ms" to "2000ms",
+                valueRange = 400f..2000f
+            )
+            MyTextSlider(
+                value = virtualMouse.longPressMoveToleranceDp.toFloat(),
+                onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(longPressMoveToleranceDp = it.toInt())) },
+                onValueChangeFinished = { vm.saveSettings() },
+                text = stringResource(id = R.string.virtual_mouse_long_press_tolerance, virtualMouse.longPressMoveToleranceDp),
+                sliderValueHint = "2dp" to "16dp",
+                valueRange = 2f..16f
+            )
         }
     }
 }
@@ -613,8 +599,6 @@ private fun virtualMouseSummaryText(settings: GestureSettings.VirtualMouse): Str
 private fun virtualMouseTimeoutText(timeoutMs: Long): String {
     return if (timeoutMs <= 0L) "关闭" else "${timeoutMs / 1000} 秒"
 }
-
-private fun virtualMouseLongPressDelayText(delayMs: Long): String = "${delayMs} ms"
 
 private fun virtualMouseTrailStyleText(style: VirtualMouseTrailStyle): String {
     return when (style) {

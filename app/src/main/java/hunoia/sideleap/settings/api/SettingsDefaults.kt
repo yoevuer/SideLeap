@@ -50,7 +50,10 @@ object GestureSettingsDefaults {
     const val VirtualMouseClickAnimationEnabled = true
     const val VirtualMouseMovementDeadZoneDp = 3
     const val VirtualMouseLongPressEnabled = false
-    const val VirtualMouseLongPressDelayMs = 600L
+    const val VirtualMouseLongPressDelayMs = 800L
+    const val VirtualMouseLongPressMoveToleranceDp = 6
+    const val VirtualMouseTrailStrength = 1.2f
+    const val VirtualMouseTrailAlpha = 0.7f
     val Vibrations = VibrationModel()
 }
 

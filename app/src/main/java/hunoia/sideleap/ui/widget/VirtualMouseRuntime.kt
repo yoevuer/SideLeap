@@ -49,6 +49,16 @@ fun isVirtualMouseStillMovement(
     return hypot(dragAmount.x, dragAmount.y) <= deadZone
 }
 
+fun isVirtualMouseWithinLongPressTolerance(
+    anchor: Offset,
+    current: Offset,
+    settings: GestureSettings.VirtualMouse,
+): Boolean {
+    if (!anchor.x.isFinite() || !anchor.y.isFinite() || !current.x.isFinite() || !current.y.isFinite()) return false
+    val tolerance = ConvertUtils.dp2px(settings.longPressMoveToleranceDp.toFloat()).toFloat()
+    return hypot(current.x - anchor.x, current.y - anchor.y) <= tolerance
+}
+
 fun isVirtualMouseCancelGesture(
     touchPosition: Offset,
     settings: GestureSettings.VirtualMouse,

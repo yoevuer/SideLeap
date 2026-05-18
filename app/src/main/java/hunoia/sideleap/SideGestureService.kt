@@ -422,7 +422,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                     VirtualMousePointerAction.LongPress -> Accessibility.longPress(this@SideGestureService, x, y)
                 }
             }
-            if (keepActive && action == VirtualMousePointerAction.Click && isMouseMode) {
+            if (keepActive && isMouseMode) {
                 val overlay = virtualMouseOverlay ?: VirtualMouseOverlay(this@SideGestureService).also { virtualMouseOverlay = it }
                 overlay.show(
                     settings = gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse(),

@@ -18,9 +18,12 @@ import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseEdgeCanc
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseInitialYRatio
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseLongPressDelayMs
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseLongPressEnabled
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseLongPressMoveToleranceDp
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseMovementDeadZoneDp
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseSensitivityX
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseSensitivityY
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseTrailAlpha
+import hunoia.sideleap.settings.api.GestureSettingsDefaults.VirtualMouseTrailStrength
 import hunoia.sideleap.settings.api.GestureSettingsDefaults.Vibrations as DefaultVibrations
 import hunoia.sideleap.system.vibration.Vibrations
 import kotlinx.serialization.Serializable
@@ -51,10 +54,13 @@ data class GestureSettings(
         val cursorSizeDp: Int = VirtualMouseCursorSizeDp,
         val cursorAlpha: Float = VirtualMouseCursorAlpha,
         val clickAnimationEnabled: Boolean = VirtualMouseClickAnimationEnabled,
-        val trailStyle: VirtualMouseTrailStyle = VirtualMouseTrailStyle.Dots,
+        val trailStyle: VirtualMouseTrailStyle = VirtualMouseTrailStyle.LightBand,
+        val trailStrength: Float = VirtualMouseTrailStrength,
+        val trailAlpha: Float = VirtualMouseTrailAlpha,
         val movementDeadZoneDp: Int = VirtualMouseMovementDeadZoneDp,
         val longPressEnabled: Boolean = VirtualMouseLongPressEnabled,
         val longPressDelayMs: Long = VirtualMouseLongPressDelayMs,
+        val longPressMoveToleranceDp: Int = VirtualMouseLongPressMoveToleranceDp,
     )
 
     @Serializable

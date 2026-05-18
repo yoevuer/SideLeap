@@ -20,7 +20,7 @@ import hunoia.sideleap.ui.theme.SideGestureTheme
 import hunoia.sideleap.ui.widget.VirtualMouseCursor
 import hunoia.sideleap.ui.widget.VirtualMousePointerAction
 import hunoia.sideleap.ui.widget.isVirtualMouseCancelGesture
-import hunoia.sideleap.ui.widget.isVirtualMouseStillMovement
+import hunoia.sideleap.ui.widget.isVirtualMouseWithinLongPressTolerance
 import hunoia.sideleap.ui.widget.moveVirtualMouseCursor
 import hunoia.sideleap.ui.widget.virtualMouseInitialPosition
 
@@ -50,6 +50,7 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
         val clickPulse = mutableStateOf(clickPulseKey)
         var leftCancelEdge = false
         var longPressTriggered = false
+        var longPressAnchor = Offset.Unspecified
         fun resetTimeout() {
             timeoutRunnable?.let(timeoutHandler::removeCallbacks)
             timeoutRunnable = null
@@ -59,11 +60,13 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                 onDismiss()
             }.also { timeoutHandler.postDelayed(it, settings.continuousModeTimeoutMs) }
         }
-        fun resetLongPress() {
+        fun resetLongPress(anchor: Offset = lastTouch) {
             longPressRunnable?.let(timeoutHandler::removeCallbacks)
             longPressRunnable = null
             if (!settings.longPressEnabled || settings.longPressDelayMs <= 0L || longPressTriggered) return
+            longPressAnchor = anchor
             longPressRunnable = Runnable {
+                if (!isVirtualMouseWithinLongPressTolerance(longPressAnchor, lastTouch, settings)) return@Runnable
                 longPressTriggered = true
                 val target = cursorPosition.value
                 clickPulseKey += 1
@@ -83,8 +86,8 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                 when (event.actionMasked) {
                     MotionEvent.ACTION_DOWN -> {
                         resetTimeout()
-                        resetLongPress()
                         lastTouch = Offset(event.rawX, event.rawY)
+                        resetLongPress()
                         true
                     }
                     MotionEvent.ACTION_MOVE -> {
@@ -93,8 +96,8 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                         val previous = lastTouch
                         if (previous != Offset.Unspecified) {
                             val dragAmount = current - previous
-                            if (!isVirtualMouseStillMovement(dragAmount, settings) && !longPressTriggered) {
-                                resetLongPress()
+                            if (!isVirtualMouseWithinLongPressTolerance(longPressAnchor, current, settings) && !longPressTriggered) {
+                                resetLongPress(current)
                             }
                             val inCancelEdge = settings.continuousMode &&
                                 isVirtualMouseCancelGesture(current, settings)
