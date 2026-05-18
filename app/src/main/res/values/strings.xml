@@ -50,6 +50,7 @@
     <string name="action_panel_launch_app_hint">调换手势动作中启动应用的短按与长按方式：默认短按小窗、长按全屏</string>
     <string name="quick_launcher_launch_app">启动器应用项启动方式</string>
     <string name="quick_launcher_launch_app_hint">调换快速启动器中应用项的短按与长按方式：默认短按小窗、长按全屏</string>
+    <string name="mini_window_position">小窗位置</string>
     <string name="mini_window_horizontal_position">小窗打开水平位置</string>
     <string name="mini_window_vertical_position">小窗打开垂直位置</string>
     <string name="mini_window_vertical_edge_margin">小窗垂直边缘留白</string>
@@ -109,6 +110,7 @@
     <string name="long_slide_trigger_immediately">立即触发</string>
     <string name="long_slide_trigger_immediately_hint">识别到手势立即触发，而不是等到抬手</string>
     <string name="long_slide_trigger_delay_ms">长距离滑动触发延迟</string>
+    <string name="long_slide_trigger_distance">长距离滑动触发距离</string>
     <string name="action_panel_style">动作面板样式</string>
     <string name="action_panel_style_arc">弧形</string>
     <string name="action_panel_style_list">自适应列表</string>

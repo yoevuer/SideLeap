@@ -91,6 +91,7 @@ fun GestureSettingsScreen(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     var showVirtualMouseSettings by remember { mutableStateOf(false) }
+    var showSlideSettings by remember { mutableStateOf(false) }
     UDFComponent(
         component = vm.udfComponent,
         onEvent = { event ->
@@ -131,6 +132,21 @@ fun GestureSettingsScreen(
                 }
             }
         }
+        if (showSlideSettings) {
+            ModalBottomSheet(
+                onDismissRequest = { showSlideSettings = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                BottomSheetNestedContent {
+                    MyColumn(scrollState = rememberScrollState()) {
+                        SlideSettingsContent(
+                            uiState = uiState,
+                            vm = vm,
+                        )
+                    }
+                }
+            }
+        }
         Column {
             TopBar(
                 onBack = onBack,
@@ -155,22 +171,34 @@ fun GestureSettingsScreen(
                         text = stringResource(id = R.string.vibration),
                         secondaryText = stringResource(id = R.string.vibration_hint)
                     )
-                    MyTextSlider(
-                        value = uiState.slideTriggerDistance,
-                        onValueChange = { vm.onSlideTriggerDistanceChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.trigger_distance),
-                        sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
-                        valueRange = MinSlideTriggerDistance.toFloat()..MaxSlideTriggerDistance.toFloat()
-                    )
-                    MyTextSlider(
-                        value = uiState.longPressTriggerDelayMs.toFloat(),
-                        onValueChange = { vm.onLongPressTriggerDelayMsChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.long_press_trigger_delay_ms),
-                        sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
-                        valueRange = MinLongPressTriggerDelayMs.toFloat()..MaxLongPressTriggerDelayMs.toFloat()
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = MinItemHeightNoSecondary)
+                            .onSingleClick { showSlideSettings = true }
+                            .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(id = R.string.trigger_distance),
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = slideSettingsSummaryText(uiState),
+                                color = MaterialTheme.colorScheme.secondary,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 SectionCard(
                     modifier = Modifier.padding(top = SectionPadding),
@@ -187,22 +215,6 @@ fun GestureSettingsScreen(
                         checked = uiState.vibrations.longSlideEnabled,
                         text = stringResource(id = R.string.vibration),
                         secondaryText = stringResource(id = R.string.vibration_hint)
-                    )
-                    MyTextSlider(
-                        value = uiState.longSlideTriggerDistance,
-                        onValueChange = { vm.onLongSlideTriggerDistanceChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.trigger_distance),
-                        sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
-                        valueRange = MinLongSlideTriggerDistance.toFloat()..MaxLongSlideTriggerDistance.toFloat()
-                    )
-                    MyTextSlider(
-                        value = uiState.longSlideTriggerDelayMs.toFloat(),
-                        onValueChange = { vm.onLongSlideTriggerDelayMsChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.long_slide_trigger_delay_ms),
-                        sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
-                        valueRange = MinLongSlideTriggerDelayMs.toFloat()..MaxLongSlideTriggerDelayMs.toFloat()
                     )
                 }
                 SectionCard(
@@ -491,6 +503,51 @@ private fun VirtualMouseSettingsContent(
             text = stringResource(id = R.string.virtual_mouse_trail)
         )
     }
+}
+
+@Composable
+private fun SlideSettingsContent(
+    uiState: GestureSettingsVM.UiState,
+    vm: GestureSettingsVM,
+) {
+    Column {
+        MyTextSlider(
+            value = uiState.slideTriggerDistance,
+            onValueChange = { vm.onSlideTriggerDistanceChange(it) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = stringResource(id = R.string.trigger_distance),
+            sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
+            valueRange = MinSlideTriggerDistance.toFloat()..MaxSlideTriggerDistance.toFloat()
+        )
+        MyTextSlider(
+            value = uiState.longPressTriggerDelayMs.toFloat(),
+            onValueChange = { vm.onLongPressTriggerDelayMsChange(it) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = stringResource(id = R.string.long_press_trigger_delay_ms),
+            sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
+            valueRange = MinLongPressTriggerDelayMs.toFloat()..MaxLongPressTriggerDelayMs.toFloat()
+        )
+        MyTextSlider(
+            value = uiState.longSlideTriggerDistance,
+            onValueChange = { vm.onLongSlideTriggerDistanceChange(it) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = stringResource(id = R.string.long_slide_trigger_distance),
+            sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
+            valueRange = MinLongSlideTriggerDistance.toFloat()..MaxLongSlideTriggerDistance.toFloat()
+        )
+        MyTextSlider(
+            value = uiState.longSlideTriggerDelayMs.toFloat(),
+            onValueChange = { vm.onLongSlideTriggerDelayMsChange(it) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = stringResource(id = R.string.long_slide_trigger_delay_ms),
+            sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
+            valueRange = MinLongSlideTriggerDelayMs.toFloat()..MaxLongSlideTriggerDelayMs.toFloat()
+        )
+    }
+}
+
+private fun slideSettingsSummaryText(uiState: GestureSettingsVM.UiState): String {
+    return "滑动 ${uiState.slideTriggerDistance.toInt()} · 长按 ${uiState.longPressTriggerDelayMs}ms · 长滑 ${uiState.longSlideTriggerDistance.toInt()} · 延迟 ${uiState.longSlideTriggerDelayMs}ms"
 }
 
 private fun virtualMouseSummaryText(settings: GestureSettings.VirtualMouse): String {

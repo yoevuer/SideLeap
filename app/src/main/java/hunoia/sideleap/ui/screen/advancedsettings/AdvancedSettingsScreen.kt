@@ -1,14 +1,20 @@
 package hunoia.sideleap.ui.screen.advancedsettings
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -19,6 +25,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
@@ -26,9 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
+import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
 import hunoia.sideleap.settings.api.SettingsUiDefaults.getDayNightModeText
+import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
+import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.EdgeMenuPadding
+import hunoia.sideleap.ui.theme.ItemPadding
+import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleContent
@@ -58,6 +70,7 @@ fun AdvancedSettingsScreen(
     var showAppBlacklist by remember { mutableStateOf(false) }
     var showQuickAppHidden by remember { mutableStateOf(false) }
     var showAnimationStyle by remember { mutableStateOf(false) }
+    var showMiniWindowSettings by remember { mutableStateOf(false) }
     UDFComponent(component = vm.udfComponent, onEvent = {}) { uiState ->
         var confirmClear by remember { mutableStateOf(false) }
         Column {
@@ -105,36 +118,34 @@ fun AdvancedSettingsScreen(
                         text = stringResource(id = R.string.quick_launcher_launch_app),
                         secondaryText = stringResource(id = R.string.quick_launcher_launch_app_hint)
                     )
-                    MyTextSlider(
-                        value = uiState.miniWindowHorizontalBias,
-                        onValueChange = { vm.onMiniWindowHorizontalBiasChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = "${stringResource(id = R.string.mini_window_horizontal_position)} ${(uiState.miniWindowHorizontalBias * 100).roundToInt()}%",
-                        sliderValueHint = stringResource(id = R.string.left) to stringResource(id = R.string.right),
-                    )
-                    MyTextSlider(
-                        value = uiState.miniWindowVerticalBias,
-                        onValueChange = { vm.onMiniWindowVerticalBiasChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = "${stringResource(id = R.string.mini_window_vertical_position)} ${(uiState.miniWindowVerticalBias * 100).roundToInt()}%",
-                        sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
-                    )
-                    MyTextSlider(
-                        value = uiState.miniWindowVerticalEdgeMarginFraction,
-                        onValueChange = { vm.onMiniWindowVerticalEdgeMarginChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = "${stringResource(id = R.string.mini_window_vertical_edge_margin)} ${(uiState.miniWindowVerticalEdgeMarginFraction * 100).roundToInt()}%",
-                        sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
-                        valueRange = 0f..0.2f,
-                    )
-                    MyTextSlider(
-                        value = uiState.miniWindowVerticalOffsetFraction,
-                        onValueChange = { vm.onMiniWindowVerticalOffsetChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = "${stringResource(id = R.string.mini_window_vertical_offset)} ${(uiState.miniWindowVerticalOffsetFraction * 100).roundToInt()}%",
-                        sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
-                        valueRange = -0.3f..0.3f,
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = MinItemHeightNoSecondary)
+                            .onSingleClick { showMiniWindowSettings = true }
+                            .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(id = R.string.mini_window_position),
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = miniWindowSummaryText(uiState),
+                                color = MaterialTheme.colorScheme.secondary,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 SectionCard(
                     modifier = Modifier.padding(top = SectionPadding),
@@ -265,5 +276,67 @@ fun AdvancedSettingsScreen(
                 }
             }
         }
+        if (showMiniWindowSettings) {
+            ModalBottomSheet(
+                onDismissRequest = { showMiniWindowSettings = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                BottomSheetNestedContent {
+                    MyColumn(scrollState = rememberScrollState()) {
+                        MiniWindowSettingsContent(
+                            uiState = uiState,
+                            vm = vm,
+                        )
+                    }
+                }
+            }
+        }
     }
+}
+
+@Composable
+private fun MiniWindowSettingsContent(
+    uiState: AdvancedSettingsVM.UiState,
+    vm: AdvancedSettingsVM,
+) {
+    Column {
+        MyTextSlider(
+            value = uiState.miniWindowHorizontalBias,
+            onValueChange = { vm.onMiniWindowHorizontalBiasChange(it) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = "${stringResource(id = R.string.mini_window_horizontal_position)} ${(uiState.miniWindowHorizontalBias * 100).roundToInt()}%",
+            sliderValueHint = stringResource(id = R.string.left) to stringResource(id = R.string.right),
+        )
+        MyTextSlider(
+            value = uiState.miniWindowVerticalBias,
+            onValueChange = { vm.onMiniWindowVerticalBiasChange(it) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = "${stringResource(id = R.string.mini_window_vertical_position)} ${(uiState.miniWindowVerticalBias * 100).roundToInt()}%",
+            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+        )
+        MyTextSlider(
+            value = uiState.miniWindowVerticalEdgeMarginFraction,
+            onValueChange = { vm.onMiniWindowVerticalEdgeMarginChange(it) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = "${stringResource(id = R.string.mini_window_vertical_edge_margin)} ${(uiState.miniWindowVerticalEdgeMarginFraction * 100).roundToInt()}%",
+            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+            valueRange = 0f..0.2f,
+        )
+        MyTextSlider(
+            value = uiState.miniWindowVerticalOffsetFraction,
+            onValueChange = { vm.onMiniWindowVerticalOffsetChange(it) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = "${stringResource(id = R.string.mini_window_vertical_offset)} ${(uiState.miniWindowVerticalOffsetFraction * 100).roundToInt()}%",
+            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+            valueRange = -0.3f..0.3f,
+        )
+    }
+}
+
+private fun miniWindowSummaryText(uiState: AdvancedSettingsVM.UiState): String {
+    val h = (uiState.miniWindowHorizontalBias * 100).roundToInt()
+    val v = (uiState.miniWindowVerticalBias * 100).roundToInt()
+    val m = (uiState.miniWindowVerticalEdgeMarginFraction * 100).roundToInt()
+    val o = (uiState.miniWindowVerticalOffsetFraction * 100).roundToInt()
+    return "水平 $h% · 垂直 $v% · 边距 $m% · 偏移 $o%"
 }
