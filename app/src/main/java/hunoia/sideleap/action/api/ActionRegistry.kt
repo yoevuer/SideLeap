@@ -11,6 +11,7 @@ import hunoia.sideleap.action.handlers.RandomNameActionHandler
 import hunoia.sideleap.action.handlers.ShortcutActionHandler
 import hunoia.sideleap.action.handlers.SystemActionHandler
 import hunoia.sideleap.action.handlers.VirtualMouseActionHandler
+import hunoia.sideleap.action.handlers.VolumeScrubActionHandler
 import hunoia.sideleap.action.Action
 
 object ActionRegistry {
@@ -25,6 +26,7 @@ object ActionRegistry {
         ShortcutActionHandler,
         FreezeAppsActionHandler,
         VirtualMouseActionHandler,
+        VolumeScrubActionHandler,
     )
 
     private val handlerMap: Map<String, ActionHandler> = handlers

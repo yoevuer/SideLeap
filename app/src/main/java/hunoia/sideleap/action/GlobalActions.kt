@@ -74,6 +74,8 @@ object GlobalActions {
     const val CLICK_CURRENT_POSITION = "55"
     /** 虚拟鼠标 */
     const val VIRTUAL_MOUSE = "56"
+    /** 滑动调节音量 */
+    const val VOLUME_SCRUB = "57"
 
     /** 启动应用 */
     const val EXTRA_LAUNCH_APP = "101"

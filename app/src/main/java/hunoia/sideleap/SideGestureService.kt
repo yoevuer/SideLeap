@@ -65,6 +65,7 @@ import hunoia.sideleap.overlay.api.RuntimePanelOverlay
 import hunoia.sideleap.overlay.api.RuntimePanelOverlayHost
 import hunoia.sideleap.overlay.api.VirtualMouseOverlay
 import hunoia.sideleap.overlay.api.VirtualMouseOverlayHost
+import hunoia.sideleap.overlay.api.VolumeScrubOverlay
 import hunoia.sideleap.freeze.FrozenPackageEnabler
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.launcher.model.AppInfo
@@ -117,6 +118,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     override val coroutineScope = MainScope()
     private val windowController = SideGestureWindowController(this)
     private var virtualMouseOverlay: VirtualMouseOverlay? = null
+    private var volumeScrubOverlay: VolumeScrubOverlay? = null
     private val buttonRefreshCoordinator = SideGestureButtonRefreshCoordinator(
         host = this,
         scopeProvider = { coroutineScope },
@@ -173,6 +175,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     private var isNowInLockScreenPage = false
     private var isMouseMode = false
+    private var isVolumeScrubMode = false
     private var virtualMouseLastPosition = Offset.Unspecified
     private val hiddenGestureButtons = mutableMapOf<String, Long>()
 
@@ -210,6 +213,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         frozenPackageEnabler.release()
         coroutineScope.cancel()
         virtualMouseOverlay?.closeImmediately()
+        volumeScrubOverlay?.dismiss()
         proxy.onRelease()
         screenLockObserver.unregister()
         wallpaperChangeObserver.unregister()
@@ -349,6 +353,27 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         if (!isMouseMode && virtualMouseOverlay == null) return
         isMouseMode = false
         virtualMouseOverlay?.closeImmediately()
+        updateGestureButtons()
+    }
+
+    fun showVolumeScrubOverlay(): Boolean {
+        if (!beginVolumeScrubMode()) return false
+        val overlay = VolumeScrubOverlay(this).also { volumeScrubOverlay = it }
+        overlay.show(onDismiss = { endVolumeScrubMode() })
+        return true
+    }
+
+    fun beginVolumeScrubMode(): Boolean {
+        if (isVolumeScrubMode) return false
+        isVolumeScrubMode = true
+        updateGestureButtons()
+        return true
+    }
+
+    fun endVolumeScrubMode() {
+        if (!isVolumeScrubMode && volumeScrubOverlay == null) return
+        isVolumeScrubMode = false
+        volumeScrubOverlay?.dismiss()
         updateGestureButtons()
     }
 

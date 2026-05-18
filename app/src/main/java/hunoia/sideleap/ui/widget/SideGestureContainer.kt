@@ -54,6 +54,8 @@ import hunoia.sideleap.gesture.styleBy
 import hunoia.sideleap.system.api.tryVibrateForLongSlide
 import hunoia.sideleap.system.api.tryVibrateForSlide
 import hunoia.sideleap.ui.widget.DragGestureHandler
+import hunoia.sideleap.system.api.volumeDown
+import hunoia.sideleap.system.api.volumeUp
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
 import com.blankj.utilcode.util.ConvertUtils
 import androidx.compose.ui.graphics.Color
@@ -105,6 +107,10 @@ fun SideGestureContainer(
     var virtualMouseClickPulseKey by remember { mutableStateOf(0) }
     var virtualMouseLongPressJob by remember { mutableStateOf<Job?>(null) }
     var virtualMouseLongPressTriggered by remember { mutableStateOf(false) }
+
+    var isVolumeScrubMode by remember { mutableStateOf(false) }
+    var volumeScrubAccumulator by remember { mutableStateOf(0f) }
+    val volumeStepThreshold = remember { context.resources.displayMetrics.density * 18f }
 
     fun scheduleVirtualMouseLongPress() {
         virtualMouseLongPressJob?.cancel()
@@ -189,6 +195,18 @@ fun SideGestureContainer(
                 cursorPosition = moveVirtualMouseCursor(cursorPosition, dragAmount, gestureSettings.virtualMouse)
                 return@onDrag
             }
+            if (isVolumeScrubMode) {
+                volumeScrubAccumulator += dragAmount.y
+                while (volumeScrubAccumulator >= volumeStepThreshold) {
+                    context.volumeDown()
+                    volumeScrubAccumulator -= volumeStepThreshold
+                }
+                while (volumeScrubAccumulator <= -volumeStepThreshold) {
+                    context.volumeUp()
+                    volumeScrubAccumulator += volumeStepThreshold
+                }
+                return@onDrag
+            }
             if (actionPanelState.visible) {
                 actionPanelState.onDrag(dragAmount)
                 return@onDrag
@@ -211,7 +229,11 @@ fun SideGestureContainer(
                             sideGestureState.cancel()
                     } else if (actions.isNotEmpty()) {
                         val action = actions.first()
-                        if (action.value == GlobalActions.VIRTUAL_MOUSE) {
+                        if (action.value == GlobalActions.VOLUME_SCRUB) {
+                            isVolumeScrubMode = true
+                            volumeScrubAccumulator = 0f
+                            sideGestureState.cancel()
+                        } else if (action.value == GlobalActions.VIRTUAL_MOUSE) {
                             startVirtualMouseMode()
                             sideGestureState.cancel()
                         } else if (action.value == GlobalActions.MOVE_SCREEN) {
@@ -237,6 +259,11 @@ fun SideGestureContainer(
                 finishVirtualMouseMode(click = true)
                 return@onDragEnd
             }
+            if (isVolumeScrubMode) {
+                isVolumeScrubMode = false
+                volumeScrubAccumulator = 0f
+                return@onDragEnd
+            }
             if (actionPanelState.visible) {
                 val touchPosition = actionPanelState.finger
                 val action = actionPanelState.done()
@@ -259,6 +286,11 @@ fun SideGestureContainer(
         onDragCancel = onDragCancel@{
             if (isVirtualMouseMode) {
                 finishVirtualMouseMode(click = false)
+                return@onDragCancel
+            }
+            if (isVolumeScrubMode) {
+                isVolumeScrubMode = false
+                volumeScrubAccumulator = 0f
                 return@onDragCancel
             }
             if (actionPanelState.visible) {
