@@ -7,7 +7,9 @@ import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Assistant
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BrightnessHigh
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Gesture
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Splitscreen
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.VerticalAlignBottom
 import androidx.compose.material.icons.filled.VerticalAlignTop
 import androidx.compose.material.icons.filled.ViewCarousel
@@ -104,13 +107,13 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.KEEP_SCREEN_ON to Icons.Default.BrightnessHigh,
     GlobalActions.BACK_TO_TOP to Icons.Default.VerticalAlignTop,
     GlobalActions.GOTO_BOTTOM to Icons.Default.VerticalAlignBottom,
-    GlobalActions.CLICK_CURRENT_POSITION to Icons.Default.Gesture,
+    GlobalActions.CLICK_CURRENT_POSITION to Icons.Default.TouchApp,
     GlobalActions.VIRTUAL_MOUSE to Icons.Default.Mouse,
     GlobalActions.OPEN_APP_OR_URL to Icons.Default.OpenInNew,
     GlobalActions.QUICK_APP_LAUNCHER to Icons.Default.Apps,
-    GlobalActions.RANDOM_NAME to Icons.Default.Assistant,
+    GlobalActions.RANDOM_NAME to Icons.Default.AutoAwesome,
     GlobalActions.ONE_KEY_FREEZE_APPS to Icons.Default.AcUnit,
-    GlobalActions.GENERATE_PASSWORD_COPY to Icons.Default.Password,
+    GlobalActions.GENERATE_PASSWORD_COPY to Icons.Default.ContentCopy,
     GlobalActions.OPEN_PASSWORD_GENERATOR to Icons.Default.Password
 )
 
