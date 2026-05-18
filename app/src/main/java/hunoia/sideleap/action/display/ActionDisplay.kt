@@ -2,7 +2,7 @@ package hunoia.sideleap.action.display
 
 import android.content.Context
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddToHomeScreen
+import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.ArrowBack
@@ -10,8 +10,9 @@ import androidx.compose.material.icons.filled.ArrowCircleDown
 import androidx.compose.material.icons.filled.Assistant
 import androidx.compose.material.icons.filled.BackHand
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.BrandingWatermark
+import androidx.compose.material.icons.filled.BrightnessHigh
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Forward
 import androidx.compose.material.icons.filled.Gesture
@@ -19,7 +20,10 @@ import androidx.compose.material.icons.filled.Handyman
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.InvertColors
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Mouse
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.OpenWith
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.RotateLeft
@@ -28,9 +32,9 @@ import androidx.compose.material.icons.filled.ScreenLockPortrait
 import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Splitscreen
 import androidx.compose.material.icons.filled.SportsBaseball
 import androidx.compose.material.icons.filled.VerticalAlignBottom
@@ -39,7 +43,6 @@ import androidx.compose.material.icons.filled.ViewCarousel
 import androidx.compose.material.icons.filled.VolumeDown
 import androidx.compose.material.icons.filled.VolumeMute
 import androidx.compose.material.icons.filled.VolumeUp
-import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -121,15 +124,15 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.PLAY_PAUSE_SONG to Icons.Default.PlayPause,
     GlobalActions.LAST_SONG to Icons.Default.SkipPrevious,
     GlobalActions.NEXT_SONG to Icons.Default.SkipNext,
-    GlobalActions.PREVIOUS_APP to Icons.Default.Android,
+    GlobalActions.PREVIOUS_APP to Icons.Default.SwapHoriz,
     GlobalActions.WEB_FORWARD to Icons.Default.Forward,
     GlobalActions.OPEN_NOTIFICATION_PANEL to Icons.Default.Notifications,
-    GlobalActions.OPEN_QUICK_PANEL to Icons.Default.Settings,
+    GlobalActions.OPEN_QUICK_PANEL to Icons.Default.Dashboard,
     GlobalActions.LOCK_SCREEN to Icons.Default.ScreenLockPortrait,
     GlobalActions.KILL_APP to Icons.Default.Close,
     GlobalActions.FLASHLIGHT to Icons.Default.FlashlightOn,
     GlobalActions.SPLIT_SCREEN to Icons.Default.Splitscreen,
-    GlobalActions.POPUP_SCREEN to Icons.Default.BrandingWatermark,
+    GlobalActions.POPUP_SCREEN to Icons.Default.Window,
     GlobalActions.ASSIST_APP to Icons.Default.Assistant,
     GlobalActions.SEARCH to Icons.Default.Search,
     GlobalActions.SCREENSHOT to Icons.Default.Screenshot,
@@ -149,16 +152,16 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.QUICK_TOOLS to Icons.Default.Handyman,
     GlobalActions.FLOAT_BALL to Icons.Default.SportsBaseball,
     GlobalActions.HIDE_GESTURE_BUTTON to Icons.Default.Gesture,
-    GlobalActions.MOVE_SCREEN to Icons.Default.AddToHomeScreen,
-    GlobalActions.KEEP_SCREEN_ON to Icons.Default.WbSunny,
+    GlobalActions.MOVE_SCREEN to Icons.Default.OpenWith,
+    GlobalActions.KEEP_SCREEN_ON to Icons.Default.BrightnessHigh,
     GlobalActions.BACK_TO_TOP to Icons.Default.VerticalAlignTop,
     GlobalActions.GOTO_BOTTOM to Icons.Default.VerticalAlignBottom,
     GlobalActions.CLICK_CURRENT_POSITION to Icons.Default.Gesture,
-    GlobalActions.VIRTUAL_MOUSE to Icons.Default.Gesture,
-    GlobalActions.OPEN_APP_OR_URL to Icons.Default.Forward,
+    GlobalActions.VIRTUAL_MOUSE to Icons.Default.Mouse,
+    GlobalActions.OPEN_APP_OR_URL to Icons.Default.OpenInNew,
     GlobalActions.QUICK_APP_LAUNCHER to Icons.Default.Apps,
     GlobalActions.RANDOM_NAME to Icons.Default.Assistant,
-    GlobalActions.ONE_KEY_FREEZE_APPS to Icons.Default.FlashlightOn,
+    GlobalActions.ONE_KEY_FREEZE_APPS to Icons.Default.AcUnit,
     GlobalActions.GENERATE_PASSWORD_COPY to Icons.Default.Password,
     GlobalActions.OPEN_PASSWORD_GENERATOR to Icons.Default.Password
 )

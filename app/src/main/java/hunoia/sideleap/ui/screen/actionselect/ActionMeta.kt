@@ -1,34 +1,5 @@
 package hunoia.sideleap.ui.screen.actionselect
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AcUnit
-import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Assistant
-import androidx.compose.material.icons.filled.BrightnessHigh
-import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.FlashlightOn
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.OpenInNew
-import androidx.compose.material.icons.filled.OpenWith
-import androidx.compose.material.icons.filled.Mouse
-import androidx.compose.material.icons.filled.PowerSettingsNew
-import androidx.compose.material.icons.filled.ScreenLockPortrait
-import androidx.compose.material.icons.filled.Screenshot
-import androidx.compose.material.icons.filled.Password
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material.icons.filled.VerticalAlignBottom
-import androidx.compose.material.icons.filled.VerticalAlignTop
-import androidx.compose.material.icons.filled.ViewCarousel
-import androidx.compose.material.icons.filled.VolumeDown
-import androidx.compose.material.icons.filled.VolumeMute
-import androidx.compose.material.icons.filled.VolumeUp
-import androidx.compose.material.icons.filled.Window
-import hunoia.sideleap.action.display.PlayPause
 import hunoia.sideleap.R
 import hunoia.sideleap.action.definition.ActionCategory
 import hunoia.sideleap.action.definition.ActionConfigKind
@@ -64,39 +35,6 @@ val actionTitleResMap: Map<String, Int> = mapOf(
     "one_key_freeze" to R.string.action_one_key_freeze_apps,
     "generate_password_copy" to R.string.action_generate_password_copy,
     "open_password_generator" to R.string.action_open_password_generator,
-)
-
-val actionIconMap: Map<String, Any> = mapOf(
-    "none" to Icons.Default.Android,
-    "back" to Icons.Default.ArrowBack,
-    "home" to Icons.Default.Home,
-    "recent" to Icons.Default.ViewCarousel,
-    "volume_up" to Icons.Default.VolumeUp,
-    "volume_down" to Icons.Default.VolumeDown,
-    "mute" to Icons.Default.VolumeMute,
-    "play_pause" to Icons.Default.PlayPause,
-    "last_song" to Icons.Default.SkipPrevious,
-    "next_song" to Icons.Default.SkipNext,
-    "previous_app" to Icons.Default.SwapHoriz,
-    "open_notification" to Icons.Default.Notifications,
-    "open_quick_settings" to Icons.Default.Dashboard,
-    "lock_screen" to Icons.Default.ScreenLockPortrait,
-    "flashlight" to Icons.Default.FlashlightOn,
-    "assist_app" to Icons.Default.Assistant,
-    "screenshot" to Icons.Default.Screenshot,
-    "power_button" to Icons.Default.PowerSettingsNew,
-    "keep_screen_on" to Icons.Default.BrightnessHigh,
-    "popup_screen" to Icons.Default.Window,
-    "move_screen" to Icons.Default.OpenWith,
-    "back_to_top" to Icons.Default.VerticalAlignTop,
-    "goto_bottom" to Icons.Default.VerticalAlignBottom,
-    "virtual_mouse" to Icons.Default.Mouse,
-    "open_app_or_url" to Icons.Default.OpenInNew,
-    "quick_app_launcher" to Icons.Default.Apps,
-    "random_name" to Icons.Default.Assistant,
-    "one_key_freeze" to Icons.Default.AcUnit,
-    "generate_password_copy" to Icons.Default.Password,
-    "open_password_generator" to Icons.Default.Password,
 )
 
 val actionDescResMap: Map<String, Int> = mapOf(
