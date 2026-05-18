@@ -285,6 +285,7 @@
     <string name="shell_command_label">Shell 命令</string>
     <string name="shell_command_placeholder">pm list packages</string>
     <string name="shell_command_hint">填写设备本机 shell 命令，不要包含 adb 或 adb shell。</string>
+    <string name="shell_command_show_toast">动作执行后显示 Toast</string>
     <string name="shell_command_executed">执行完成，退出码 %1$d</string>
     <string name="shell_command_failed">执行失败：%1$s</string>
     <string name="shell_command_no_output">（无输出）</string>

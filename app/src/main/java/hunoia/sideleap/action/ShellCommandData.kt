@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Keep
 data class ShellCommandData(
-    val command: String = ""
+    val command: String = "",
+    val showToast: Boolean = true,
 )

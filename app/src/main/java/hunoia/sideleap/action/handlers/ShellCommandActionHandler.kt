@@ -16,9 +16,10 @@ object ShellCommandActionHandler : ActionHandler {
     override val supportedActions = setOf(GlobalActions.EXECUTE_SHELL_COMMAND)
 
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
-        val command = runCatching {
-            JsonHelper.decodeFromString<ShellCommandData>(action.data).command.trim()
-        }.getOrDefault("")
+        val data = runCatching {
+            JsonHelper.decodeFromString<ShellCommandData>(action.data)
+        }.getOrDefault(ShellCommandData())
+        val command = data.command.trim()
         if (command.isBlank()) {
             context.showToast(context.appContext.getString(R.string.action_setting_hint_shell_command))
             return ActionExecutionResult.Ignored
@@ -27,13 +28,13 @@ object ShellCommandActionHandler : ActionHandler {
         val result = withContext(Dispatchers.IO) {
             ShizukuBinderExecutor.runShellCommand(context.appContext, command)
         }
-        if (result.success) {
-            val summary = result.output.lineSequence().firstOrNull { it.isNotBlank() }?.take(120).orEmpty()
-            val msg = context.appContext.getString(R.string.shell_command_executed, result.exitCode)
-            context.showToast(if (summary.isBlank()) msg else "$msg: $summary")
-        } else {
-            val error = result.error ?: result.output.take(120).ifBlank { "unknown error" }
-            context.showToast(context.appContext.getString(R.string.shell_command_failed, error))
+        if (data.showToast) {
+            val message = if (result.success) {
+                result.output.ifBlank { context.appContext.getString(R.string.shell_command_no_output) }
+            } else {
+                result.error ?: result.output.ifBlank { "unknown error" }
+            }.take(500)
+            context.showToast(message)
         }
         return ActionExecutionResult.Success
     }

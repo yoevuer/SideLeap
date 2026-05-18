@@ -29,6 +29,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -380,6 +381,7 @@ fun ShellCommandSettingsContent(
         runCatching { JsonHelper.decodeFromString<ShellCommandData>(action.data) }.getOrNull()
     }
     var command by remember(action.data) { mutableStateOf(existingData?.command.orEmpty()) }
+    var showToast by remember(action.data) { mutableStateOf(existingData?.showToast ?: true) }
     var testing by remember { mutableStateOf(false) }
     var testOutput by remember { mutableStateOf("") }
 
@@ -403,6 +405,21 @@ fun ShellCommandSettingsContent(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.shell_command_show_toast),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Switch(
+                checked = showToast,
+                onCheckedChange = { showToast = it }
+            )
+        }
         if (testOutput.isNotBlank()) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -455,12 +472,9 @@ fun ShellCommandSettingsContent(
                             )
                         }
                         if (result.success) {
-                            val summary = result.output.lineSequence().firstOrNull { it.isNotBlank() }?.take(120).orEmpty()
-                            val msg = context.getString(R.string.shell_command_executed, result.exitCode)
-                            showToast(if (summary.isBlank()) msg else "$msg: $summary")
+                            showToast(result.output.ifBlank { context.getString(R.string.shell_command_no_output) }.take(500))
                         } else {
-                            val error = result.error ?: result.output.take(120).ifBlank { "unknown error" }
-                            showToast(context.getString(R.string.shell_command_failed, error))
+                            showToast((result.error ?: result.output.ifBlank { "unknown error" }).take(500))
                         }
                     }
                 }
@@ -470,7 +484,7 @@ fun ShellCommandSettingsContent(
             TextButton(
                 enabled = command.isNotBlank(),
                 onClick = {
-                    onConfirm(JsonHelper.encodeToString(ShellCommandData(command.trim())))
+                    onConfirm(JsonHelper.encodeToString(ShellCommandData(command.trim(), showToast)))
                 }
             ) {
                 Icon(imageVector = Icons.Default.Check, contentDescription = null)
