@@ -1,7 +1,9 @@
 package hunoia.sideleap.system.api
 
+import android.content.Context
 import android.content.pm.PackageManager
 import rikka.shizuku.Shizuku
+import rikka.shizuku.ShizukuProvider
 
 object ShizukuRuntime {
 
@@ -63,5 +65,11 @@ object ShizukuRuntime {
         } finally {
             Shizuku.removeBinderReceivedListener(listener)
         }
+    }
+
+    fun awaitBinderReady(context: Context, timeoutMs: Long = 5000): Boolean {
+        if (Shizuku.pingBinder()) return true
+        runCatching { ShizukuProvider.requestBinderForNonProviderProcess(context.applicationContext) }
+        return awaitBinderReady(timeoutMs)
     }
 }

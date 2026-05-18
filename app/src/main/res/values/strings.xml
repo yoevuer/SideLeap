@@ -231,6 +231,7 @@
     <string name="action_goto_bottom">快速到底部(7.0+ 模拟滑动)</string>
     <string name="action_click_current_position">模拟点击当前位置</string>
     <string name="action_virtual_mouse">虚拟鼠标</string>
+    <string name="action_shell_command">执行 Shell 命令</string>
     <string name="action_open_app_or_url">打开应用活动/链接</string>
     <string name="action_quick_app_panel">快速启动面板</string>
     <string name="action_split_screen">应用分屏(7.0+)</string>
@@ -246,6 +247,7 @@
     <string name="action_desc_virtual_mouse">滑动控制光标，松手点击</string>
     <string name="action_volume_scrub">滑动调节音量</string>
     <string name="action_desc_volume_scrub">触发后继续上下滑动可调节音量</string>
+    <string name="action_desc_shell_command">通过 Shizuku 执行设备本机 shell 命令</string>
     <string name="action_permission_hint_flashlight">需要设备相机/手电筒能力</string>
     <string name="action_permission_hint_screenshot">需要系统截图能力或无障碍支持</string>
     <string name="action_permission_hint_power_button">需要无障碍服务支持</string>
@@ -253,6 +255,7 @@
     <string name="action_setting_hint_move_screen">配置移动方向或位置</string>
     <string name="action_setting_hint_goto_bottom">配置滚动行为</string>
     <string name="action_setting_hint_open_app_or_url">配置目标应用、Activity 或链接</string>
+    <string name="action_setting_hint_shell_command">输入 adb shell 后面的命令，例如 pm list packages</string>
     <string name="select_activity">选择活动</string>
     <string name="add_link">添加链接</string>
     <string name="search_app_hint">搜索应用</string>
@@ -277,6 +280,13 @@
     <string name="open_app_or_url_card_title">打开 Activity / 链接</string>
     <string name="open_app_or_url_card_desc">选择 Activity 或输入链接</string>
     <string name="search_clear_cd">清除</string>
+    <string name="test">测试</string>
+    <string name="testing">测试中...</string>
+    <string name="shell_command_label">Shell 命令</string>
+    <string name="shell_command_placeholder">pm list packages</string>
+    <string name="shell_command_hint">填写设备本机 shell 命令，不要包含 adb 或 adb shell。</string>
+    <string name="shell_command_executed">执行完成，退出码 %1$d</string>
+    <string name="shell_command_failed">执行失败：%1$s</string>
     <string name="launch_mode">启动模式</string>
     <string name="url_link">链接 / Deep Link</string>
     <string name="invalid_url">链接格式不正确</string>

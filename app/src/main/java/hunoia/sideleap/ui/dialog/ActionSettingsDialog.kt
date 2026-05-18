@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,7 +72,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.ui.platform.LocalContext
 import hunoia.sideleap.launcher.model.OpenAppOrUrlData
 import hunoia.sideleap.core.serialization.JsonHelper
+import hunoia.sideleap.action.ShellCommandData
+import hunoia.sideleap.system.api.ShizukuBinderExecutor
 import hunoia.sideleap.system.api.showToast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * @author DS-Z
@@ -358,6 +364,80 @@ fun OpenAppOrUrlSettingsContent(
                     Icon(imageVector = Icons.Default.Check, contentDescription = null)
                     Text(text = stringResource(id = R.string.confirm))
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ShellCommandSettingsContent(
+    action: hunoia.sideleap.action.Action,
+    onConfirm: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val existingData = remember(action.data) {
+        runCatching { JsonHelper.decodeFromString<ShellCommandData>(action.data) }.getOrNull()
+    }
+    var command by remember(action.data) { mutableStateOf(existingData?.command.orEmpty()) }
+    var testing by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ItemPadding),
+        verticalArrangement = Arrangement.spacedBy(ItemPadding)
+    ) {
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = command,
+            onValueChange = { command = it.take(2000) },
+            label = { Text(stringResource(R.string.shell_command_label)) },
+            placeholder = { Text(stringResource(R.string.shell_command_placeholder)) },
+            minLines = 3,
+            maxLines = 6,
+        )
+        Text(
+            text = stringResource(R.string.shell_command_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(
+                enabled = command.isNotBlank() && !testing,
+                onClick = {
+                    val testCommand = command.trim()
+                    testing = true
+                    scope.launch {
+                        val result = withContext(Dispatchers.IO) {
+                            ShizukuBinderExecutor.runShellCommand(context.applicationContext, testCommand)
+                        }
+                        testing = false
+                        if (result.success) {
+                            val summary = result.output.lineSequence().firstOrNull { it.isNotBlank() }?.take(120).orEmpty()
+                            val msg = context.getString(R.string.shell_command_executed, result.exitCode)
+                            showToast(if (summary.isBlank()) msg else "$msg: $summary")
+                        } else {
+                            val error = result.error ?: result.output.take(120).ifBlank { "unknown error" }
+                            showToast(context.getString(R.string.shell_command_failed, error))
+                        }
+                    }
+                }
+            ) {
+                Text(stringResource(if (testing) R.string.testing else R.string.test))
+            }
+            TextButton(
+                enabled = command.isNotBlank(),
+                onClick = {
+                    onConfirm(JsonHelper.encodeToString(ShellCommandData(command.trim())))
+                }
+            ) {
+                Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                Text(text = stringResource(id = R.string.confirm))
             }
         }
     }

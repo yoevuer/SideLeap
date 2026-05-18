@@ -96,7 +96,9 @@ class ActionSelectVM(
             }
         } else if (obj is Action) {
             selectAction(obj, selected)
-            if (uiState.selectSingle && (obj.value != GlobalActions.OPEN_APP_OR_URL || obj.data.isNotEmpty())) {
+            val needsData = obj.value == GlobalActions.OPEN_APP_OR_URL ||
+                obj.value == GlobalActions.EXECUTE_SHELL_COMMAND
+            if (uiState.selectSingle && (!needsData || obj.data.isNotEmpty())) {
                 saveSettings()
             }
         }

@@ -318,6 +318,9 @@ internal fun ActionPage(
                             },
                             showSettings = ActionCatalog.hasConfig(item.value),
                             onSettingsClick = {
+                                if (!selectedRecord.isSelected(item)) {
+                                    onSelect(item, true)
+                                }
                                 onSettingsClick(item)
                             }
                         )

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Splitscreen
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.VerticalAlignBottom
 import androidx.compose.material.icons.filled.VerticalAlignTop
@@ -80,7 +81,8 @@ private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.ONE_KEY_FREEZE_APPS to R.string.action_one_key_freeze_apps,
     GlobalActions.GENERATE_PASSWORD_COPY to R.string.action_generate_password_copy,
     GlobalActions.OPEN_PASSWORD_GENERATOR to R.string.action_open_password_generator,
-    GlobalActions.VOLUME_SCRUB to R.string.action_volume_scrub
+    GlobalActions.VOLUME_SCRUB to R.string.action_volume_scrub,
+    GlobalActions.EXECUTE_SHELL_COMMAND to R.string.action_shell_command
 )
 
 private val actionIconMap: Map<String, Any> = mapOf(
@@ -116,7 +118,8 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.ONE_KEY_FREEZE_APPS to Icons.Default.AcUnit,
     GlobalActions.GENERATE_PASSWORD_COPY to Icons.Default.ContentCopy,
     GlobalActions.OPEN_PASSWORD_GENERATOR to Icons.Default.Password,
-    GlobalActions.VOLUME_SCRUB to Icons.Default.VolumeUp
+    GlobalActions.VOLUME_SCRUB to Icons.Default.VolumeUp,
+    GlobalActions.EXECUTE_SHELL_COMMAND to Icons.Default.Terminal
 )
 
 fun Context.actionText(action: Action, emptyIfNone: Boolean = true): String = when (action.value) {

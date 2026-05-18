@@ -244,6 +244,31 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
         }
     }
 
+    override fun executeShellCommand(command: String): String {
+        val startTime = System.currentTimeMillis()
+        if (command.isBlank()) {
+            return "elapsed=0ms\nerror: command is empty"
+        }
+        if (command.length > 2000) {
+            return "elapsed=0ms\nerror: command is too long"
+        }
+        return try {
+            val process = ProcessBuilder("sh", "-c", command)
+                .redirectErrorStream(true)
+                .start()
+            val output = process.inputStream.bufferedReader().readText()
+            val exitCode = process.waitFor()
+            val elapsed = System.currentTimeMillis() - startTime
+            if (BuildConfig.DEBUG) {
+                android.util.Log.d("ShellExec", "exitCode=$exitCode elapsed=${elapsed}ms")
+            }
+            "elapsed=${elapsed}ms\nexitCode=$exitCode\nstdout=$output"
+        } catch (e: Exception) {
+            val elapsed = System.currentTimeMillis() - startTime
+            "elapsed=${elapsed}ms\nerror: ${e::class.simpleName} ${e.message}"
+        }
+    }
+
     override fun destroy() {
         Thread {
             Thread.sleep(100)

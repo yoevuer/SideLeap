@@ -6,5 +6,6 @@ enum class ActionConfigKind {
     MOVE_SCREEN,
     GOTO_BOTTOM,
     OPEN_APP_OR_URL,
+    SHELL_COMMAND,
     HIDE_GESTURE_BUTTON
 }

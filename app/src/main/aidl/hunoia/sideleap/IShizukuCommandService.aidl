@@ -7,5 +7,6 @@ interface IShizukuCommandService {
     String disablePackage(String packageName);
     String enablePackageApi(String packageName);
     String disablePackageApi(String packageName);
+    String executeShellCommand(String command);
     void destroy();
 }

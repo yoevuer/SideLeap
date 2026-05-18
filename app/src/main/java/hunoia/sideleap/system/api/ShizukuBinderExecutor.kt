@@ -28,8 +28,8 @@ object ShizukuBinderExecutor {
 
     fun createArgs(context: Context, suffix: String) = UserServiceArgs(
         ComponentName(context.packageName, ShizukuCommandService::class.java.name)
-    ).processNameSuffix(suffix).tag("sideleap-frozen-app-action")
-        .version(1).debuggable(true).daemon(false)
+    ).processNameSuffix(suffix).tag("sideleap-$suffix")
+        .version(2).debuggable(true).daemon(false)
 
     fun runWithBinder(
         context: Context, packageName: String, suffix: String,
@@ -81,6 +81,63 @@ object ShizukuBinderExecutor {
             packageName = packageName,
             exitCode = exitCode
         )
+    }
+
+    fun runShellCommand(context: Context, command: String): ShellCommandResult {
+        if (command.isBlank()) {
+            return ShellCommandResult(false, -1, "", 0, error = "command is empty")
+        }
+        if (!ShizukuRuntime.awaitBinderReady(context)) {
+            return ShellCommandResult(false, -1, "", 0, error = "shizuku binder not ready")
+        }
+        if (ShizukuRuntime.isPreV11OrUnsupported()) {
+            return ShellCommandResult(false, -1, "", 0, error = "shizuku unsupported")
+        }
+        if (!ShizukuRuntime.checkPermission()) {
+            return ShellCommandResult(false, -1, "", 0, error = "permission denied")
+        }
+
+        val args = createArgs(context, "shell_command")
+        val latch = java.util.concurrent.CountDownLatch(1)
+        val timedOut = java.util.concurrent.atomic.AtomicBoolean(false)
+        var raw = ""
+
+        val conn = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+                try {
+                    if (binder == null) {
+                        raw = "error: null binder"
+                        return
+                    }
+                    val service = IShizukuCommandService.Stub.asInterface(binder)
+                    raw = service.executeShellCommand(command)
+                } catch (e: Exception) {
+                    raw = "error: ${e::class.simpleName} ${e.message}"
+                } finally {
+                    latch.countDown()
+                }
+            }
+            override fun onServiceDisconnected(name: ComponentName?) {}
+            override fun onBindingDied(name: ComponentName?) { latch.countDown() }
+            override fun onNullBinding(name: ComponentName?) { latch.countDown() }
+        }
+
+        try {
+            Shizuku.bindUserService(args, conn)
+            if (!latch.await(30, java.util.concurrent.TimeUnit.SECONDS)) timedOut.set(true)
+        } catch (e: Exception) {
+            raw = "error: ${e::class.simpleName} ${e.message}"
+        } finally {
+            try { Shizuku.unbindUserService(args, conn, true) } catch (_: Exception) {}
+        }
+
+        if (timedOut.get()) {
+            return ShellCommandResult(false, -1, "", 0, error = "timeout")
+        }
+        if (raw.isBlank()) {
+            return ShellCommandResult(false, -1, "", 0, error = "no response from shizuku service")
+        }
+        return parseShellCommandResult(raw)
     }
 
     fun parseLauncherResult(result: String, packageName: String): EnablePackageResult {

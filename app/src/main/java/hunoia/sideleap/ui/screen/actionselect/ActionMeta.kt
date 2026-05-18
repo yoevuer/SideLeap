@@ -30,6 +30,7 @@ val actionTitleResMap: Map<String, Int> = mapOf(
     "goto_bottom" to R.string.action_goto_bottom,
     "virtual_mouse" to R.string.action_virtual_mouse,
     "volume_scrub" to R.string.action_volume_scrub,
+    "shell_command" to R.string.action_shell_command,
     "open_app_or_url" to R.string.action_open_app_or_url,
     "quick_app_launcher" to R.string.action_quick_app_panel,
     "random_name" to R.string.action_random_name,
@@ -50,6 +51,7 @@ val actionDescResMap: Map<String, Int> = mapOf(
     "quick_app_launcher" to R.string.action_desc_quick_launcher,
     "virtual_mouse" to R.string.action_desc_virtual_mouse,
     "volume_scrub" to R.string.action_desc_volume_scrub,
+    "shell_command" to R.string.action_desc_shell_command,
 )
 
 val actionSettingHintResMap: Map<ActionConfigKind, Int> = mapOf(
@@ -57,6 +59,7 @@ val actionSettingHintResMap: Map<ActionConfigKind, Int> = mapOf(
     ActionConfigKind.MOVE_SCREEN to R.string.action_setting_hint_move_screen,
     ActionConfigKind.GOTO_BOTTOM to R.string.action_setting_hint_goto_bottom,
     ActionConfigKind.OPEN_APP_OR_URL to R.string.action_setting_hint_open_app_or_url,
+    ActionConfigKind.SHELL_COMMAND to R.string.action_setting_hint_shell_command,
 )
 
 val actionPermissionHintResMap: Map<String, Int> = mapOf(

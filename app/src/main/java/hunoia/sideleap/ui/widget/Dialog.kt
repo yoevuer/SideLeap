@@ -66,6 +66,7 @@ import hunoia.sideleap.ui.dialog.HideGestureButtonSettingsContent
 import hunoia.sideleap.ui.dialog.MoveScreenSettingsContent
 import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
 import hunoia.sideleap.ui.dialog.PreviousAppSettingsContent
+import hunoia.sideleap.ui.dialog.ShellCommandSettingsContent
 
 /**
  * @author aaronzzxup@gmail.com
@@ -336,6 +337,18 @@ fun ActionSettingsDialog(
 
                 GlobalActions.OPEN_APP_OR_URL -> {
                     OpenAppOrUrlSettingsContent(
+                        action = action,
+                        onConfirm = {
+                            onActionDataChanged(it)
+                            if (autoDismiss) {
+                                onDismissRequest()
+                            }
+                        }
+                    )
+                }
+
+                GlobalActions.EXECUTE_SHELL_COMMAND -> {
+                    ShellCommandSettingsContent(
                         action = action,
                         onConfirm = {
                             onActionDataChanged(it)

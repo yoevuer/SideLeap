@@ -9,6 +9,7 @@ import hunoia.sideleap.action.handlers.NavigationActionHandler
 import hunoia.sideleap.action.handlers.PasswordGeneratorActionHandler
 import hunoia.sideleap.action.handlers.RandomNameActionHandler
 import hunoia.sideleap.action.handlers.ShortcutActionHandler
+import hunoia.sideleap.action.handlers.ShellCommandActionHandler
 import hunoia.sideleap.action.handlers.SystemActionHandler
 import hunoia.sideleap.action.handlers.VirtualMouseActionHandler
 import hunoia.sideleap.action.handlers.VolumeScrubActionHandler
@@ -27,6 +28,7 @@ object ActionRegistry {
         FreezeAppsActionHandler,
         VirtualMouseActionHandler,
         VolumeScrubActionHandler,
+        ShellCommandActionHandler,
     )
 
     private val handlerMap: Map<String, ActionHandler> = handlers
