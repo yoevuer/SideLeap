@@ -381,6 +381,7 @@ fun ShellCommandSettingsContent(
     }
     var command by remember(action.data) { mutableStateOf(existingData?.command.orEmpty()) }
     var testing by remember { mutableStateOf(false) }
+    var testOutput by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -402,6 +403,24 @@ fun ShellCommandSettingsContent(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        if (testOutput.isNotBlank()) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Text(
+                    text = testOutput,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 180.dp)
+                        .verticalScroll(rememberScrollState())
+                        .padding(ItemPadding),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End,
@@ -412,11 +431,29 @@ fun ShellCommandSettingsContent(
                 onClick = {
                     val testCommand = command.trim()
                     testing = true
+                    testOutput = context.getString(R.string.testing)
                     scope.launch {
                         val result = withContext(Dispatchers.IO) {
                             ShizukuBinderExecutor.runShellCommand(context.applicationContext, testCommand)
                         }
                         testing = false
+                        val output = result.output.ifBlank { context.getString(R.string.shell_command_no_output) }
+                        testOutput = if (result.success) {
+                            context.getString(
+                                R.string.shell_command_test_output,
+                                result.exitCode,
+                                result.elapsedMs,
+                                output
+                            )
+                        } else {
+                            context.getString(
+                                R.string.shell_command_test_error_output,
+                                result.error ?: "unknown error",
+                                result.exitCode,
+                                result.elapsedMs,
+                                output
+                            )
+                        }
                         if (result.success) {
                             val summary = result.output.lineSequence().firstOrNull { it.isNotBlank() }?.take(120).orEmpty()
                             val msg = context.getString(R.string.shell_command_executed, result.exitCode)

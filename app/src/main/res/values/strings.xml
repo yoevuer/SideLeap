@@ -287,6 +287,9 @@
     <string name="shell_command_hint">填写设备本机 shell 命令，不要包含 adb 或 adb shell。</string>
     <string name="shell_command_executed">执行完成，退出码 %1$d</string>
     <string name="shell_command_failed">执行失败：%1$s</string>
+    <string name="shell_command_no_output">（无输出）</string>
+    <string name="shell_command_test_output">退出码：%1$d\n耗时：%2$dms\n\n%3$s</string>
+    <string name="shell_command_test_error_output">错误：%1$s\n退出码：%2$d\n耗时：%3$dms\n\n%4$s</string>
     <string name="launch_mode">启动模式</string>
     <string name="url_link">链接 / Deep Link</string>
     <string name="invalid_url">链接格式不正确</string>
