@@ -2,6 +2,13 @@
 
 ## 当前状态
 
+### 应用图标主题化（Android 13+）
+
+- 最低支持版本提升到 Android 13（API 33），不再保留旧设备图标兼容路径。
+- Release 包继续使用压缩 DEX 打包，避免 minSdk 33 默认未压缩 DEX 明显增大 APK 体积。
+- 应用图标改为 adaptive icon，普通图标使用 Material 动态色渐变背景和白色前景。
+- `monochrome` 复用前景图层参与 Launcher 主题图标动态取色，并补充独立 round icon 入口。
+
 ### 7 个 Picker 页面 BottomSheet 化（`refactor/bottom-sheet`）
 
 - 将 7 个全屏导航路由改为 ModalBottomSheet：

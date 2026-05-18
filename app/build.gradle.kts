@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "hunoia.sideleap"
-        minSdk = 24
+        minSdk = 33
         targetSdk = 36
         versionCode = 10507
         versionName = "1.5.7"
@@ -99,6 +99,9 @@ android {
         localeFilters += listOf("en", "zh-rCN", "zh-rTW")
     }
     packaging {
+        dex {
+            useLegacyPackaging = true
+        }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
