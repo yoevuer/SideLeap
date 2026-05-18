@@ -56,6 +56,7 @@ import hunoia.sideleap.system.api.tryVibrateForSlide
 import hunoia.sideleap.ui.widget.DragGestureHandler
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
 import com.blankj.utilcode.util.ConvertUtils
+import com.blankj.utilcode.util.ScreenUtils
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -83,13 +84,40 @@ fun SideGestureContainer(
     actionSettings: ActionSettings = ActionSettings(),
     advancedSettings: AdvancedSettings = AdvancedSettings(),
     gestureSettings: GestureSettings = GestureSettings(),
-    onTakeScreenshot: (suspend () -> Bitmap?)? = null
+    onTakeScreenshot: (suspend () -> Bitmap?)? = null,
+    onVirtualMouseStart: () -> Boolean = { false },
+    onVirtualMouseEnd: () -> Unit = {},
+    onClickAtPosition: (Int, Int) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
     val curOnAction by rememberUpdatedState(newValue = onAction)
+    val curOnVirtualMouseStart by rememberUpdatedState(newValue = onVirtualMouseStart)
+    val curOnVirtualMouseEnd by rememberUpdatedState(newValue = onVirtualMouseEnd)
+    val curOnClickAtPosition by rememberUpdatedState(newValue = onClickAtPosition)
     val sideGestureState = rememberSideGestureState(buttons, advancedSettings, gestureSettings)
     val actionPanelState = rememberActionPanelState()
     val moveScreenState = rememberMoveScreenState(gestureSettings, actionSettings.moveScreen)
+    var isVirtualMouseMode by remember { mutableStateOf(false) }
+    var cursorPosition by remember { mutableStateOf(screenCenter()) }
+
+    fun startVirtualMouseMode(): Boolean {
+        if (isVirtualMouseMode) return false
+        if (!curOnVirtualMouseStart()) return false
+        cursorPosition = screenCenter()
+        isVirtualMouseMode = true
+        return true
+    }
+
+    fun finishVirtualMouseMode(click: Boolean) {
+        if (!isVirtualMouseMode) return
+        val target = cursorPosition
+        isVirtualMouseMode = false
+        if (click) {
+            curOnClickAtPosition(target.x.roundToInt(), target.y.roundToInt())
+        } else {
+            curOnVirtualMouseEnd()
+        }
+    }
 
     SideEffect {
         sideGestureState.onLongPress = { action ->
@@ -103,6 +131,10 @@ fun SideGestureContainer(
             sideGestureState.onDragStart(offset, imePadding)
         },
         onDrag = onDrag@{ dragAmount ->
+            if (isVirtualMouseMode) {
+                cursorPosition = clampToScreen(cursorPosition + dragAmount)
+                return@onDrag
+            }
             if (actionPanelState.visible) {
                 actionPanelState.onDrag(dragAmount)
                 return@onDrag
@@ -124,7 +156,11 @@ fun SideGestureContainer(
                             )
                             sideGestureState.cancel()
                     } else if (actions.isNotEmpty()) {
-                        if (actions.first().value == GlobalActions.MOVE_SCREEN) {
+                        val action = actions.first()
+                        if (action.value == GlobalActions.VIRTUAL_MOUSE) {
+                            startVirtualMouseMode()
+                            sideGestureState.cancel()
+                        } else if (action.value == GlobalActions.MOVE_SCREEN) {
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                                 showVersionTooLowToast(context, R.string.action_move_screen)
                                 sideGestureState.cancel()
@@ -133,7 +169,7 @@ fun SideGestureContainer(
                             moveScreenState.onDragStart(sideGestureState.finger)
                             sideGestureState.cancel()
                         } else {
-                            curOnAction(actions.first().withTouchPosition(sideGestureState.finger), button)
+                            curOnAction(action.withTouchPosition(sideGestureState.finger), button)
                             sideGestureState.cancel()
                         }
                     }
@@ -143,6 +179,10 @@ fun SideGestureContainer(
             }
         },
         onDragEnd = onDragEnd@{
+            if (isVirtualMouseMode) {
+                finishVirtualMouseMode(click = true)
+                return@onDragEnd
+            }
             if (actionPanelState.visible) {
                 val touchPosition = actionPanelState.finger
                 val action = actionPanelState.done()
@@ -163,6 +203,10 @@ fun SideGestureContainer(
             }
         },
         onDragCancel = onDragCancel@{
+            if (isVirtualMouseMode) {
+                finishVirtualMouseMode(click = false)
+                return@onDragCancel
+            }
             if (actionPanelState.visible) {
                 actionPanelState.onDragCancel()
             }
@@ -206,7 +250,22 @@ fun SideGestureContainer(
                 Box(Modifier.matchParentSize().background(Color.Black))
             }
         }
+
+        if (isVirtualMouseMode) {
+            VirtualMouseCursor(position = cursorPosition, modifier = Modifier.matchParentSize())
+        }
     }
+}
+
+private fun screenCenter(): Offset {
+    return Offset(ScreenUtils.getScreenWidth() / 2f, ScreenUtils.getScreenHeight() / 2f)
+}
+
+private fun clampToScreen(position: Offset): Offset {
+    return Offset(
+        x = position.x.coerceIn(0f, ScreenUtils.getScreenWidth().toFloat()),
+        y = position.y.coerceIn(0f, ScreenUtils.getScreenHeight().toFloat()),
+    )
 }
 
 private fun Action.withTouchPosition(position: Offset): Action {

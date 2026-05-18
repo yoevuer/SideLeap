@@ -10,6 +10,7 @@ import hunoia.sideleap.action.handlers.PasswordGeneratorActionHandler
 import hunoia.sideleap.action.handlers.RandomNameActionHandler
 import hunoia.sideleap.action.handlers.ShortcutActionHandler
 import hunoia.sideleap.action.handlers.SystemActionHandler
+import hunoia.sideleap.action.handlers.VirtualMouseActionHandler
 import hunoia.sideleap.action.Action
 
 object ActionRegistry {
@@ -23,6 +24,7 @@ object ActionRegistry {
         AppLaunchActionHandler,
         ShortcutActionHandler,
         FreezeAppsActionHandler,
+        VirtualMouseActionHandler,
     )
 
     private val handlerMap: Map<String, ActionHandler> = handlers
