@@ -6,6 +6,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiState
 import hunoia.sideleap.settings.api.SettingsProvider
+import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.system.vibration.VibrationEffects
 import hunoia.sideleap.system.vibration.Vibrations
 import kotlinx.coroutines.flow.collectLatest
@@ -36,7 +37,8 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                         longSlideTriggerDelayMs = uiState.longSlideTriggerDelayMs,
                         isCustomVibration = uiState.isCustomVibration,
                         vibrations = uiState.vibrations,
-                        isPreciseSlideType = uiState.isPreciseSlideTypeEnabled
+                        isPreciseSlideType = uiState.isPreciseSlideTypeEnabled,
+                        virtualMouse = uiState.virtualMouse
                     )
                 }
             }
@@ -129,6 +131,44 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         sendUiEvent(UiEvent.ScrollToBottom)
     }
 
+    fun onVirtualMouseChange(value: GestureSettings.VirtualMouse) {
+        updateUiState { it.copy(virtualMouse = value) }
+    }
+
+    fun onVirtualMouseContinuousModeChange(value: Boolean) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(continuousMode = value))
+        saveSettings()
+    }
+
+    fun onVirtualMouseContinuousModeTimeoutChange(value: Long) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(continuousModeTimeoutMs = value))
+        saveSettings()
+    }
+
+    fun onVirtualMouseOuterRingChange(value: Boolean) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(outerRingEnabled = value))
+        saveSettings()
+    }
+
+    fun onVirtualMouseShadowChange(value: Boolean) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(shadowEnabled = value))
+        saveSettings()
+    }
+
+    fun onVirtualMouseClickAnimationChange(value: Boolean) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(clickAnimationEnabled = value))
+        saveSettings()
+    }
+
+    fun onVirtualMouseTrailChange(value: Boolean) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(trailEnabled = value))
+        saveSettings()
+    }
+
+    fun showVirtualMouseColorPicker(show: Boolean) {
+        updateUiState { it.copy(showVirtualMouseColorPicker = show) }
+    }
+
     private fun loadData() {
         viewModelScope.launch {
             SettingsProvider
@@ -143,7 +183,8 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                             longSlideTriggerDelayMs = item.longSlideTriggerDelayMs,
                             isCustomVibration = item.isCustomVibration,
                             vibrations = item.vibrations,
-                            isPreciseSlideTypeEnabled = item.isPreciseSlideType
+                            isPreciseSlideTypeEnabled = item.isPreciseSlideType,
+                            virtualMouse = item.virtualMouse
                         )
                     }
                 }
@@ -160,7 +201,9 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         val isCustomVibration: Boolean = false,
         val vibrations: Vibrations = Vibrations(),
         val showPredefinedVibrationDropdown: Boolean = false,
-        val isPreciseSlideTypeEnabled: Boolean = false
+        val isPreciseSlideTypeEnabled: Boolean = false,
+        val virtualMouse: GestureSettings.VirtualMouse = GestureSettings.VirtualMouse(),
+        val showVirtualMouseColorPicker: Boolean = false,
     )
 
     sealed interface UiEvent {

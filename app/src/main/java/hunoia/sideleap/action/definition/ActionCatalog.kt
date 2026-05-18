@@ -30,6 +30,7 @@ object ActionCatalog {
         ActionDefinition(GlobalActions.BACK_TO_TOP, ActionCategory.NAVIGATION, ActionConfigKind.NONE, "back_to_top", "back_to_top"),
         ActionDefinition(GlobalActions.GOTO_BOTTOM, ActionCategory.NAVIGATION, ActionConfigKind.GOTO_BOTTOM, "goto_bottom", "goto_bottom"),
         ActionDefinition(GlobalActions.CLICK_CURRENT_POSITION, ActionCategory.NAVIGATION, ActionConfigKind.NONE, "click_current_position", "click_current_position"),
+        ActionDefinition(GlobalActions.VIRTUAL_MOUSE, ActionCategory.TOOL, ActionConfigKind.NONE, "virtual_mouse", "virtual_mouse"),
         ActionDefinition(GlobalActions.OPEN_APP_OR_URL, ActionCategory.TOOL, ActionConfigKind.OPEN_APP_OR_URL, "open_app_or_url", "open_app_or_url"),
         ActionDefinition(GlobalActions.QUICK_APP_LAUNCHER, ActionCategory.TOOL, ActionConfigKind.NONE, "quick_app_launcher", "quick_app_launcher"),
         ActionDefinition(GlobalActions.RANDOM_NAME, ActionCategory.TOOL, ActionConfigKind.NONE, "random_name", "random_name"),

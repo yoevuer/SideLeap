@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.OpenWith
+import androidx.compose.material.icons.filled.Mouse
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.ScreenLockPortrait
 import androidx.compose.material.icons.filled.Screenshot
@@ -56,6 +57,7 @@ val actionTitleResMap: Map<String, Int> = mapOf(
     "move_screen" to R.string.action_move_screen,
     "back_to_top" to R.string.action_back_to_top,
     "goto_bottom" to R.string.action_goto_bottom,
+    "virtual_mouse" to R.string.action_virtual_mouse,
     "open_app_or_url" to R.string.action_open_app_or_url,
     "quick_app_launcher" to R.string.action_quick_app_panel,
     "random_name" to R.string.action_random_name,
@@ -88,6 +90,7 @@ val actionIconMap: Map<String, Any> = mapOf(
     "move_screen" to Icons.Default.OpenWith,
     "back_to_top" to Icons.Default.VerticalAlignTop,
     "goto_bottom" to Icons.Default.VerticalAlignBottom,
+    "virtual_mouse" to Icons.Default.Mouse,
     "open_app_or_url" to Icons.Default.OpenInNew,
     "quick_app_launcher" to Icons.Default.Apps,
     "random_name" to Icons.Default.Assistant,
@@ -106,6 +109,7 @@ val actionDescResMap: Map<String, Int> = mapOf(
     "screenshot" to R.string.action_desc_screenshot,
     "open_app_or_url" to R.string.action_desc_open_app,
     "quick_app_launcher" to R.string.action_desc_quick_launcher,
+    "virtual_mouse" to R.string.action_desc_virtual_mouse,
 )
 
 val actionSettingHintResMap: Map<ActionConfigKind, Int> = mapOf(

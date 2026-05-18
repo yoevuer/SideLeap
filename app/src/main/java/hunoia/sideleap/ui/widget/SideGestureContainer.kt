@@ -83,13 +83,52 @@ fun SideGestureContainer(
     actionSettings: ActionSettings = ActionSettings(),
     advancedSettings: AdvancedSettings = AdvancedSettings(),
     gestureSettings: GestureSettings = GestureSettings(),
-    onTakeScreenshot: (suspend () -> Bitmap?)? = null
+    onTakeScreenshot: (suspend () -> Bitmap?)? = null,
+    onVirtualMouseStart: () -> Boolean = { false },
+    onVirtualMouseEnd: () -> Unit = {},
+    onClickAtPosition: (Int, Int, Boolean) -> Unit = { _, _, _ -> },
 ) {
     val context = LocalContext.current
     val curOnAction by rememberUpdatedState(newValue = onAction)
+    val curOnVirtualMouseStart by rememberUpdatedState(newValue = onVirtualMouseStart)
+    val curOnVirtualMouseEnd by rememberUpdatedState(newValue = onVirtualMouseEnd)
+    val curOnClickAtPosition by rememberUpdatedState(newValue = onClickAtPosition)
     val sideGestureState = rememberSideGestureState(buttons, advancedSettings, gestureSettings)
     val actionPanelState = rememberActionPanelState()
     val moveScreenState = rememberMoveScreenState(gestureSettings, actionSettings.moveScreen)
+    var isVirtualMouseMode by remember { mutableStateOf(false) }
+    var cursorPosition by remember { mutableStateOf(virtualMouseInitialPosition(gestureSettings.virtualMouse)) }
+    var virtualMouseTouchPosition by remember { mutableStateOf(Offset.Unspecified) }
+    var virtualMouseLeftCancelEdge by remember { mutableStateOf(false) }
+    var virtualMouseClickPulseKey by remember { mutableStateOf(0) }
+
+    fun startVirtualMouseMode(): Boolean {
+        if (isVirtualMouseMode) return false
+        if (!curOnVirtualMouseStart()) return false
+        cursorPosition = virtualMouseInitialPosition(gestureSettings.virtualMouse)
+        virtualMouseTouchPosition = sideGestureState.finger
+        virtualMouseLeftCancelEdge = false
+        isVirtualMouseMode = true
+        return true
+    }
+
+    fun finishVirtualMouseMode(click: Boolean) {
+        if (!isVirtualMouseMode) return
+        val target = cursorPosition
+        isVirtualMouseMode = false
+        if (click) {
+            virtualMouseClickPulseKey += 1
+            curOnClickAtPosition(
+                target.x.roundToInt(),
+                target.y.roundToInt(),
+                gestureSettings.virtualMouse.continuousMode,
+            )
+        } else {
+            curOnVirtualMouseEnd()
+        }
+        virtualMouseTouchPosition = Offset.Unspecified
+        virtualMouseLeftCancelEdge = false
+    }
 
     SideEffect {
         sideGestureState.onLongPress = { action ->
@@ -103,6 +142,18 @@ fun SideGestureContainer(
             sideGestureState.onDragStart(offset, imePadding)
         },
         onDrag = onDrag@{ dragAmount ->
+            if (isVirtualMouseMode) {
+                virtualMouseTouchPosition = virtualMouseTouchPosition + dragAmount
+                val inCancelEdge = isVirtualMouseCancelGesture(virtualMouseTouchPosition, gestureSettings.virtualMouse)
+                if (!inCancelEdge) {
+                    virtualMouseLeftCancelEdge = true
+                } else if (virtualMouseLeftCancelEdge) {
+                    finishVirtualMouseMode(click = false)
+                    return@onDrag
+                }
+                cursorPosition = moveVirtualMouseCursor(cursorPosition, dragAmount, gestureSettings.virtualMouse)
+                return@onDrag
+            }
             if (actionPanelState.visible) {
                 actionPanelState.onDrag(dragAmount)
                 return@onDrag
@@ -124,7 +175,11 @@ fun SideGestureContainer(
                             )
                             sideGestureState.cancel()
                     } else if (actions.isNotEmpty()) {
-                        if (actions.first().value == GlobalActions.MOVE_SCREEN) {
+                        val action = actions.first()
+                        if (action.value == GlobalActions.VIRTUAL_MOUSE) {
+                            startVirtualMouseMode()
+                            sideGestureState.cancel()
+                        } else if (action.value == GlobalActions.MOVE_SCREEN) {
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                                 showVersionTooLowToast(context, R.string.action_move_screen)
                                 sideGestureState.cancel()
@@ -133,7 +188,7 @@ fun SideGestureContainer(
                             moveScreenState.onDragStart(sideGestureState.finger)
                             sideGestureState.cancel()
                         } else {
-                            curOnAction(actions.first().withTouchPosition(sideGestureState.finger), button)
+                            curOnAction(action.withTouchPosition(sideGestureState.finger), button)
                             sideGestureState.cancel()
                         }
                     }
@@ -143,6 +198,10 @@ fun SideGestureContainer(
             }
         },
         onDragEnd = onDragEnd@{
+            if (isVirtualMouseMode) {
+                finishVirtualMouseMode(click = true)
+                return@onDragEnd
+            }
             if (actionPanelState.visible) {
                 val touchPosition = actionPanelState.finger
                 val action = actionPanelState.done()
@@ -163,6 +222,10 @@ fun SideGestureContainer(
             }
         },
         onDragCancel = onDragCancel@{
+            if (isVirtualMouseMode) {
+                finishVirtualMouseMode(click = false)
+                return@onDragCancel
+            }
             if (actionPanelState.visible) {
                 actionPanelState.onDragCancel()
             }
@@ -205,6 +268,15 @@ fun SideGestureContainer(
             } else {
                 Box(Modifier.matchParentSize().background(Color.Black))
             }
+        }
+
+        if (isVirtualMouseMode) {
+            VirtualMouseCursor(
+                position = cursorPosition,
+                modifier = Modifier.matchParentSize(),
+                settings = gestureSettings.virtualMouse,
+                clickPulseKey = virtualMouseClickPulseKey,
+            )
         }
     }
 }

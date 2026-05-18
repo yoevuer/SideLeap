@@ -250,6 +250,7 @@
     <string name="action_back_to_top">快速回顶部(7.0+ 模拟滑动)</string>
     <string name="action_goto_bottom">快速到底部(7.0+ 模拟滑动)</string>
     <string name="action_click_current_position">模拟点击当前位置</string>
+    <string name="action_virtual_mouse">虚拟鼠标</string>
     <string name="action_open_app_or_url">打开应用活动/链接</string>
     <string name="action_desc_back">返回上一层界面</string>
     <string name="action_desc_home">回到桌面</string>
@@ -260,6 +261,7 @@
     <string name="action_desc_screenshot">截取当前屏幕</string>
     <string name="action_desc_open_app">打开应用、活动或链接</string>
     <string name="action_desc_quick_launcher">打开底部应用搜索抽屉</string>
+    <string name="action_desc_virtual_mouse">滑动控制光标，松手点击</string>
     <string name="action_permission_hint_flashlight">需要设备相机/手电筒能力</string>
     <string name="action_permission_hint_screenshot">需要系统截图能力或无障碍支持</string>
     <string name="action_permission_hint_power_button">需要无障碍服务支持</string>
@@ -320,6 +322,20 @@
     <string name="strength">强度</string>
     <string name="tap">单击</string>
     <string name="double_tap">双击</string>
+    <string name="virtual_mouse">虚拟鼠标</string>
+    <string name="virtual_mouse_continuous_mode">连续模式</string>
+    <string name="virtual_mouse_continuous_mode_hint">点击后保持鼠标模式，滑回屏幕边缘退出</string>
+    <string name="virtual_mouse_continuous_timeout">连续模式超时</string>
+    <string name="virtual_mouse_sensitivity_x">X 灵敏度：%1$.1fx</string>
+    <string name="virtual_mouse_sensitivity_y">Y 灵敏度：%1$.1fx</string>
+    <string name="virtual_mouse_acceleration">加速曲线：%1$.1f</string>
+    <string name="virtual_mouse_cursor_size">光标大小：%1$d dp</string>
+    <string name="virtual_mouse_cursor_alpha">光标透明度：%1$d%%</string>
+    <string name="virtual_mouse_cursor_color">光标颜色</string>
+    <string name="virtual_mouse_outer_ring">外圈</string>
+    <string name="virtual_mouse_shadow">阴影</string>
+    <string name="virtual_mouse_click_animation">点击动画</string>
+    <string name="virtual_mouse_trail">拖尾轨迹</string>
     <string name="hover_trigger_delay">悬停触发延迟</string>
     <string name="intercept_system_back_gesture">拦截系统返回手势</string>
     <string name="intercept_system_back_gesture_hint">使用系统接口拦截，可能有兼容性问题</string>
