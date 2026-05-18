@@ -175,8 +175,7 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
             format = PixelFormat.RGBA_8888
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
             width = ScreenUtils.getScreenWidth()
             height = ScreenUtils.getScreenHeight()
             gravity = Gravity.START or Gravity.TOP

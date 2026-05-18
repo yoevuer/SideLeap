@@ -24,7 +24,7 @@ class QuickAppLauncherActivity : Activity() {
 
         if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "activity: calling finish() reason=immediateAfterShow")
         finish()
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -51,6 +51,6 @@ class QuickAppLauncherActivity : Activity() {
     override fun finish() {
         if (BuildConfig.DEBUG) Log.d("SideLeapLauncher", "activity: finish called taskId=$taskId")
         super.finish()
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, android.R.anim.fade_in, android.R.anim.fade_out)
     }
 }

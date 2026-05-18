@@ -2,8 +2,6 @@ package hunoia.sideleap.overlay.api
 
 import android.content.Context
 import android.graphics.PixelFormat
-import android.os.Build
-import android.util.DisplayMetrics
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
@@ -19,10 +17,7 @@ class VolumeScrubOverlay(private val context: Context) {
     private val stepThresholdPx: Float
 
     init {
-        val wm = context.windowManager()
-        val metrics = DisplayMetrics()
-        wm.defaultDisplay.getRealMetrics(metrics)
-        stepThresholdPx = 18 * metrics.density
+        stepThresholdPx = 18 * context.resources.displayMetrics.density
     }
 
     fun show(onDismiss: () -> Unit): Boolean {
@@ -66,10 +61,7 @@ class VolumeScrubOverlay(private val context: Context) {
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
-            else
-                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,

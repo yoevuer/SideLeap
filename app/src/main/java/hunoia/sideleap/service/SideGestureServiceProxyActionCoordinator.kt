@@ -103,7 +103,7 @@ internal class SideGestureServiceProxyActionCoordinator(
                     showToast(R.string.disable_keep_screen_on)
                 } else {
                     val pm = host.getSystemService(Context.POWER_SERVICE) as PowerManager
-                    wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "gulugulu:KeepScreenOn")
+                    wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "gulugulu:KeepScreenOn")
                     wakeLock?.setReferenceCounted(false)
                     wakeLock?.acquire(KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS)
                     showToast(R.string.enable_keep_screen_on)

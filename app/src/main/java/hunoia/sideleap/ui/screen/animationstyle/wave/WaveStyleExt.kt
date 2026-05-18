@@ -1,9 +1,9 @@
 package hunoia.sideleap.ui.screen.animationstyle.wave
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Forward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.Forward
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
@@ -26,11 +26,11 @@ fun getWaveStyleIcon(iconType: Int): Painter {
     if (iconType == WaveStyle.ICON_TYPE_TRIANGLE) {
         return rememberVectorPainter(Icons.Default.PlayArrow)
     } else if (iconType == WaveStyle.ICON_TYPE_ANGLE) {
-        return rememberVectorPainter(Icons.Default.ArrowForwardIos)
+        return rememberVectorPainter(Icons.AutoMirrored.Filled.ArrowForwardIos)
     } else if (iconType == WaveStyle.ICON_TYPE_ARROW_NEW) {
-        return rememberVectorPainter(Icons.Default.Forward)
+        return rememberVectorPainter(Icons.AutoMirrored.Filled.Forward)
     }
-    return rememberVectorPainter(Icons.Default.ArrowForward)
+    return rememberVectorPainter(Icons.AutoMirrored.Filled.ArrowForward)
 }
 
 fun WaveStyle.getIconInitialRotation(position: Position): Float {

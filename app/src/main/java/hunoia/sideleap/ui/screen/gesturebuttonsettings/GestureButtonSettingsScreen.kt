@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Adjust
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -533,7 +533,7 @@ private fun MySideGestureSettings(
         prefix = {
             val imageVector = when (direction) {
                 Center2 -> Icons.Default.Adjust
-                else -> Icons.Default.ArrowForward
+                else -> Icons.AutoMirrored.Filled.ArrowForward
             }
             Icon(
                 modifier = Modifier

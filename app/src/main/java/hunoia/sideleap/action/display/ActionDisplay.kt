@@ -5,7 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Assistant
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BrightnessHigh
@@ -16,7 +16,7 @@ import androidx.compose.material.icons.filled.Gesture
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Mouse
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.OpenWith
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.PowerSettingsNew
@@ -31,9 +31,9 @@ import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.VerticalAlignBottom
 import androidx.compose.material.icons.filled.VerticalAlignTop
 import androidx.compose.material.icons.filled.ViewCarousel
-import androidx.compose.material.icons.filled.VolumeDown
-import androidx.compose.material.icons.filled.VolumeMute
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.automirrored.filled.VolumeMute
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -86,12 +86,12 @@ private val actionTextResMap: Map<String, Int> = mapOf(
 )
 
 private val actionIconMap: Map<String, Any> = mapOf(
-    GlobalActions.BACK to Icons.Default.ArrowBack,
+    GlobalActions.BACK to Icons.AutoMirrored.Filled.ArrowBack,
     GlobalActions.HOME to Icons.Default.Home,
     GlobalActions.RECENT to Icons.Default.ViewCarousel,
-    GlobalActions.VOLUME_UP to Icons.Default.VolumeUp,
-    GlobalActions.VOLUME_DOWN to Icons.Default.VolumeDown,
-    GlobalActions.MUTE to Icons.Default.VolumeMute,
+    GlobalActions.VOLUME_UP to Icons.AutoMirrored.Filled.VolumeUp,
+    GlobalActions.VOLUME_DOWN to Icons.AutoMirrored.Filled.VolumeDown,
+    GlobalActions.MUTE to Icons.AutoMirrored.Filled.VolumeMute,
     GlobalActions.PLAY_PAUSE_SONG to Icons.Default.PlayPause,
     GlobalActions.LAST_SONG to Icons.Default.SkipPrevious,
     GlobalActions.NEXT_SONG to Icons.Default.SkipNext,
@@ -112,13 +112,13 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.GOTO_BOTTOM to Icons.Default.VerticalAlignBottom,
     GlobalActions.CLICK_CURRENT_POSITION to Icons.Default.TouchApp,
     GlobalActions.VIRTUAL_MOUSE to Icons.Default.Mouse,
-    GlobalActions.OPEN_APP_OR_URL to Icons.Default.OpenInNew,
+    GlobalActions.OPEN_APP_OR_URL to Icons.AutoMirrored.Filled.OpenInNew,
     GlobalActions.QUICK_APP_LAUNCHER to Icons.Default.Apps,
     GlobalActions.RANDOM_NAME to Icons.Default.AutoAwesome,
     GlobalActions.ONE_KEY_FREEZE_APPS to Icons.Default.AcUnit,
     GlobalActions.GENERATE_PASSWORD_COPY to Icons.Default.ContentCopy,
     GlobalActions.OPEN_PASSWORD_GENERATOR to Icons.Default.Password,
-    GlobalActions.VOLUME_SCRUB to Icons.Default.VolumeUp,
+    GlobalActions.VOLUME_SCRUB to Icons.AutoMirrored.Filled.VolumeUp,
     GlobalActions.EXECUTE_SHELL_COMMAND to Icons.Default.Terminal
 )
 
