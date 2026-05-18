@@ -307,15 +307,8 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                             .matchParentSize()
                             .clipToBackground(
                                 color = when (action.value) {
-                                    GlobalActions.EXTRA_LAUNCH_APP -> when (actionIcon is ImageVector) {
-                                        true -> MaterialTheme.colorScheme.primary
-                                        else -> Color(action.appInfo!!.iconBgColor)
-                                    }
-
-                                    GlobalActions.EXTRA_LAUNCH_SHORTCUT -> when (actionIcon is ImageVector) {
-                                        true -> MaterialTheme.colorScheme.primary
-                                        else -> Color(action.shortcutInfo!!.iconBgColor)
-                                    }
+                                    GlobalActions.EXTRA_LAUNCH_APP -> action.appInfo?.iconBgColor.toActionPanelColor()
+                                    GlobalActions.EXTRA_LAUNCH_SHORTCUT -> action.shortcutInfo?.iconBgColor.toActionPanelColor()
 
                                     else -> MaterialTheme.colorScheme.primary
                                 },
@@ -408,7 +401,11 @@ private fun AnimatedVisibilityScope.GridActionPanel(
                         modifier = Modifier.size(itemSize),
                         shape = RoundedCornerShape(14.dp)
                     ) {
-                        ActionPanelIcon(action = action, iconSize = itemSize * 0.58f)
+                        ActionPanelIcon(
+                            action = action,
+                            iconSize = itemSize * 0.58f,
+                            bitmapIconSize = itemSize * 0.76f
+                        )
                     }
                 }
             }
@@ -618,7 +615,7 @@ private fun AnimatedVisibilityScope.ActionPanelSelectableItem(
 }
 
 @Composable
-private fun ActionPanelIcon(action: Action, iconSize: Dp) {
+private fun ActionPanelIcon(action: Action, iconSize: Dp, bitmapIconSize: Dp = iconSize) {
     val actionIcon = actionIcon(action = action)
     if (actionIcon is ImageVector) {
         Image(
@@ -630,7 +627,7 @@ private fun ActionPanelIcon(action: Action, iconSize: Dp) {
     } else {
         AsyncImage(
             modifier = Modifier
-                .size(iconSize)
+                .size(bitmapIconSize)
                 .graphicsLayer {
                     val appInfo = action.appInfo
                     if (appInfo != null) {
@@ -655,18 +652,16 @@ private fun ActionPanelIcon(action: Action, iconSize: Dp) {
 private fun actionPanelItemColor(action: Action): Color {
     val actionIcon = actionIcon(action = action)
     return when (action.value) {
-        GlobalActions.EXTRA_LAUNCH_APP -> when (actionIcon is ImageVector) {
-            true -> MaterialTheme.colorScheme.primary
-            else -> Color(action.appInfo!!.iconBgColor)
-        }
-
-        GlobalActions.EXTRA_LAUNCH_SHORTCUT -> when (actionIcon is ImageVector) {
-            true -> MaterialTheme.colorScheme.primary
-            else -> Color(action.shortcutInfo!!.iconBgColor)
-        }
+        GlobalActions.EXTRA_LAUNCH_APP -> action.appInfo?.iconBgColor.toActionPanelColor()
+        GlobalActions.EXTRA_LAUNCH_SHORTCUT -> action.shortcutInfo?.iconBgColor.toActionPanelColor()
 
         else -> MaterialTheme.colorScheme.primary
     }
+}
+
+@Composable
+private fun Int?.toActionPanelColor(): Color {
+    return if (this == null || this == 0) MaterialTheme.colorScheme.primary else Color(this)
 }
 
 @Composable
