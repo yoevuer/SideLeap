@@ -624,6 +624,13 @@ private fun StyleTrailingDropdown(
                 },
                 text = { Text(stringResource(R.string.action_panel_style_grid)) }
             )
+            DropdownMenuItem(
+                onClick = {
+                    onStyleSelected(ActionPanelStyles.pie())
+                    expanded = false
+                },
+                text = { Text(stringResource(R.string.action_panel_style_pie)) }
+            )
         }
     }
 }
@@ -632,6 +639,7 @@ private fun StyleTrailingDropdown(
 private fun actionPanelStyleText(style: ActionPanelStyles): String {
     return when (style.type) {
         ActionPanelStyles.TYPE_GRID -> stringResource(R.string.action_panel_style_grid)
+        ActionPanelStyles.TYPE_PIE -> stringResource(R.string.action_panel_style_pie)
         else -> stringResource(R.string.action_panel_style_arc)
     }
 }
