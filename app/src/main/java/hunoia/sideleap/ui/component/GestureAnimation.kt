@@ -2,6 +2,7 @@ package hunoia.sideleap.ui.component
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -57,19 +58,15 @@ private fun WaveGestureAnimation(
 ) {
     val button = sideGestureState.button ?: return
     val icon = animationStyle.getIcon()
-    // 贝塞尔偏移值
-    val bezierOffset = button.whenVertical(
-        vertical = if (animationStyle.safeBounds) 70.dp.toPx() else 0f,
-        horizontal = 0f
-    )
-    // 贝塞尔与边界间距
+    val bezierOffset = if (animationStyle.safeBounds) 70.dp.toPx() else 0f
     val bezierSpacing = if (animationStyle.safeBounds) 40.dp.toPx() else 0f
-    // 贝塞尔的最大宽度
     val bezierMaxWidth = animationStyle.width.toFloat()
-    // 贝塞尔长度的一半
     val bezierLengthHalf = bezierMaxWidth * animationStyle.bezierLengthHalfRatio
-    // 贝塞尔沿边缘滑动变形约束
     val bezierTransformOffsetCoerce = if (animationStyle.transformEnabled) bezierLengthHalf / 2f else 0f
+    val factorDp = 1.dp.toPx()
+    val iconColor = Color(animationStyle.iconColor)
+    val iconColorFilter = ColorFilter.tint(iconColor)
+    val pathCache = remember { Path() }
 
     Canvas(modifier = modifier) {
         val triggerDirection = sideGestureState.triggerDirection
@@ -106,17 +103,18 @@ private fun WaveGestureAnimation(
                 horizontal = if (animationStyle.safeBounds) size.width - bezierLengthHalf - bezierSpacing else size.width
             )
         )
-        val bezierPath = Path().also { path ->
+        val bezierPath = pathCache.apply {
+            rewind()
 
             val moveToX = button.horizontalMirror(
                 pos = 0f,
                 neg = size.width
             ).let { if (button.isVertical) it else safeOrigin - bezierLengthHalf }
             val moveToY = if (button.isVertical) safeOrigin - bezierLengthHalf else size.height
-            path.moveTo(moveToX, moveToY)
+            moveTo(moveToX, moveToY)
 
             // 避免边缘出现没覆盖全的白边
-            val factor = 1.dp.toPx()
+            val factor = factorDp
             var safeFingerX: Float
             var safeFingerY: Float
             when (button.position) {
@@ -126,7 +124,7 @@ private fun WaveGestureAnimation(
                         else -> (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
                     }
                     safeFingerY = safeOrigin - bezierLengthHalf / 2.5f - transformOffset
-                    path.cubicTo(
+                    cubicTo(
                         x1 = when (button.position) {
                             Position.Left -> -factor
                             else -> size.width + factor
@@ -139,7 +137,7 @@ private fun WaveGestureAnimation(
                     )
 
                     safeFingerY = safeOrigin + bezierLengthHalf / 2.5f - transformOffset
-                    path.cubicTo(
+                    cubicTo(
                         x1 = safeFingerX,
                         y1 = safeFingerY,
                         x2 = when (button.position) {
@@ -157,7 +155,7 @@ private fun WaveGestureAnimation(
                 Position.Bottom -> {
                     safeFingerX = safeOrigin - bezierLengthHalf / 2.5f - transformOffset
                     safeFingerY = (size.height + fingerYAnimVal).coerceAtLeast(size.height - bezierMaxWidth)
-                    path.cubicTo(
+                    cubicTo(
                         x1 = safeFingerX,
                         y1 = size.height + factor,
                         x2 = safeFingerX,
@@ -167,7 +165,7 @@ private fun WaveGestureAnimation(
                     )
 
                     safeFingerX = safeOrigin + bezierLengthHalf / 2.5f - transformOffset
-                    path.cubicTo(
+                    cubicTo(
                         x1 = safeFingerX,
                         y1 = safeFingerY,
                         x2 = safeFingerX,
@@ -183,7 +181,7 @@ private fun WaveGestureAnimation(
                     vertical = Offset(button.horizontalMirror(-1f, 1f) * animationStyle.strokeWidth, 0f),
                     horizontal = Offset(0f, animationStyle.strokeWidth.toFloat())
                 )
-                path.translate(offset2)
+                translate(offset2)
             }
         }
         // 绘制背景
@@ -197,9 +195,10 @@ private fun WaveGestureAnimation(
             )
         }
 
+        val bezierBoundsRaw = bezierPath.getBounds()
         val bezierBounds = when (button.position) {
-            Position.Left, Position.Right -> bezierPath.getBounds().translate(Offset(0f, -transformOffset))
-            Position.Bottom -> bezierPath.getBounds().translate(Offset(-transformOffset, 0f))
+            Position.Left, Position.Right -> bezierBoundsRaw.translate(Offset(0f, -transformOffset))
+            Position.Bottom -> bezierBoundsRaw.translate(Offset(-transformOffset, 0f))
         }
         icon.run {
             val initialDegree = animationStyle.getIconInitialRotation(button.position)
@@ -246,7 +245,7 @@ private fun WaveGestureAnimation(
                     val canTriggered = sideGestureState.canDistanceTriggered(button, false)
                     draw(
                         size = Size(radius, radius),
-                        colorFilter = ColorFilter.tint(Color(animationStyle.iconColor)),
+                        colorFilter = iconColorFilter,
                         alpha = if (canTriggered) 1f else 0.25f
                     )
                 }
