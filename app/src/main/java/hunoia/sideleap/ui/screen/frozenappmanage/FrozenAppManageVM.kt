@@ -7,7 +7,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.core.AppContext
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.settings.model.FrozenAppSettings
-import hunoia.sideleap.settings.api.SettingsProvider
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.freeze.api.FreezeAction
 import hunoia.sideleap.freeze.api.FreezeState
 import hunoia.sideleap.system.feedback.showComposeToast

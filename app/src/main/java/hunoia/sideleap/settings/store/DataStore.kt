@@ -1,4 +1,4 @@
-package hunoia.sideleap.settings.internal
+package hunoia.sideleap.settings.store
 
 import android.content.Context
 import android.util.Log

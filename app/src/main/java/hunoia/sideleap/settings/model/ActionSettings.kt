@@ -2,15 +2,15 @@ package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
 import com.blankj.utilcode.util.ConvertUtils
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.GotoBottomStrength
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.HideGestureButtonDelayMs
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.MoveScreenHoverDelayMs
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.MoveScreenRate
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordDefaultLength
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordDigitsEnabled
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordLowercaseEnabled
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordSymbolsEnabled
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordUppercaseEnabled
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.GotoBottomStrength
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.HideGestureButtonDelayMs
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.MoveScreenHoverDelayMs
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.MoveScreenRate
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.PasswordDefaultLength
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.PasswordDigitsEnabled
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.PasswordLowercaseEnabled
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.PasswordSymbolsEnabled
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.PasswordUppercaseEnabled
 import kotlinx.serialization.Serializable
 
 @Serializable

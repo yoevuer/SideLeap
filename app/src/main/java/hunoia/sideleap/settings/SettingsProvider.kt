@@ -1,9 +1,9 @@
-package hunoia.sideleap.settings.api
+package hunoia.sideleap.settings
 
 import androidx.datastore.core.DataStore
 import hunoia.sideleap.App
 import hunoia.sideleap.BuildConfig
-import hunoia.sideleap.settings.DataStoreFiles
+import hunoia.sideleap.settings.store.DataStoreFiles
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.Backup
@@ -12,7 +12,7 @@ import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.settings.internal.dataStore
+import hunoia.sideleap.settings.store.dataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 

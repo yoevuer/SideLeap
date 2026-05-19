@@ -8,7 +8,7 @@ import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.ui.theme.generator.AppTheme
 import hunoia.sideleap.ui.component.ComposeToast
-import hunoia.sideleap.settings.api.SettingsProvider
+import hunoia.sideleap.settings.SettingsProvider
 
 @Composable
 fun SideGestureTheme(content: @Composable () -> Unit) {

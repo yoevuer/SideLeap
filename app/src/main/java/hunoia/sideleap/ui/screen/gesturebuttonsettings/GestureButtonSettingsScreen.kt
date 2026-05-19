@@ -43,11 +43,11 @@ import androidx.core.graphics.red
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
-import hunoia.sideleap.settings.api.SettingsUiDefaults.GestureButtonColorAlpha
-import hunoia.sideleap.settings.api.SettingsUiDefaults.MaxGestureButtonPosition
-import hunoia.sideleap.settings.api.SettingsUiDefaults.MaxGestureButtonWidth
-import hunoia.sideleap.settings.api.SettingsUiDefaults.MinGestureButtonPosition
-import hunoia.sideleap.settings.api.SettingsUiDefaults.MinGestureButtonWidth
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxGestureButtonPosition
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxGestureButtonWidth
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinGestureButtonPosition
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinGestureButtonWidth
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.component.BottomSheetNestedContent

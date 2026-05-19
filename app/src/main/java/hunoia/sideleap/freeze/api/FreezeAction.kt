@@ -14,6 +14,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import hunoia.sideleap.freeze.ShizukuBridgeService
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.system.shizuku.ShizukuCommand
 import hunoia.sideleap.system.shizuku.ShizukuRuntime
 import kotlinx.coroutines.Dispatchers
@@ -125,7 +126,7 @@ object FreezeAction {
     }
 
     suspend fun oneKeyFreeze(context: Context): OneKeyFreezeResult = withContext(Dispatchers.IO) {
-        val settings = hunoia.sideleap.settings.api.SettingsProvider.getFrozenAppSettings()
+        val settings = SettingsProvider.getFrozenAppSettings()
         val showSystemApps = settings.showSystemAppsInManagePage
         val oneKeySet = settings.oneKeyPackageNames
         val protectedSet = settings.protectedPackageNames

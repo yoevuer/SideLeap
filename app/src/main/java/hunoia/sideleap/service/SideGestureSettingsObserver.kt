@@ -1,7 +1,7 @@
 package hunoia.sideleap.service
 
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.settings.api.SettingsProvider
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.GestureSettings

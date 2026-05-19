@@ -6,7 +6,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.R
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsVM.UiState
-import hunoia.sideleap.settings.api.SettingsProvider
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.settings.model.DayNightMode
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take

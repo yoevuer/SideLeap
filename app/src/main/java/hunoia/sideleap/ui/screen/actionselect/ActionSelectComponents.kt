@@ -61,7 +61,7 @@ import coil.imageLoader
 import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
-import hunoia.sideleap.settings.api.SettingsUiDefaults
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText

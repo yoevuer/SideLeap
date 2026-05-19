@@ -35,7 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
-import hunoia.sideleap.settings.api.SettingsUiDefaults.getDayNightModeText
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.getDayNightModeText
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.EdgeMenuPadding

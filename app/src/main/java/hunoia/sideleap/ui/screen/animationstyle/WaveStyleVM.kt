@@ -6,7 +6,7 @@ import hunoia.sideleap.settings.model.AnimationStyles
 import hunoia.sideleap.settings.model.WaveStyle
 import hunoia.sideleap.ui.screen.animationstyle.WaveStyleVM.UiEvent
 import hunoia.sideleap.ui.screen.animationstyle.WaveStyleVM.UiState
-import hunoia.sideleap.settings.api.SettingsProvider
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take

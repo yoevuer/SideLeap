@@ -38,7 +38,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import hunoia.sideleap.R
-import hunoia.sideleap.settings.api.SettingsUiDefaults
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults
 import hunoia.sideleap.launcher.ext.icon
 import hunoia.sideleap.launcher.ext.qualifiedName
 import hunoia.sideleap.launcher.model.AppInfo

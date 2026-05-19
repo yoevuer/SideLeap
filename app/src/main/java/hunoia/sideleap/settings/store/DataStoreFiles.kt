@@ -1,4 +1,4 @@
-package hunoia.sideleap.settings
+package hunoia.sideleap.settings.store
 
 object DataStoreFiles {
 

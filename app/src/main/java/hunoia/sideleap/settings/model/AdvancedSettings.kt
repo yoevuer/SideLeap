@@ -1,24 +1,24 @@
 package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ActionPanelAppLongPressLaunchPopup
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ActionPanelStyles
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.AnimationStyles
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ClipApps
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ClipShortcuts
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.DayNightMode
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.DynamicColor
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ExcludeApps
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.ExcludeFromRecents
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.FitSoftKeyboard
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideHomeScreen
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideLandscape
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.HideScreenLock
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.MiniWindowHorizontalBias
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.MiniWindowVerticalBias
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.MiniWindowVerticalEdgeMarginFraction
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.MiniWindowVerticalOffsetFraction
-import hunoia.sideleap.settings.api.AdvancedSettingsDefaults.QuickLauncherAppLongPressLaunchPopup
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.ActionPanelAppLongPressLaunchPopup
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.ActionPanelStyles
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.AnimationStyles
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.ClipApps
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.ClipShortcuts
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.DayNightMode
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.DynamicColor
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.ExcludeApps
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.ExcludeFromRecents
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.FitSoftKeyboard
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.HideHomeScreen
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.HideLandscape
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.HideScreenLock
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.MiniWindowHorizontalBias
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.MiniWindowVerticalBias
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.MiniWindowVerticalEdgeMarginFraction
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.MiniWindowVerticalOffsetFraction
+import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.QuickLauncherAppLongPressLaunchPopup
 import kotlinx.serialization.Serializable
 
 @Serializable

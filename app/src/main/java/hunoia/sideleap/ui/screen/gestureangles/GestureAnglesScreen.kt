@@ -50,7 +50,7 @@ import hunoia.sideleap.gesture.defaultGestureAngleFor
 import hunoia.sideleap.gesture.getDegree
 import hunoia.sideleap.gesture.getDegrees
 import hunoia.sideleap.gesture.getKProperty
-import hunoia.sideleap.settings.api.SettingsUiDefaults.GestureButtonColorAlpha
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVertical
 import hunoia.sideleap.ui.theme.ItemPadding

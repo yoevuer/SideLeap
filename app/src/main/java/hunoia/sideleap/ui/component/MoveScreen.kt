@@ -52,7 +52,7 @@ import androidx.compose.ui.util.fastForEachIndexed
 import com.aaron.compose.utils.SystemFontScaleHandler
 import hunoia.sideleap.R
 import hunoia.sideleap.action.GlobalActions
-import hunoia.sideleap.settings.api.SettingsUiDefaults.DimAlpha
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.DimAlpha
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.DoubleTap

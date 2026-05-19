@@ -1,4 +1,5 @@
-package hunoia.sideleap.settings.api
+package hunoia.sideleap.settings.backup
+import hunoia.sideleap.settings.SettingsProvider
 
 import android.content.Context
 import android.net.Uri

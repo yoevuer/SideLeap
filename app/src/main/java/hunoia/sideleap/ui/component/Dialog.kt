@@ -51,7 +51,7 @@ import com.aaron.compose.ktx.onSingleClick
 import com.aaron.compose.utils.SystemFontScaleHandler
 import hunoia.sideleap.R
 import hunoia.sideleap.action.GlobalActions
-import hunoia.sideleap.settings.api.SettingsUiDefaults.DimAlpha
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.DimAlpha
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.ui.theme.DialogTitleFontSize

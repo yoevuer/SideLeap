@@ -1,4 +1,5 @@
-package hunoia.sideleap.settings.api
+package hunoia.sideleap.settings.selector
+import hunoia.sideleap.settings.SettingsProvider
 
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.settings.model.ActionSettings

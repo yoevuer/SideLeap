@@ -10,7 +10,7 @@ import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.launcher.query.AppSearch.sortApps
 import hunoia.sideleap.launcher.query.QuickAppLauncherAppList
-import hunoia.sideleap.settings.api.SettingsProvider
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.ui.theme.AnimPostHideDelay
 import kotlinx.coroutines.CoroutineScope
