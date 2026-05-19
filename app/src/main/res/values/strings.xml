@@ -320,6 +320,7 @@
     <string name="tap_action">单击</string>
     <string name="tap_and_long_press_action">单击/长按</string>
     <string name="hide_gesture_button_delay_ms">隐藏触钮时长</string>
+    <string name="back_action_delay_ms">返回动作延迟</string>
     <string name="current_value_ms">当前：%1$d ms</string>
     <string name="strength">强度</string>
     <string name="tap">单击</string>

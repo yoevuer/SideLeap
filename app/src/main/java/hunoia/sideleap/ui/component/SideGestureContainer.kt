@@ -309,7 +309,7 @@ fun SideGestureContainer(
 
                 if (action.value == GlobalActions.BACK) {
                     coroutineScope.launch {
-                        delay(180)
+                        delay(advancedSettings.backActionDelayMs)
                         curOnAction(actionWithTouch, sourceButton)
                     }
                 } else {

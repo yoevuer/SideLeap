@@ -157,6 +157,13 @@ fun AdvancedSettingsScreen(
                         text = stringResource(id = R.string.fit_soft_keyboard),
                         secondaryText = stringResource(id = R.string.fit_soft_keyboard_hint)
                     )
+                    MyTextSlider(
+                        value = uiState.backActionDelayMs.toFloat(),
+                        onValueChange = { vm.onBackActionDelayChange(it) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = stringResource(id = R.string.back_action_delay_ms) + "：${uiState.backActionDelayMs}ms",
+                        valueRange = 0f..500f,
+                    )
                 }
                 SectionCard(
                     modifier = Modifier.padding(top = SectionPadding),
