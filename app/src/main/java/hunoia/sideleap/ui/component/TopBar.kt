@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +35,7 @@ fun TopBar(
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
     showBackIcon: Boolean = true,
+    onTitleClick: (() -> Unit)? = null,
     titleStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
     containerColor: Color = Color.Transparent,
     postfixTitle: (@Composable () -> Unit)? = null
@@ -44,11 +46,15 @@ fun TopBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    modifier = Modifier.let {
-                        if (showBackIcon) it else {
-                            it.padding(start = TopBarPaddingExtra)
+                    modifier = Modifier
+                        .let {
+                            if (showBackIcon) it else {
+                                it.padding(start = TopBarPaddingExtra)
+                            }
                         }
-                    },
+                        .let {
+                            if (onTitleClick == null) it else it.clickable(onClick = onTitleClick)
+                        },
                     text = title,
                     style = titleStyle
                 )

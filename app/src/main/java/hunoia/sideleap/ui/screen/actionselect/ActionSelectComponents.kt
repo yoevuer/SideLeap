@@ -63,13 +63,17 @@ import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults
 import hunoia.sideleap.action.Action
+import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
+import hunoia.sideleap.action.payload.SubGestureActionData
 import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.action.definition.ActionCategory
+import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.launcher.model.qualifiedName
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
+import hunoia.sideleap.settings.model.SubGesture
 import hunoia.sideleap.system.feedback.showToast
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
@@ -96,6 +100,7 @@ internal fun ActionPage(
     onAppLongClick: (AppInfo) -> Unit,
     onShortcutClick: (LauncherInfo) -> Unit,
     modifier: Modifier = Modifier,
+    subGestures: List<SubGesture> = emptyList(),
     onOpenAppOrUrl: (() -> Unit)? = null,
     actions: List<Action>,
     appInfos: List<AppInfo>,
@@ -120,6 +125,7 @@ internal fun ActionPage(
             add(ActionCategory.NAVIGATION to ActionCategory.NAVIGATION.displayName)
             add(ActionCategory.SYSTEM to ActionCategory.SYSTEM.displayName)
             add(ActionCategory.TOOL to ActionCategory.TOOL.displayName)
+            add("sub_gesture" to context.getString(R.string.sub_gesture))
             add("app" to context.getString(R.string.tab_apps))
             add("shortcut" to context.getString(R.string.tab_shortcuts))
         }
@@ -136,11 +142,17 @@ internal fun ActionPage(
                     cat == selectedCategory
                 }
             }
-            result = result.filter { context.actionText(it, emptyIfNone = false).contains(query, ignoreCase = true) }
+            result = result.filter {
+                context.actionTextWithSubGesture(it, subGestures, emptyIfNone = false)
+                    .contains(query, ignoreCase = true)
+            }
             result
         } else if (selectedType == "app" || selectedType == "shortcut" || selectedType == "selected") emptyList()
         else {
             var result = actions
+            if (selectedType == "sub_gesture") {
+                result = result.filter { it.value == GlobalActions.SUB_GESTURE }
+            }
             if (selectedCategory != null) {
                 result = result.filter { action ->
                     val cat = ActionCatalog.byId(action.value)?.category ?: ActionCategory.TOOL
@@ -247,7 +259,7 @@ internal fun ActionPage(
                     selectedItems = selectedItems,
                     maxSelectCount = maxSelectCount,
                     showMaxSelectCount = selectSingle,
-                    itemLabel = { context.selectedItemLabel(it) },
+                    itemLabel = { context.selectedItemLabel(it, subGestures) },
                     onRemoveItem = { item ->
                         when (item) {
                             is Action -> onSelect(item, false)
@@ -270,7 +282,8 @@ internal fun ActionPage(
                 SelectedActionSettings(
                     selectedItems = selectedItems,
                     longPressTargetIndex = longPressTargetIndex,
-                    itemLabel = { context.selectedItemLabel(it) },
+                    subGestures = subGestures,
+                    itemLabel = { context.selectedItemLabel(it, subGestures) },
                     onSetLongPress = onSetLongPress,
                     onClearLongPress = onClearLongPress,
                     onCancelLongPress = onCancelLongPress,
@@ -309,6 +322,7 @@ internal fun ActionPage(
                     ) { item ->
                         ActionItem(
                             action = item,
+                            actionLabel = context.actionTextWithSubGesture(item, subGestures, emptyIfNone = false),
                             selected = selectedRecord.isSelected(item),
                             selectSingle = selectSingle || selectingLongPress,
                             enabled = selectingLongPress || canActionEnabled(selectedRecord, item, maxSelectCount),
@@ -389,6 +403,7 @@ internal fun ActionItem(
     onSelect: (Boolean) -> Unit,
     selected: Boolean,
     action: Action,
+    actionLabel: String,
     selectSingle: Boolean,
     snackbarHostState: SnackbarHostState,
     enabled: Boolean = true,
@@ -447,7 +462,7 @@ internal fun ActionItem(
                     modifier = Modifier
                         .weight(1f, false)
                         .basicMarquee(velocity = 50.dp),
-                    text = actionText(action = action, emptyIfNone = false),
+                    text = actionLabel,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -505,6 +520,7 @@ internal fun ActionItem(
 internal fun SelectedActionSettings(
     selectedItems: List<Any>,
     longPressTargetIndex: Int?,
+    subGestures: List<SubGesture>,
     itemLabel: (Any) -> String,
     onSetLongPress: (Int) -> Unit,
     onClearLongPress: (Int) -> Unit,
@@ -534,7 +550,7 @@ internal fun SelectedActionSettings(
             val longPressAction = action?.longPressAction
             val shortPressText = itemLabel(item)
             val longPressText = if (longPressAction != null) {
-                LocalContext.current.actionText(longPressAction, emptyIfNone = false)
+                LocalContext.current.actionTextWithSubGesture(longPressAction, subGestures, emptyIfNone = false)
             } else {
                 stringResource(R.string.long_press_action_fallback)
             }
@@ -670,11 +686,25 @@ internal fun SelectedBar(
     }
 }
 
-private fun Context.selectedItemLabel(item: Any): String {
+private fun Context.selectedItemLabel(item: Any, subGestures: List<SubGesture>): String {
     return when (item) {
-        is Action -> actionText(item, emptyIfNone = false)
+        is Action -> actionTextWithSubGesture(item, subGestures, emptyIfNone = false)
         is AppInfo -> item.label
         is LauncherInfo.ShortcutInfo -> item.label
         else -> ""
     }
+}
+
+private fun Context.actionTextWithSubGesture(
+    action: Action,
+    subGestures: List<SubGesture>,
+    emptyIfNone: Boolean
+): String {
+    if (action.value != GlobalActions.SUB_GESTURE) {
+        return actionText(action, emptyIfNone)
+    }
+    val data = runCatching {
+        JsonHelper.decodeFromString<SubGestureActionData>(action.data)
+    }.getOrNull() ?: return getString(R.string.action_sub_gesture)
+    return subGestures.firstOrNull { it.id == data.id }?.name ?: getString(R.string.action_sub_gesture)
 }

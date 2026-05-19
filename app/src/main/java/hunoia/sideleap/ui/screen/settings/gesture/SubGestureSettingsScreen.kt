@@ -11,10 +11,15 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -43,6 +48,7 @@ fun SubGestureSettingsScreen(
     onNavToSubGestureActionSelect: (subGestureId: String, direction: SubGestureDirection) -> Unit,
     vm: SubGestureSettingsVM = viewModel()
 ) {
+    var showEditNameDialog by remember { mutableStateOf(false) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -55,10 +61,38 @@ fun SubGestureSettingsScreen(
 
         val gesture = uiState.subGesture ?: return@UDFComponent
 
+        if (showEditNameDialog) {
+            AlertDialog(
+                onDismissRequest = { showEditNameDialog = false },
+                title = { Text(text = stringResource(id = R.string.sub_gesture)) },
+                text = {
+                    OutlinedTextField(
+                        value = uiState.editingName,
+                        onValueChange = { vm.updateName(it) },
+                        singleLine = true
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        vm.confirmName()
+                        showEditNameDialog = false
+                    }) {
+                        Text(text = stringResource(id = R.string.confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showEditNameDialog = false }) {
+                        Text(text = stringResource(id = R.string.cancel))
+                    }
+                }
+            )
+        }
+
         Column {
             TopBar(
                 onBack = onBack,
                 title = uiState.editingName.ifEmpty { stringResource(id = R.string.sub_gesture) },
+                onTitleClick = { showEditNameDialog = true },
                 titleStyle = MaterialTheme.typography.titleLarge,
                 postfixTitle = {
                     Box(

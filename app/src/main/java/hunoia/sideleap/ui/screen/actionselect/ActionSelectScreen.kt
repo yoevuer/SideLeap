@@ -201,6 +201,7 @@ fun ActionSelectContent(
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     contentPadding = PaddingValues(bottom = ScrollBottomPadding),
                     actions = uiState.actions,
+                    subGestures = uiState.subGestures,
                     appInfos = uiState.apps,
                     createShortcuts = uiState.createShortcuts,
                     launchShortcuts = uiState.launchShortcuts,

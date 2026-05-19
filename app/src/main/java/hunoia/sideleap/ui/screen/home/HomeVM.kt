@@ -155,7 +155,8 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         updateUiState {
             it.copy(
                 isBottomGestureButtonListExpanded = expanded,
-                isSideGestureButtonListExpanded = it.isSideGestureButtonListExpanded && !expanded
+                isSideGestureButtonListExpanded = it.isSideGestureButtonListExpanded && !expanded,
+                isSubGestureListExpanded = it.isSubGestureListExpanded && !expanded
             )
         }
         if (expanded && scrollOffset != Int.MAX_VALUE) {
@@ -167,7 +168,8 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         updateUiState {
             it.copy(
                 isSideGestureButtonListExpanded = expanded,
-                isBottomGestureButtonListExpanded = it.isBottomGestureButtonListExpanded && !expanded
+                isBottomGestureButtonListExpanded = it.isBottomGestureButtonListExpanded && !expanded,
+                isSubGestureListExpanded = it.isSubGestureListExpanded && !expanded
             )
         }
         if (expanded && scrollOffset != Int.MAX_VALUE) {
