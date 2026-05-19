@@ -458,8 +458,6 @@ private fun AnimatedVisibilityScope.PieActionPanel(
             if (maxOuterRadius <= 0f) return@Canvas
 
             val bgColor = primaryColor.copy(alpha = 0.15f)
-            val dividerColor = Color.White.copy(alpha = 0.25f)
-            val strokePx = 1.dp.toPx()
             val gapRatio = 0.15f
             val segCount = 8
             val minGapPx = itemSizePx * 0.2f
@@ -516,16 +514,6 @@ private fun AnimatedVisibilityScope.PieActionPanel(
                         close()
                     }
                     drawPath(path, bgColor)
-                }
-
-                for (b in 0..countInLayer) {
-                    val canonAngle = -85f + b * sectorSpan
-                    val rad = Math.toRadians(canonAngle.toDouble())
-                    val c = cos(rad).toFloat()
-                    val s = sin(rad).toFloat()
-                    val startP = pixelPos(panelOrigin, c, s, innerR, position)
-                    val endP = pixelPos(panelOrigin, c, s, outerR, position)
-                    drawLine(dividerColor, startP, endP, strokeWidth = strokePx)
                 }
 
                 remaining -= countInLayer
@@ -702,7 +690,7 @@ private fun pieHitContains(
         Position.Bottom -> panelOrigin.y - itemSizePx
     }.coerceAtLeast(itemSizePx * 1.5f)
     val resolvedRadius = min(layerRadius, maxRad)
-    val innerRadius = if (layer == 0) 0f else resolvedRadius - itemSizePx * 0.5f
+    val innerRadius = (resolvedRadius - itemSizePx * 0.5f).coerceAtLeast(1f)
     val outerRadius = resolvedRadius + itemSizePx * 0.5f
 
     val dx = finger.x - panelOrigin.x
