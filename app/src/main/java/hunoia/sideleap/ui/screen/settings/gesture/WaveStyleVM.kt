@@ -3,6 +3,8 @@ package hunoia.sideleap.ui.screen.settings.gesture
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.settings.model.AnimationStyles
+import hunoia.sideleap.settings.model.ColorSource
+import hunoia.sideleap.settings.model.ThemeColorKey
 import hunoia.sideleap.settings.model.WaveStyle
 import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleVM.UiEvent
 import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleVM.UiState
@@ -82,6 +84,48 @@ class WaveStyleVM : BaseComposeVM<UiState, UiEvent>() {
     fun onIconTypeChange(iconType: Int) {
         updateUiState {
             it.copy(animationStyle = it.animationStyle.copy(iconType = iconType))
+        }
+        saveSettings()
+    }
+
+    fun onBackgroundColorSourceChange(source: ColorSource) {
+        updateUiState {
+            it.copy(animationStyle = it.animationStyle.copy(backgroundColorSource = source))
+        }
+        saveSettings()
+    }
+
+    fun onStrokeColorSourceChange(source: ColorSource) {
+        updateUiState {
+            it.copy(animationStyle = it.animationStyle.copy(strokeColorSource = source))
+        }
+        saveSettings()
+    }
+
+    fun onIconColorSourceChange(source: ColorSource) {
+        updateUiState {
+            it.copy(animationStyle = it.animationStyle.copy(iconColorSource = source))
+        }
+        saveSettings()
+    }
+
+    fun onBackgroundColorThemeKeyChange(key: ThemeColorKey) {
+        updateUiState {
+            it.copy(animationStyle = it.animationStyle.copy(backgroundColorThemeKey = key))
+        }
+        saveSettings()
+    }
+
+    fun onStrokeColorThemeKeyChange(key: ThemeColorKey) {
+        updateUiState {
+            it.copy(animationStyle = it.animationStyle.copy(strokeColorThemeKey = key))
+        }
+        saveSettings()
+    }
+
+    fun onIconColorThemeKeyChange(key: ThemeColorKey) {
+        updateUiState {
+            it.copy(animationStyle = it.animationStyle.copy(iconColorThemeKey = key))
         }
         saveSettings()
     }

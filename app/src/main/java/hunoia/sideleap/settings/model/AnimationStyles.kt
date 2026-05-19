@@ -29,6 +29,18 @@ data class AnimationStyles(
     }
 }
 
+enum class ColorSource { Custom, Theme }
+
+enum class ThemeColorKey {
+    Primary, PrimaryContainer,
+    Secondary, SecondaryContainer,
+    Tertiary, TertiaryContainer,
+    Surface, SurfaceVariant,
+    OnSurface, OnSurfaceVariant,
+    Outline, OutlineVariant,
+    SurfaceContainerLow, SurfaceContainer, SurfaceContainerHigh,
+}
+
 object AnimationStylesDefaults {
 
     const val TYPE_WAVE = 1
@@ -45,6 +57,12 @@ object AnimationStylesDefaults {
     val WaveStyleIconColor = android.graphics.Color.argb(200, 255, 255, 255)
     const val WaveStyleIconScale = 0.6f
     const val WaveStyleIconType = WaveStyle.ICON_TYPE_ARROW
+    val WaveStyleBackgroundColorSource = ColorSource.Theme
+    val WaveStyleStrokeColorSource = ColorSource.Theme
+    val WaveStyleIconColorSource = ColorSource.Theme
+    val WaveStyleBackgroundColorThemeKey = ThemeColorKey.SurfaceContainerHigh
+    val WaveStyleStrokeColorThemeKey = ThemeColorKey.Outline
+    val WaveStyleIconColorThemeKey = ThemeColorKey.OnSurface
 }
 
 sealed interface AnimationStyle
@@ -62,7 +80,13 @@ data class WaveStyle(
     val iconColor: Int = AnimationStylesDefaults.WaveStyleIconColor,
     val iconScale: Float = AnimationStylesDefaults.WaveStyleIconScale,
     val iconType: Int = AnimationStylesDefaults.WaveStyleIconType,
-    val stickySlideEnabled: Boolean = false
+    val stickySlideEnabled: Boolean = false,
+    val backgroundColorSource: ColorSource = AnimationStylesDefaults.WaveStyleBackgroundColorSource,
+    val strokeColorSource: ColorSource = AnimationStylesDefaults.WaveStyleStrokeColorSource,
+    val iconColorSource: ColorSource = AnimationStylesDefaults.WaveStyleIconColorSource,
+    val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.WaveStyleBackgroundColorThemeKey,
+    val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.WaveStyleStrokeColorThemeKey,
+    val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.WaveStyleIconColorThemeKey,
 ) : AnimationStyle {
 
     companion object {

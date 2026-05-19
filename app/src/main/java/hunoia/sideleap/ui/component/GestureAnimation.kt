@@ -14,7 +14,10 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.dp
 import com.aaron.compose.ktx.toPx
+import androidx.compose.material3.MaterialTheme
 import hunoia.sideleap.settings.model.AnimationStyle
+import hunoia.sideleap.settings.model.ColorSource
+import hunoia.sideleap.settings.model.ThemeColorKey
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection.Center
@@ -51,6 +54,28 @@ fun GestureAnimation(
 }
 
 @Composable
+private fun resolveColor(source: ColorSource, themeKey: ThemeColorKey, customColor: Int): Color = when (source) {
+    ColorSource.Custom -> Color(customColor)
+    ColorSource.Theme -> when (themeKey) {
+        ThemeColorKey.Primary -> MaterialTheme.colorScheme.primary
+        ThemeColorKey.PrimaryContainer -> MaterialTheme.colorScheme.primaryContainer
+        ThemeColorKey.Secondary -> MaterialTheme.colorScheme.secondary
+        ThemeColorKey.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
+        ThemeColorKey.Tertiary -> MaterialTheme.colorScheme.tertiary
+        ThemeColorKey.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
+        ThemeColorKey.Surface -> MaterialTheme.colorScheme.surface
+        ThemeColorKey.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
+        ThemeColorKey.OnSurface -> MaterialTheme.colorScheme.onSurface
+        ThemeColorKey.OnSurfaceVariant -> MaterialTheme.colorScheme.onSurfaceVariant
+        ThemeColorKey.Outline -> MaterialTheme.colorScheme.outline
+        ThemeColorKey.OutlineVariant -> MaterialTheme.colorScheme.outlineVariant
+        ThemeColorKey.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
+        ThemeColorKey.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
+        ThemeColorKey.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
+    }
+}
+
+@Composable
 private fun WaveGestureAnimation(
     animationStyle: WaveStyle,
     sideGestureState: SideGestureState,
@@ -64,7 +89,9 @@ private fun WaveGestureAnimation(
     val bezierLengthHalf = bezierMaxWidth * animationStyle.bezierLengthHalfRatio
     val bezierTransformOffsetCoerce = if (animationStyle.transformEnabled) bezierLengthHalf / 2f else 0f
     val factorDp = 1.dp.toPx()
-    val iconColor = Color(animationStyle.iconColor)
+    val backgroundColor = resolveColor(animationStyle.backgroundColorSource, animationStyle.backgroundColorThemeKey, animationStyle.backgroundColor)
+    val strokeColor = resolveColor(animationStyle.strokeColorSource, animationStyle.strokeColorThemeKey, animationStyle.strokeColor)
+    val iconColor = resolveColor(animationStyle.iconColorSource, animationStyle.iconColorThemeKey, animationStyle.iconColor)
     val iconColorFilter = ColorFilter.tint(iconColor)
     val pathCache = remember { Path() }
 
@@ -185,12 +212,12 @@ private fun WaveGestureAnimation(
             }
         }
         // 绘制背景
-        drawPath(path = bezierPath, color = Color(animationStyle.backgroundColor))
+        drawPath(path = bezierPath, color = backgroundColor)
         if (animationStyle.strokeWidth > 0) {
             // 绘制轮廓
             drawPath(
                 path = bezierPath,
-                color = Color(animationStyle.strokeColor),
+                color = strokeColor,
                 style = Stroke(animationStyle.strokeWidth.toFloat())
             )
         }
