@@ -99,7 +99,7 @@ fun SideGestureContainer(
     onVirtualMouseSettingsUpdate: (GestureSettings.VirtualMouse) -> Unit = {},
     virtualMousePreviousPosition: () -> Offset = { Offset.Unspecified },
     onPointerActionAtPosition: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit = { _, _, _, _ -> },
-    isOwnPackage: () -> Boolean = { false },
+
     wallpaperChangeTrigger: Long = 0L,
 ) {
     val context = LocalContext.current
@@ -307,7 +307,7 @@ fun SideGestureContainer(
                 val action = sideGestureState.onDragEnd()
                 val actionWithTouch = action.withTouchPosition(touchPosition)
 
-                if (isOwnPackage() && action.value == GlobalActions.BACK) {
+                if (action.value == GlobalActions.BACK) {
                     coroutineScope.launch {
                         delay(180)
                         curOnAction(actionWithTouch, sourceButton)

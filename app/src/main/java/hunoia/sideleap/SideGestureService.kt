@@ -302,7 +302,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                         actionSettings = actionSettings,
                         advancedSettings = advancedSettings,
                         gestureSettings = gestureSettings,
-                        isOwnPackage = { getCurrentPackageName() == packageName }
                     )
                 }
             }
