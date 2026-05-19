@@ -11,7 +11,10 @@ import hunoia.sideleap.ui.component.ComposeToast
 import hunoia.sideleap.settings.SettingsProvider
 
 @Composable
-fun SideGestureTheme(content: @Composable () -> Unit) {
+fun SideGestureTheme(
+    wallpaperChangeTrigger: Any = Any(),
+    content: @Composable () -> Unit
+) {
     val advancedSettings by SettingsProvider
         .advancedSettings
         .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
@@ -23,7 +26,8 @@ fun SideGestureTheme(content: @Composable () -> Unit) {
     val dynamicColor = advancedSettings.dynamicColor
     AppTheme(
         darkTheme = darkTheme,
-        dynamicColor = dynamicColor
+        dynamicColor = dynamicColor,
+        recomposeTrigger = wallpaperChangeTrigger
     ) {
         content()
         ComposeToast()

@@ -1,7 +1,10 @@
 package hunoia.sideleap
 
+import android.app.WallpaperManager
 import android.content.res.Configuration
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.view.View
 import android.view.WindowManager
@@ -37,6 +40,7 @@ import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
+import hunoia.sideleap.core.event.Events
 import hunoia.sideleap.core.event.WallpaperChangedEvent
 import hunoia.sideleap.launcher.query.LauncherEnvironment
 import hunoia.sideleap.service.SideGestureServiceProxy
@@ -158,6 +162,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         log = { message -> android.util.Log.d("SideLeapLauncher", message) }
     )
     private val wallpaperChangeObserver = WallpaperChangeObserver(this)
+    private var wallpaperColorsListener: WallpaperManager.OnColorsChangedListener? = null
     private val screenLockObserver = ScreenLockObserver(
         context = this,
         onScreenOff = {
@@ -217,6 +222,11 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         volumeScrubOverlay?.dismiss()
         proxy.onRelease()
         screenLockObserver.unregister()
+        wallpaperColorsListener?.let { listener ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                WallpaperManager.getInstance(this).removeOnColorsChangedListener(listener)
+            }
+        }
         wallpaperChangeObserver.unregister()
     }
 
@@ -234,18 +244,21 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     @Composable
     private fun renderMainOverlay() {
-        var key by remember { mutableStateOf(Any()) }
         val screenshotService = this
         var lastWallpaperChangeMs by remember { mutableStateOf(0L) }
         SubscribeEvent(eventClass = WallpaperChangedEvent::class) {
             val now = System.currentTimeMillis()
             if (now - lastWallpaperChangeMs < 500L) return@SubscribeEvent
             lastWallpaperChangeMs = now
-            key = Any()
         }
-        key(key) {
-            SideGestureTheme {
-                Box(modifier = Modifier.fillMaxSize()) {
+        val advancedSettingsForTheme by SettingsProvider
+            .advancedSettings
+            .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
+        val themeKey = remember(lastWallpaperChangeMs, advancedSettingsForTheme.animationStyles.json) {
+            lastWallpaperChangeMs.toString() + "_" + advancedSettingsForTheme.animationStyles.json
+        }
+        SideGestureTheme(wallpaperChangeTrigger = themeKey) {
+            Box(modifier = Modifier.fillMaxSize()) {
                     val sideButtons by SettingsProvider
                         .sideGestureButtons
                         .collectAsStateWithLifecycle(initialValue = emptyList())
@@ -293,7 +306,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                     )
                 }
             }
-        }
     }
 
     private fun registerScreenLockObserver() {
@@ -302,6 +314,13 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     private fun registerWallpaperChangeObserver() {
         wallpaperChangeObserver.register()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val listener = WallpaperManager.OnColorsChangedListener { _, _ ->
+                Events.post(WallpaperChangedEvent())
+            }
+            wallpaperColorsListener = listener
+            WallpaperManager.getInstance(this).addOnColorsChangedListener(listener, Handler(Looper.getMainLooper()))
+        }
     }
 
     private fun updateMainLayout() {
