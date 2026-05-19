@@ -82,7 +82,8 @@ private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.GENERATE_PASSWORD_COPY to R.string.action_generate_password_copy,
     GlobalActions.OPEN_PASSWORD_GENERATOR to R.string.action_open_password_generator,
     GlobalActions.VOLUME_SCRUB to R.string.action_volume_scrub,
-    GlobalActions.EXECUTE_SHELL_COMMAND to R.string.action_shell_command
+    GlobalActions.EXECUTE_SHELL_COMMAND to R.string.action_shell_command,
+    GlobalActions.SUB_GESTURE to R.string.action_sub_gesture
 )
 
 private val actionIconMap: Map<String, Any> = mapOf(
@@ -119,7 +120,8 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.GENERATE_PASSWORD_COPY to Icons.Default.ContentCopy,
     GlobalActions.OPEN_PASSWORD_GENERATOR to Icons.Default.Password,
     GlobalActions.VOLUME_SCRUB to Icons.AutoMirrored.Filled.VolumeUp,
-    GlobalActions.EXECUTE_SHELL_COMMAND to Icons.Default.Terminal
+    GlobalActions.EXECUTE_SHELL_COMMAND to Icons.Default.Terminal,
+    GlobalActions.SUB_GESTURE to Icons.Default.Gesture
 )
 
 fun Context.actionText(action: Action, emptyIfNone: Boolean = true): String = when (action.value) {

@@ -249,6 +249,8 @@
     <string name="action_desc_quick_launcher">打开底部应用搜索抽屉</string>
     <string name="action_desc_virtual_mouse">滑动控制光标，松手点击</string>
     <string name="action_volume_scrub">滑动调节音量</string>
+    <string name="action_sub_gesture">子手势</string>
+    <string name="action_desc_sub_gesture">滑动触发子手势</string>
     <string name="action_desc_volume_scrub">触发后继续上下滑动可调节音量</string>
     <string name="action_desc_shell_command">通过 Shizuku 执行设备本机 shell 命令</string>
     <string name="action_permission_hint_flashlight">需要设备相机/手电筒能力</string>
@@ -367,4 +369,10 @@
     <string name="password_max_length_hint">最多 32 个字符</string>
     <string name="password_entropy_bits">熵值：约 %1$d bits</string>
     <string name="password_estimated_entropy_bits">估算熵值：约 %1$d bits</string>
+    <string name="sub_gesture">子手势</string>
+    <string name="sub_gesture_list">子手势</string>
+    <string name="add_sub_gesture">添加子手势</string>
+    <string name="delete_sub_gesture_warning">删除子手势？</string>
+    <string name="delete_sub_gesture_warning_desc">删除后会清理所有引用该子手势的动作。</string>
+    <string name="sub_gesture_angles">子手势角度</string>
 </resources>

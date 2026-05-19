@@ -10,4 +10,5 @@ object DataStoreFiles {
     const val ACTION_SETTINGS = "ff"
     const val QUICK_APP_LAUNCHER = "gg"
     const val FROZEN_APP_SETTINGS = "hh"
+    const val SUB_GESTURE_SETTINGS = "ii"
 }

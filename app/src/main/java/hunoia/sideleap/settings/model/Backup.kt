@@ -15,6 +15,7 @@ data class Backup(
     val bottomGestureButtons: List<GestureButton>? = null,
     val quickAppLauncherSettings: QuickAppLauncherSettings? = null,
     val frozenAppSettings: FrozenAppSettings? = null,
+    val subGestureSettings: SubGestureSettings? = null,
     val timestamp: Long? = null,
     val version: String? = null
 )
