@@ -236,7 +236,11 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     private fun renderMainOverlay() {
         var key by remember { mutableStateOf(Any()) }
         val screenshotService = this
+        var lastWallpaperChangeMs by remember { mutableStateOf(0L) }
         SubscribeEvent(eventClass = WallpaperChangedEvent::class) {
+            val now = System.currentTimeMillis()
+            if (now - lastWallpaperChangeMs < 500L) return@SubscribeEvent
+            lastWallpaperChangeMs = now
             key = Any()
         }
         key(key) {
