@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -99,6 +100,7 @@ fun SideGestureContainer(
     virtualMousePreviousPosition: () -> Offset = { Offset.Unspecified },
     onPointerActionAtPosition: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit = { _, _, _, _ -> },
     isOwnPackage: () -> Boolean = { false },
+    wallpaperChangeTrigger: Long = 0L,
 ) {
     val context = LocalContext.current
     val curOnAction by rememberUpdatedState(newValue = onAction)
@@ -344,11 +346,13 @@ fun SideGestureContainer(
         )
 
         if (!moveScreenState.visible && animationStyle != null) {
-            GestureAnimation(
-                modifier = Modifier.matchParentSize(),
-                animationStyle = animationStyle,
-                SideGestureState = sideGestureState
-            )
+            key(wallpaperChangeTrigger) {
+                GestureAnimation(
+                    modifier = Modifier.matchParentSize(),
+                    animationStyle = animationStyle,
+                    SideGestureState = sideGestureState
+                )
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && moveScreenState.visible) {

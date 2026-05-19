@@ -264,6 +264,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                     SideGestureContainer(
                         modifier = Modifier.matchParentSize(),
                         buttons = sideButtons + bottomButtons,
+                        wallpaperChangeTrigger = lastWallpaperChangeMs,
                         animationStyle = when (advancedSettings.animationStyles.isAnimationEnabled) {
                             true -> advancedSettings.animationStyles.value
                             else -> null
