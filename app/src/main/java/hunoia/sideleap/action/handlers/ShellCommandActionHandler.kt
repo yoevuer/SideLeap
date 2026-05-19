@@ -8,7 +8,7 @@ import hunoia.sideleap.action.api.ActionExecutionResult
 import hunoia.sideleap.action.api.ActionHandler
 import hunoia.sideleap.action.api.ActionHandlerContext
 import hunoia.sideleap.core.serialization.JsonHelper
-import hunoia.sideleap.system.api.ShizukuBinderExecutor
+import hunoia.sideleap.system.shizuku.ShizukuBinderExecutor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

@@ -58,11 +58,11 @@ import hunoia.sideleap.gesture.getTriggerDirection
 import hunoia.sideleap.gesture.isEmptyOrNone
 import hunoia.sideleap.gesture.stickySlideValue
 import hunoia.sideleap.gesture.styleBy
-import hunoia.sideleap.system.api.tryVibrateForLongSlide
-import hunoia.sideleap.system.api.tryVibrateForSlide
+import hunoia.sideleap.system.vibration.tryVibrateForLongSlide
+import hunoia.sideleap.system.vibration.tryVibrateForSlide
 import hunoia.sideleap.ui.component.DragGestureHandler
-import hunoia.sideleap.system.api.volumeDown
-import hunoia.sideleap.system.api.volumeUp
+import hunoia.sideleap.system.volumeDown
+import hunoia.sideleap.system.volumeUp
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
 import com.blankj.utilcode.util.ConvertUtils
 import androidx.compose.ui.graphics.Color

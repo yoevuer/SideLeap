@@ -1,4 +1,4 @@
-package hunoia.sideleap.system.api
+package hunoia.sideleap.system.permission
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context

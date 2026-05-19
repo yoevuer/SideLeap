@@ -1,4 +1,4 @@
-package hunoia.sideleap.system.api
+package hunoia.sideleap.system.vibration
 
 import android.Manifest.permission.VIBRATE
 import androidx.annotation.RequiresPermission

@@ -70,7 +70,7 @@ import hunoia.sideleap.action.definition.ActionCategory
 import hunoia.sideleap.launcher.ext.qualifiedName
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
-import hunoia.sideleap.system.api.showToast
+import hunoia.sideleap.system.feedback.showToast
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.IconTextPadding

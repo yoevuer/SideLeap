@@ -70,7 +70,7 @@ import hunoia.sideleap.settings.api.SettingsUiDefaults.DimAlpha
 import hunoia.sideleap.launcher.model.ScaleableDefaults.DEFAULT_SCALE
 import hunoia.sideleap.launcher.model.ScaleableDefaults.MAX_SCALE
 import hunoia.sideleap.launcher.model.ScaleableDefaults.MIN_SCALE
-import hunoia.sideleap.system.api.showToast
+import hunoia.sideleap.system.feedback.showToast
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.ItemPadding

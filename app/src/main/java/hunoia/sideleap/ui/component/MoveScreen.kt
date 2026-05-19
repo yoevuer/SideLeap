@@ -59,7 +59,7 @@ import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.DoubleTap
 import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.LongPress
 import hunoia.sideleap.settings.model.ActionSettings.MoveScreen.Action.Tap
 import hunoia.sideleap.settings.model.GestureSettings
-import hunoia.sideleap.system.api.tryVibrateForMoveScreen
+import hunoia.sideleap.system.vibration.tryVibrateForMoveScreen
 import hunoia.sideleap.action.MoveScreenData
 import hunoia.sideleap.core.serialization.JsonHelper
 import com.blankj.utilcode.util.ScreenUtils

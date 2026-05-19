@@ -1,4 +1,4 @@
-package hunoia.sideleap.system.api
+package hunoia.sideleap.system.accessibility
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription

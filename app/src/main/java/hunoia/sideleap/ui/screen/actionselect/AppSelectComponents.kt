@@ -42,7 +42,7 @@ import hunoia.sideleap.settings.api.SettingsUiDefaults
 import hunoia.sideleap.launcher.ext.icon
 import hunoia.sideleap.launcher.ext.qualifiedName
 import hunoia.sideleap.launcher.model.AppInfo
-import hunoia.sideleap.system.api.gotoAppDetailSettings
+import hunoia.sideleap.system.intent.gotoAppDetailSettings
 import hunoia.sideleap.ui.permission.deniedForever
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal

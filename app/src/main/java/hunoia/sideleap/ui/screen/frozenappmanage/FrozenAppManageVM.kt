@@ -10,7 +10,7 @@ import hunoia.sideleap.settings.model.FrozenAppSettings
 import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.freeze.api.FreezeAction
 import hunoia.sideleap.freeze.api.FreezeState
-import hunoia.sideleap.system.api.showComposeToast
+import hunoia.sideleap.system.feedback.showComposeToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest

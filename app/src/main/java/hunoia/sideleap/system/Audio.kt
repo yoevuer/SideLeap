@@ -1,5 +1,6 @@
-package hunoia.sideleap.system.api
+package hunoia.sideleap.system
 
+import hunoia.sideleap.system.feedback.showToast
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent

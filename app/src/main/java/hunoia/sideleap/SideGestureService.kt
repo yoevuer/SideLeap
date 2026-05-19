@@ -72,8 +72,8 @@ import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.service.hiddenKey
 import hunoia.sideleap.ui.component.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.component.quickapplaunch.QuickAppLauncherContent
-import hunoia.sideleap.system.api.copySensitiveText
-import hunoia.sideleap.system.api.Accessibility
+import hunoia.sideleap.system.copySensitiveText
+import hunoia.sideleap.system.accessibility.Accessibility
 import hunoia.sideleap.ui.component.password.PasswordGeneratorPanel
 import hunoia.sideleap.ui.component.password.PasswordPanelContent
 import com.blankj.utilcode.util.ScreenUtils

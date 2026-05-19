@@ -7,8 +7,8 @@ import android.graphics.PixelFormat
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import hunoia.sideleap.system.api.volumeDown
-import hunoia.sideleap.system.api.volumeUp
+import hunoia.sideleap.system.volumeDown
+import hunoia.sideleap.system.volumeUp
 
 class VolumeScrubOverlay(private val context: Context) {
 

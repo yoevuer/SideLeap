@@ -62,7 +62,7 @@ import hunoia.sideleap.settings.api.SettingsUiDefaults.MinGotoBottomStrength
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MinMoveScreenHover
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MinMoveScreenRate
 import hunoia.sideleap.launcher.query.OpenAppOrUrlQuery
-import hunoia.sideleap.system.api.normalizeOpenAppOrUrl
+import hunoia.sideleap.system.intent.normalizeOpenAppOrUrl
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.SubMinInteractiveSize
@@ -75,8 +75,8 @@ import hunoia.sideleap.launcher.model.OpenAppOrUrlData
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.action.ShellCommandData
 import hunoia.sideleap.action.VirtualMouseActionData
-import hunoia.sideleap.system.api.ShizukuBinderExecutor
-import hunoia.sideleap.system.api.showToast
+import hunoia.sideleap.system.shizuku.ShizukuBinderExecutor
+import hunoia.sideleap.system.feedback.showToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

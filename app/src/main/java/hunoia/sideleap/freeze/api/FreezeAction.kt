@@ -14,8 +14,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import hunoia.sideleap.freeze.ShizukuBridgeService
-import hunoia.sideleap.system.api.ShizukuCommand
-import hunoia.sideleap.system.api.ShizukuRuntime
+import hunoia.sideleap.system.shizuku.ShizukuCommand
+import hunoia.sideleap.system.shizuku.ShizukuRuntime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first

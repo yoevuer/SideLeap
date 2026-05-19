@@ -44,7 +44,7 @@ import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordMaxLength
 import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordMinLength
 import hunoia.sideleap.settings.api.SettingsProvider
 import hunoia.sideleap.settings.model.ActionSettings
-import hunoia.sideleap.system.api.showToast
+import hunoia.sideleap.system.feedback.showToast
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 

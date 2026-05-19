@@ -1,4 +1,4 @@
-package hunoia.sideleap.system.api
+package hunoia.sideleap.system.shizuku
 
 data class ShellCommandResult(
     val success: Boolean,

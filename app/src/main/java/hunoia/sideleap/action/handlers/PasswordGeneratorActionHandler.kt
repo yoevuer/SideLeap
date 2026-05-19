@@ -7,7 +7,7 @@ import hunoia.sideleap.action.api.ActionExecutionResult
 import hunoia.sideleap.action.api.ActionHandler
 import hunoia.sideleap.action.api.ActionHandlerContext
 import hunoia.sideleap.action.api.PasswordGenerator
-import hunoia.sideleap.system.api.copySensitiveText
+import hunoia.sideleap.system.copySensitiveText
 
 object PasswordGeneratorActionHandler : ActionHandler {
     override val supportedActions = setOf(

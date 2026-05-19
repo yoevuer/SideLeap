@@ -4,7 +4,7 @@ import android.content.Context
 import hunoia.sideleap.R
 import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.launcher.query.AppQuery
-import hunoia.sideleap.system.api.showToast
+import hunoia.sideleap.system.feedback.showToast
 import kotlinx.coroutines.delay
 
 object FreezeLaunch {
