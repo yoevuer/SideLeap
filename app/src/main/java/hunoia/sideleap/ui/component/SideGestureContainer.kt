@@ -10,6 +10,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -67,6 +68,10 @@ import hunoia.sideleap.system.volumeUp
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
 import com.blankj.utilcode.util.ConvertUtils
 import androidx.compose.ui.graphics.Color
+import hunoia.sideleap.action.payload.SubGestureActionData
+import hunoia.sideleap.core.serialization.JsonHelper
+import hunoia.sideleap.settings.model.SubGesture
+import hunoia.sideleap.settings.model.SubGestureSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -99,6 +104,7 @@ fun SideGestureContainer(
     onVirtualMouseSettingsUpdate: (GestureSettings.VirtualMouse) -> Unit = {},
     virtualMousePreviousPosition: () -> Offset = { Offset.Unspecified },
     onPointerActionAtPosition: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit = { _, _, _, _ -> },
+    subGestureSettings: SubGestureSettings = SubGestureSettings(),
 
     wallpaperChangeTrigger: Long = 0L,
 ) {
@@ -125,6 +131,13 @@ fun SideGestureContainer(
     var isVolumeScrubMode by remember { mutableStateOf(false) }
     var volumeScrubAccumulator by remember { mutableStateOf(0f) }
     val volumeStepThreshold = remember { context.resources.displayMetrics.density * 18f }
+
+    var activeSubGesture by remember { mutableStateOf<SubGesture?>(null) }
+    var subGestureAccum by remember { mutableStateOf(Offset.Zero) }
+    var subGestureDepth by remember { mutableIntStateOf(0) }
+    var subGestureTouchCount by remember { mutableIntStateOf(0) }
+    var subGestureTimeoutJob by remember { mutableStateOf<Job?>(null) }
+    val subGestureThresholdPx = remember { ConvertUtils.dp2px(30f).toFloat() }
 
     fun scheduleVirtualMouseLongPress() {
         virtualMouseLongPressJob?.cancel()
@@ -186,18 +199,79 @@ fun SideGestureContainer(
         virtualMouseLongPressAnchor = Offset.Unspecified
     }
 
+    fun tryEnterSubGesture(action: Action): Boolean {
+        if (action.value != GlobalActions.SUB_GESTURE) return false
+        val id = try {
+            JsonHelper.decodeFromString<SubGestureActionData>(action.data).id
+        } catch (_: Exception) { return false }
+        val target = subGestureSettings.subGestures.firstOrNull { it.id == id && it.enabled }
+            ?: return true
+        if (subGestureDepth >= 3) return true
+        activeSubGesture = target
+        subGestureAccum = Offset.Zero
+        subGestureTouchCount = 0
+        subGestureDepth += 1
+        scheduleSubGestureTimeout()
+        sideGestureState.cancel()
+        return true
+    }
+
+    fun clearSubGestureMode() {
+        activeSubGesture = null
+        subGestureAccum = Offset.Zero
+        subGestureDepth = 0
+        subGestureTouchCount = 0
+        subGestureTimeoutJob?.cancel()
+        subGestureTimeoutJob = null
+    }
+
+    private fun scheduleSubGestureTimeout() {
+        subGestureTimeoutJob?.cancel()
+        subGestureTimeoutJob = coroutineScope.launch {
+            delay(SUB_GESTURE_TIMEOUT_MS)
+            clearSubGestureMode()
+        }
+    }
+
+    private fun restartSubGestureTimeout() {
+        scheduleSubGestureTimeout()
+    }
+
+    fun handleResolvedAction(action: Action, sourceButton: GestureButton?, touchPosition: Offset) {
+        if (tryEnterSubGesture(action)) return
+        curOnAction(action.withTouchPosition(touchPosition), sourceButton)
+    }
+
     SideEffect {
         sideGestureState.onLongPress = { action ->
-            curOnAction(action.withTouchPosition(sideGestureState.finger), sideGestureState.button)
+            handleResolvedAction(action, sideGestureState.button, sideGestureState.finger)
             sideGestureState.cancel()
         }
     }
 
     DragGestureHandler(
         onDragStart = onDragStart@{ offset ->
+            if (activeSubGesture != null) {
+                subGestureAccum = Offset.Zero
+                restartSubGestureTimeout()
+                return@onDragStart
+            }
             sideGestureState.onDragStart(offset, imePadding)
         },
         onDrag = onDrag@{ dragAmount ->
+            if (activeSubGesture != null) {
+                subGestureAccum += dragAmount
+                if (hypot(subGestureAccum.x, subGestureAccum.y) >= subGestureThresholdPx) {
+                    val direction = activeSubGesture!!.angle.directionOf(subGestureAccum)
+                    val action = activeSubGesture!!.actionFor(direction)
+                    subGestureAccum = Offset.Zero
+                    if (action != null && action != Action.NONE) {
+                        handleResolvedAction(action, sideGestureState.button, sideGestureState.finger)
+                        if (action.value != GlobalActions.SUB_GESTURE) clearSubGestureMode()
+                    }
+                }
+                return@onDrag
+            }
             if (isVirtualMouseMode) {
                 virtualMouseTouchPosition = virtualMouseTouchPosition + dragAmount
                 val stillForLongPress = isVirtualMouseWithinLongPressTolerance(
@@ -269,7 +343,7 @@ fun SideGestureContainer(
                             moveScreenState.onDragStart(sideGestureState.finger)
                             sideGestureState.cancel()
                         } else {
-                            curOnAction(action.withTouchPosition(sideGestureState.finger), button)
+                            handleResolvedAction(action, button, sideGestureState.finger)
                             sideGestureState.cancel()
                         }
                     }
@@ -279,6 +353,12 @@ fun SideGestureContainer(
             }
         },
         onDragEnd = onDragEnd@{
+            if (activeSubGesture != null) {
+                subGestureAccum = Offset.Zero
+                subGestureTouchCount += 1
+                if (subGestureTouchCount >= 5) clearSubGestureMode()
+                return@onDragEnd
+            }
             if (isVirtualMouseMode) {
                 finishVirtualMouseMode(click = true)
                 return@onDragEnd
@@ -292,32 +372,35 @@ fun SideGestureContainer(
                 val touchPosition = actionPanelState.finger
                 val action = actionPanelState.done()
                 actionPanelState.onDragEnd()
-                curOnAction(action.withTouchPosition(touchPosition), sideGestureState.button)
+                handleResolvedAction(action, sideGestureState.button, touchPosition)
             }
             if (moveScreenState.visible) {
                 val touchPosition = moveScreenState.finger
                 val action = moveScreenState.done()
                 moveScreenState.onDragEnd()
-                curOnAction(action.withTouchPosition(touchPosition), sideGestureState.button)
+                handleResolvedAction(action, sideGestureState.button, touchPosition)
             }
 
             if (!sideGestureState.isCanceled) {
                 val touchPosition = sideGestureState.finger
                 val sourceButton = sideGestureState.button
                 val action = sideGestureState.onDragEnd()
-                val actionWithTouch = action.withTouchPosition(touchPosition)
 
                 if (action.value == GlobalActions.BACK) {
                     coroutineScope.launch {
                         delay(advancedSettings.backActionDelayMs)
-                        curOnAction(actionWithTouch, sourceButton)
+                        handleResolvedAction(action, sourceButton, touchPosition)
                     }
                 } else {
-                    curOnAction(actionWithTouch, sourceButton)
+                    handleResolvedAction(action, sourceButton, touchPosition)
                 }
             }
         },
         onDragCancel = onDragCancel@{
+            if (activeSubGesture != null) {
+                clearSubGestureMode()
+                return@onDragCancel
+            }
             if (isVirtualMouseMode) {
                 finishVirtualMouseMode(click = false)
                 return@onDragCancel
@@ -698,3 +781,5 @@ abstract class LongSlideState {
         finger = Offset.Unspecified
     }
 }
+
+private const val SUB_GESTURE_TIMEOUT_MS = 5000L
