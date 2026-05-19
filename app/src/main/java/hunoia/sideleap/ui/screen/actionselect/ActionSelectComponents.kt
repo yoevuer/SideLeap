@@ -305,7 +305,7 @@ internal fun ActionPage(
                     }
                     items(
                         items = categoryActions,
-                        key = { it.value }
+                        key = { "${it.value}:${it.data}" }
                     ) { item ->
                         ActionItem(
                             action = item,

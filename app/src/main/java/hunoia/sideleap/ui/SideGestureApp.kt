@@ -22,6 +22,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 
 import hunoia.sideleap.ui.navigation.AdvancedSettings
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
@@ -35,6 +36,7 @@ import hunoia.sideleap.ui.screen.settings.AdvancedSettingsScreen
 
 import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonSettingsScreen
 import hunoia.sideleap.ui.screen.settings.gesture.GestureSettingsScreen
+import hunoia.sideleap.ui.screen.settings.gesture.SubGestureActionSelectScreen
 import hunoia.sideleap.ui.screen.settings.gesture.SubGestureSettingsScreen
 import hunoia.sideleap.ui.screen.freeze.FrozenAppManageScreen
 import hunoia.sideleap.ui.screen.home.HomeScreen
@@ -110,8 +112,13 @@ fun SideGestureApp() {
                         }
                     )
                 }
-                myComposable<SubGestureActionSelect> {
-                    // Placeholder — Phase 4 will wire the full screen
+                myComposable<SubGestureActionSelect> { backStackEntry ->
+                    val route = backStackEntry.toRoute<SubGestureActionSelect>()
+                    SubGestureActionSelectScreen(
+                        subGestureId = route.subGestureId,
+                        direction = route.direction,
+                        onBack = { navController.navigateUp() }
+                    )
                 }
             }
         }
