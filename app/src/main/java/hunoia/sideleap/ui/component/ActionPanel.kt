@@ -754,7 +754,10 @@ private fun actionPanelOrigin(
     }
     val y = when (position) {
         Position.Left, Position.Right -> origin.y.coerceIn(safePadding, parentSize.height - safePadding)
-        Position.Bottom -> origin.y.coerceAtLeast(parentSize.height / 2f)
+        Position.Bottom -> (origin.y - itemSizePx * 2f).coerceIn(
+            parentSize.height * 0.35f,
+            parentSize.height - safePadding
+        )
     }
     return Offset(x, y)
 }
