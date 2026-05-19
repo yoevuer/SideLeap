@@ -199,6 +199,27 @@ fun SideGestureContainer(
         virtualMouseLongPressAnchor = Offset.Unspecified
     }
 
+    fun clearSubGestureMode() {
+        activeSubGesture = null
+        subGestureAccum = Offset.Zero
+        subGestureDepth = 0
+        subGestureTouchCount = 0
+        subGestureTimeoutJob?.cancel()
+        subGestureTimeoutJob = null
+    }
+
+    fun scheduleSubGestureTimeout() {
+        subGestureTimeoutJob?.cancel()
+        subGestureTimeoutJob = coroutineScope.launch {
+            delay(SUB_GESTURE_TIMEOUT_MS)
+            clearSubGestureMode()
+        }
+    }
+
+    fun restartSubGestureTimeout() {
+        scheduleSubGestureTimeout()
+    }
+
     fun tryEnterSubGesture(action: Action): Boolean {
         if (action.value != GlobalActions.SUB_GESTURE) return false
         val id = try {
@@ -214,27 +235,6 @@ fun SideGestureContainer(
         scheduleSubGestureTimeout()
         sideGestureState.cancel()
         return true
-    }
-
-    fun clearSubGestureMode() {
-        activeSubGesture = null
-        subGestureAccum = Offset.Zero
-        subGestureDepth = 0
-        subGestureTouchCount = 0
-        subGestureTimeoutJob?.cancel()
-        subGestureTimeoutJob = null
-    }
-
-    private fun scheduleSubGestureTimeout() {
-        subGestureTimeoutJob?.cancel()
-        subGestureTimeoutJob = coroutineScope.launch {
-            delay(SUB_GESTURE_TIMEOUT_MS)
-            clearSubGestureMode()
-        }
-    }
-
-    private fun restartSubGestureTimeout() {
-        scheduleSubGestureTimeout()
     }
 
     fun handleResolvedAction(action: Action, sourceButton: GestureButton?, touchPosition: Offset) {

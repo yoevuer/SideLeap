@@ -60,7 +60,6 @@ fun SubGestureSettingsScreen(
                 onBack = onBack,
                 title = uiState.editingName.ifEmpty { stringResource(id = R.string.sub_gesture) },
                 titleStyle = MaterialTheme.typography.titleLarge,
-                onTitleClick = { /* name editing — not implemented in this phase */ },
                 postfixTitle = {
                     Box(
                         modifier = Modifier
