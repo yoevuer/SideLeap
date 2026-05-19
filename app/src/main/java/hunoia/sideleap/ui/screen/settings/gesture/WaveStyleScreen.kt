@@ -5,7 +5,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,8 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -65,6 +62,7 @@ import hunoia.sideleap.ui.component.SectionCard
 import hunoia.sideleap.ui.component.TextActionButton
 import hunoia.sideleap.ui.component.MyTextSlider
 import hunoia.sideleap.ui.component.LabeledSwitch
+import hunoia.sideleap.ui.component.ThemeColorPickerDialog
 import kotlinx.coroutines.launch
 
 /**
@@ -129,85 +127,71 @@ fun WaveStyleContent(
             )
         }
 
+        var showThemeColorPickerFor by remember { mutableStateOf<String?>(null) }
+        showThemeColorPickerFor?.let { target ->
+            ThemeColorPickerDialog(
+                onDismissRequest = { showThemeColorPickerFor = null },
+                onColorPicked = { key ->
+                    when (target) {
+                        "bg" -> vm.onBackgroundColorThemeKeyChange(key)
+                        "stroke" -> vm.onStrokeColorThemeKeyChange(key)
+                        "icon" -> vm.onIconColorThemeKeyChange(key)
+                    }
+                    showThemeColorPickerFor = null
+                }
+            )
+        }
+
         MyColumn(scrollState = scrollState) {
             val style = uiState.animationStyle
-            var themeKeyDropdownFor by remember { mutableStateOf<String?>(null) }
-
-            fun dismissDropdown() { themeKeyDropdownFor = null }
 
             SectionCard(title = stringResource(id = R.string.color_outline)) {
-                    Box {
-                        TextActionButton(
-                            onClick = {
-                                if (style.backgroundColorSource == ColorSource.Theme) {
-                                    themeKeyDropdownFor = "bg"
-                                } else {
-                                    vm.colorPickerDialog.show(
-                                        show = true,
-                                        color = style.backgroundColor,
-                                        belongsTo = style::backgroundColor
-                                    )
-                                }
-                            },
-                            text = stringResource(id = R.string.background_color),
-                            prefix = {
-                                MyColorDisplay(color = resolvePreviewColor(style.backgroundColorSource, style.backgroundColorThemeKey, style.backgroundColor))
-                            },
-                            trailing = {
-                                Switch(
-                                    checked = style.backgroundColorSource == ColorSource.Theme,
-                                    onCheckedChange = { vm.onBackgroundColorSourceChange(if (it) ColorSource.Theme else ColorSource.Custom) }
+                    TextActionButton(
+                        onClick = {
+                            if (style.backgroundColorSource == ColorSource.Theme) {
+                                showThemeColorPickerFor = "bg"
+                            } else {
+                                vm.colorPickerDialog.show(
+                                    show = true,
+                                    color = style.backgroundColor,
+                                    belongsTo = style::backgroundColor
                                 )
                             }
-                        )
-                        DropdownMenu(
-                            expanded = themeKeyDropdownFor == "bg",
-                            onDismissRequest = ::dismissDropdown
-                        ) {
-                            ThemeColorKey.entries.fastForEach { key ->
-                                DropdownMenuItem(
-                                    onClick = { vm.onBackgroundColorThemeKeyChange(key); dismissDropdown() },
-                                    text = { Text(key.name) }
-                                )
-                            }
+                        },
+                        text = stringResource(id = R.string.background_color),
+                        prefix = {
+                            MyColorDisplay(color = resolvePreviewColor(style.backgroundColorSource, style.backgroundColorThemeKey, style.backgroundColor))
+                        },
+                        trailing = {
+                            Switch(
+                                checked = style.backgroundColorSource == ColorSource.Theme,
+                                onCheckedChange = { vm.onBackgroundColorSourceChange(if (it) ColorSource.Theme else ColorSource.Custom) }
+                            )
                         }
-                    }
-                    Box {
-                        TextActionButton(
-                            onClick = {
-                                if (style.strokeColorSource == ColorSource.Theme) {
-                                    themeKeyDropdownFor = "stroke"
-                                } else {
-                                    vm.colorPickerDialog.show(
-                                        show = true,
-                                        color = style.strokeColor,
-                                        belongsTo = style::strokeColor
-                                    )
-                                }
-                            },
-                            text = stringResource(id = R.string.stroke_color),
-                            prefix = {
-                                MyColorDisplay(color = resolvePreviewColor(style.strokeColorSource, style.strokeColorThemeKey, style.strokeColor))
-                            },
-                            trailing = {
-                                Switch(
-                                    checked = style.strokeColorSource == ColorSource.Theme,
-                                    onCheckedChange = { vm.onStrokeColorSourceChange(if (it) ColorSource.Theme else ColorSource.Custom) }
+                    )
+                    TextActionButton(
+                        onClick = {
+                            if (style.strokeColorSource == ColorSource.Theme) {
+                                showThemeColorPickerFor = "stroke"
+                            } else {
+                                vm.colorPickerDialog.show(
+                                    show = true,
+                                    color = style.strokeColor,
+                                    belongsTo = style::strokeColor
                                 )
                             }
-                        )
-                        DropdownMenu(
-                            expanded = themeKeyDropdownFor == "stroke",
-                            onDismissRequest = ::dismissDropdown
-                        ) {
-                            ThemeColorKey.entries.fastForEach { key ->
-                                DropdownMenuItem(
-                                    onClick = { vm.onStrokeColorThemeKeyChange(key); dismissDropdown() },
-                                    text = { Text(key.name) }
-                                )
-                            }
+                        },
+                        text = stringResource(id = R.string.stroke_color),
+                        prefix = {
+                            MyColorDisplay(color = resolvePreviewColor(style.strokeColorSource, style.strokeColorThemeKey, style.strokeColor))
+                        },
+                        trailing = {
+                            Switch(
+                                checked = style.strokeColorSource == ColorSource.Theme,
+                                onCheckedChange = { vm.onStrokeColorSourceChange(if (it) ColorSource.Theme else ColorSource.Custom) }
+                            )
                         }
-                    }
+                    )
                     MyTextSlider(
                         value = uiState.animationStyle.strokeWidth.toFloat(),
                         onValueChange = { vm.onStrokeWidthChange(it) },
@@ -216,12 +200,6 @@ fun WaveStyleContent(
                         sliderValueHint = stringResource(id = R.string.small) to stringResource(id = R.string.large),
                         valueRange = MinBezierStrokeWidth.toFloat()..MaxBezierStrokeWidth.toFloat()
                     )
-//                    LabeledSwitch(
-//                        onCheckedChange = { vm.onStickySlideChange(it) },
-//                        checked = uiState.animationStyle.stickySlideEnabled,
-//                        text = stringResource(id = R.string.sticky_slide),
-//                        secondaryText = stringResource(id = R.string.sticky_slide_tips)
-//                    )
                 }
 
                 SectionCard(
@@ -262,49 +240,28 @@ fun WaveStyleContent(
                     modifier = Modifier.padding(top = SectionPadding),
                     title = stringResource(id = R.string.icon)
                 ) {
-                    Box {
-                        TextActionButton(
-                            onClick = {
-                                if (style.iconColorSource == ColorSource.Theme) {
-                                    themeKeyDropdownFor = "icon"
-                                } else {
-                                    vm.colorPickerDialog.show(
-                                        show = true,
-                                        color = style.iconColor,
-                                        belongsTo = style::iconColor
-                                    )
-                                }
-                            },
-                            text = stringResource(id = R.string.tint),
-                            prefix = {
-                                MyColorDisplay(color = resolvePreviewColor(style.iconColorSource, style.iconColorThemeKey, style.iconColor))
-                            },
-                            trailing = {
-                                Switch(
-                                    checked = style.iconColorSource == ColorSource.Theme,
-                                    onCheckedChange = { vm.onIconColorSourceChange(if (it) ColorSource.Theme else ColorSource.Custom) }
+                    TextActionButton(
+                        onClick = {
+                            if (style.iconColorSource == ColorSource.Theme) {
+                                showThemeColorPickerFor = "icon"
+                            } else {
+                                vm.colorPickerDialog.show(
+                                    show = true,
+                                    color = style.iconColor,
+                                    belongsTo = style::iconColor
                                 )
                             }
-                        )
-                        DropdownMenu(
-                            expanded = themeKeyDropdownFor == "icon",
-                            onDismissRequest = ::dismissDropdown
-                        ) {
-                            ThemeColorKey.entries.fastForEach { key ->
-                                DropdownMenuItem(
-                                    onClick = { vm.onIconColorThemeKeyChange(key); dismissDropdown() },
-                                    text = { Text(key.name) }
-                                )
-                            }
+                        },
+                        text = stringResource(id = R.string.tint),
+                        prefix = {
+                            MyColorDisplay(color = resolvePreviewColor(style.iconColorSource, style.iconColorThemeKey, style.iconColor))
+                        },
+                        trailing = {
+                            Switch(
+                                checked = style.iconColorSource == ColorSource.Theme,
+                                onCheckedChange = { vm.onIconColorSourceChange(if (it) ColorSource.Theme else ColorSource.Custom) }
+                            )
                         }
-                    }
-                    MyTextSlider(
-                        value = uiState.animationStyle.iconScale,
-                        onValueChange = { vm.onIconScaleChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.scaling),
-                        sliderValueHint = stringResource(id = R.string.small) to stringResource(id = R.string.large),
-                        valueRange = MinIconScale..MaxIconScale
                     )
 
                     MyExpandableColumn(

@@ -23,6 +23,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -43,6 +44,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
@@ -54,6 +57,7 @@ import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.DimAlpha
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.display.actionText
+import hunoia.sideleap.settings.model.ThemeColorKey
 import hunoia.sideleap.ui.theme.DialogTitleFontSize
 import hunoia.sideleap.ui.theme.DialogTitlePadding
 import hunoia.sideleap.ui.theme.ItemPadding
@@ -131,19 +135,22 @@ fun ColorPickerDialog(
     var showModifyColorValueDialog by remember {
         mutableStateOf(false)
     }
+    var alpha by remember { mutableStateOf(initialColor.alpha) }
     val colorController = rememberColorPickerController()
     LaunchedEffect(initialColor) {
+        alpha = initialColor.alpha
         colorController.selectByColor(initialColor, false)
     }
-    val hexColor by remember(colorController) {
+    val resolvedColor by remember(colorController, alpha) {
+        derivedStateOf { colorController.selectedColor.value.copy(alpha = alpha) }
+    }
+    val hexColor by remember(resolvedColor) {
         derivedStateOf {
-            val selectedColor = colorController.selectedColor.value
-            val nativeColor = selectedColor.toArgb()
+            val nativeColor = resolvedColor.toArgb()
             val red = android.graphics.Color.red(nativeColor)
             val green = android.graphics.Color.green(nativeColor)
             val blue = android.graphics.Color.blue(nativeColor)
-            val alpha = android.graphics.Color.alpha(nativeColor)
-            val a = String.format("%02X", alpha)
+            val a = String.format("%02X", (alpha * 255).toInt())
             val r = String.format("%02X", red)
             val g = String.format("%02X", green)
             val b = String.format("%02X", blue)
@@ -166,6 +173,20 @@ fun ColorPickerDialog(
                     controller = colorController,
                     onColorChanged = {
                     }
+                )
+
+                Slider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = ItemPadding),
+                    value = alpha,
+                    onValueChange = { alpha = it },
+                    valueRange = 0f..1f
+                )
+                Text(
+                    text = "透明度: ${(alpha * 100).toInt()}%",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelMedium
                 )
 
                 Row(
@@ -209,7 +230,7 @@ fun ColorPickerDialog(
                         Box(
                             modifier = Modifier
                                 .matchParentSize()
-                                .background(color = colorController.selectedColor.value)
+                                .background(color = resolvedColor)
                         )
                     }
 
@@ -228,7 +249,7 @@ fun ColorPickerDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onColorPicked(colorController.selectedColor.value)
+                    onColorPicked(resolvedColor)
                     if (autoDismiss) {
                         onDismissRequest()
                     }
@@ -380,6 +401,76 @@ fun ActionSettingsDialog(
         confirmButton = {
         },
         dismissButton = {
+        }
+    )
+}
+
+@Composable
+fun ThemeColorPickerDialog(
+    onDismissRequest: () -> Unit,
+    onColorPicked: (ThemeColorKey) -> Unit,
+) {
+    AlertDialog(
+        containerColor = MaterialTheme.colorScheme.surface,
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(text = "选择主题色")
+        },
+        text = {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(ThemeColorKey.entries.size) { index ->
+                    val themeKey = ThemeColorKey.entries[index]
+                    val resolvedColor = when (themeKey) {
+                        ThemeColorKey.Primary -> MaterialTheme.colorScheme.primary
+                        ThemeColorKey.PrimaryContainer -> MaterialTheme.colorScheme.primaryContainer
+                        ThemeColorKey.Secondary -> MaterialTheme.colorScheme.secondary
+                        ThemeColorKey.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
+                        ThemeColorKey.Tertiary -> MaterialTheme.colorScheme.tertiary
+                        ThemeColorKey.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
+                        ThemeColorKey.Surface -> MaterialTheme.colorScheme.surface
+                        ThemeColorKey.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
+                        ThemeColorKey.OnSurface -> MaterialTheme.colorScheme.onSurface
+                        ThemeColorKey.OnSurfaceVariant -> MaterialTheme.colorScheme.onSurfaceVariant
+                        ThemeColorKey.Outline -> MaterialTheme.colorScheme.outline
+                        ThemeColorKey.OutlineVariant -> MaterialTheme.colorScheme.outlineVariant
+                        ThemeColorKey.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
+                        ThemeColorKey.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
+                        ThemeColorKey.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onSingleClick { onColorPicked(themeKey); onDismissRequest() },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(resolvedColor)
+                        )
+                        Text(
+                            text = themeKey.displayName,
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = { },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(text = stringResource(id = R.string.cancel))
+            }
         }
     )
 }
