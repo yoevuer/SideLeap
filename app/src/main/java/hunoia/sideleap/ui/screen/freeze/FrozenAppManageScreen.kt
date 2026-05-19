@@ -227,7 +227,7 @@ fun FrozenAppManageScreen(
                     ) {
                     LazyVerticalGrid(
                         state = gridState,
-                        columns = GridCells.Adaptive(minSize = 64.dp),
+                        columns = GridCells.Fixed(4),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         contentPadding = PaddingValues(
