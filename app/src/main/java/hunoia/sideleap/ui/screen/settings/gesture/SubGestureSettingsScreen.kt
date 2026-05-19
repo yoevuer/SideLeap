@@ -105,11 +105,10 @@ fun SubGestureSettingsScreen(
                     modifier = Modifier.padding(top = SectionPadding),
                     title = stringResource(id = R.string.sub_gesture_angles)
                 ) {
-                    Text(
-                        text = "角度编辑组件将在 Phase 6 实现",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 8.dp)
+                    SubGestureAngleContent(
+                        angle = gesture.angle,
+                        onAngleChange = { vm.updateAngle(it) },
+                        color = Color(gesture.color)
                     )
                 }
             }
