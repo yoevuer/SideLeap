@@ -2,6 +2,7 @@ package hunoia.sideleap.ui.navigation
 
 import androidx.annotation.Keep
 import hunoia.sideleap.gesture.Position
+import hunoia.sideleap.gesture.SubGestureDirection
 import hunoia.sideleap.gesture.TriggerDirection
 import kotlinx.serialization.Serializable
 
@@ -55,3 +56,16 @@ data object Unlock
 @Keep
 @Serializable
 data object FrozenAppManage
+
+@Keep
+@Serializable
+data class SubGestureEditor(
+    val subGestureId: String
+)
+
+@Keep
+@Serializable
+data class SubGestureActionSelect(
+    val subGestureId: String,
+    val direction: SubGestureDirection
+)

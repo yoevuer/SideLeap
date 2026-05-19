@@ -28,6 +28,7 @@ import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.ui.navigation.GestureSettings
 import hunoia.sideleap.ui.navigation.FrozenAppManage
 import hunoia.sideleap.ui.navigation.Home
+import hunoia.sideleap.ui.navigation.SubGestureEditor
 import hunoia.sideleap.ui.navigation.Unlock
 import hunoia.sideleap.ui.screen.settings.AdvancedSettingsScreen
 
@@ -78,6 +79,9 @@ fun SideGestureApp() {
                         onNavToFrozenAppManage = { navController.navigate(FrozenAppManage) },
                         onNavToGestureButtonSettings = { button ->
                             navController.navigate(GestureButtonSettings(button.id, button.position))
+                        },
+                        onNavToSubGestureEditor = { subGestureId ->
+                            navController.navigate(SubGestureEditor(subGestureId))
                         }
                     )
                 }
@@ -95,6 +99,9 @@ fun SideGestureApp() {
                 }
                 myComposable<FrozenAppManage> {
                     FrozenAppManageScreen(onBack = { navController.navigateUp() })
+                }
+                myComposable<SubGestureEditor> {
+                    // Placeholder — Phase 3 will wire the full screen
                 }
             }
         }
