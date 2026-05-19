@@ -67,6 +67,8 @@
     <string name="other_apps">其他应用</string>
     <string name="no_apps_available">暂无应用</string>
     <string name="refresh">刷新</string>
+    <string name="refresh_theme_colors">刷新配色</string>
+    <string name="refresh_theme_colors_hint">ColorBlendr 等第三方改色后点击刷新</string>
     <string name="protected_list_hint">加入保护名单后会自动从一键名单移除</string>
     <string name="frozen_state_indicator">冻结状态</string>
     <string name="frozen_success">已冻结</string>

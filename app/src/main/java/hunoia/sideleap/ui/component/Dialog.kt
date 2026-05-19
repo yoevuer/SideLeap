@@ -57,6 +57,8 @@ import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.DimAlpha
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.display.actionText
+import hunoia.sideleap.core.event.Events
+import hunoia.sideleap.core.event.WallpaperChangedEvent
 import hunoia.sideleap.settings.model.ThemeColorKey
 import hunoia.sideleap.ui.theme.DialogTitleFontSize
 import hunoia.sideleap.ui.theme.DialogTitlePadding
@@ -468,8 +470,16 @@ fun ThemeColorPickerDialog(
         },
         confirmButton = { },
         dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text(text = stringResource(id = R.string.cancel))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = onDismissRequest) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+                TextButton(onClick = { Events.post(WallpaperChangedEvent()) }) {
+                    Text(text = stringResource(id = R.string.refresh_theme_colors))
+                }
             }
         }
     )
