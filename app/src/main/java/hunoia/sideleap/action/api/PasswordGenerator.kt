@@ -1,8 +1,8 @@
 package hunoia.sideleap.action.api
 
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordDefaultLength
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordMaxLength
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordMinLength
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.PasswordDefaultLength
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.PasswordMaxLength
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.PasswordMinLength
 import hunoia.sideleap.settings.model.ActionSettings
 import java.security.SecureRandom
 import kotlin.math.log2

@@ -3,7 +3,7 @@ package hunoia.sideleap.launcher.query
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import hunoia.sideleap.system.api.queryIntentActivitiesCompat
+import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 
 object LauncherEnvironment {
     fun isLauncherPackage(context: Context, packageName: String): Boolean {

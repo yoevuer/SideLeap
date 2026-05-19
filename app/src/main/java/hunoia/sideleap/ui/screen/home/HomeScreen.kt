@@ -54,13 +54,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
-import hunoia.sideleap.settings.api.SettingsUiDefaults.GestureButtonColorAlpha
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.bounds
 import hunoia.sideleap.ui.gesture.actionTextCompose
 import hunoia.sideleap.ui.gesture.buttonTextCompose
-import hunoia.sideleap.system.api.gotoAccessibilitySettings
-import hunoia.sideleap.system.api.gotoIgnoreBatteryOptimizations
+import hunoia.sideleap.system.intent.gotoAccessibilitySettings
+import hunoia.sideleap.system.intent.gotoIgnoreBatteryOptimizations
 import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent
 import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.RootPadding

@@ -29,11 +29,11 @@ import hunoia.sideleap.ui.navigation.GestureSettings
 import hunoia.sideleap.ui.navigation.FrozenAppManage
 import hunoia.sideleap.ui.navigation.Home
 import hunoia.sideleap.ui.navigation.Unlock
-import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsScreen
+import hunoia.sideleap.ui.screen.settings.AdvancedSettingsScreen
 
-import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsScreen
-import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsScreen
-import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppManageScreen
+import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonSettingsScreen
+import hunoia.sideleap.ui.screen.settings.gesture.GestureSettingsScreen
+import hunoia.sideleap.ui.screen.freeze.FrozenAppManageScreen
 import hunoia.sideleap.ui.screen.home.HomeScreen
 import hunoia.sideleap.ui.screen.unlock.UnlockScreen
 import hunoia.sideleap.ui.theme.SideGestureTheme

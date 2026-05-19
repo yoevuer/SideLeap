@@ -71,7 +71,7 @@ import hunoia.sideleap.launcher.launch.Launcher
 import hunoia.sideleap.system.window.applyOverlayViewTreeOwners
 import hunoia.sideleap.system.window.windowManager
 import hunoia.sideleap.launcher.query.AppSearch.key
-import hunoia.sideleap.settings.api.SettingsProvider
+import hunoia.sideleap.settings.SettingsProvider
 import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.settings.model.AdvancedSettings

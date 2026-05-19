@@ -62,7 +62,7 @@ import com.aaron.compose.ktx.toDp
 import com.aaron.compose.ktx.toPx
 
 import hunoia.sideleap.action.GlobalActions
-import hunoia.sideleap.settings.api.SettingsUiDefaults.DimAlpha
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.DimAlpha
 import hunoia.sideleap.action.TriggerType
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.settings.model.ActionPanelStyle
@@ -74,7 +74,7 @@ import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.action.shortcutInfo
-import hunoia.sideleap.system.api.tryVibrateForActionPanel
+import hunoia.sideleap.system.vibration.tryVibrateForActionPanel
 import hunoia.sideleap.ui.theme.AnimNormal
 import hunoia.sideleap.ui.theme.AnimPanelResize
 import hunoia.sideleap.ui.theme.RootPadding

@@ -45,7 +45,7 @@ import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.GestureActions
-import hunoia.sideleap.launcher.ext.icon
+import hunoia.sideleap.launcher.model.icon
 import hunoia.sideleap.action.display.PlayPause
 
 private val actionTextResMap: Map<String, Int> = mapOf(

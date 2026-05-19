@@ -40,11 +40,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import hunoia.sideleap.R
 import hunoia.sideleap.action.api.PasswordGenerator
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordMaxLength
-import hunoia.sideleap.settings.api.ActionSettingsDefaults.PasswordMinLength
-import hunoia.sideleap.settings.api.SettingsProvider
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.PasswordMaxLength
+import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.PasswordMinLength
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.settings.model.ActionSettings
-import hunoia.sideleap.system.api.showToast
+import hunoia.sideleap.system.feedback.showToast
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 

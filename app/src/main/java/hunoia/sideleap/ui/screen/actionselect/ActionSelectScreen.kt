@@ -51,11 +51,11 @@ import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.launcher.query.LauncherIconQuery
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
-import hunoia.sideleap.ui.screen.iconresize.IconResizeContent
+import hunoia.sideleap.ui.screen.settings.gesture.IconResizeContent
 import hunoia.sideleap.ui.component.ActionSettingsDialog
 import hunoia.sideleap.ui.component.MySnackbarHost
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
-import hunoia.sideleap.system.api.showToast
+import hunoia.sideleap.system.feedback.showToast
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.Dispatchers

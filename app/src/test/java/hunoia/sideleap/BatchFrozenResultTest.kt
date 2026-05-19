@@ -1,6 +1,6 @@
 package hunoia.sideleap
 
-import hunoia.sideleap.system.api.BatchFrozenResult
+import hunoia.sideleap.system.shizuku.BatchFrozenResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

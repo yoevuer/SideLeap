@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import hunoia.sideleap.overlay.api.RuntimePanelScope
-import hunoia.sideleap.system.api.copySensitiveText
+import hunoia.sideleap.system.copySensitiveText
 import hunoia.sideleap.ui.theme.AnimOverlayFade
 import hunoia.sideleap.ui.theme.AnimPanelShift
 import hunoia.sideleap.ui.theme.AnimPostHideDelay

@@ -1,6 +1,6 @@
 package hunoia.sideleap
 
-import hunoia.sideleap.system.api.ShizukuBinderExecutor
+import hunoia.sideleap.system.shizuku.ShizukuBinderExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

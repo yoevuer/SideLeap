@@ -35,9 +35,9 @@ import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import androidx.compose.foundation.ExperimentalFoundationApi
 import hunoia.sideleap.R
-import hunoia.sideleap.settings.api.SettingsUiDefaults
-import hunoia.sideleap.launcher.ext.icon
-import hunoia.sideleap.launcher.ext.qualifiedName
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults
+import hunoia.sideleap.launcher.model.icon
+import hunoia.sideleap.launcher.model.qualifiedName
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal

@@ -13,7 +13,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.launcher.model.OpenAppOrUrlData
-import hunoia.sideleap.system.api.showToast
+import hunoia.sideleap.system.feedback.showToast
 import com.blankj.utilcode.util.ScreenUtils
 import kotlin.math.roundToInt
 

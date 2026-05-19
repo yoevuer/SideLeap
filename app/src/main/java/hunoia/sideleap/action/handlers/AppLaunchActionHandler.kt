@@ -14,7 +14,7 @@ import hunoia.sideleap.freeze.api.FreezeLaunch
 import hunoia.sideleap.action.appInfo
 import hunoia.sideleap.action.TriggerType
 import hunoia.sideleap.launcher.launch.Launcher
-import hunoia.sideleap.system.api.queryIntentActivitiesCompat
+import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import hunoia.sideleap.action.runtimeTriggerType
 import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.coroutines.launch

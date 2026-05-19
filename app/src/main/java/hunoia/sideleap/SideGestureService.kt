@@ -58,7 +58,7 @@ import hunoia.sideleap.ui.theme.AnimPostHideDelay
 import hunoia.sideleap.gesture.application.VirtualMousePointerAction
 import hunoia.sideleap.gesture.application.clampVirtualMousePosition
 import hunoia.sideleap.ui.component.SideGestureContainer
-import hunoia.sideleap.settings.api.SettingsProvider
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.overlay.api.QuickAppLauncherOverlay
 import hunoia.sideleap.overlay.api.QuickAppLauncherOverlayHost
 import hunoia.sideleap.overlay.api.RuntimePanelOverlay
@@ -72,8 +72,8 @@ import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.service.hiddenKey
 import hunoia.sideleap.ui.component.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.sideleap.ui.component.quickapplaunch.QuickAppLauncherContent
-import hunoia.sideleap.system.api.copySensitiveText
-import hunoia.sideleap.system.api.Accessibility
+import hunoia.sideleap.system.copySensitiveText
+import hunoia.sideleap.system.accessibility.Accessibility
 import hunoia.sideleap.ui.component.password.PasswordGeneratorPanel
 import hunoia.sideleap.ui.component.password.PasswordPanelContent
 import com.blankj.utilcode.util.ScreenUtils
