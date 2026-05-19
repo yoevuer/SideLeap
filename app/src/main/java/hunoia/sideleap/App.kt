@@ -11,6 +11,7 @@ import hunoia.sideleap.ui.UDFComponentDefaultsImpl
 import hunoia.sideleap.core.AppContext
 import hunoia.sideleap.core.crash.CrashHandler
 import hunoia.sideleap.core.event.Events
+import hunoia.sideleap.system.handler.isMainThread
 import hunoia.sideleap.system.feedback.initToastScope
 import hunoia.sideleap.system.vibration.initVibrationContext
 import kotlinx.coroutines.CoroutineScope
@@ -49,6 +50,7 @@ class App : Application() {
         super.onCreate()
         AppContext.init(applicationContext, scope)
         Events.initScope(AppContext.applicationScope!!)
+        Events.isMainThread = { isMainThread() }
         initToastScope(AppContext.applicationScope!!)
         initVibrationContext(applicationContext)
 
