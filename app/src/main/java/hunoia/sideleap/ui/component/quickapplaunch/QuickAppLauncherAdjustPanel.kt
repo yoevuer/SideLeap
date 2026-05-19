@@ -1,7 +1,6 @@
 package hunoia.sideleap.ui.component.quickapplaunch
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,7 +11,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,7 +18,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
@@ -31,7 +28,6 @@ import kotlin.math.roundToInt
 @Composable
 internal fun QuickAppLauncherAdjustPanel(
     onSettingsChanged: (QuickAppLauncherSettings) -> Unit,
-    onClose: () -> Unit,
 ) {
     val settings by SettingsProvider.quickAppLauncherSettings.collectAsState(initial = QuickAppLauncherSettings())
     val coroutineScope = rememberCoroutineScope()
@@ -65,31 +61,6 @@ internal fun QuickAppLauncherAdjustPanel(
             Spacer(modifier = Modifier.height(12.dp))
             AdjustSlider("候选应用行数", settings.candidateRows.toFloat(), 1f, 3f, activeLabel, { activeLabel = it }, valueFormatter = { it.roundToInt().toString() }) { value ->
                 updateLayout(settings.copy(candidateRows = value.roundToInt().coerceIn(1, 3)))
-            }
-            if (activeLabel == null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    TextButton(
-                        onClick = {
-                            val defaults = QuickAppLauncherSettings()
-                            val next = settings.copy(
-                                panelHeightFraction = defaults.panelHeightFraction,
-                                contentHeightFraction = defaults.contentHeightFraction,
-                                candidateRows = defaults.candidateRows,
-                                panelWidthFraction = defaults.panelWidthFraction,
-                                panelHorizontalBias = defaults.panelHorizontalBias,
-                            )
-                            onSettingsChanged(next)
-                            coroutineScope.launch { SettingsProvider.resetQuickAppLauncherLayout() }
-                        }
-                    ) {
-                        Text("重置布局", color = MaterialTheme.colorScheme.onSurface)
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                    TextButton(onClick = onClose) {
-                        Text("保存", color = MaterialTheme.colorScheme.onSurface)
-                    }
-                }
             }
         }
     }

@@ -54,6 +54,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -282,20 +283,27 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     private fun showAdjustPanel() {
         closeAdjustPanel()
         val wm = host.context.windowManager()
+        val density = host.context.resources.displayMetrics.density
+        val screenWidth = ScreenUtils.getScreenWidth()
+        val screenHeight = ScreenUtils.getScreenHeight()
+        val initialWidth = (screenWidth * 0.92f).roundToInt()
+        val initialHeight = 480.dpToPx(density)
         val lp = WindowManager.LayoutParams().apply {
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             format = PixelFormat.RGBA_8888
-            width = (ScreenUtils.getScreenWidth() * 0.92f).roundToInt()
-            height = WindowManager.LayoutParams.WRAP_CONTENT
+            width = initialWidth
+            height = initialHeight
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            y = 32
+            @Suppress("DEPRECATION")
+            gravity = Gravity.START or Gravity.TOP
+            x = ((screenWidth - initialWidth) / 2).coerceAtLeast(0)
+            y = ((screenHeight - initialHeight) / 2).coerceAtLeast(0)
         }
-        val view = ComposeView(host.context).apply {
+        val composeView = ComposeView(host.context).apply {
             setBackgroundColor(Color.TRANSPARENT)
             applyOverlayViewTreeOwners(host)
             setOnTouchListener(createDismissOnOutsideTouch(onOutsideTouch = {
@@ -303,15 +311,40 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
             }, logTag = "adjustTouch"))
             setContent {
                 SideGestureTheme {
-                    QuickAppLauncherAdjustPanel(
-                        onSettingsChanged = { settings -> updateLayout(settings) },
-                        onClose = { closeAdjustPanel() }
-                    )
+                    Box(Modifier.onSizeChanged { size ->
+                        updateAdjustPanelLayout(
+                            wm = wm, view = this@apply,
+                            lp = lp, contentWidth = size.width, contentHeight = size.height
+                        )
+                    }) {
+                        QuickAppLauncherAdjustPanel(
+                            onSettingsChanged = { settings -> updateLayout(settings) },
+                        )
+                    }
                 }
             }
         }
-        wm.addView(view, lp)
-        adjustView = view
+        wm.addView(composeView, lp)
+        adjustView = composeView
+    }
+
+    private fun updateAdjustPanelLayout(
+        wm: WindowManager, view: View, lp: WindowManager.LayoutParams,
+        contentWidth: Int, contentHeight: Int
+    ) {
+        if (contentWidth <= 0 || contentHeight <= 0) return
+        val screenWidth = ScreenUtils.getScreenWidth()
+        val screenHeight = ScreenUtils.getScreenHeight()
+        val nextWidth = contentWidth.coerceIn(1, screenWidth)
+        val nextHeight = contentHeight.coerceIn(1, screenHeight)
+        if (lp.width == nextWidth && lp.height == nextHeight) return
+        val nextX = ((screenWidth - nextWidth) / 2).coerceAtLeast(0)
+        val nextY = ((screenHeight - nextHeight) / 2).coerceAtLeast(0)
+        lp.width = nextWidth
+        lp.height = nextHeight
+        lp.x = nextX
+        lp.y = nextY
+        runCatching { wm.updateViewLayout(view, lp) }
     }
 
     private fun createLayoutParams(settings: QuickAppLauncherSettings) = WindowManager.LayoutParams().apply {
