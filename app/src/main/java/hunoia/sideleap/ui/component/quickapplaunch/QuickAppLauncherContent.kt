@@ -370,23 +370,21 @@ private fun AppGrid(
     }
 }
 
-private fun keyHeightFor(panelHeightFraction: Float) = when {
-    panelHeightFraction < 0.5f -> 34.dp
-    panelHeightFraction < 0.75f -> 36.dp
-    else -> 40.dp
+private fun heightFractionLerp(f: Float): Float {
+    return ((f.coerceIn(0.35f, 0.75f) - 0.35f) / 0.4f).coerceIn(0f, 1f)
 }
 
-private fun candidateHeightFor(panelHeightFraction: Float, rows: Int): Dp {
-    val rowHeight = when {
-        panelHeightFraction < 0.5f -> 48.dp
-        panelHeightFraction < 0.75f -> 52.dp
-        else -> 56.dp
-    }
-    return rowHeight * rows.coerceIn(1, 3)
+private fun keyHeightFor(f: Float): Dp {
+    val t = heightFractionLerp(f)
+    return (34 + 6 * t).dp
 }
 
-private fun gridHeightFor(panelHeightFraction: Float) = when {
-    panelHeightFraction < 0.5f -> 180.dp
-    panelHeightFraction < 0.75f -> 220.dp
-    else -> 260.dp
+private fun candidateHeightFor(f: Float, rows: Int): Dp {
+    val t = heightFractionLerp(f)
+    return ((48 + 8 * t) * rows.coerceIn(1, 3)).dp
+}
+
+private fun gridHeightFor(f: Float): Dp {
+    val t = heightFractionLerp(f)
+    return (180 + 80 * t).dp
 }

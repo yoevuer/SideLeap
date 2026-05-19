@@ -116,6 +116,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     private var isHiding = false
     private var triggerCloseAnimated: (() -> Unit)? = null
     private var lastCloseMs: Long = 0L
+    private var lastAdjustCloseMs: Long = 0L
     var onAppLaunchRequested: ((AppInfo) -> Unit)? = null
 
     fun toggle() {
@@ -262,7 +263,11 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
 
 
     private fun toggleAdjustPanel() {
-        if (adjustView != null) closeAdjustPanel() else showAdjustPanel()
+        if (adjustView != null) {
+            closeAdjustPanel()
+        } else if (System.currentTimeMillis() - lastAdjustCloseMs > 100L) {
+            showAdjustPanel()
+        }
     }
 
     private fun closeAdjustPanel() {
@@ -271,6 +276,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
             runCatching { wm.removeView(it) }
         }
         adjustView = null
+        lastAdjustCloseMs = System.currentTimeMillis()
     }
 
     private fun showAdjustPanel() {
@@ -298,7 +304,8 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
             setContent {
                 SideGestureTheme {
                     QuickAppLauncherAdjustPanel(
-                        onSettingsChanged = { settings -> updateLayout(settings) }
+                        onSettingsChanged = { settings -> updateLayout(settings) },
+                        onClose = { closeAdjustPanel() }
                     )
                 }
             }
@@ -340,16 +347,9 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         val density = host.context.resources.displayMetrics.density
         val content = settings.contentHeightFraction.coerceIn(0.35f, 0.9f)
         val rows = settings.candidateRows.coerceIn(1, 3)
-        val candidateRow = when {
-            content < 0.5f -> 48
-            content < 0.75f -> 52
-            else -> 56
-        }
-        val keyHeight = when {
-            content < 0.5f -> 34
-            content < 0.75f -> 36
-            else -> 40
-        }
+        val t = ((content.coerceIn(0.35f, 0.75f) - 0.35f) / 0.4f).coerceIn(0f, 1f)
+        val candidateRow = (48 + 8 * t).roundToInt()
+        val keyHeight = (34 + 6 * t).roundToInt()
         return ((candidateRow * rows) + (keyHeight * 3) + 52).dpToPx(density)
     }
 
