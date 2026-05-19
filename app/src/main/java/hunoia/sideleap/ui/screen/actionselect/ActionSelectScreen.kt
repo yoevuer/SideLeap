@@ -114,7 +114,7 @@ fun ActionSelectContent(
             ActionSettingsDialog(
                 onDismissRequest = { vm.actionSettingsDialog.show(false) },
                 action = uiState.actionSettingsDialog.action,
-                onActionDataChanged = { vm.updateActionData(uiState.actionSettingsDialog.action, it) }
+                onActionDataChanged = { vm.select(uiState.actionSettingsDialog.action.copy(data = it), true) }
             )
         }
 

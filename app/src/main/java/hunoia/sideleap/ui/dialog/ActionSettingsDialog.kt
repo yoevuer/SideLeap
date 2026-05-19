@@ -399,32 +399,20 @@ fun VirtualMouseActionSettingsContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .onSingleClick { mode = option }
+                    .onSingleClick { onConfirm(JsonHelper.encodeToString(VirtualMouseActionData(option))) }
                     .padding(vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(ItemPadding)
             ) {
                 RadioButton(
                     selected = mode == option,
-                    onClick = { mode = option }
+                    onClick = { onConfirm(JsonHelper.encodeToString(VirtualMouseActionData(option))) }
                 )
                 Text(
                     text = stringResource(labelRes),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-            }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(
-                onClick = { onConfirm(JsonHelper.encodeToString(VirtualMouseActionData(mode))) }
-            ) {
-                Icon(imageVector = Icons.Default.Check, contentDescription = null)
-                Text(text = stringResource(id = R.string.confirm))
             }
         }
     }
