@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.frozenappmanage
+package hunoia.sideleap.ui.screen.freeze
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -63,7 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
-import hunoia.sideleap.ui.screen.frozenappprotect.FrozenAppProtectContent
+import hunoia.sideleap.ui.screen.freeze.FrozenAppProtectContent
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import hunoia.sideleap.ui.component.TopBar

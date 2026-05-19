@@ -1,10 +1,10 @@
-package hunoia.sideleap.ui.screen.gesturesettings
+package hunoia.sideleap.ui.screen.settings.gesture
 
 import android.os.Build
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiEvent
-import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiState
+import hunoia.sideleap.ui.screen.settings.gesture.GestureSettingsVM.UiEvent
+import hunoia.sideleap.ui.screen.settings.gesture.GestureSettingsVM.UiState
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle

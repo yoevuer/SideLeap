@@ -1,11 +1,11 @@
-package hunoia.sideleap.ui.screen.advancedsettings
+package hunoia.sideleap.ui.screen.settings
 
 import android.os.Build
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.R
-import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsVM.UiEvent
-import hunoia.sideleap.ui.screen.advancedsettings.AdvancedSettingsVM.UiState
+import hunoia.sideleap.ui.screen.settings.AdvancedSettingsVM.UiEvent
+import hunoia.sideleap.ui.screen.settings.AdvancedSettingsVM.UiState
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.settings.model.DayNightMode
 import kotlinx.coroutines.flow.collectLatest

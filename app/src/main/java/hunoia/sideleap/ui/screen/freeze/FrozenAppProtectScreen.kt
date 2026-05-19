@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.frozenappprotect
+package hunoia.sideleap.ui.screen.freeze
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -38,8 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
-import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppSearchField
-import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppSelectableItem
+import hunoia.sideleap.ui.screen.freeze.FrozenAppSearchField
+import hunoia.sideleap.ui.screen.freeze.FrozenAppSelectableItem
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.component.LabeledSwitch
 

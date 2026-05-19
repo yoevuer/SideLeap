@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.gesturebuttonsettings
+package hunoia.sideleap.ui.screen.settings.gesture
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -65,7 +65,7 @@ import hunoia.sideleap.gesture.styleBy
 import hunoia.sideleap.settings.model.ActionPanelStyles
 import hunoia.sideleap.settings.model.LongSlideActionPanelStyles
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectContent
-import hunoia.sideleap.ui.screen.gestureangles.GestureButtonAngleContent
+import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonAngleContent
 import hunoia.sideleap.ui.theme.IconTextPadding
 import hunoia.sideleap.ui.theme.MarkColorSize
 import hunoia.sideleap.ui.theme.SectionPadding

@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.advancedsettings
+package hunoia.sideleap.ui.screen.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,9 +43,9 @@ import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.settings.model.DayNightMode
-import hunoia.sideleap.ui.screen.animationstyle.WaveStyleContent
-import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistContent
-import hunoia.sideleap.ui.screen.quickapplaunchermanage.QuickAppLauncherManageContent
+import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleContent
+import hunoia.sideleap.ui.screen.freeze.AppBlacklistContent
+import hunoia.sideleap.ui.screen.quicklauncher.QuickAppLauncherManageContent
 import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import hunoia.sideleap.ui.component.MyColumn
 import hunoia.sideleap.ui.component.MyAlertDialog

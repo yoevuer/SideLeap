@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.quickapplaunchermanage
+package hunoia.sideleap.ui.screen.quicklauncher
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM

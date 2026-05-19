@@ -1,11 +1,11 @@
-package hunoia.sideleap.ui.screen.animationstyle
+package hunoia.sideleap.ui.screen.settings.gesture
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.settings.model.AnimationStyles
 import hunoia.sideleap.settings.model.WaveStyle
-import hunoia.sideleap.ui.screen.animationstyle.WaveStyleVM.UiEvent
-import hunoia.sideleap.ui.screen.animationstyle.WaveStyleVM.UiState
+import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleVM.UiEvent
+import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleVM.UiState
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.coroutines.flow.collectLatest

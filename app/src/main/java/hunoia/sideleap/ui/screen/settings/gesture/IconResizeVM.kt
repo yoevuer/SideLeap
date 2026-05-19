@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.iconresize
+package hunoia.sideleap.ui.screen.settings.gesture
 
 import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.Color
@@ -8,8 +8,8 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.launcher.model.ScaleableDefaults.DEFAULT_SCALE
 import hunoia.sideleap.launcher.icon.IconResizeCache
 import hunoia.sideleap.ui.event.IconResizeEvent
-import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiEvent
-import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiState
+import hunoia.sideleap.ui.screen.settings.gesture.IconResizeVM.UiEvent
+import hunoia.sideleap.ui.screen.settings.gesture.IconResizeVM.UiState
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.core.event.Events
 import kotlinx.coroutines.flow.collectLatest

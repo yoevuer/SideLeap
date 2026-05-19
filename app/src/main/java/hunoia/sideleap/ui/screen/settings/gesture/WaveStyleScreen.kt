@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.animationstyle
+package hunoia.sideleap.ui.screen.settings.gesture
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -41,8 +41,8 @@ import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ANGLE
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW_NEW
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_TRIANGLE
-import hunoia.sideleap.ui.screen.animationstyle.getWaveStyleIcon
-import hunoia.sideleap.ui.screen.animationstyle.WaveStyleVM.UiEvent
+import hunoia.sideleap.ui.screen.settings.gesture.getWaveStyleIcon
+import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleVM.UiEvent
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.ui.theme.SubMinInteractiveSize

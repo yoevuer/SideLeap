@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.appblacklist
+package hunoia.sideleap.ui.screen.freeze
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

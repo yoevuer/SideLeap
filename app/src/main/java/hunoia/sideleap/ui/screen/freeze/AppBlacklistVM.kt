@@ -1,12 +1,12 @@
-package hunoia.sideleap.ui.screen.appblacklist
+package hunoia.sideleap.ui.screen.freeze
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.R
 import hunoia.sideleap.core.AppContext
 import hunoia.sideleap.launcher.model.AppInfo
-import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiEvent
-import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistVM.UiState
+import hunoia.sideleap.ui.screen.freeze.AppBlacklistVM.UiEvent
+import hunoia.sideleap.ui.screen.freeze.AppBlacklistVM.UiState
 import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.freeze.api.FreezeState

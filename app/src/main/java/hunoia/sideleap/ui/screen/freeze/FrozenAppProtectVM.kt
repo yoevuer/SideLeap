@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.frozenappprotect
+package hunoia.sideleap.ui.screen.freeze
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope

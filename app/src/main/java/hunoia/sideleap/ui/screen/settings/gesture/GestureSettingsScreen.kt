@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.gesturesettings
+package hunoia.sideleap.ui.screen.settings.gesture
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -53,7 +53,7 @@ import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinSlideTriggerDista
 import hunoia.sideleap.system.vibration.VibrationDefaults.MaxCustomVibrationMs
 import hunoia.sideleap.system.vibration.VibrationDefaults.MinCustomVibrationMs
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.getPredefinedVibrationEffectText
-import hunoia.sideleap.ui.screen.gesturesettings.GestureSettingsVM.UiEvent
+import hunoia.sideleap.ui.screen.settings.gesture.GestureSettingsVM.UiEvent
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.ItemPadding

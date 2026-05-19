@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.quickapplaunchermanage
+package hunoia.sideleap.ui.screen.quicklauncher
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.gesturebuttonsettings
+package hunoia.sideleap.ui.screen.settings.gesture
 
 import android.os.Build
 
@@ -16,8 +16,8 @@ import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.gesture.fraction
 import hunoia.sideleap.settings.model.ActionPanelStyles
 import hunoia.sideleap.system.window.rootSize
-import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsVM.UiEvent
-import hunoia.sideleap.ui.screen.gesturebuttonsettings.GestureButtonSettingsVM.UiState
+import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonSettingsVM.UiEvent
+import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonSettingsVM.UiState
 import hunoia.sideleap.settings.SettingsProvider
 import com.blankj.utilcode.util.ConvertUtils
 import kotlinx.coroutines.Job

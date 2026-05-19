@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.animationstyle
+package hunoia.sideleap.ui.screen.settings.gesture
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward

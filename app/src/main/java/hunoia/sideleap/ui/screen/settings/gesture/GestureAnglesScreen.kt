@@ -1,4 +1,4 @@
-package hunoia.sideleap.ui.screen.gestureangles
+package hunoia.sideleap.ui.screen.settings.gesture
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
