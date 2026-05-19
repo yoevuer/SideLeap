@@ -65,8 +65,8 @@ import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
 import hunoia.sideleap.ui.screen.frozenappprotect.FrozenAppProtectContent
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
-import hunoia.sideleap.ui.widget.BottomSheetNestedContent
-import hunoia.sideleap.ui.widget.TopBar
+import hunoia.sideleap.ui.component.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.TopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

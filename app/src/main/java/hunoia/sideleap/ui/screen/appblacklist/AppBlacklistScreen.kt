@@ -61,8 +61,8 @@ import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.theme.TopBarPaddingExtra
-import hunoia.sideleap.ui.widget.MyAlertDialog
-import hunoia.sideleap.ui.widget.MySnackbarHost
+import hunoia.sideleap.ui.component.MyAlertDialog
+import hunoia.sideleap.ui.component.MySnackbarHost
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.launch

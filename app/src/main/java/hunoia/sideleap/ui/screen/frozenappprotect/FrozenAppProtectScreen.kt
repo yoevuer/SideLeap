@@ -41,7 +41,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppSearchField
 import hunoia.sideleap.ui.screen.frozenappmanage.FrozenAppSelectableItem
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
-import hunoia.sideleap.ui.widget.LabeledSwitch
+import hunoia.sideleap.ui.component.LabeledSwitch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

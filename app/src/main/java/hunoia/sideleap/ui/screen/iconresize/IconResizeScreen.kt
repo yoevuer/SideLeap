@@ -75,10 +75,10 @@ import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
-import hunoia.sideleap.ui.widget.ColorPickerDialog
-import hunoia.sideleap.ui.widget.MyAlertDialog
-import hunoia.sideleap.ui.widget.SectionCard
-import hunoia.sideleap.ui.widget.LabeledSwitch
+import hunoia.sideleap.ui.component.ColorPickerDialog
+import hunoia.sideleap.ui.component.MyAlertDialog
+import hunoia.sideleap.ui.component.SectionCard
+import hunoia.sideleap.ui.component.LabeledSwitch
 
 /**
  * @author aaronzzxup@gmail.com

@@ -46,14 +46,14 @@ import com.aaron.compose.component.UiBaseEvent
 import hunoia.sideleap.R
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.GlobalActions
-import hunoia.sideleap.ui.widget.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.launcher.query.LauncherIconQuery
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeContent
-import hunoia.sideleap.ui.widget.ActionSettingsDialog
-import hunoia.sideleap.ui.widget.MySnackbarHost
+import hunoia.sideleap.ui.component.ActionSettingsDialog
+import hunoia.sideleap.ui.component.MySnackbarHost
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.sideleap.system.api.showToast
 import com.google.accompanist.permissions.ExperimentalPermissionsApi

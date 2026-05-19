@@ -40,9 +40,9 @@ import coil.compose.AsyncImage
 import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
 import hunoia.sideleap.ui.theme.SectionPadding
-import hunoia.sideleap.ui.widget.SectionCard
-import hunoia.sideleap.ui.widget.TextActionButton
-import hunoia.sideleap.ui.widget.quickapplaunch.rememberAppIconAsync
+import hunoia.sideleap.ui.component.SectionCard
+import hunoia.sideleap.ui.component.TextActionButton
+import hunoia.sideleap.ui.component.quickapplaunch.rememberAppIconAsync
 
 @Composable
 fun QuickAppLauncherManageContent(onDismiss: () -> Unit, vm: QuickAppLauncherManageVM = viewModel()) {

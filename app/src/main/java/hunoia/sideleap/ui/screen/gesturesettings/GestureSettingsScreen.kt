@@ -60,12 +60,12 @@ import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.system.vibration.VibrationEffects
-import hunoia.sideleap.ui.widget.MyColumn
-import hunoia.sideleap.ui.widget.SectionCard
-import hunoia.sideleap.ui.widget.MyTextSlider
-import hunoia.sideleap.ui.widget.LabeledSwitch
-import hunoia.sideleap.ui.widget.TopBar
-import hunoia.sideleap.ui.widget.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.MyColumn
+import hunoia.sideleap.ui.component.SectionCard
+import hunoia.sideleap.ui.component.MyTextSlider
+import hunoia.sideleap.ui.component.LabeledSwitch
+import hunoia.sideleap.ui.component.TopBar
+import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import kotlinx.coroutines.launch
 
 private val VirtualMouseTimeoutOptions = listOf(0L, 5_000L, 10_000L, 15_000L, 30_000L)

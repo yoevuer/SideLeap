@@ -50,7 +50,7 @@ import hunoia.sideleap.settings.api.SettingsUiDefaults.MinGestureButtonPosition
 import hunoia.sideleap.settings.api.SettingsUiDefaults.MinGestureButtonWidth
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.ui.widget.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
 import hunoia.sideleap.gesture.TriggerDirection.Center
@@ -70,15 +70,15 @@ import hunoia.sideleap.ui.theme.IconTextPadding
 import hunoia.sideleap.ui.theme.MarkColorSize
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.ui.theme.SectionPaddingNoTitle
-import hunoia.sideleap.ui.widget.ColorPickerDialog
-import hunoia.sideleap.ui.widget.MyAlertDialog
-import hunoia.sideleap.ui.widget.MyColumn
-import hunoia.sideleap.ui.widget.SectionCard
-import hunoia.sideleap.ui.widget.TextActionButton
-import hunoia.sideleap.ui.widget.MyTextRangeSlider
-import hunoia.sideleap.ui.widget.MyTextSlider
-import hunoia.sideleap.ui.widget.LabeledSwitch
-import hunoia.sideleap.ui.widget.TopBar
+import hunoia.sideleap.ui.component.ColorPickerDialog
+import hunoia.sideleap.ui.component.MyAlertDialog
+import hunoia.sideleap.ui.component.MyColumn
+import hunoia.sideleap.ui.component.SectionCard
+import hunoia.sideleap.ui.component.TextActionButton
+import hunoia.sideleap.ui.component.MyTextRangeSlider
+import hunoia.sideleap.ui.component.MyTextSlider
+import hunoia.sideleap.ui.component.LabeledSwitch
+import hunoia.sideleap.ui.component.TopBar
 
 /**
  * @author aaronzzxup@gmail.com

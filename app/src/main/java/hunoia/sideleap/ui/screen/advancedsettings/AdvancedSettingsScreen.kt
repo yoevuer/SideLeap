@@ -43,17 +43,17 @@ import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.settings.model.DayNightMode
-import hunoia.sideleap.ui.screen.animationstyle.wave.WaveStyleContent
+import hunoia.sideleap.ui.screen.animationstyle.WaveStyleContent
 import hunoia.sideleap.ui.screen.appblacklist.AppBlacklistContent
 import hunoia.sideleap.ui.screen.quickapplaunchermanage.QuickAppLauncherManageContent
-import hunoia.sideleap.ui.widget.BottomSheetNestedContent
-import hunoia.sideleap.ui.widget.MyColumn
-import hunoia.sideleap.ui.widget.MyAlertDialog
-import hunoia.sideleap.ui.widget.SectionCard
-import hunoia.sideleap.ui.widget.TextActionButton
-import hunoia.sideleap.ui.widget.LabeledSwitch
-import hunoia.sideleap.ui.widget.MyTextSlider
-import hunoia.sideleap.ui.widget.TopBar
+import hunoia.sideleap.ui.component.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.MyColumn
+import hunoia.sideleap.ui.component.MyAlertDialog
+import hunoia.sideleap.ui.component.SectionCard
+import hunoia.sideleap.ui.component.TextActionButton
+import hunoia.sideleap.ui.component.LabeledSwitch
+import hunoia.sideleap.ui.component.MyTextSlider
+import hunoia.sideleap.ui.component.TopBar
 import kotlin.math.roundToInt
 
 /**

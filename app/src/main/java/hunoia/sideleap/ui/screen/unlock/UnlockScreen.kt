@@ -6,7 +6,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.sideleap.R
-import hunoia.sideleap.ui.widget.TopBar
+import hunoia.sideleap.ui.component.TopBar
 
 /**
  * @author aaronzzxup@gmail.com

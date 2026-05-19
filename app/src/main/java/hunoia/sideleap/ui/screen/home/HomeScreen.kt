@@ -67,13 +67,13 @@ import hunoia.sideleap.ui.theme.RootPadding
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.ui.theme.SectionPaddingNoTitle
 import hunoia.sideleap.ui.theme.TopBarPaddingExtra
-import hunoia.sideleap.ui.widget.MyAlertDialog
-import hunoia.sideleap.ui.widget.MyColumn
-import hunoia.sideleap.ui.widget.MyExpandableColumn
-import hunoia.sideleap.ui.widget.SectionCard
-import hunoia.sideleap.ui.widget.TextActionButton
-import hunoia.sideleap.ui.widget.LabeledSwitch
-import hunoia.sideleap.ui.widget.TopBar
+import hunoia.sideleap.ui.component.MyAlertDialog
+import hunoia.sideleap.ui.component.MyColumn
+import hunoia.sideleap.ui.component.MyExpandableColumn
+import hunoia.sideleap.ui.component.SectionCard
+import hunoia.sideleap.ui.component.TextActionButton
+import hunoia.sideleap.ui.component.LabeledSwitch
+import hunoia.sideleap.ui.component.TopBar
 import hunoia.sideleap.system.intent.KeepAliveHelper
 import com.blankj.utilcode.util.TimeUtils
 

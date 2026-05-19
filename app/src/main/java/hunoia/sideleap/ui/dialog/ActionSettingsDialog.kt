@@ -66,7 +66,7 @@ import hunoia.sideleap.system.api.normalizeOpenAppOrUrl
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.SubMinInteractiveSize
-import hunoia.sideleap.ui.widget.MyTextSlider
+import hunoia.sideleap.ui.component.MyTextSlider
 
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.TextButton

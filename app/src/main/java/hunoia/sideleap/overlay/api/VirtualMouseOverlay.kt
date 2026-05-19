@@ -17,12 +17,14 @@ import androidx.compose.ui.platform.ComposeView
 import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.ui.theme.SideGestureTheme
-import hunoia.sideleap.ui.widget.VirtualMouseCursor
-import hunoia.sideleap.ui.widget.VirtualMousePointerAction
-import hunoia.sideleap.ui.widget.isVirtualMouseCancelGesture
-import hunoia.sideleap.ui.widget.isVirtualMouseWithinLongPressTolerance
-import hunoia.sideleap.ui.widget.moveVirtualMouseCursor
-import hunoia.sideleap.ui.widget.virtualMouseInitialPosition
+import hunoia.sideleap.gesture.application.VirtualMousePointerAction
+import hunoia.sideleap.system.window.applyOverlayViewTreeOwners
+import hunoia.sideleap.system.window.windowManager
+import hunoia.sideleap.gesture.application.isVirtualMouseCancelGesture
+import hunoia.sideleap.gesture.application.isVirtualMouseWithinLongPressTolerance
+import hunoia.sideleap.gesture.application.moveVirtualMouseCursor
+import hunoia.sideleap.gesture.application.virtualMouseInitialPosition
+import hunoia.sideleap.ui.component.VirtualMouseCursor
 
 interface VirtualMouseOverlayHost : androidx.lifecycle.LifecycleOwner,
     androidx.lifecycle.ViewModelStoreOwner,

@@ -1,5 +1,7 @@
 package hunoia.sideleap.overlay.api
 
+import hunoia.sideleap.system.window.windowManager
+
 import android.content.Context
 import android.graphics.PixelFormat
 import android.view.MotionEvent
