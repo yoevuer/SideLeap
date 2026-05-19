@@ -34,7 +34,7 @@ import coil.compose.AsyncImage
 import coil.imageLoader
 import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
-import hunoia.sideleap.launcher.ext.icon
+import hunoia.sideleap.launcher.model.icon
 
 @Composable
 fun FrozenAppSearchField(

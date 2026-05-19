@@ -1,4 +1,4 @@
-package hunoia.sideleap.launcher.ext
+package hunoia.sideleap.launcher.model
 
 import android.content.ComponentName
 import android.content.Context

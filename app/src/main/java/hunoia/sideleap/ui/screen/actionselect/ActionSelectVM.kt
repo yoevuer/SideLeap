@@ -11,7 +11,7 @@ import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.launcher.util.IconResizeCache
+import hunoia.sideleap.launcher.icon.IconResizeCache
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.ui.navigation.IconResize
@@ -19,9 +19,9 @@ import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
 import hunoia.sideleap.ui.event.IconResizeEvent
 import hunoia.sideleap.action.appInfo
-import hunoia.sideleap.launcher.ext.getIcon
-import hunoia.sideleap.launcher.ext.qualifiedName
-import hunoia.sideleap.launcher.ext.qualifiedNameWithIntents
+import hunoia.sideleap.launcher.model.getIcon
+import hunoia.sideleap.launcher.model.qualifiedName
+import hunoia.sideleap.launcher.model.qualifiedNameWithIntents
 import hunoia.sideleap.action.shortcutInfo
 import hunoia.sideleap.ui.event.subscribeEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent

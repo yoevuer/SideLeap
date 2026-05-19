@@ -51,8 +51,8 @@ import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.ui.permission.deniedForever
 import hunoia.sideleap.system.intent.gotoAppDetailSettings
 import hunoia.sideleap.system.feedback.showToast
-import hunoia.sideleap.launcher.ext.icon
-import hunoia.sideleap.launcher.ext.qualifiedName
+import hunoia.sideleap.launcher.model.icon
+import hunoia.sideleap.launcher.model.qualifiedName
 import hunoia.sideleap.ui.permission.rememberGetInstalledAppsPermissionState
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVertical

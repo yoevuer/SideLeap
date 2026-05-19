@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.query.LauncherIconQuery
-import hunoia.sideleap.launcher.util.IconResizeCache
+import hunoia.sideleap.launcher.icon.IconResizeCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt

@@ -67,7 +67,7 @@ import hunoia.sideleap.action.display.actionIcon
 import hunoia.sideleap.action.display.actionText
 import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.action.definition.ActionCategory
-import hunoia.sideleap.launcher.ext.qualifiedName
+import hunoia.sideleap.launcher.model.qualifiedName
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.system.feedback.showToast

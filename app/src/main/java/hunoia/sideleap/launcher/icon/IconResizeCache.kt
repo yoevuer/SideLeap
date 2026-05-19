@@ -1,4 +1,4 @@
-package hunoia.sideleap.launcher.util
+package hunoia.sideleap.launcher.icon
 
 import android.graphics.drawable.Drawable
 import java.util.Collections

@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.launcher.model.ScaleableDefaults.DEFAULT_SCALE
-import hunoia.sideleap.launcher.util.IconResizeCache
+import hunoia.sideleap.launcher.icon.IconResizeCache
 import hunoia.sideleap.ui.event.IconResizeEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiEvent
 import hunoia.sideleap.ui.screen.iconresize.IconResizeVM.UiState
