@@ -68,7 +68,6 @@ import hunoia.sideleap.ui.component.TopBar
 import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import kotlinx.coroutines.launch
 
-private val VirtualMouseTimeoutOptions = listOf(0L, 5_000L, 10_000L, 15_000L, 30_000L)
 private val VirtualMouseTrailStyleOptions = listOf(
     VirtualMouseTrailStyle.None,
     VirtualMouseTrailStyle.Dots,
@@ -354,7 +353,6 @@ private fun VirtualMouseSettingsContent(
     vm: GestureSettingsVM,
 ) {
     val virtualMouse = uiState.virtualMouse
-    var showTimeoutDropdown by remember { mutableStateOf(false) }
     var showTrailStyleDropdown by remember { mutableStateOf(false) }
     Column {
         LabeledSwitch(
@@ -363,52 +361,13 @@ private fun VirtualMouseSettingsContent(
             text = stringResource(id = R.string.virtual_mouse_continuous_mode),
             secondaryText = stringResource(id = R.string.virtual_mouse_continuous_mode_hint)
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = MinItemHeightNoSecondary)
-                .onSingleClick { showTimeoutDropdown = true }
-                .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(ItemPadding)
-        ) {
-            Text(
-                modifier = Modifier.weight(1f),
-                text = stringResource(id = R.string.virtual_mouse_continuous_timeout),
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1
-            )
-            Box {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = virtualMouseTimeoutText(virtualMouse.continuousModeTimeoutMs),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 1
-                    )
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null
-                    )
-                }
-                DropdownMenu(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    shape = MaterialTheme.shapes.medium,
-                    expanded = showTimeoutDropdown,
-                    onDismissRequest = { showTimeoutDropdown = false }
-                ) {
-                    VirtualMouseTimeoutOptions.fastForEach { timeoutMs ->
-                        DropdownMenuItem(
-                            onClick = {
-                                vm.onVirtualMouseContinuousModeTimeoutChange(timeoutMs)
-                                showTimeoutDropdown = false
-                            },
-                            text = { Text(virtualMouseTimeoutText(timeoutMs)) }
-                        )
-                    }
-                }
-            }
-        }
+        MyTextSlider(
+            value = virtualMouse.continuousModeTimeoutMs / 1000f,
+            onValueChange = { vm.onVirtualMouseContinuousModeTimeoutChange((it * 1000).toLong()) },
+            text = stringResource(id = R.string.virtual_mouse_continuous_timeout) + ": ${virtualMouse.continuousModeTimeoutMs / 1000}秒",
+            valueRange = 1f..10f,
+            sliderValueHint = "1秒" to "10秒"
+        )
         MyTextSlider(
             value = virtualMouse.sensitivityX,
             onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(sensitivityX = it)) },
@@ -594,10 +553,6 @@ private fun virtualMouseSummaryText(settings: GestureSettings.VirtualMouse): Str
     val mode = if (settings.continuousMode) "连续" else "单次"
     val longPress = if (settings.longPressEnabled) "长按 ${settings.longPressDelayMs}ms" else "长按关闭"
     return "${settings.sensitivityX.format1()}x / ${settings.sensitivityY.format1()}x · ${virtualMouseTrailStyleText(settings.trailStyle)} · $mode · $longPress"
-}
-
-private fun virtualMouseTimeoutText(timeoutMs: Long): String {
-    return if (timeoutMs <= 0L) "关闭" else "${timeoutMs / 1000} 秒"
 }
 
 private fun virtualMouseTrailStyleText(style: VirtualMouseTrailStyle): String {
