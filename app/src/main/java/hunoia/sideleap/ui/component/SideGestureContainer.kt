@@ -98,6 +98,7 @@ fun SideGestureContainer(
     onVirtualMouseSettingsUpdate: (GestureSettings.VirtualMouse) -> Unit = {},
     virtualMousePreviousPosition: () -> Offset = { Offset.Unspecified },
     onPointerActionAtPosition: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit = { _, _, _, _ -> },
+    isOwnPackage: () -> Boolean = { false },
 ) {
     val context = LocalContext.current
     val curOnAction by rememberUpdatedState(newValue = onAction)
@@ -300,8 +301,18 @@ fun SideGestureContainer(
 
             if (!sideGestureState.isCanceled) {
                 val touchPosition = sideGestureState.finger
+                val sourceButton = sideGestureState.button
                 val action = sideGestureState.onDragEnd()
-                curOnAction(action.withTouchPosition(touchPosition), sideGestureState.button)
+                val actionWithTouch = action.withTouchPosition(touchPosition)
+
+                if (isOwnPackage() && action.value == GlobalActions.BACK) {
+                    coroutineScope.launch {
+                        delay(180)
+                        curOnAction(actionWithTouch, sourceButton)
+                    }
+                } else {
+                    curOnAction(actionWithTouch, sourceButton)
+                }
             }
         },
         onDragCancel = onDragCancel@{
