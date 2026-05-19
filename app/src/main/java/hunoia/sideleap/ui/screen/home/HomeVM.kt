@@ -57,9 +57,8 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
-    fun addSubGesture() {
+    fun addSubGesture(id: String) {
         viewModelScope.launch {
-            val id = java.util.UUID.randomUUID().toString()
             SettingsProvider.updateSubGestureSettings { settings ->
                 val newGesture = SubGesture(
                     id = id,
@@ -67,8 +66,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                 )
                 settings.copy(subGestures = settings.subGestures + newGesture)
             }
-            delay(50)
-            sendUiEvent(UiEvent.NavigateToSubGestureEditor(id))
         }
     }
 

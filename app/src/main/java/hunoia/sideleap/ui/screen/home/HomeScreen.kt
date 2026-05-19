@@ -112,7 +112,7 @@ fun HomeScreen(
                     )
                 }
                 is UiEvent.NavigateToSubGestureEditor -> {
-                    onNavToSubGestureEditor(event.subGestureId)
+                    // unused, handled directly in onClick
                 }
             }
         }
@@ -430,7 +430,11 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .heightIn(min = MinItemHeightNoSecondary)
-                                    .onSingleClick { vm.addSubGesture() }
+                                    .onSingleClick {
+                                    val id = java.util.UUID.randomUUID().toString()
+                                    vm.addSubGesture(id)
+                                    onNavToSubGestureEditor(id)
+                                }
                                     .wrapContentSize(),
                                 text = stringResource(id = R.string.add_sub_gesture),
                                 color = MaterialTheme.colorScheme.primary,
