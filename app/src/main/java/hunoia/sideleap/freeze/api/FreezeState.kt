@@ -6,7 +6,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import hunoia.sideleap.App
 import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.system.packages.PackageChangeReceiver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object FreezeState {
 
@@ -18,6 +22,12 @@ object FreezeState {
         receiverRegistered = true
         PackageChangeReceiver.register(App.getContext()) {
             frozenCache?.clear()
+            App.applicationScope.launch {
+                val showSystemApps = SettingsProvider.getQuickAppLauncherSettings().showSystemApps
+                withContext(Dispatchers.IO) {
+                    queryFrozenApplications(App.getContext(), showSystemApps)
+                }
+            }
         }
     }
 

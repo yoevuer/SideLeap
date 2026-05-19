@@ -7,10 +7,14 @@ import android.content.pm.PackageManager
 import hunoia.sideleap.App
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
+import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.system.packages.PackageChangeReceiver
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object AppQuery {
 
@@ -22,6 +26,12 @@ object AppQuery {
         receiverRegistered = true
         PackageChangeReceiver.register(App.getContext()) {
             launcherCache?.clear()
+            App.applicationScope.launch {
+                val showSystemApps = SettingsProvider.getQuickAppLauncherSettings().showSystemApps
+                withContext(Dispatchers.IO) {
+                    queryLauncherActivities(App.getContext(), false, showSystemApps)
+                }
+            }
         }
     }
 
