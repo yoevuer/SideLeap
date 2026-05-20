@@ -111,6 +111,7 @@ android {
             excludes += "/META-INF/**/NOTICE*"
             excludes += "/cncity_fulllist.txt"
             excludes += "/tinypinyin/**"
+            excludes += "/okhttp3/internal/publicsuffix/*"
         }
     }
 }
