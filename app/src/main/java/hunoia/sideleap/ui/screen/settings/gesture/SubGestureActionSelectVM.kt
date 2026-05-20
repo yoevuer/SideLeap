@@ -150,6 +150,7 @@ class SubGestureActionSelectVM(
             updateUiState {
                 it.copy(
                     actions = allActions,
+                    subGestures = settings.subGestures,
                     selectedRecord = SelectedRecord(selectedList)
                 )
             }
@@ -159,6 +160,7 @@ class SubGestureActionSelectVM(
     data class UiState(
         val title: String = "",
         val actions: List<Action> = emptyList(),
+        val subGestures: List<SubGesture> = emptyList(),
         val apps: List<AppInfo> = emptyList(),
         val createShortcuts: List<LauncherInfo> = emptyList(),
         val launchShortcuts: List<LauncherInfo> = emptyList(),

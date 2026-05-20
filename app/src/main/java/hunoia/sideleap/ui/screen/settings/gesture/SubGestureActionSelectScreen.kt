@@ -3,8 +3,13 @@ package hunoia.sideleap.ui.screen.settings.gesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
+import androidx.compose.material3.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -65,38 +70,43 @@ fun SubGestureActionSelectContent(
             }
         }
 
-        Column(modifier = Modifier.fillMaxWidth()) {
-            TopBar(
-                onBack = onDismiss,
-                title = direction.displayName,
-                titleStyle = MaterialTheme.typography.titleLarge
-            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(direction.displayName, style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.weight(1f))
+                }
 
-            ActionPage(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(bottom = ScrollBottomPadding),
-                actions = uiState.actions,
-                appInfos = uiState.apps,
-                createShortcuts = uiState.createShortcuts,
-                launchShortcuts = uiState.launchShortcuts,
-                selectedRecord = uiState.selectedRecord,
-                maxSelectCount = 1,
-                longPressTargetIndex = null,
-                selectSingle = true,
-                snackbarHostState = snackbarHostState,
-                permissionState = permissionState,
-                onSelect = { action, selected -> vm.select(action, selected) },
-                onSelectLongPress = {},
-                onSetLongPress = {},
-                onClearLongPress = {},
-                onCancelLongPress = {},
-                onMoveSelected = { _, _ -> },
-                onSettingsClick = { action -> vm.showActionSettingsDialog(action) },
-                onSelectApp = { appInfo, selected -> vm.select(appInfo, selected) },
-                onSelectShortcut = { shortcutInfo, selected -> vm.select(shortcutInfo, selected) },
-                onAppLongClick = { appInfo -> vm.toggleMiniWindow(appInfo) },
-                onShortcutClick = { }
-            )
+                ActionPage(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentPadding = PaddingValues(bottom = ScrollBottomPadding),
+                    subGestures = uiState.subGestures,
+                    actions = uiState.actions,
+                    appInfos = uiState.apps,
+                    createShortcuts = uiState.createShortcuts,
+                    launchShortcuts = uiState.launchShortcuts,
+                    selectedRecord = uiState.selectedRecord,
+                    maxSelectCount = 1,
+                    longPressTargetIndex = null,
+                    selectSingle = true,
+                    snackbarHostState = snackbarHostState,
+                    permissionState = permissionState,
+                    onSelect = { action, selected -> vm.select(action, selected) },
+                    onSelectLongPress = {},
+                    onSetLongPress = {},
+                    onClearLongPress = {},
+                    onCancelLongPress = {},
+                    onMoveSelected = { _, _ -> },
+                    onSettingsClick = { action -> vm.showActionSettingsDialog(action) },
+                    onSelectApp = { appInfo, selected -> vm.select(appInfo, selected) },
+                    onSelectShortcut = { shortcutInfo, selected -> vm.select(shortcutInfo, selected) },
+                    onAppLongClick = { appInfo -> vm.toggleMiniWindow(appInfo) },
+                    onShortcutClick = { }
+                )
+            }
         }
     }
 }
