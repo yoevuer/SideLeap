@@ -84,7 +84,7 @@ class QuickAppLauncherState(
         }
 
     val filteredApps: List<AppInfo>
-        get() = sortApps(context, visibleApps, launcherSettings, tokens)
+        get() = sortApps(visibleApps, launcherSettings, tokens)
 
     fun addToken(token: String) {
         tokens = tokens + token

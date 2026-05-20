@@ -107,6 +107,8 @@ android {
         }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/**/LICENSE*"
+            excludes += "/META-INF/**/NOTICE*"
         }
     }
 }
@@ -128,7 +130,7 @@ dependencies {
     }
     implementation(libs.compose.colorpicker)
     implementation(libs.material.icons.extended)
-    implementation(libs.pinyin)
+    implementation(libs.tinypinyin)
     implementation(libs.rikka.shizuku.api)
     implementation(libs.rikka.shizuku.provider)
 }

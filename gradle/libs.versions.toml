@@ -12,7 +12,7 @@ dataStore = "1.1.1"
 compose = "1.7.5"
 material3 = "1.4.0"
 colorpicker = "1.1.2"
-pinyin = "1.0.7"
+tinypinyin = "2.0.3.RELEASE"
 freereflection = "3.2.2"
 shizuku = "13.1.5"
 mockk = "1.13.13"
@@ -30,7 +30,7 @@ androidx-datastore = { group = "androidx.datastore", name = "datastore", version
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "compose" }
 material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 compose-colorpicker = { group = "com.github.skydoves", name = "colorpicker-compose", version.ref = "colorpicker" }
-pinyin = { group = "cn.lalaki", name = "pinyin4j-chinese-simplified", version.ref = "pinyin" }
+tinypinyin = { group = "io.github.biezhi", name = "TinyPinyin", version.ref = "tinypinyin" }
 com-tiann-freereflection = { group = "com.github.tiann", name = "FreeReflection", version.ref = "freereflection" }
 rikka-shizuku-api = { group = "dev.rikka.shizuku", name = "api", version.ref = "shizuku" }
 rikka-shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "shizuku" }
