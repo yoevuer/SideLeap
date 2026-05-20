@@ -85,7 +85,7 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
                     }
             }
             val frozenApps = withContext(Dispatchers.IO) {
-                FreezeState.queryFrozenApplicationsOnIo(AppContext.get(), true)
+                FreezeState.queryFrozenApplicationsOnIo(AppContext.get())
             }
             val normalPackageNames = appInfos.map { it.packageName }.toSet()
             val filteredFrozenApps = frozenApps.filter {

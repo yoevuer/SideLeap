@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import hunoia.sideleap.App
 import hunoia.sideleap.launcher.model.AppInfo
-import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.system.packages.PackageChangeReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,25 +13,24 @@ import kotlinx.coroutines.withContext
 
 object FreezeState {
 
-    private var frozenCache: MutableMap<Boolean, List<AppInfo>>? = null
+    private var frozenCache: List<AppInfo>? = null
     private var receiverRegistered = false
 
     private fun ensureReceiver() {
         if (receiverRegistered) return
         receiverRegistered = true
         PackageChangeReceiver.register(App.getContext()) {
-            frozenCache?.clear()
+            frozenCache = null
             App.applicationScope.launch {
-                val showSystemApps = SettingsProvider.getQuickAppLauncherSettings().showSystemApps
                 withContext(Dispatchers.IO) {
-                    queryFrozenApplications(App.getContext(), showSystemApps)
+                    queryFrozenApplications(App.getContext())
                 }
             }
         }
     }
 
     fun invalidateFrozenCache() {
-        frozenCache?.clear()
+        frozenCache = null
     }
 
     fun isFrozen(context: Context, packageName: String): Boolean {
@@ -52,8 +50,8 @@ object FreezeState {
         return result
     }
 
-    fun queryFrozenApplications(context: Context, showSystemApps: Boolean = true): List<AppInfo> {
-        frozenCache?.get(showSystemApps)?.let { return it }
+    fun queryFrozenApplications(context: Context): List<AppInfo> {
+        frozenCache?.let { return it }
         ensureReceiver()
 
         val pm = context.packageManager
@@ -73,7 +71,6 @@ object FreezeState {
         for (app in allApps) {
             val pkgName = app.packageName
             if (pkgName.isBlank()) continue
-            if (!showSystemApps && isSystemApp(app)) continue
 
             val enabledSetting = try {
                 pm.getApplicationEnabledSetting(pkgName)
@@ -109,13 +106,12 @@ object FreezeState {
                 label = label
             ))
         }
-        val cache = frozenCache ?: mutableMapOf<Boolean, List<AppInfo>>().also { frozenCache = it }
-        cache[showSystemApps] = result
+        frozenCache = result
         return result
     }
 
-    suspend fun queryFrozenApplicationsOnIo(context: Context, showSystemApps: Boolean): List<AppInfo> {
-        return queryFrozenApplications(context, showSystemApps)
+    suspend fun queryFrozenApplicationsOnIo(context: Context): List<AppInfo> {
+        return queryFrozenApplications(context)
     }
 
     fun isSystemApp(ai: ApplicationInfo?): Boolean {

@@ -6,7 +6,6 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
-import io.mockk.slot
 import io.mockk.unmockkAll
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -28,21 +27,15 @@ class QuickAppLauncherBaseQueryTest {
             AppInfo("pkg.one", "MainActivity", "One"),
             AppInfo("pkg.two", "SecondActivity", "Two"),
         )
-        val showSystemApps = slot<Boolean>()
 
         mockkObject(AppQuery)
         every {
-            AppQuery.queryLauncherActivities(
-                context = context,
-                allowRepeatPackage = false,
-                showSystemApps = capture(showSystemApps)
-            )
+            AppQuery.queryLauncherActivities(context = context, allowRepeatPackage = false)
         } returns launcherApps
 
-        val result = QuickAppLauncherBaseQuery.queryApps(context, showSystemApps = true)
+        val result = QuickAppLauncherBaseQuery.queryApps(context)
 
         assertEquals(launcherApps, result.apps)
         assertEquals(emptySet<String>(), result.frozenPkgs)
-        assertEquals(true, showSystemApps.captured)
     }
 }

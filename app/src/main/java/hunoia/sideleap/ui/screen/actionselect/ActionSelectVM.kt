@@ -370,7 +370,7 @@ class ActionSelectVM(
             val appInfos = withContext(Dispatchers.IO) {
                 AppQuery.queryLauncherActivities(AppContext.get())
             }
-            val frozenApps = FreezeState.queryFrozenApplications(AppContext.get(), true)
+            val frozenApps = FreezeState.queryFrozenApplications(AppContext.get())
             // 合并普通应用和冻结应用，普通应用优先，冻结应用只添加不存在的
             val normalPackageNames = appInfos.map { it.packageName }.toSet()
             val filteredFrozenApps = frozenApps.filter { it.packageName !in normalPackageNames }

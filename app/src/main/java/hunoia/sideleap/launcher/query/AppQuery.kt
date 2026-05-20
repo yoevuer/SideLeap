@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import hunoia.sideleap.App
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
-import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.system.packages.PackageChangeReceiver
 import hunoia.sideleap.system.packages.queryIntentActivitiesCompat
 import kotlinx.coroutines.CancellationException
@@ -18,7 +17,7 @@ import kotlinx.coroutines.withContext
 
 object AppQuery {
 
-    private var launcherCache: MutableMap<Pair<Boolean, Boolean>, List<AppInfo>>? = null
+    private var launcherCache: MutableMap<Boolean, List<AppInfo>>? = null
     private var receiverRegistered = false
 
     private fun ensureReceiver() {
@@ -27,9 +26,8 @@ object AppQuery {
         PackageChangeReceiver.register(App.getContext()) {
             launcherCache?.clear()
             App.applicationScope.launch {
-                val showSystemApps = SettingsProvider.getQuickAppLauncherSettings().showSystemApps
                 withContext(Dispatchers.IO) {
-                    queryLauncherActivities(App.getContext(), false, showSystemApps)
+                    queryLauncherActivities(App.getContext(), false)
                 }
             }
         }
@@ -39,9 +37,8 @@ object AppQuery {
         launcherCache?.clear()
     }
 
-    fun queryLauncherActivities(context: Context, allowRepeatPackage: Boolean = true, showSystemApps: Boolean = true): List<AppInfo> {
-        val cacheKey = allowRepeatPackage to showSystemApps
-        launcherCache?.get(cacheKey)?.let { return it }
+    fun queryLauncherActivities(context: Context, allowRepeatPackage: Boolean = true): List<AppInfo> {
+        launcherCache?.get(allowRepeatPackage)?.let { return it }
         ensureReceiver()
 
         val list = mutableListOf<AppInfo>()
@@ -56,7 +53,6 @@ object AppQuery {
             val activityInfo = resolveInfo.activityInfo
             val packageName = activityInfo?.packageName
             if (packageName.isNullOrEmpty()) continue
-            if (!showSystemApps && isSystemApp(activityInfo.applicationInfo)) continue
             if (!allowRepeatPackage && packageName in pkgList) continue
             val item = AppInfo(
                 packageName = packageName,
@@ -66,8 +62,8 @@ object AppQuery {
             list.add(item)
             pkgList.add(packageName)
         }
-        val cache = launcherCache ?: mutableMapOf<Pair<Boolean, Boolean>, List<AppInfo>>().also { launcherCache = it }
-        cache[cacheKey] = list
+        val cache = launcherCache ?: mutableMapOf<Boolean, List<AppInfo>>().also { launcherCache = it }
+        cache[allowRepeatPackage] = list
         return list
     }
 

@@ -9,11 +9,10 @@ data class QuickAppLauncherAppList(
 )
 
 object QuickAppLauncherBaseQuery {
-    fun queryApps(context: Context, showSystemApps: Boolean): QuickAppLauncherAppList {
+    fun queryApps(context: Context): QuickAppLauncherAppList {
         val launcherApps = AppQuery.queryLauncherActivities(
             context = context,
-            allowRepeatPackage = false,
-            showSystemApps = showSystemApps
+            allowRepeatPackage = false
         )
         return QuickAppLauncherAppList(
             apps = launcherApps,

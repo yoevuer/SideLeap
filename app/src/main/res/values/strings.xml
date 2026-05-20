@@ -70,7 +70,6 @@
     <string name="bulk_frozen_count">已冻结：%1$d</string>
     <string name="bulk_unfrozen_count">已解冻：%1$d</string>
     <string name="clear_quick_app_stats">清除最近/频率记录</string>
-    <string name="show_system_apps">显示系统应用</string>
     <string name="clear_quick_app_stats_confirm">确认清除最近使用和启动次数记录？</string>
     <string name="clear_quick_app_stats_done">已清除</string>
     <string name="lock_screen">锁屏界面</string>

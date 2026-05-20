@@ -31,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 
 import androidx.compose.runtime.getValue
@@ -171,14 +170,6 @@ fun FrozenAppManageScreen(
                                 style = MaterialTheme.typography.titleSmall
                             )
                             Spacer(Modifier.weight(1f))
-                            Text(
-                                text = stringResource(id = R.string.show_system_apps),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Switch(
-                                checked = uiState.showSystemApps,
-                                onCheckedChange = vm::onShowSystemAppsChange
-                            )
                         }
                     }
                 }

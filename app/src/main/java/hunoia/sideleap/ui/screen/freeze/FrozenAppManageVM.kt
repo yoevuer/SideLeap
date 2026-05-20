@@ -24,16 +24,14 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
     init {
         viewModelScope.launch {
             SettingsProvider.frozenAppSettings.collectLatest { settings ->
-                val showSystemAppsChanged = uiState.showSystemApps != settings.showSystemAppsInManagePage
                 updateUiState {
                     it.copy(
-                        showSystemApps = settings.showSystemAppsInManagePage,
                         oneKeyPackageNames = settings.oneKeyPackageNames,
                         pendingOneKeyPackageNames = settings.oneKeyPackageNames
                     )
                 }
                 recompute()
-                if (showSystemAppsChanged || uiState.apps.isEmpty()) {
+                if (uiState.apps.isEmpty()) {
                     reloadApps()
                 }
             }
@@ -45,14 +43,6 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             it.copy(query = query)
         }
         recompute()
-    }
-
-    fun onShowSystemAppsChange(show: Boolean) {
-        viewModelScope.launch {
-            SettingsProvider.updateFrozenAppSettings {
-                it.copy(showSystemAppsInManagePage = show)
-            }
-        }
     }
 
     fun onOneKeyChecked(packageName: String, checked: Boolean) {
@@ -79,10 +69,9 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
                 val context = AppContext.get()
                 val normal = hunoia.sideleap.launcher.query.AppQuery.queryLauncherActivities(
                     context = context,
-                    allowRepeatPackage = false,
-                    showSystemApps = uiState.showSystemApps
+                    allowRepeatPackage = false
                 )
-                val frozen = FreezeState.queryFrozenApplications(context, uiState.showSystemApps)
+                val frozen = FreezeState.queryFrozenApplications(context)
                 val normalPackageNames = normal.map { it.packageName }.toSet()
                 normal + frozen.filter { it.packageName !in normalPackageNames }
             }
@@ -237,7 +226,6 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
         val oneKeyApps: List<AppInfo> = emptyList(),
         val otherApps: List<AppInfo> = emptyList(),
         val query: String = "",
-        val showSystemApps: Boolean = false,
         val oneKeyPackageNames: Set<String> = FrozenAppSettings().oneKeyPackageNames,
         val pendingOneKeyPackageNames: Set<String> = oneKeyPackageNames,
         val selectedCount: Int = 0,

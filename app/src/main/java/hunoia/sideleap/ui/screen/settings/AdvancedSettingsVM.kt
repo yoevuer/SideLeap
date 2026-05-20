@@ -116,11 +116,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
-    fun onShowSystemAppsChange(value: Boolean) {
-        updateUiState { it.copy(showSystemApps = value) }
-        saveQuickAppSettings()
-    }
-
     fun clearQuickAppLauncherStats() {
         viewModelScope.launch {
             SettingsProvider.updateQuickAppLauncherSettings {
@@ -158,14 +153,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
-    private fun saveQuickAppSettings() {
-        viewModelScope.launch {
-            SettingsProvider.updateQuickAppLauncherSettings {
-                it.copy(showSystemApps = uiState.showSystemApps)
-            }
-        }
-    }
-
     private fun loadData() {
         viewModelScope.launch {
             SettingsProvider
@@ -192,11 +179,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                     }
                 }
         }
-        viewModelScope.launch {
-            SettingsProvider.quickAppLauncherSettings.take(1).collectLatest { item ->
-                updateUiState { it.copy(showSystemApps = item.showSystemApps) }
-            }
-        }
     }
 
     data class UiState(
@@ -214,7 +196,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         val excludeFromRecents: Boolean = false,
         val dynamicColor: Boolean = false,
         val dayNightMode: DayNightMode = DayNightMode.Auto,
-        val showSystemApps: Boolean = true,
         val showDynamicColorOption: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
         val showDayNightModeDropdownMenu: Boolean = false
     )

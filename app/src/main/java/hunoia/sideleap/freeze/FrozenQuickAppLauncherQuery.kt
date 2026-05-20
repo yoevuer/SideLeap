@@ -6,13 +6,12 @@ import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.launcher.query.QuickAppLauncherAppList
 
 object FrozenQuickAppLauncherQuery {
-    fun queryApps(context: Context, showSystemApps: Boolean): QuickAppLauncherAppList {
-        val frozenApps = FreezeState.queryFrozenApplications(context, showSystemApps)
+    fun queryApps(context: Context): QuickAppLauncherAppList {
+        val frozenApps = FreezeState.queryFrozenApplications(context)
         val frozenPkgSet = frozenApps.map { it.packageName }.toSet()
         val launcherApps = AppQuery.queryLauncherActivities(
             context = context,
-            allowRepeatPackage = false,
-            showSystemApps = showSystemApps
+            allowRepeatPackage = false
         )
         val normalPkgNames = launcherApps.map { it.packageName }.toSet()
         return QuickAppLauncherAppList(

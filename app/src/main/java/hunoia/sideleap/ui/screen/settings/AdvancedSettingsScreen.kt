@@ -90,11 +90,6 @@ fun AdvancedSettingsScreen(
                         text = stringResource(id = R.string.clear_quick_app_stats)
                     )
                     LabeledSwitch(
-                        onCheckedChange = { vm.onShowSystemAppsChange(it) },
-                        checked = uiState.showSystemApps,
-                        text = stringResource(id = R.string.show_system_apps)
-                    )
-                    LabeledSwitch(
                         onCheckedChange = { vm.onExcludeFromRecentsChange(it) },
                         checked = uiState.excludeFromRecents,
                         text = stringResource(id = R.string.exclude_from_recents),

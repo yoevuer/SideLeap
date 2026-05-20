@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 data class QuickAppLauncherSettings(
     val recentLaunchTime: Map<String, Long> = emptyMap(),
     val launchCount: Map<String, Long> = emptyMap(),
-    val showSystemApps: Boolean = true,
     val panelHeightFraction: Float = 0.52f,
     val contentHeightFraction: Float = 0.52f,
     val candidateRows: Int = 1,

@@ -126,7 +126,6 @@ object FreezeAction {
 
     suspend fun oneKeyFreeze(context: Context): OneKeyFreezeResult = withContext(Dispatchers.IO) {
         val settings = SettingsProvider.getFrozenAppSettings()
-        val showSystemApps = settings.showSystemAppsInManagePage
         val oneKeySet = settings.oneKeyPackageNames
 
         val rawTargets = oneKeySet
@@ -144,7 +143,6 @@ object FreezeAction {
                 }
             }.getOrNull()
             if (ai == null) return@forEach
-            if (!showSystemApps && FreezeState.isSystemApp(ai)) return@forEach
             installedTargets.add(pkg)
         }
 

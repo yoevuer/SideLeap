@@ -7,5 +7,4 @@ import kotlinx.serialization.Serializable
 @Keep
 data class FrozenAppSettings(
     val oneKeyPackageNames: Set<String> = emptySet(),
-    val showSystemAppsInManagePage: Boolean = false,
 )

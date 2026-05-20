@@ -63,7 +63,7 @@ class QuickAppLauncherState(
     private fun loadApps() {
         coroutineScope.launch {
             val state = withContext(Dispatchers.IO) {
-                FrozenQuickAppLauncherQuery.queryApps(context, launcherSettings.showSystemApps)
+                FrozenQuickAppLauncherQuery.queryApps(context)
             }
             appListState = state
         }
