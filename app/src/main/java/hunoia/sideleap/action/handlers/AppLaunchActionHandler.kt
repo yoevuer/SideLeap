@@ -45,12 +45,14 @@ object AppLaunchActionHandler : ActionHandler {
 
     private fun handlePopupScreen(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val curPkgName = context.currentPackageName()
-            if (context.nowInLauncher() || curPkgName.isNullOrEmpty()) {
+            val pkgName = context.accessibilityService
+                .rootInActiveWindow?.packageName?.toString()
+                ?: context.currentPackageName()
+            if (context.nowInLauncher() || pkgName.isNullOrEmpty()) {
                 return
             }
             val intent = Intent().apply {
-                setPackage(curPkgName)
+                setPackage(pkgName)
                 setAction(Intent.ACTION_MAIN)
                 addCategory(Intent.CATEGORY_LAUNCHER)
             }
@@ -61,7 +63,7 @@ object AppLaunchActionHandler : ActionHandler {
             if (!className.isNullOrEmpty()) {
                 Launcher.launchAppInPopup(
                     context.appContext,
-                    curPkgName,
+                    pkgName,
                     className,
                     context.advancedSettings.miniWindowHorizontalBias,
                     context.advancedSettings.miniWindowVerticalBias,
