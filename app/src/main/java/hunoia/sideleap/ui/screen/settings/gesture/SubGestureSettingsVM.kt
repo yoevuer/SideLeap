@@ -56,6 +56,30 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
         updateUiState { it.copy(showDeleteWarningDialog = show) }
     }
 
+    fun showMirrorCopyDialog(show: Boolean) {
+        updateUiState { it.copy(showMirrorCopyDialog = show) }
+    }
+
+    fun createMirroredCopy() {
+        viewModelScope.launch {
+            val original = uiState.subGesture ?: return@launch
+            val newId = java.util.UUID.randomUUID().toString()
+            val mirrored = original.copy(
+                id = newId,
+                name = "镜像·${original.name.ifEmpty { "子手势" }}",
+                leftAction = original.rightAction,
+                rightAction = original.leftAction,
+                upRightAction = original.upLeftAction,
+                upLeftAction = original.upRightAction,
+                downRightAction = original.downLeftAction,
+                downLeftAction = original.downRightAction,
+            )
+            SettingsProvider.updateSubGestureSettings { settings ->
+                settings.copy(subGestures = settings.subGestures + mirrored)
+            }
+        }
+    }
+
     fun deleteSubGesture() {
         viewModelScope.launch {
             SettingsProvider.updateSubGestureSettings { settings ->
@@ -212,6 +236,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
         val allSubGestures: List<SubGesture>? = null,
         val editingName: String = "",
         val showDeleteWarningDialog: Boolean = false,
+        val showMirrorCopyDialog: Boolean = false,
         val colorPickerDialog: Pair<Boolean, Color> = Pair(false, Color.Transparent),
     )
 

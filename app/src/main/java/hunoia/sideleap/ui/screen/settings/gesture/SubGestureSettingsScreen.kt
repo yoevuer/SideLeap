@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,6 +67,14 @@ fun SubGestureSettingsScreen(
                 title = stringResource(id = R.string.delete_sub_gesture_warning),
                 text = stringResource(id = R.string.delete_sub_gesture_warning_desc),
                 onConfirmClick = { vm.deleteSubGesture() }
+            )
+        }
+        if (uiState.showMirrorCopyDialog) {
+            MyAlertDialog(
+                onDismissRequest = { vm.showMirrorCopyDialog(false) },
+                title = stringResource(id = R.string.mirror_sub_gesture),
+                text = stringResource(id = R.string.mirror_sub_gesture_desc),
+                onConfirmClick = { vm.createMirroredCopy() }
             )
         }
 
@@ -161,6 +170,12 @@ fun SubGestureSettingsScreen(
                     )
                 },
                 actions = {
+                    IconButton(onClick = { vm.showMirrorCopyDialog(true) }) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = null
+                        )
+                    }
                     IconButton(onClick = { vm.showDeleteWarningDialog(true) }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
