@@ -216,61 +216,43 @@ fun HomeScreen(
                                     Text(text = stringResource(id = R.string.backup_restore))
                                 }
                             )
+                            DropdownMenuItem(
+                                onClick = {
+                                    vm.showMoreMenu(false)
+                                    context.gotoIgnoreBatteryOptimizations()
+                                },
+                                text = {
+                                    Text(text = stringResource(id = R.string.ignoring_battery_optimizations))
+                                }
+                            )
+                            DropdownMenuItem(
+                                onClick = {
+                                    vm.showMoreMenu(false)
+                                    KeepAliveHelper.gotoSettings(context)
+                                },
+                                text = {
+                                    Text(text = stringResource(id = R.string.launch_self_permission))
+                                }
+                            )
                         }
                     }
                 )
 
                 MyColumn(scrollState = scrollState) {
-                    SectionCard(title = stringResource(id = R.string.initial_settings)) {
+                    SectionCard(
+                        title = stringResource(id = R.string.global_settings)
+                    ) {
                         LabeledSwitch(
                             onCheckedChange = {
-                                vm.onAppGestureEnabledChange(it)
+                                if (it && !uiState.isAccessibilityEnabled) {
+                                    context.gotoAccessibilitySettings()
+                                } else {
+                                    vm.onAppGestureEnabledChange(it)
+                                }
                             },
                             checked = uiState.isGestureEnabled,
                             text = stringResource(id = R.string.gesture_switch)
                         )
-//                        LabeledSwitch(
-//                            onCheckedChange = {
-//                                context.gotoOverlaySettings()
-//                            },
-//                            checked = uiState.isDrawOverlayEnabled,
-//                            text = stringResource(id = R.string.system_overlay)
-//                        )
-//                        LabeledSwitch(
-//                            onCheckedChange = {
-//                                SystemAlertWindow.start(context)
-//                            },
-//                            checked = uiState.isPopBackgroundEnabled,
-//                            text = stringResource(id = R.string.popup_background)
-//                        )
-                        LabeledSwitch(
-                            onCheckedChange = {
-                                context.gotoAccessibilitySettings()
-                            },
-                            checked = uiState.isAccessibilityEnabled,
-                            text = stringResource(id = R.string.accessibility_service)
-                        )
-                        LabeledSwitch(
-                            onCheckedChange = {
-                                context.gotoIgnoreBatteryOptimizations()
-                            },
-                            checked = uiState.isIgnoringBatteryOptimizations,
-                            text = stringResource(id = R.string.ignoring_battery_optimizations),
-                            secondaryText = stringResource(id = R.string.ignoring_battery_optimizations_hint)
-                        )
-                        TextActionButton(
-                            onClick = {
-                                KeepAliveHelper.gotoSettings(context)
-                            },
-                            text = stringResource(id = R.string.launch_self_permission),
-                            secondaryText = stringResource(id = R.string.launch_self_permission_hint)
-                        )
-                    }
-
-                    SectionCard(
-                        modifier = Modifier.padding(top = SectionPadding),
-                        title = stringResource(id = R.string.global_settings)
-                    ) {
                         TextActionButton(
                             onClick = onNavToAdvancedSettings,
                             text = stringResource(id = R.string.advanced_settings),

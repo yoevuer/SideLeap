@@ -180,10 +180,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     }
 
     fun onAppGestureEnabledChange(enabled: Boolean) {
-        if (!uiState.isAccessibilityEnabled) {
-            toast(R.string.please_enable_accessibility_service_first)
-            return
-        }
         updateUiState {
             it.copy(isGestureEnabled = enabled)
         }
