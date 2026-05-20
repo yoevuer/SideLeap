@@ -2,18 +2,14 @@ package hunoia.sideleap.ui.component
 
 import android.graphics.Bitmap
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
 import android.view.ViewConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -451,16 +447,6 @@ fun SideGestureContainer(
             sideGestureState.onDragCancel()
         }
     )
-    DisposableEffect(Unit) {
-        onDispose {
-            if (sideGestureState.retractProgress in 0f..1f) {
-                _savedOriginX = sideGestureState.originXAnimVal
-                _savedOriginY = sideGestureState.originYAnimVal
-                _savedFingerX = sideGestureState.retractTargetX
-                _savedFingerY = sideGestureState.retractTargetY
-            }
-        }
-    }
     Box(modifier = modifier) {
         ActionPanel(
             actionPanelStyle = actionPanelStyle,
@@ -520,11 +506,6 @@ private fun Action.withTouchPosition(position: Offset): Action {
     return withRuntimeTouchPosition(position.x.roundToInt(), position.y.roundToInt())
 }
 
-private var _savedOriginX = Float.NaN
-private var _savedOriginY = Float.NaN
-private var _savedFingerX = Float.NaN
-private var _savedFingerY = Float.NaN
-
 @Composable
 private fun rememberSideGestureState(
     buttons: List<GestureButton>,
@@ -533,18 +514,7 @@ private fun rememberSideGestureState(
 ): SideGestureState {
     val coroutineScope = rememberCoroutineScope()
     return remember(coroutineScope, buttons, advancedSettings, gestureSettings) {
-        SideGestureState(coroutineScope, buttons, advancedSettings, gestureSettings).also {
-            if (_savedFingerX.isFinite()) {
-                it.originXAnimVal = _savedOriginX
-                it.originYAnimVal = _savedOriginY
-                it.fingerXDisplay = _savedFingerX
-                it.fingerYDisplay = _savedFingerY
-                _savedOriginX = Float.NaN
-                _savedOriginY = Float.NaN
-                _savedFingerX = Float.NaN
-                _savedFingerY = Float.NaN
-            }
-        }
+        SideGestureState(coroutineScope, buttons, advancedSettings, gestureSettings)
     }
 }
 
@@ -569,18 +539,12 @@ class SideGestureState(
         private set
     private var buttonBounds: Rect? = null
 
-    var originXAnimVal by mutableStateOf(Float.NaN)
-    var originYAnimVal by mutableStateOf(Float.NaN)
+    var originXAnimVal by mutableStateOf(Float.NaN); private set
+    var originYAnimVal by mutableStateOf(Float.NaN); private set
     val fingerXAnimVal: Float get() = fingerXDisplay
     val fingerYAnimVal: Float get() = fingerYDisplay
-    var fingerXDisplay by mutableStateOf(Float.NaN)
-    var fingerYDisplay by mutableStateOf(Float.NaN)
-
-    var retractProgress: Float by mutableFloatStateOf(-1f)
-    var retractStartX: Float by mutableFloatStateOf(Float.NaN)
-    var retractStartY: Float by mutableFloatStateOf(Float.NaN)
-    var retractTargetX: Float by mutableFloatStateOf(Float.NaN)
-    var retractTargetY: Float by mutableFloatStateOf(Float.NaN)
+    private var fingerXDisplay by mutableStateOf(Float.NaN)
+    private var fingerYDisplay by mutableStateOf(Float.NaN)
 
     var onLongPress: (Action) -> Unit = {}
 
@@ -596,27 +560,21 @@ class SideGestureState(
     private var isOhoGestureEverCanTriggered = false
 
     private var slideVibrationFlags = false
-    private var animationRunnable: Runnable? = null
-    private val handler = Handler(Looper.getMainLooper())
 
     private val viewConfiguration = ViewConfiguration.get(hunoia.sideleap.core.AppContext.get())
 
     fun onDragStart(offset: Offset, imePadding: Int) {
-        animationRunnable?.let { handler.removeCallbacks(it) }
-        if (retractProgress in 0f..1f) {
-            fingerXDisplay = retractTargetX
-            fingerYDisplay = retractTargetY
-        }
-        endRetract()
-        fingerXDisplay = Float.NaN
-        fingerYDisplay = Float.NaN
         isCanceled = false
         origin = offset
         finger = offset
         button = buttons.find(offset, imePadding)
         buttonBounds = button?.bounds(imePadding)
 
-        val button = button ?: return
+        val button = button ?: run {
+            fingerXDisplay = Float.NaN
+            fingerYDisplay = Float.NaN
+            return
+        }
         val gestureSettings = gestureSettings
 
         val longPressAction = button.slideActions.center2.firstOrNull()
@@ -749,29 +707,21 @@ class SideGestureState(
             }
         }
 
-        startRetract()
         reset()
-        launchRetractAnim()
         return returnAction
     }
 
     fun cancel() {
         if (isCanceled) return
-        startRetract()
         reset()
-        launchRetractAnim()
         isCanceled = true
     }
 
     fun onDragCancel() {
-        startRetract()
         reset()
-        launchRetractAnim()
     }
 
     fun reset() {
-        animationRunnable?.let { handler.removeCallbacks(it) }
-        animationRunnable = null
         calcLongPressJob?.cancel()
         calcLongPressJob = null
         isCanceled = false
@@ -779,65 +729,13 @@ class SideGestureState(
         finger = Offset.Unspecified
         fingerXDisplay = Float.NaN
         fingerYDisplay = Float.NaN
-        endRetract()
         longSlideFirstTriggerMs = 0L
         isOhoGestureEverCanTriggered = false
         slideVibrationFlags = false
     }
 
-    fun startRetract() {
-        val sx = fingerXDisplay; val sy = fingerYDisplay
-        if (sx.isNaN() || sy.isNaN()) return
-        val btn = button ?: return
-        val (tx, ty) = retractTarget(btn, curStickySlideValue)
-        retractStartX = sx; retractStartY = sy
-        retractTargetX = tx; retractTargetY = ty
-        retractProgress = 0f
-    }
-
-    fun endRetract() {
-        retractProgress = -1f
-        retractStartX = Float.NaN
-        retractStartY = Float.NaN
-        retractTargetX = Float.NaN
-        retractTargetY = Float.NaN
-    }
-
-    private fun launchRetractAnim() {
-        if (retractProgress !in 0f..1f) return
-        animationRunnable?.let { handler.removeCallbacks(it) }
-        val startMs = SystemClock.uptimeMillis()
-        val sx = retractStartX; val sy = retractStartY
-        val tx = retractTargetX; val ty = retractTargetY
-        val r = object : Runnable {
-            override fun run() {
-                if (retractProgress !in 0f..1f) return
-                val elapsed = SystemClock.uptimeMillis() - startMs
-                if (elapsed >= 180L) {
-                    fingerXDisplay = tx; fingerYDisplay = ty
-                    endRetract()
-                    return
-                }
-                val fraction = elapsed.toFloat() / 180f
-                val eased = 1f - (1f - fraction) * (1f - fraction)
-                fingerXDisplay = sx + (tx - sx) * eased
-                fingerYDisplay = sy + (ty - sy) * eased
-                handler.postDelayed(this, 16)
-            }
-        }
-        animationRunnable = r
-        handler.post(r)
-    }
-
     fun canDistanceTriggered(button: GestureButton, isLongSlide: Boolean, judgeAction: Boolean = true): Boolean {
         return hunoia.sideleap.gesture.canDistanceTriggered(button, origin, finger, triggerDirection, gestureSettings, isLongSlide, curStickySlideValue, judgeAction)
-    }
-
-    private fun retractTarget(button: GestureButton, stickyValue: Float): Pair<Float, Float> {
-        return when (button.position) {
-            Position.Left, Position.Right -> getStickySlideValue(button, stickyValue, true) to origin.y
-            Position.Bottom -> origin.x to getStickySlideValue(button, stickyValue, false)
-        }
     }
 }
 
