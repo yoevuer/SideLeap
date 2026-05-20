@@ -38,6 +38,8 @@ object SettingsUiDefaults {
     const val MaxLongSlideTriggerDelayMs = 250L
     const val MinLongPressTriggerDelayMs = 100L
     const val MaxLongPressTriggerDelayMs = 1000L
+    const val MinSubGestureTimeoutMs = 1000L
+    const val MaxSubGestureTimeoutMs = 15000L
     const val GestureButtonColorAlpha = 0.36f
     const val DisabledAlpha = 0.36f
     const val DimAlpha = 0.5f

@@ -105,6 +105,7 @@ fun SideGestureContainer(
     virtualMousePreviousPosition: () -> Offset = { Offset.Unspecified },
     onPointerActionAtPosition: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit = { _, _, _, _ -> },
     subGestureSettings: SubGestureSettings = SubGestureSettings(),
+    onSubGestureModeChanged: (Boolean) -> Unit = {},
 
     wallpaperChangeTrigger: Long = 0L,
 ) {
@@ -114,6 +115,7 @@ fun SideGestureContainer(
     val curOnVirtualMouseEnd by rememberUpdatedState(newValue = onVirtualMouseEnd)
     val curOnVirtualMouseSettingsUpdate by rememberUpdatedState(newValue = onVirtualMouseSettingsUpdate)
     val curOnPointerActionAtPosition by rememberUpdatedState(newValue = onPointerActionAtPosition)
+    val curOnSubGestureModeChanged by rememberUpdatedState(newValue = onSubGestureModeChanged)
     val coroutineScope = rememberCoroutineScope()
     val sideGestureState = rememberSideGestureState(buttons, advancedSettings, gestureSettings)
     val actionPanelState = rememberActionPanelState()
@@ -206,12 +208,13 @@ fun SideGestureContainer(
         subGestureTouchCount = 0
         subGestureTimeoutJob?.cancel()
         subGestureTimeoutJob = null
+        curOnSubGestureModeChanged(false)
     }
 
     fun scheduleSubGestureTimeout() {
         subGestureTimeoutJob?.cancel()
         subGestureTimeoutJob = coroutineScope.launch {
-            delay(SUB_GESTURE_TIMEOUT_MS)
+            delay(gestureSettings.subGestureTimeoutMs)
             clearSubGestureMode()
         }
     }
@@ -234,6 +237,7 @@ fun SideGestureContainer(
         subGestureDepth += 1
         scheduleSubGestureTimeout()
         sideGestureState.cancel()
+        curOnSubGestureModeChanged(true)
         return true
     }
 
@@ -782,4 +786,3 @@ abstract class LongSlideState {
     }
 }
 
-private const val SUB_GESTURE_TIMEOUT_MS = 5000L

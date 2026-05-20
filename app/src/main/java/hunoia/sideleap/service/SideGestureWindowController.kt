@@ -1,5 +1,7 @@
 package hunoia.sideleap.service
 
+import android.graphics.PixelFormat
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
@@ -28,6 +30,9 @@ class SideGestureWindowController(private val host: SideGestureService) {
     var buttonViews: List<View>? = null
         private set
 
+    var subGestureOverlayView: View? = null
+        private set
+
     fun replaceMainOverlay(content: @Composable () -> Unit) {
         mainView?.let { host.removeWindow(it) }
         mainView = attachComposeOverlay(content)
@@ -42,6 +47,36 @@ class SideGestureWindowController(private val host: SideGestureService) {
         val view = mainView ?: return
         val lp = (view.layoutParams as WindowManager.LayoutParams).apply { updateMainView() }
         updateWindowLayout(view, lp)
+    }
+
+    fun attachSubGestureOverlay() {
+        if (subGestureOverlayView != null) return
+        val wm = ContextCompat.getSystemService(host, WindowManager::class.java)!!
+        val lp = WindowManager.LayoutParams().apply {
+            type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+            format = PixelFormat.RGBA_8888
+            width = WindowManager.LayoutParams.MATCH_PARENT
+            height = WindowManager.LayoutParams.MATCH_PARENT
+            flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            @android.annotation.SuppressLint("RtlHardcoded")
+            gravity = Gravity.LEFT or Gravity.TOP
+        }
+        val view = View(host).apply {
+            setOnTouchListener { _, event ->
+                MotionEventDispatcher.dispatch(event)
+                true
+            }
+        }
+        wm.addView(view, lp)
+        subGestureOverlayView = view
+    }
+
+    fun detachSubGestureOverlay() {
+        val view = subGestureOverlayView ?: return
+        host.removeWindow(view)
+        subGestureOverlayView = null
     }
 
     fun updateWindowLayout(view: View, lp: WindowManager.LayoutParams) {

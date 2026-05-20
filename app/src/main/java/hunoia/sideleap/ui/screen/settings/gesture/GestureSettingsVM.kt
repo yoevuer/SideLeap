@@ -39,6 +39,7 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                         isCustomVibration = uiState.isCustomVibration,
                         vibrations = uiState.vibrations,
                         isPreciseSlideType = uiState.isPreciseSlideTypeEnabled,
+                        subGestureTimeoutMs = uiState.subGestureTimeoutMs,
                         virtualMouse = uiState.virtualMouse
                     )
                 }
@@ -93,6 +94,12 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
     fun onLongSlideTriggerDelayMsChange(value: Float) {
         updateUiState {
             it.copy(longSlideTriggerDelayMs = value.toLong())
+        }
+    }
+
+    fun onSubGestureTimeoutChange(value: Float) {
+        updateUiState {
+            it.copy(subGestureTimeoutMs = value.toLong())
         }
     }
 
@@ -181,6 +188,7 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                             isCustomVibration = item.isCustomVibration,
                             vibrations = item.vibrations,
                             isPreciseSlideTypeEnabled = item.isPreciseSlideType,
+                            subGestureTimeoutMs = item.subGestureTimeoutMs,
                             virtualMouse = item.virtualMouse
                         )
                     }
@@ -199,6 +207,7 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         val vibrations: Vibrations = Vibrations(),
         val showPredefinedVibrationDropdown: Boolean = false,
         val isPreciseSlideTypeEnabled: Boolean = false,
+        val subGestureTimeoutMs: Long = 0L,
         val virtualMouse: GestureSettings.VirtualMouse = GestureSettings.VirtualMouse(),
     )
 

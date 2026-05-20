@@ -282,6 +282,10 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                         modifier = Modifier.matchParentSize(),
                         buttons = sideButtons + bottomButtons,
                         wallpaperChangeTrigger = lastWallpaperChangeMs,
+                        onSubGestureModeChanged = { inSubGesture ->
+                            if (inSubGesture) windowController.attachSubGestureOverlay()
+                            else windowController.detachSubGestureOverlay()
+                        },
                         animationStyle = when (advancedSettings.animationStyles.isAnimationEnabled) {
                             true -> advancedSettings.animationStyles.value
                             else -> null

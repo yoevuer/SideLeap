@@ -46,10 +46,12 @@ import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxLongPressTriggerD
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxLongSlideTriggerDelayMs
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxLongSlideTriggerDistance
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxSlideTriggerDistance
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxSubGestureTimeoutMs
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinLongPressTriggerDelayMs
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinLongSlideTriggerDelayMs
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinLongSlideTriggerDistance
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinSlideTriggerDistance
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinSubGestureTimeoutMs
 import hunoia.sideleap.system.vibration.VibrationDefaults.MaxCustomVibrationMs
 import hunoia.sideleap.system.vibration.VibrationDefaults.MinCustomVibrationMs
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.getPredefinedVibrationEffectText
@@ -542,11 +544,19 @@ private fun SlideSettingsContent(
             sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
             valueRange = MinLongSlideTriggerDelayMs.toFloat()..MaxLongSlideTriggerDelayMs.toFloat()
         )
+        MyTextSlider(
+            value = uiState.subGestureTimeoutMs / 1000f,
+            onValueChange = { vm.onSubGestureTimeoutChange(it * 1000) },
+            onValueChangeFinished = { vm.saveSettings() },
+            text = stringResource(id = R.string.sub_gesture_timeout_ms) + "：${uiState.subGestureTimeoutMs / 1000}秒",
+            sliderValueHint = "1秒" to "15秒",
+            valueRange = MinSubGestureTimeoutMs / 1000f..MaxSubGestureTimeoutMs / 1000f
+        )
     }
 }
 
 private fun slideSettingsSummaryText(uiState: GestureSettingsVM.UiState): String {
-    return "滑动 ${uiState.slideTriggerDistance.toInt()} · 长按 ${uiState.longPressTriggerDelayMs}ms · 长滑 ${uiState.longSlideTriggerDistance.toInt()} · 延迟 ${uiState.longSlideTriggerDelayMs}ms"
+    return "滑动 ${uiState.slideTriggerDistance.toInt()} · 长按 ${uiState.longPressTriggerDelayMs}ms · 长滑 ${uiState.longSlideTriggerDistance.toInt()} · 延迟 ${uiState.longSlideTriggerDelayMs}ms · 子手势 ${uiState.subGestureTimeoutMs / 1000}s"
 }
 
 private fun virtualMouseSummaryText(settings: GestureSettings.VirtualMouse): String {
