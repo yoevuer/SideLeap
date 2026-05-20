@@ -7,11 +7,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -23,10 +25,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Checkbox
@@ -50,8 +51,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
@@ -61,6 +65,7 @@ import coil.imageLoader
 import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
+import kotlin.math.roundToInt
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.GlobalActions
@@ -253,12 +258,16 @@ internal fun ActionPage(
             }
         }
         if (selectedType == "selected" && !selectSingle && selectedItems.isNotEmpty()) {
-            item(key = "selected_bar") {
-                SelectedBar(
+            item(key = "selected_action_settings") {
+                SelectedActionSettings(
                     selectedItems = selectedItems,
-                    maxSelectCount = maxSelectCount,
-                    showMaxSelectCount = selectSingle,
+                    longPressTargetIndex = longPressTargetIndex,
+                    subGestures = subGestures,
                     itemLabel = { context.selectedItemLabel(it, subGestures) },
+                    onSetLongPress = onSetLongPress,
+                    onClearLongPress = onClearLongPress,
+                    onCancelLongPress = onCancelLongPress,
+                    onMoveSelected = onMoveSelected,
                     onRemoveItem = { item ->
                         when (item) {
                             is Action -> onSelect(item, false)
@@ -275,18 +284,6 @@ internal fun ActionPage(
                             }
                         }
                     }
-                )
-            }
-            item(key = "selected_action_settings") {
-                SelectedActionSettings(
-                    selectedItems = selectedItems,
-                    longPressTargetIndex = longPressTargetIndex,
-                    subGestures = subGestures,
-                    itemLabel = { context.selectedItemLabel(it, subGestures) },
-                    onSetLongPress = onSetLongPress,
-                    onClearLongPress = onClearLongPress,
-                    onCancelLongPress = onCancelLongPress,
-                    onMoveSelected = onMoveSelected
                 )
             }
         }
@@ -499,8 +496,15 @@ internal fun SelectedActionSettings(
     onSetLongPress: (Int) -> Unit,
     onClearLongPress: (Int) -> Unit,
     onCancelLongPress: () -> Unit,
-    onMoveSelected: (Int, Int) -> Unit
+    onMoveSelected: (Int, Int) -> Unit,
+    onRemoveItem: (Any) -> Unit,
+    onClearAll: () -> Unit,
 ) {
+    var draggedIndex by remember { mutableStateOf<Int?>(null) }
+    var dragOffset by remember { mutableStateOf(0f) }
+    var itemHeight by remember { mutableStateOf(0f) }
+    val density = LocalDensity.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -509,14 +513,18 @@ internal fun SelectedActionSettings(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = stringResource(R.string.selected_action_settings),
+                text = stringResource(R.string.selected_count_no_limit, selectedItems.size),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
+            Spacer(Modifier.weight(1f))
             if (longPressTargetIndex != null) {
                 TextButton(onClick = onCancelLongPress) {
                     Text(stringResource(R.string.cancel))
                 }
+            }
+            TextButton(onClick = onClearAll) {
+                Text(stringResource(R.string.clear_all))
             }
         }
         selectedItems.forEachIndexed { index, item ->
@@ -528,7 +536,46 @@ internal fun SelectedActionSettings(
             } else {
                 stringResource(R.string.long_press_action_fallback)
             }
+            val isDragging = draggedIndex == index
             Surface(
+                modifier = Modifier
+                    .onGloballyPositioned { coordinates ->
+                        if (itemHeight == 0f) itemHeight = coordinates.size.height.toFloat()
+                    }
+                    .graphicsLayer {
+                        if (isDragging) {
+                            translationY = dragOffset
+                        }
+                    }
+                    .pointerInput(selectedItems.size) {
+                        detectDragGesturesAfterLongPress(
+                            onDragStart = {
+                                draggedIndex = index
+                                dragOffset = 0f
+                            },
+                            onDrag = { change, dragAmount ->
+                                if (draggedIndex == index) {
+                                    change.consume()
+                                    dragOffset += dragAmount.y
+                                }
+                            },
+                            onDragEnd = {
+                                draggedIndex?.let { from ->
+                                    val spacingPx = with(density) { 6.dp.toPx() }
+                                    val step = (itemHeight + spacingPx).coerceAtLeast(1f)
+                                    val delta = (dragOffset / step).roundToInt()
+                                    val to = (from + delta).coerceIn(0, selectedItems.lastIndex)
+                                    if (to != from) onMoveSelected(from, to)
+                                }
+                                draggedIndex = null
+                                dragOffset = 0f
+                            },
+                            onDragCancel = {
+                                draggedIndex = null
+                                dragOffset = 0f
+                            }
+                        )
+                    },
                 shape = RoundedCornerShape(12.dp),
                 color = if (longPressTargetIndex == index) {
                     MaterialTheme.colorScheme.primaryContainer
@@ -536,56 +583,60 @@ internal fun SelectedActionSettings(
                     MaterialTheme.colorScheme.surfaceVariant
                 }
             ) {
-                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = "${index + 1}. ${shortPressText.take(2)} / ${longPressText.take(2)}",
-                            modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        if (longPressAction != null) {
-                            TextButton(
-                                onClick = { onClearLongPress(index) },
-                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
-                            ) {
-                                Text(stringResource(R.string.clear_long_press_action))
-                            }
-                        } else {
-                            TextButton(
-                                onClick = { onSetLongPress(index) },
-                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
-                            ) {
-                                Text(stringResource(R.string.set_long_press_action))
-                            }
-                        }
-                        IconButton(
-                            enabled = index > 0,
-                            onClick = { onMoveSelected(index, index - 1) },
-                            modifier = Modifier.size(32.dp)
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "${index + 1}. ${shortPressText} / ${longPressText}",
+                        modifier = Modifier
+                            .weight(1f)
+                            .basicMarquee(velocity = 50.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (longPressAction != null) {
+                        TextButton(
+                            onClick = { onClearLongPress(index) },
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
                         ) {
-                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.move_up))
+                            Text(stringResource(R.string.clear_long_press_action))
                         }
-                        IconButton(
-                            enabled = index < selectedItems.lastIndex,
-                            onClick = { onMoveSelected(index, index + 1) },
-                            modifier = Modifier.size(32.dp)
+                    } else {
+                        TextButton(
+                            onClick = { onSetLongPress(index) },
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
                         ) {
-                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.move_down))
+                            Text(stringResource(R.string.set_long_press_action))
                         }
                     }
-                    if (longPressTargetIndex == index) {
-                        Text(
-                            text = stringResource(R.string.choose_long_press_action_hint),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
+                    IconButton(
+                        onClick = { onRemoveItem(item) },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = stringResource(R.string.delete),
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
+            }
+            if (longPressTargetIndex == index) {
+                Text(
+                    text = stringResource(R.string.choose_long_press_action_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 34.dp)
+                )
             }
         }
     }
@@ -616,41 +667,7 @@ internal fun SelectedBar(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary
         )
-        LazyRow(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            items(selectedItems, key = { it.hashCode() }) { item ->
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant
-                ) {
-                    Row(
-                        modifier = Modifier.padding(start = 10.dp, end = 2.dp, top = 2.dp, bottom = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = itemLabel(item),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                        IconButton(
-                            onClick = { onRemoveItem(item) },
-                            modifier = Modifier.size(20.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.Close,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        Spacer(Modifier.weight(1f))
         TextButton(
             onClick = onClearAll,
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
