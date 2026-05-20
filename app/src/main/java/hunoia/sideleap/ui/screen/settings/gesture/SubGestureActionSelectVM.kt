@@ -92,6 +92,7 @@ class SubGestureActionSelectVM(
             val list = if (selected) listOf(action) else emptyList<Any>()
             it.copy(selectedRecord = SelectedRecord(list))
         }
+        if (selected) done()
     }
 
     private fun selectAppInfo(appInfo: AppInfo, selected: Boolean) {
@@ -104,6 +105,7 @@ class SubGestureActionSelectVM(
             } else emptyList()
             it.copy(selectedRecord = SelectedRecord(list))
         }
+        if (selected) done()
     }
 
     private fun selectShortcutInfo(shortcutInfo: LauncherInfo.ShortcutInfo, selected: Boolean) {
@@ -116,6 +118,7 @@ class SubGestureActionSelectVM(
             } else emptyList()
             it.copy(selectedRecord = SelectedRecord(list))
         }
+        if (selected) done()
     }
 
     private fun assembleActions() {

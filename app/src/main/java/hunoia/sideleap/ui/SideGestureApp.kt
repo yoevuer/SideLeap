@@ -29,14 +29,12 @@ import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.ui.navigation.GestureSettings
 import hunoia.sideleap.ui.navigation.FrozenAppManage
 import hunoia.sideleap.ui.navigation.Home
-import hunoia.sideleap.ui.navigation.SubGestureActionSelect
 import hunoia.sideleap.ui.navigation.SubGestureEditor
 import hunoia.sideleap.ui.navigation.Unlock
 import hunoia.sideleap.ui.screen.settings.AdvancedSettingsScreen
 
 import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonSettingsScreen
 import hunoia.sideleap.ui.screen.settings.gesture.GestureSettingsScreen
-import hunoia.sideleap.ui.screen.settings.gesture.SubGestureActionSelectScreen
 import hunoia.sideleap.ui.screen.settings.gesture.SubGestureSettingsScreen
 import hunoia.sideleap.ui.screen.freeze.FrozenAppManageScreen
 import hunoia.sideleap.ui.screen.home.HomeScreen
@@ -106,17 +104,6 @@ fun SideGestureApp() {
                 }
                 myComposable<SubGestureEditor> {
                     SubGestureSettingsScreen(
-                        onBack = { navController.navigateUp() },
-                        onNavToSubGestureActionSelect = { subGestureId, direction ->
-                            navController.navigate(SubGestureActionSelect(subGestureId, direction))
-                        }
-                    )
-                }
-                myComposable<SubGestureActionSelect> { backStackEntry ->
-                    val route = backStackEntry.toRoute<SubGestureActionSelect>()
-                    SubGestureActionSelectScreen(
-                        subGestureId = route.subGestureId,
-                        direction = route.direction,
                         onBack = { navController.navigateUp() }
                     )
                 }

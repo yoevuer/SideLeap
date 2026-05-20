@@ -63,9 +63,4 @@ data class SubGestureEditor(
     val subGestureId: String
 )
 
-@Keep
-@Serializable
-data class SubGestureActionSelect(
-    val subGestureId: String,
-    val direction: SubGestureDirection
-)
+

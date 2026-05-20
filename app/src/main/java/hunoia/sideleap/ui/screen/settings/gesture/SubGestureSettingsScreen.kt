@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +35,7 @@ import hunoia.sideleap.action.payload.SubGestureActionData
 import hunoia.sideleap.gesture.SubGestureDirection
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.settings.model.SubGesture
+import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import hunoia.sideleap.ui.component.MyAlertDialog
 import hunoia.sideleap.ui.component.MyColumn
 import hunoia.sideleap.ui.component.SectionCard
@@ -42,13 +46,15 @@ import hunoia.sideleap.ui.theme.IconTextPadding
 import hunoia.sideleap.ui.theme.MarkColorSize
 import hunoia.sideleap.ui.theme.SectionPadding
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubGestureSettingsScreen(
     onBack: () -> Unit,
-    onNavToSubGestureActionSelect: (subGestureId: String, direction: SubGestureDirection) -> Unit,
     vm: SubGestureSettingsVM = viewModel()
 ) {
     var showEditNameDialog by remember { mutableStateOf(false) }
+    var showActionSelect by remember { mutableStateOf(false) }
+    var pendingDirection by remember { mutableStateOf<SubGestureDirection?>(null) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -86,6 +92,21 @@ fun SubGestureSettingsScreen(
                     }
                 }
             )
+        }
+
+        if (showActionSelect && pendingDirection != null) {
+            ModalBottomSheet(
+                onDismissRequest = { showActionSelect = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                BottomSheetNestedContent {
+                    SubGestureActionSelectContent(
+                        subGestureId = gesture.id,
+                        direction = pendingDirection!!,
+                        onDismiss = { showActionSelect = false }
+                    )
+                }
+            }
         }
 
         Column {
@@ -127,7 +148,10 @@ fun SubGestureSettingsScreen(
                         val action = gesture.actionFor(direction)
                         val text = actionDisplayText(action, uiState.allSubGestures)
                         TextActionButton(
-                            onClick = { onNavToSubGestureActionSelect(gesture.id, direction) },
+                            onClick = {
+                                pendingDirection = direction
+                                showActionSelect = true
+                            },
                             text = direction.displayName,
                             secondaryText = text.ifEmpty { stringResource(id = R.string.action_none) }
                         )
