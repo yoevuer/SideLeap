@@ -9,6 +9,7 @@ import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.Backup
 import hunoia.sideleap.settings.model.FrozenAppSettings
 import hunoia.sideleap.settings.model.GestureSettings
+import hunoia.sideleap.settings.model.SubGestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.gesture.GestureButton
@@ -42,6 +43,9 @@ object SettingsProvider {
     private val _frozenAppSettings: DataStore<FrozenAppSettings> by lazy {
         App.getContext().dataStore(DataStoreFiles.FROZEN_APP_SETTINGS, FrozenAppSettings())
     }
+    private val _subGestureSettings: DataStore<SubGestureSettings> by lazy {
+        App.getContext().dataStore(DataStoreFiles.SUB_GESTURE_SETTINGS, SubGestureSettings())
+    }
 
     val initialSettings: Flow<InitialSettings> = _initialSettings.data
     val advancedSettings: Flow<AdvancedSettings> = _advancedSettings.data
@@ -51,6 +55,7 @@ object SettingsProvider {
     val bottomGestureButtons: Flow<List<GestureButton>> = _bottomGestureButtons.data
     val quickAppLauncherSettings: Flow<QuickAppLauncherSettings> = _quickAppLauncherSettings.data
     val frozenAppSettings: Flow<FrozenAppSettings> = _frozenAppSettings.data
+    val subGestureSettings: Flow<SubGestureSettings> = _subGestureSettings.data
 
     suspend fun getInitialSettings(): InitialSettings = _initialSettings.data.first()
     suspend fun getAdvancedSettings(): AdvancedSettings = _advancedSettings.data.first()
@@ -60,6 +65,7 @@ object SettingsProvider {
     suspend fun getBottomGestureButtons(): List<GestureButton> = _bottomGestureButtons.data.first()
     suspend fun getQuickAppLauncherSettings(): QuickAppLauncherSettings = _quickAppLauncherSettings.data.first()
     suspend fun getFrozenAppSettings(): FrozenAppSettings = _frozenAppSettings.data.first()
+    suspend fun getSubGestureSettings(): SubGestureSettings = _subGestureSettings.data.first()
 
     suspend fun updateInitialSettings(transform: suspend (InitialSettings) -> InitialSettings) {
         _initialSettings.updateData(transform)
@@ -115,6 +121,9 @@ object SettingsProvider {
     suspend fun updateFrozenAppSettings(transform: suspend (FrozenAppSettings) -> FrozenAppSettings) {
         _frozenAppSettings.updateData(transform)
     }
+    suspend fun updateSubGestureSettings(transform: suspend (SubGestureSettings) -> SubGestureSettings) {
+        _subGestureSettings.updateData(transform)
+    }
 
     suspend fun snapshotAll(): Backup = Backup(
         initialSettings = getInitialSettings(),
@@ -125,6 +134,7 @@ object SettingsProvider {
         bottomGestureButtons = getBottomGestureButtons(),
         quickAppLauncherSettings = getQuickAppLauncherSettings(),
         frozenAppSettings = getFrozenAppSettings(),
+        subGestureSettings = getSubGestureSettings(),
         timestamp = System.currentTimeMillis(),
         version = BuildConfig.VERSION_NAME
     )
@@ -138,6 +148,7 @@ object SettingsProvider {
         backup.bottomGestureButtons?.let { value -> _bottomGestureButtons.updateData { value } }
         backup.quickAppLauncherSettings?.let { value -> _quickAppLauncherSettings.updateData { value } }
         backup.frozenAppSettings?.let { value -> _frozenAppSettings.updateData { value } }
+        backup.subGestureSettings?.let { value -> _subGestureSettings.updateData { value } }
     }
 
     suspend fun resetAll() {
@@ -149,5 +160,6 @@ object SettingsProvider {
         _bottomGestureButtons.updateData { GestureButton.BottomDefaults }
         _quickAppLauncherSettings.updateData { QuickAppLauncherSettings() }
         _frozenAppSettings.updateData { FrozenAppSettings() }
+        _subGestureSettings.updateData { SubGestureSettings() }
     }
 }

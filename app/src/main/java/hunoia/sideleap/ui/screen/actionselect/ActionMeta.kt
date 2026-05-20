@@ -37,6 +37,7 @@ val actionTitleResMap: Map<String, Int> = mapOf(
     "one_key_freeze" to R.string.action_one_key_freeze_apps,
     "generate_password_copy" to R.string.action_generate_password_copy,
     "open_password_generator" to R.string.action_open_password_generator,
+    "sub_gesture" to R.string.action_sub_gesture,
 )
 
 val actionDescResMap: Map<String, Int> = mapOf(
@@ -52,6 +53,7 @@ val actionDescResMap: Map<String, Int> = mapOf(
     "virtual_mouse" to R.string.action_desc_virtual_mouse,
     "volume_scrub" to R.string.action_desc_volume_scrub,
     "shell_command" to R.string.action_desc_shell_command,
+    "sub_gesture" to R.string.action_desc_sub_gesture,
 )
 
 val actionSettingHintResMap: Map<ActionConfigKind, Int> = mapOf(

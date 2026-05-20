@@ -78,6 +78,8 @@ object GlobalActions {
     const val VOLUME_SCRUB = "57"
     /** 执行 Shell 命令 */
     const val EXECUTE_SHELL_COMMAND = "58"
+    /** 子手势 */
+    const val SUB_GESTURE = "59"
 
     /** 启动应用 */
     const val EXTRA_LAUNCH_APP = "101"

@@ -38,6 +38,7 @@ import com.aaron.composeaccessibility.ComponentAccessibilityService
 import hunoia.sideleap.settings.model.ActionSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.GestureSettings
+import hunoia.sideleap.settings.model.SubGestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.core.event.Events
@@ -274,6 +275,9 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                     val actionSettings by SettingsProvider
                         .actionSettings
                         .collectAsStateWithLifecycle(initialValue = ActionSettings())
+                    val subGestureSettings by SettingsProvider
+                        .subGestureSettings
+                        .collectAsStateWithLifecycle(initialValue = SubGestureSettings())
                     SideGestureContainer(
                         modifier = Modifier.matchParentSize(),
                         buttons = sideButtons + bottomButtons,
@@ -302,6 +306,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                         actionSettings = actionSettings,
                         advancedSettings = advancedSettings,
                         gestureSettings = gestureSettings,
+                        subGestureSettings = subGestureSettings,
                     )
                 }
             }

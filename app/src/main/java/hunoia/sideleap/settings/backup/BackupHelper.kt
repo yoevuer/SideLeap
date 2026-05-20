@@ -115,7 +115,8 @@ object BackupHelper {
         if (backup.initialSettings == null && backup.advancedSettings == null &&
             backup.gestureSettings == null && backup.actionSettings == null &&
             backup.gestureButtons == null && backup.bottomGestureButtons == null &&
-            backup.quickAppLauncherSettings == null && backup.frozenAppSettings == null
+            backup.quickAppLauncherSettings == null && backup.frozenAppSettings == null &&
+            backup.subGestureSettings == null
         ) {
             throw IllegalStateException("restore failed: backup contains no settings")
         }

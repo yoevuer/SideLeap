@@ -57,6 +57,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.bounds
+import hunoia.sideleap.settings.model.SubGesture
 import hunoia.sideleap.ui.gesture.actionTextCompose
 import hunoia.sideleap.ui.gesture.buttonTextCompose
 import hunoia.sideleap.system.intent.gotoAccessibilitySettings
@@ -89,6 +90,7 @@ fun HomeScreen(
     onNavToGestureSettings: () -> Unit,
     onNavToFrozenAppManage: () -> Unit,
     onNavToGestureButtonSettings: (GestureButton) -> Unit,
+    onNavToSubGestureEditor: (String) -> Unit,
     vm: HomeVM = viewModel()
 ) {
     val scrollState = rememberScrollState()
@@ -108,6 +110,9 @@ fun HomeScreen(
                         value = event.offsetY,
                         animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
                     )
+                }
+                is UiEvent.NavigateToSubGestureEditor -> {
+                    // unused, handled directly in onClick
                 }
             }
         }
@@ -391,6 +396,47 @@ fun HomeScreen(
                                     }
                                     .wrapContentSize(),
                                 text = stringResource(id = R.string.add_gesture_button),
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+
+                        MyExpandableColumn(
+                            modifier = Modifier.fillMaxWidth(),
+                            backgroundColor = Color.Transparent,
+                            shape = RectangleShape,
+                            title = stringResource(id = R.string.sub_gesture_list),
+                            expanded = uiState.isSubGestureListExpanded,
+                            onExpandedChange = { expanded ->
+                                if (expanded) {
+                                    vm.expandSubGestureList(true, gestureButtonListOffset)
+                                } else {
+                                    vm.expandSubGestureList(false)
+                                }
+                            }
+                        ) {
+                            uiState.subGestures.fastForEach { gesture ->
+                                key(gesture.id) {
+                                    LabeledSwitch(
+                                        onTextClick = { onNavToSubGestureEditor(gesture.id) },
+                                        onCheckedChange = { vm.onSubGestureEnabledChange(gesture, it) },
+                                        checked = gesture.enabled,
+                                        text = gesture.name,
+                                        markColor = Color(gesture.color).copy(alpha = GestureButtonColorAlpha)
+                                    )
+                                }
+                            }
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = MinItemHeightNoSecondary)
+                                    .onSingleClick {
+                                    val id = java.util.UUID.randomUUID().toString()
+                                    vm.addSubGesture(id)
+                                    onNavToSubGestureEditor(id)
+                                }
+                                    .wrapContentSize(),
+                                text = stringResource(id = R.string.add_sub_gesture),
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.titleMedium
                             )
