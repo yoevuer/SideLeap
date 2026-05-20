@@ -469,24 +469,27 @@ fun SideGestureContainer(
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && moveScreenState.visible) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             var screenshot by remember { mutableStateOf<Bitmap?>(null) }
-            LaunchedEffect(Unit) {
+            LaunchedEffect(moveScreenState.visible) {
+                if (!moveScreenState.visible) return@LaunchedEffect
                 screenshot = try {
                     onTakeScreenshot?.invoke()
                 } catch (_: Exception) {
                     null
                 }
             }
-            val ss = screenshot
-            if (ss != null) {
-                MoveScreen(
-                    modifier = Modifier.matchParentSize(),
-                    screenshot = ss,
-                    state = moveScreenState
-                )
-            } else {
-                Box(Modifier.matchParentSize().background(Color.Black))
+            if (moveScreenState.visible) {
+                val ss = screenshot
+                if (ss != null) {
+                    MoveScreen(
+                        modifier = Modifier.matchParentSize(),
+                        screenshot = ss,
+                        state = moveScreenState
+                    )
+                } else {
+                    Box(Modifier.matchParentSize().background(Color.Black))
+                }
             }
         }
 

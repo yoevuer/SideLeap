@@ -1,6 +1,7 @@
 package hunoia.sideleap.ui.dialog
 
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -187,9 +189,15 @@ fun ActivitySettingsContent(
                             horizontalArrangement = Arrangement.spacedBy(ItemPadding),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            var icon by remember(item.packageName) { mutableStateOf<Drawable?>(null) }
+                            LaunchedEffect(item.packageName) {
+                                icon = withContext(Dispatchers.IO) {
+                                    OpenAppOrUrlQuery.loadApplicationIcon(context, item.packageName)
+                                }
+                            }
                             AsyncImage(
                                 modifier = Modifier.size(SubMinInteractiveSize),
-                                model = OpenAppOrUrlQuery.loadApplicationIcon(context, item.packageName),
+                                model = icon,
                                 contentDescription = null,
                                 contentScale = ContentScale.Fit
                             )

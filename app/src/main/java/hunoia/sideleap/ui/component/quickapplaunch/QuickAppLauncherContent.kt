@@ -53,6 +53,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -96,7 +97,8 @@ internal fun QuickAppLauncherContent(
         )
     }
     val density = LocalDensity.current
-    val screenWidthPx = remember { ScreenUtils.getScreenWidth() }
+    val orientation = LocalConfiguration.current.orientation
+    val screenWidthPx = remember(orientation) { ScreenUtils.getScreenWidth() }
     val panelWidthDp = with(density) { (screenWidthPx * state.launcherSettings.panelWidthFraction).toDp() }
     val panelAlpha by animateFloatAsState(if (state.panelVisible) 1f else 0f, animationSpec = tween(AnimOverlayFade.toInt()), label = "panelAlpha")
     val panelShiftY by animateFloatAsState(if (state.panelVisible) 0f else 18f, animationSpec = tween(AnimPanelShift.toInt()), label = "panelShiftY")

@@ -514,7 +514,7 @@ private fun VirtualMouseSettingsContent(
         MyTextSlider(
             value = virtualMouse.continuousModeTimeoutMs / 1000f,
             onValueChange = { vm.onVirtualMouseContinuousModeTimeoutChange((it * 1000).toLong()) },
-            text = stringResource(id = R.string.virtual_mouse_continuous_timeout) + ": ${virtualMouse.continuousModeTimeoutMs / 1000}秒",
+            text = stringResource(id = R.string.virtual_mouse_continuous_timeout, virtualMouse.continuousModeTimeoutMs / 1000),
             valueRange = 1f..10f,
             sliderValueHint = "1秒" to "10秒"
         )

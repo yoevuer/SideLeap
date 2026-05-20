@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -145,9 +146,7 @@ internal fun AppItem(
 ) {
     Row(
         modifier = Modifier
-            .graphicsLayer {
-                alpha = if (enabled) 1f else SettingsUiDefaults.DisabledAlpha
-            }
+            .alpha(if (enabled) 1f else SettingsUiDefaults.DisabledAlpha)
             .fillMaxWidth()
             .combinedClickable(
                 enabled = enabled,

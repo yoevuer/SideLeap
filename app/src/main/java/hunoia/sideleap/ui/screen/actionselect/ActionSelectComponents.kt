@@ -48,6 +48,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -395,9 +396,7 @@ internal fun ActionItem(
     val settingHintText = def?.let { actionSettingHintResMap[it.configKind]?.let { res -> stringResource(res) } }
     Row(
         modifier = Modifier
-            .graphicsLayer {
-                alpha = if (enabled) 1f else SettingsUiDefaults.DisabledAlpha
-            }
+            .alpha(if (enabled) 1f else SettingsUiDefaults.DisabledAlpha)
             .fillMaxWidth()
             .heightIn(min = MinInteractiveSize)
             .onClick(enabled = enabled) {
