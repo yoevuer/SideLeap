@@ -20,7 +20,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -85,26 +88,38 @@ fun SubGestureAngleContent(
                     .fillMaxWidth()
                     .height(260.dp)
                     .pointerInput(angle) {
-                        detectDragGestures { change, _ ->
+                        var draggingIndex by mutableIntStateOf(-1)
+                        detectDragGestures(
+                            onDragStart = { startOffset ->
+                                val c = Offset(size.width / 2f, size.height / 2f)
+                                val dx = startOffset.x - c.x
+                                val dy = startOffset.y - c.y
+                                var norm = (atan2(-dy, dx) / (2f * PI.toFloat()))
+                                if (norm < 0f) norm += 1f
+                                draggingIndex = angle.boundaries.indices.minByOrNull { i ->
+                                    val diff = norm - angle.boundaries[i]
+                                    minOf(kotlin.math.abs(diff), kotlin.math.abs(diff - 1f), kotlin.math.abs(diff + 1f))
+                                } ?: -1
+                            },
+                            onDragEnd = { draggingIndex = -1 },
+                            onDragCancel = { draggingIndex = -1 }
+                        ) { change, _ ->
                             val c = Offset(size.width / 2f, size.height / 2f)
-                            val r = minOf(size.width, size.height) / 2f * 0.85f
                             val dx = change.position.x - c.x
                             val dy = change.position.y - c.y
                             var norm = (atan2(-dy, dx) / (2f * PI.toFloat()))
                             if (norm < 0f) norm += 1f
                             if (angle.boundaries.size != 8) return@detectDragGestures
                             val newBoundaries = angle.boundaries.toMutableList()
-                            val closestIndex = newBoundaries.indices.minByOrNull { i ->
-                                val diff = (norm - newBoundaries[i])
-                                minOf(kotlin.math.abs(diff), kotlin.math.abs(diff - 1f), kotlin.math.abs(diff + 1f))
-                            } ?: return@detectDragGestures
-                            val prev = if (closestIndex == 0) newBoundaries.last() - 1f else newBoundaries[closestIndex - 1]
-                            val next = if (closestIndex == 7) newBoundaries.first() + 1f else newBoundaries[closestIndex + 1]
+                            if (draggingIndex !in newBoundaries.indices) return@detectDragGestures
+                            val index = draggingIndex
+                            val prev = if (index == 0) newBoundaries.last() - 1f else newBoundaries[index - 1]
+                            val next = if (index == 7) newBoundaries.first() + 1f else newBoundaries[index + 1]
                             val clamped = norm.coerceIn(prev + 0.01f, next - 0.01f)
                             val wrapped = if (clamped < 0f) clamped + 1f else if (clamped >= 1f) clamped - 1f else clamped
-                            newBoundaries[closestIndex] = wrapped
+                            newBoundaries[index] = wrapped
                             try {
-                                onAngleChange(SubGestureAngle(boundaries = newBoundaries.sorted()))
+                                onAngleChange(SubGestureAngle(boundaries = newBoundaries))
                             } catch (_: Exception) { }
                         }
                     }
@@ -119,7 +134,7 @@ fun SubGestureAngleContent(
                     angle.boundaries.forEachIndexed { index, bound ->
                         val angleRad = bound * 2f * PI.toFloat()
                         val px = c.x + r * cos(angleRad)
-                        val py = c.y + r * sin(angleRad)
+                        val py = c.y - r * sin(angleRad)
                         drawLine(color = color, start = c, end = Offset(px, py), strokeWidth = 3f)
                         drawCircle(color = androidx.compose.ui.graphics.Color.White, radius = 12f, center = Offset(px, py))
                         drawCircle(color = color, radius = 8f, center = Offset(px, py))

@@ -6,6 +6,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.sideleap.R
 import hunoia.sideleap.core.AppContext
 import hunoia.sideleap.action.GlobalActions
+import hunoia.sideleap.action.payload.SubGestureActionData
 import hunoia.sideleap.core.Paths
 import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.action.Action
@@ -28,6 +29,7 @@ import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState
 import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.model.SubGesture
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.freeze.api.FreezeState
 import hunoia.sideleap.launcher.query.ShortcutQuery
@@ -492,11 +494,13 @@ class ActionSelectVM(
                 }
                 .take(1)
                 .collectLatest { (gestureSettings, gestureButtons) ->
+                    val subGestures = SettingsProvider.getSubGestureSettings().subGestures
                     updateUiState {
                         val selectSingle = !actionSelect.isLongSlide || !gestureSettings.longSlideTriggerImmediately
                         it.copy(
                             selectSingle = selectSingle,
-                            maxSelectCount = if (selectSingle) 1 else LONG_SLIDE_SOFT_MAX_SELECT_COUNT
+                            maxSelectCount = if (selectSingle) 1 else LONG_SLIDE_SOFT_MAX_SELECT_COUNT,
+                            subGestures = subGestures
                         )
                     }
 
@@ -533,9 +537,23 @@ class ActionSelectVM(
     }
 
     private fun assembleData() {
-        updateUiState {
-            val allActions = ActionCatalog.definitions.map { it.toAction() }.toMutableList().apply {
-                if (it.selectSingle) {
+        updateUiState { state ->
+            val allActions = ActionCatalog.definitions
+                .filter { def -> def.isDisplayed }
+                .map { def -> def.toAction() }
+                .toMutableList()
+                .apply {
+                state.subGestures
+                    .filter { gesture -> gesture.enabled }
+                    .forEach { gesture ->
+                        add(
+                            Action(
+                                value = GlobalActions.SUB_GESTURE,
+                                data = JsonHelper.encodeToString(SubGestureActionData(id = gesture.id))
+                            )
+                        )
+                    }
+                if (state.selectSingle) {
                     removeAll { action ->
                         action.value == GlobalActions.MOVE_SCREEN
                     }
@@ -544,21 +562,21 @@ class ActionSelectVM(
                     action.value == GlobalActions.OPEN_APP_OR_URL
                 }
             }
-            if (it.selectSingle) {
-                return@updateUiState it.copy(actions = allActions)
+            if (state.selectSingle) {
+                return@updateUiState state.copy(actions = allActions)
             }
             val allWithoutNone = allActions.apply { removeAt(0) }
             val list1 = mutableListOf<Action>()
             val list2 = mutableListOf<Action>()
             allWithoutNone.forEach { action ->
-                if (it.selectedRecord.isSelected(action) || action == Action.NONE) {
+                if (state.selectedRecord.isSelected(action) || action == Action.NONE) {
                     list1.add(action)
                 } else {
                     list2.add(action)
                 }
             }
             val finalList = list1 + list2
-            it.copy(actions = finalList)
+            state.copy(actions = finalList)
         }
     }
 
@@ -769,6 +787,7 @@ class ActionSelectVM(
         val selectedRecord: SelectedRecord = SelectedRecord(),
         val longPressTargetIndex: Int? = null,
         val actionSettingsDialog: ActionSettingsDialogValue = ActionSettingsDialogValue(false, Action.NONE),
+        val subGestures: List<SubGesture> = emptyList(),
     ) {
         data class SelectedRecord(val list: List<Any> = emptyList()) {
 
