@@ -268,7 +268,7 @@ private fun CandidateAppRows(
                                 app = app,
                                 isFrozen = isFrozen,
                                 onClick = { onClick(app, isFrozen) },
-                                onLongPress = { _, _ -> onLongPress(app, isFrozen) }
+                                onLongPress = { onLongPress(app, isFrozen) }
                             )
                         }
                     }
@@ -327,7 +327,7 @@ private fun AppGrid(
                     app = app,
                     isFrozen = isFrozen,
                     onClick = { onClick(app, isFrozen) },
-                    onLongPress = { _, _ -> onLongPress(app, isFrozen) }
+                    onLongPress = { onLongPress(app, isFrozen) }
                 )
             }
         }

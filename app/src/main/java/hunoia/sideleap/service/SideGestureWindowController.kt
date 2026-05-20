@@ -110,7 +110,7 @@ class SideGestureWindowController(private val host: SideGestureService) {
             setOnTouchListener { v, event ->
                 MotionEventDispatcher.dispatch(event)
                 if (event.action == MotionEvent.ACTION_UP) v.performClick()
-                false
+                true
             }
         }
         wm.addView(view, lp)

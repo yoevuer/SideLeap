@@ -35,12 +35,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import hunoia.sideleap.launcher.model.AppInfo
@@ -48,7 +45,6 @@ import hunoia.sideleap.launcher.query.LauncherIconQuery
 import hunoia.sideleap.launcher.icon.IconResizeCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -126,22 +122,15 @@ internal fun rememberAppIconAsync(context: Context, packageName: String): Drawab
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun AppItem(app: AppInfo, isFrozen: Boolean = false, onClick: () -> Unit, onLongPress: (IntOffset, IntOffset) -> Unit) {
+internal fun AppItem(app: AppInfo, isFrozen: Boolean = false, onClick: () -> Unit, onLongPress: () -> Unit) {
     val context = LocalContext.current
-    var itemPos by remember { mutableStateOf(IntOffset.Zero) }
-    var itemSize by remember { mutableStateOf(IntOffset.Zero) }
     val iconAlpha = if (isFrozen) 0.5f else 1f
     Column(
         modifier = Modifier
             .width(64.dp)
             .alpha(iconAlpha)
             .clip(RoundedCornerShape(10.dp))
-            .onGloballyPositioned { coordinates ->
-                val pos = coordinates.localToWindow(Offset.Zero)
-                itemPos = IntOffset(pos.x.roundToInt(), pos.y.roundToInt())
-                itemSize = IntOffset(coordinates.size.width, coordinates.size.height)
-            }
-            .combinedClickable(onClick = { onClick() }, onLongClick = { onLongPress(itemPos, itemSize) })
+            .combinedClickable(onClick = { onClick() }, onLongClick = { onLongPress() })
             .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
