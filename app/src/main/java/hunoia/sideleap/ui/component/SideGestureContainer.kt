@@ -737,7 +737,9 @@ class SideGestureState(
     }
 
     fun onDragCancel() {
+        startRetract()
         reset()
+        launchRetractAnim()
     }
 
     fun reset() {
@@ -748,6 +750,9 @@ class SideGestureState(
         isCanceled = false
         origin = Offset.Unspecified
         finger = Offset.Unspecified
+        fingerXDisplay = Float.NaN
+        fingerYDisplay = Float.NaN
+        endRetract()
         longSlideFirstTriggerMs = 0L
         isOhoGestureEverCanTriggered = false
         slideVibrationFlags = false
