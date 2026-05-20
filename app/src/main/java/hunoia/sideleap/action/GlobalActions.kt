@@ -58,8 +58,10 @@ object GlobalActions {
     const val BACK_TO_TOP = "47"
     /** 快速到底部 */
     const val GOTO_BOTTOM = "48"
-    /** 打开应用活动/链接 */
-    const val OPEN_APP_OR_URL = "49"
+    /** 打开 Activity */
+    const val OPEN_APP_ACTIVITY = "49"
+    /** 打开链接 */
+    const val OPEN_URL = "60"
     /** 快速应用启动器 */
     const val QUICK_APP_LAUNCHER = "50"
     /** 生成随机名称 */

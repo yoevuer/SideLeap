@@ -221,23 +221,24 @@
     <string name="action_previous_app">上一个应用程序</string>
     <string name="action_open_notification_panel">打开通知面板</string>
     <string name="action_open_quick_panel">打开快捷面板</string>
-    <string name="action_lock_screen">锁屏(9.0+)</string>
+    <string name="action_lock_screen">锁屏</string>
     <string name="action_flashlight">手电筒</string>
-    <string name="action_popup_screen">应用小窗(7.0+)</string>
+    <string name="action_popup_screen">应用小窗</string>
     <string name="action_assist_app">系统助手</string>
-    <string name="action_screenshot">截屏(9.0+)</string>
+    <string name="action_screenshot">截屏</string>
     <string name="action_power_button">电源键菜单</string>
     <string name="action_hide_gesture_button">隐藏触钮</string>
-    <string name="action_move_screen">移动屏幕(11.0+ 模拟点击)</string>
+    <string name="action_move_screen">移动屏幕</string>
     <string name="action_keep_screen_on">屏幕常亮</string>
-    <string name="action_back_to_top">快速回顶部(7.0+ 模拟滑动)</string>
-    <string name="action_goto_bottom">快速到底部(7.0+ 模拟滑动)</string>
+    <string name="action_back_to_top">快速回顶部</string>
+    <string name="action_goto_bottom">快速到底部</string>
     <string name="action_click_current_position">模拟点击当前位置</string>
     <string name="action_virtual_mouse">虚拟鼠标</string>
     <string name="action_shell_command">执行 Shell 命令</string>
-    <string name="action_open_app_or_url">打开应用活动/链接</string>
+    <string name="action_open_activity">打开 Activity</string>
+    <string name="action_open_url">打开链接</string>
     <string name="action_quick_app_panel">快速启动面板</string>
-    <string name="action_split_screen">应用分屏(7.0+)</string>
+    <string name="action_split_screen">应用分屏</string>
     <string name="action_desc_back">返回上一层界面</string>
     <string name="action_desc_home">回到桌面</string>
     <string name="action_desc_recent">打开最近任务列表</string>
@@ -245,7 +246,8 @@
     <string name="action_desc_lock_screen">关闭屏幕并锁定设备</string>
     <string name="action_desc_flashlight">切换手电筒开关</string>
     <string name="action_desc_screenshot">截取当前屏幕</string>
-    <string name="action_desc_open_app">打开应用、活动或链接</string>
+    <string name="action_desc_open_activity">启动指定 Activity</string>
+    <string name="action_desc_open_url">打开网页或链接</string>
     <string name="action_desc_quick_launcher">打开底部应用搜索抽屉</string>
     <string name="action_desc_virtual_mouse">滑动控制光标，松手点击</string>
     <string name="action_volume_scrub">滑动调节音量</string>
@@ -259,7 +261,8 @@
     <string name="action_setting_hint_previous_app">配置应用切换行为</string>
     <string name="action_setting_hint_move_screen">配置移动方向或位置</string>
     <string name="action_setting_hint_goto_bottom">配置滚动行为</string>
-    <string name="action_setting_hint_open_app_or_url">配置目标应用、Activity 或链接</string>
+    <string name="action_setting_hint_open_activity">选择目标 Activity</string>
+    <string name="action_setting_hint_open_url">输入链接</string>
     <string name="action_setting_hint_shell_command">输入 adb shell 后面的命令，例如 pm list packages</string>
     <string name="select_activity">选择活动</string>
     <string name="add_link">添加链接</string>
@@ -269,7 +272,7 @@
     <string name="selected_count">已选 %1$d/%2$d</string>
     <string name="selected_count_no_limit">已选 %1$d</string>
     <string name="clear_all">清空</string>
-    <string name="selected_action_settings">已选动作设置</string>
+    <!-- selected_action_settings removed, using selected_count_no_limit -->
     <string name="set_long_press_action">设置</string>
     <string name="clear_long_press_action">清除</string>
     <string name="long_press_action_value">长按：%1$s</string>
@@ -282,8 +285,7 @@
     <string name="no_available_apps">暂无可选应用</string>
     <string name="no_available_shortcuts">暂无可选快捷方式</string>
     <string name="search_hint_all">搜索</string>
-    <string name="open_app_or_url_card_title">打开 Activity / 链接</string>
-    <string name="open_app_or_url_card_desc">选择 Activity 或输入链接</string>
+
     <string name="search_clear_cd">清除</string>
     <string name="test">测试</string>
     <string name="testing">测试中...</string>

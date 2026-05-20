@@ -53,11 +53,12 @@ import hunoia.sideleap.ui.theme.SectionPadding
 @Composable
 fun SubGestureSettingsScreen(
     onBack: () -> Unit,
-    onNavToSubGestureActionSelect: (subGestureId: String, direction: SubGestureDirection) -> Unit,
     vm: SubGestureSettingsVM = viewModel()
 ) {
     var showEditNameDialog by remember { mutableStateOf(false) }
     var showGestureAngles by remember { mutableStateOf(false) }
+    var showActionSelect by remember { mutableStateOf(false) }
+    var pendingDirection by remember { mutableStateOf<SubGestureDirection?>(null) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -116,6 +117,21 @@ fun SubGestureSettingsScreen(
             }
         }
 
+        if (showActionSelect && pendingDirection != null) {
+            ModalBottomSheet(
+                onDismissRequest = { showActionSelect = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                BottomSheetNestedContent {
+                    SubGestureActionSelectContent(
+                        subGestureId = gesture.id,
+                        direction = pendingDirection!!,
+                        onDismiss = { showActionSelect = false }
+                    )
+                }
+            }
+        }
+
         if (uiState.colorPickerDialog.first) {
             ColorPickerDialog(
                 onDismissRequest = { vm.colorPickerDialog.show(false) },
@@ -166,7 +182,10 @@ fun SubGestureSettingsScreen(
                         val action = gesture.actionFor(direction)
                         val text = actionDisplayText(action, uiState.allSubGestures)
                         TextActionButton(
-                            onClick = { onNavToSubGestureActionSelect(gesture.id, direction) },
+                            onClick = {
+                                pendingDirection = direction
+                                showActionSelect = true
+                            },
                             text = direction.displayName,
                             secondaryText = text.ifEmpty { stringResource(id = R.string.action_none) }
                         )

@@ -7,5 +7,6 @@ enum class ActionCategory {
     SYSTEM,
     WINDOW,
     LAUNCHER,
+    SUB_GESTURE,
     TOOL
 }

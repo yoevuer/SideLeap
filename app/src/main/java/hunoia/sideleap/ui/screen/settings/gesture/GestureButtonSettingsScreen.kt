@@ -454,8 +454,7 @@ fun GestureButtonSettingsScreen(
         if (showActionSelect && pendingActionSelect != null) {
             ModalBottomSheet(
                 onDismissRequest = { showActionSelect = false },
-                sheetState = rememberModalBottomSheetState(),
-                sheetGesturesEnabled = false
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ) {
                 BottomSheetNestedContent {
                     ActionSelectContent(

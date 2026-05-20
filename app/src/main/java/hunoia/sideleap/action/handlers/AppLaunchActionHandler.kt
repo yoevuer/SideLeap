@@ -25,7 +25,8 @@ object AppLaunchActionHandler : ActionHandler {
 
     override val supportedActions = setOf(
         GlobalActions.EXTRA_LAUNCH_APP,
-        GlobalActions.OPEN_APP_OR_URL,
+        GlobalActions.OPEN_APP_ACTIVITY,
+        GlobalActions.OPEN_URL,
         GlobalActions.QUICK_APP_LAUNCHER,
         GlobalActions.POPUP_SCREEN,
     )
@@ -33,7 +34,8 @@ object AppLaunchActionHandler : ActionHandler {
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
             GlobalActions.EXTRA_LAUNCH_APP -> handleExtraLaunchApp(action, context)
-            GlobalActions.OPEN_APP_OR_URL -> handleOpenAppOrUrl(action, context)
+            GlobalActions.OPEN_APP_ACTIVITY -> handleOpenAppActivity(action, context)
+            GlobalActions.OPEN_URL -> handleOpenUrl(action, context)
             GlobalActions.QUICK_APP_LAUNCHER -> context.toggleQuickAppLauncher()
             GlobalActions.POPUP_SCREEN -> handlePopupScreen(context)
             else -> return ActionExecutionResult.Ignored
@@ -88,27 +90,39 @@ object AppLaunchActionHandler : ActionHandler {
         }
     }
 
-    private fun handleOpenAppOrUrl(action: Action, context: ActionHandlerContext) {
+    private fun handleOpenAppActivity(action: Action, context: ActionHandlerContext) {
         val data = try {
             JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data)
         } catch (e: Exception) {
             null
         }
-        if (data != null) {
-            when (data.type) {
-                OpenAppOrUrlData.TYPE_ACTIVITY -> {
-                    context.scope.launch {
-                        FreezeLaunch.launchActivityWithAutoUnfreeze(
-                            context = context.appContext,
-                            packageName = data.packageName,
-                            className = data.activityClassName
-                        ) { _, pkg ->
-                            suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
-                        }
-                    }
+        if (data != null && data.packageName.isNotBlank() && data.activityClassName.isNotBlank()) {
+            context.scope.launch {
+                FreezeLaunch.launchActivityWithAutoUnfreeze(
+                    context = context.appContext,
+                    packageName = data.packageName,
+                    className = data.activityClassName
+                ) { _, pkg ->
+                    suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
                 }
-                else -> Launcher.launchOpenAppOrUrl(context.appContext, data)
             }
+        }
+    }
+
+    private fun handleOpenUrl(action: Action, context: ActionHandlerContext) {
+        val data = try {
+            JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data)
+        } catch (e: Exception) {
+            null
+        }
+        if (data != null && data.url.isNotBlank()) {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(data.url)).apply {
+                    addCategory(Intent.CATEGORY_BROWSABLE)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.appContext.startActivity(intent)
+            } catch (_: Exception) { }
         }
     }
 

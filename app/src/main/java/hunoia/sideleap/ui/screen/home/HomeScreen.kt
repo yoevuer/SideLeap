@@ -433,7 +433,6 @@ fun HomeScreen(
                                     .onSingleClick {
                                     val id = java.util.UUID.randomUUID().toString()
                                     vm.addSubGesture(id)
-                                    onNavToSubGestureEditor(id)
                                 }
                                     .wrapContentSize(),
                                 text = stringResource(id = R.string.add_sub_gesture),

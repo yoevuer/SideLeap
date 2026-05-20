@@ -70,7 +70,8 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import hunoia.sideleap.ui.dialog.GotoBottomSettingsContent
 import hunoia.sideleap.ui.dialog.HideGestureButtonSettingsContent
 import hunoia.sideleap.ui.dialog.MoveScreenSettingsContent
-import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
+import hunoia.sideleap.ui.dialog.ActivitySettingsContent
+import hunoia.sideleap.ui.dialog.UrlSettingsContent
 import hunoia.sideleap.ui.dialog.PreviousAppSettingsContent
 import hunoia.sideleap.ui.dialog.ShellCommandSettingsContent
 import hunoia.sideleap.ui.dialog.VirtualMouseActionSettingsContent
@@ -359,8 +360,19 @@ fun ActionSettingsDialog(
                     GotoBottomSettingsContent()
                 }
 
-                GlobalActions.OPEN_APP_OR_URL -> {
-                    OpenAppOrUrlSettingsContent(
+                GlobalActions.OPEN_APP_ACTIVITY -> {
+                    ActivitySettingsContent(
+                        action = action,
+                        onConfirm = {
+                            onActionDataChanged(it)
+                            if (autoDismiss) {
+                                onDismissRequest()
+                            }
+                        }
+                    )
+                }
+                GlobalActions.OPEN_URL -> {
+                    UrlSettingsContent(
                         action = action,
                         onConfirm = {
                             onActionDataChanged(it)

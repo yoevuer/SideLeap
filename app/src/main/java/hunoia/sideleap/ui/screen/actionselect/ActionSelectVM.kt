@@ -98,7 +98,8 @@ class ActionSelectVM(
             }
         } else if (obj is Action) {
             selectAction(obj, selected)
-            val needsData = obj.value == GlobalActions.OPEN_APP_OR_URL ||
+            val needsData = obj.value == GlobalActions.OPEN_APP_ACTIVITY ||
+                obj.value == GlobalActions.OPEN_URL ||
                 obj.value == GlobalActions.EXECUTE_SHELL_COMMAND
             if (uiState.selectSingle && (!needsData || obj.data.isNotEmpty())) {
                 saveSettings()
@@ -558,9 +559,7 @@ class ActionSelectVM(
                         action.value == GlobalActions.MOVE_SCREEN
                     }
                 }
-                removeAll { action ->
-                    action.value == GlobalActions.OPEN_APP_OR_URL
-                }
+
             }
             if (state.selectSingle) {
                 return@updateUiState state.copy(actions = allActions)
@@ -608,11 +607,7 @@ class ActionSelectVM(
                 val selectedRecord = uiState.selectedRecord
                 val selectedList = selectedRecord.list.filterIsInstance<Action>()
                 val newActions = when (uiState.selectSingle) {
-                    true -> if (selectedList.any { it.value == GlobalActions.OPEN_APP_OR_URL }) {
-                        selectedList
-                    } else {
-                        selectedList.takeLast(1)
-                    }
+                    true -> selectedList.takeLast(1)
                     else -> selectedList
                 }
                 val gestureActions = when {

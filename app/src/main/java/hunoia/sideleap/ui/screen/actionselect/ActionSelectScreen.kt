@@ -45,12 +45,10 @@ import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.component.UiBaseEvent
 import hunoia.sideleap.R
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.launcher.query.LauncherIconQuery
 import hunoia.sideleap.ui.navigation.ActionSelect
-import hunoia.sideleap.ui.dialog.OpenAppOrUrlSettingsContent
 import hunoia.sideleap.ui.screen.settings.gesture.IconResizeContent
 import hunoia.sideleap.ui.component.ActionSettingsDialog
 import hunoia.sideleap.ui.component.MySnackbarHost
@@ -108,32 +106,11 @@ fun ActionSelectContent(
             }
         }
     ) { uiState ->
-        var showOpenAppOrUrlDialog by remember { mutableStateOf(false) }
-
         if (uiState.actionSettingsDialog.show) {
             ActionSettingsDialog(
                 onDismissRequest = { vm.actionSettingsDialog.show(false) },
                 action = uiState.actionSettingsDialog.action,
                 onActionDataChanged = { vm.select(uiState.actionSettingsDialog.action.copy(data = it), true) }
-            )
-        }
-
-        if (showOpenAppOrUrlDialog && !uiState.actionSettingsDialog.show) {
-            AlertDialog(
-                onDismissRequest = { showOpenAppOrUrlDialog = false },
-                containerColor = MaterialTheme.colorScheme.surface,
-                title = { Text(stringResource(R.string.open_app_or_url_card_title)) },
-                text = {
-                    OpenAppOrUrlSettingsContent(
-                        action = Action(value = GlobalActions.OPEN_APP_OR_URL, data = ""),
-                        onConfirm = { data ->
-                            vm.select(Action(value = GlobalActions.OPEN_APP_OR_URL, data = data), true)
-                            showOpenAppOrUrlDialog = false
-                        }
-                    )
-                },
-                confirmButton = {},
-                dismissButton = {}
             )
         }
 
@@ -226,8 +203,7 @@ fun ActionSelectContent(
                             currentLauncherInfo = launcherInfo
                             shortcutLauncher.launch(Intent().apply { setClassName(launcherInfo.packageName, launcherInfo.className) })
                         } catch (ignored: Exception) { currentLauncherInfo = null }
-                    },
-                    onOpenAppOrUrl = { showOpenAppOrUrlDialog = true }
+                    }
                 )
             }
 

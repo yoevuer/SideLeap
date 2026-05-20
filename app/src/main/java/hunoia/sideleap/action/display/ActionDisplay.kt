@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Assistant
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.BrightnessHigh
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Dashboard
@@ -75,7 +76,8 @@ private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.GOTO_BOTTOM to R.string.action_goto_bottom,
     GlobalActions.CLICK_CURRENT_POSITION to R.string.action_click_current_position,
     GlobalActions.VIRTUAL_MOUSE to R.string.action_virtual_mouse,
-    GlobalActions.OPEN_APP_OR_URL to R.string.action_open_app_or_url,
+    GlobalActions.OPEN_APP_ACTIVITY to R.string.action_open_activity,
+    GlobalActions.OPEN_URL to R.string.action_open_url,
     GlobalActions.QUICK_APP_LAUNCHER to R.string.action_quick_app_panel,
     GlobalActions.RANDOM_NAME to R.string.action_random_name,
     GlobalActions.ONE_KEY_FREEZE_APPS to R.string.action_one_key_freeze_apps,
@@ -113,7 +115,8 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.GOTO_BOTTOM to Icons.Default.VerticalAlignBottom,
     GlobalActions.CLICK_CURRENT_POSITION to Icons.Default.TouchApp,
     GlobalActions.VIRTUAL_MOUSE to Icons.Default.Mouse,
-    GlobalActions.OPEN_APP_OR_URL to Icons.AutoMirrored.Filled.OpenInNew,
+    GlobalActions.OPEN_APP_ACTIVITY to Icons.Default.Settings,
+    GlobalActions.OPEN_URL to Icons.AutoMirrored.Filled.OpenInNew,
     GlobalActions.QUICK_APP_LAUNCHER to Icons.Default.Apps,
     GlobalActions.RANDOM_NAME to Icons.Default.AutoAwesome,
     GlobalActions.ONE_KEY_FREEZE_APPS to Icons.Default.AcUnit,
