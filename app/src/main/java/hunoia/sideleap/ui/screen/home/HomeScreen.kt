@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
@@ -87,11 +88,14 @@ import hunoia.sideleap.ui.component.TextActionButton
 import hunoia.sideleap.ui.component.LabeledSwitch
 import hunoia.sideleap.ui.component.MyTextSlider
 import hunoia.sideleap.ui.component.TopBar
+import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.system.intent.KeepAliveHelper
 import com.blankj.utilcode.util.TimeUtils
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.getDayNightModeText
 import hunoia.sideleap.gesture.SubGestureDirection
 import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle
+import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleContent
 
 /**
  * @author aaronzzxup@gmail.com
@@ -111,6 +115,8 @@ fun HomeScreen(
 ) {
     val scrollState = rememberScrollState()
     var showVirtualMouseSettings by remember { mutableStateOf(false) }
+    var showDisplaySettings by remember { mutableStateOf(false) }
+    var showAnimationStyle by remember { mutableStateOf(false) }
     val context = LocalContext.current
     UDFComponent(
         component = vm.udfComponent,
@@ -193,6 +199,32 @@ fun HomeScreen(
                                 vm = vm,
                             )
                         }
+                    }
+                }
+            }
+            if (showDisplaySettings) {
+                ModalBottomSheet(
+                    onDismissRequest = { showDisplaySettings = false },
+                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                ) {
+                    BottomSheetNestedContent {
+                        MyColumn(scrollState = rememberScrollState()) {
+                            DisplaySettingsContent(
+                                uiState = uiState,
+                                vm = vm,
+                                showAnimationStyle = { showAnimationStyle = true }
+                            )
+                        }
+                    }
+                }
+            }
+            if (showAnimationStyle) {
+                ModalBottomSheet(
+                    onDismissRequest = { showAnimationStyle = false },
+                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                ) {
+                    BottomSheetNestedContent {
+                        WaveStyleContent(onDismiss = { showAnimationStyle = false })
                     }
                 }
             }
@@ -286,6 +318,10 @@ fun HomeScreen(
                         TextActionButton(
                             onClick = onNavToFrozenAppManage,
                             text = stringResource(id = R.string.frozen_app_manage)
+                        )
+                        TextActionButton(
+                            onClick = { showDisplaySettings = true },
+                            text = stringResource(id = R.string.display)
                         )
                     }
 
@@ -659,6 +695,64 @@ private fun virtualMouseTrailStyleText(style: VirtualMouseTrailStyle): String {
         VirtualMouseTrailStyle.None -> "关闭"
         VirtualMouseTrailStyle.Dots -> "残影点"
         VirtualMouseTrailStyle.LightBand -> "光带"
+    }
+}
+
+@Composable
+private fun DisplaySettingsContent(
+    uiState: HomeVM.UiState,
+    vm: HomeVM,
+    showAnimationStyle: () -> Unit,
+) {
+    Column {
+        LabeledSwitch(
+            onTextClick = showAnimationStyle,
+            onCheckedChange = { vm.onShowAnimation(it) },
+            checked = uiState.showAnimation,
+            text = stringResource(id = R.string.animation_style)
+        )
+        if (uiState.showDynamicColorOption) {
+            LabeledSwitch(
+                onCheckedChange = { vm.onDynamicColorChange(it) },
+                checked = uiState.dynamicColor,
+                text = stringResource(id = R.string.dynamic_color),
+                secondaryText = stringResource(id = R.string.dynamic_color_hint)
+            )
+        }
+        Row(Modifier.fillMaxWidth()) {
+            TextActionButton(
+                onClick = { vm.showDayNightModeDropdownMenu(true) },
+                text = stringResource(id = R.string.day_night_mode),
+                secondaryText = getDayNightModeText(uiState.dayNightMode),
+                secondaryTextColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f)
+            )
+            Box(Modifier.size(1.dp)) {
+                DropdownMenu(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    offset = DpOffset(x = 0.dp, y = 0.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    expanded = uiState.showDayNightModeDropdownMenu,
+                    onDismissRequest = { vm.showDayNightModeDropdownMenu(false) }
+                ) {
+                    listOf(
+                        DayNightMode.Auto to getDayNightModeText(DayNightMode.Auto),
+                        DayNightMode.Day to getDayNightModeText(DayNightMode.Day),
+                        DayNightMode.Night to getDayNightModeText(DayNightMode.Night),
+                    ).fastForEach { (effectValue, text) ->
+                        key(effectValue) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    vm.onDayNightModeChange(effectValue)
+                                    vm.showDayNightModeDropdownMenu(false)
+                                },
+                                text = { Text(text = text) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

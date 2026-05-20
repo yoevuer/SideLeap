@@ -7,7 +7,6 @@ import hunoia.sideleap.R
 import hunoia.sideleap.ui.screen.settings.AdvancedSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.settings.AdvancedSettingsVM.UiState
 import hunoia.sideleap.settings.SettingsProvider
-import hunoia.sideleap.settings.model.DayNightMode
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -22,19 +21,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     init {
         loadData()
-    }
-
-    fun onShowAnimation(showAnimation: Boolean) {
-        updateUiState {
-            it.copy(showAnimation = showAnimation)
-        }
-        saveSettings()
-    }
-
-    fun showDayNightModeDropdownMenu(show: Boolean) {
-        updateUiState {
-            it.copy(showDayNightModeDropdownMenu = show)
-        }
     }
 
     fun onFitSoftKeyboardChange(value: Boolean) {
@@ -102,20 +88,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
-    fun onDynamicColorChange(value: Boolean) {
-        updateUiState {
-            it.copy(dynamicColor = value)
-        }
-        saveSettings()
-    }
-
-    fun onDayNightModeChange(dayNightMode: DayNightMode) {
-        updateUiState {
-            it.copy(dayNightMode = dayNightMode)
-        }
-        saveSettings()
-    }
-
     fun clearQuickAppLauncherStats() {
         viewModelScope.launch {
             SettingsProvider.updateQuickAppLauncherSettings {
@@ -134,7 +106,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
             SettingsProvider.updateAdvancedSettings {
                 val uiState = uiState
                 it.copy(
-                    animationStyles = it.animationStyles.copy(isAnimationEnabled = uiState.showAnimation),
                     fitSoftKeyboard = uiState.fitSoftKeyboard,
                     actionPanelAppLongPressLaunchPopup = uiState.actionPanelAppLongPressLaunchPopup,
                     quickLauncherAppLongPressLaunchPopup = uiState.quickLauncherAppLongPressLaunchPopup,
@@ -146,8 +117,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                     hideScreenLock = uiState.hideScreenLock,
                     hideHomeScreen = uiState.hideHomeScreen,
                     excludeFromRecents = uiState.excludeFromRecents,
-                    dynamicColor = uiState.dynamicColor,
-                    dayNightMode = uiState.dayNightMode
                 )
             }
         }
@@ -161,7 +130,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                 .collectLatest { item ->
                     updateUiState {
                         it.copy(
-                            showAnimation = item.animationStyles.isAnimationEnabled,
                             fitSoftKeyboard = item.fitSoftKeyboard,
                             actionPanelAppLongPressLaunchPopup = item.actionPanelAppLongPressLaunchPopup,
                             quickLauncherAppLongPressLaunchPopup = item.quickLauncherAppLongPressLaunchPopup,
@@ -173,8 +141,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                             hideScreenLock = item.hideScreenLock,
                             hideHomeScreen = item.hideHomeScreen,
                             excludeFromRecents = item.excludeFromRecents,
-                            dynamicColor = item.dynamicColor,
-                            dayNightMode = item.dayNightMode
                         )
                     }
                 }
@@ -182,7 +148,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
     }
 
     data class UiState(
-        val showAnimation: Boolean = false,
         val fitSoftKeyboard: Boolean = false,
         val actionPanelAppLongPressLaunchPopup: Boolean = false,
         val quickLauncherAppLongPressLaunchPopup: Boolean = false,
@@ -194,10 +159,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         val hideScreenLock: Boolean = false,
         val hideHomeScreen: Boolean = false,
         val excludeFromRecents: Boolean = false,
-        val dynamicColor: Boolean = false,
-        val dayNightMode: DayNightMode = DayNightMode.Auto,
-        val showDynamicColorOption: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
-        val showDayNightModeDropdownMenu: Boolean = false
     )
 
     sealed interface UiEvent

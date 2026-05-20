@@ -8,11 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,15 +32,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
-import hunoia.sideleap.settings.defaults.SettingsUiDefaults.getDayNightModeText
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.EdgeMenuPadding
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.SectionPadding
-import hunoia.sideleap.settings.model.DayNightMode
-import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleContent
 import hunoia.sideleap.ui.screen.freeze.AppBlacklistContent
 import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import hunoia.sideleap.ui.component.MyColumn
@@ -67,7 +61,6 @@ fun AdvancedSettingsScreen(
     vm: AdvancedSettingsVM = viewModel()
 ) {
     var showAppBlacklist by remember { mutableStateOf(false) }
-    var showAnimationStyle by remember { mutableStateOf(false) }
     var showMiniWindowSettings by remember { mutableStateOf(false) }
     UDFComponent(component = vm.udfComponent, onEvent = {}) { uiState ->
         var confirmClear by remember { mutableStateOf(false) }
@@ -167,59 +160,6 @@ fun AdvancedSettingsScreen(
                         text = stringResource(id = R.string.launcher)
                     )
                 }
-                SectionCard(
-                    modifier = Modifier.padding(top = SectionPadding),
-                    title = stringResource(id = R.string.display)
-                ) {
-                    LabeledSwitch(
-                        onTextClick = { showAnimationStyle = true },
-                        onCheckedChange = { vm.onShowAnimation(it) },
-                        checked = uiState.showAnimation,
-                        text = stringResource(id = R.string.animation_style)
-                    )
-                    if (uiState.showDynamicColorOption) {
-                        LabeledSwitch(
-                            onCheckedChange = { vm.onDynamicColorChange(it) },
-                            checked = uiState.dynamicColor,
-                            text = stringResource(id = R.string.dynamic_color),
-                            secondaryText = stringResource(id = R.string.dynamic_color_hint)
-                        )
-                    }
-                    Row(Modifier.fillMaxWidth()) {
-                        TextActionButton(
-                            onClick = { vm.showDayNightModeDropdownMenu(true) },
-                            text = stringResource(id = R.string.day_night_mode),
-                            secondaryText = getDayNightModeText(uiState.dayNightMode),
-                            secondaryTextColor = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Box(Modifier.size(1.dp)) {
-                            DropdownMenu(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                offset = DpOffset(x = -EdgeMenuPadding, y = 0.dp),
-                                shape = MaterialTheme.shapes.medium,
-                                expanded = uiState.showDayNightModeDropdownMenu,
-                                onDismissRequest = { vm.showDayNightModeDropdownMenu(false) }
-                            ) {
-                                listOf(
-                                    DayNightMode.Auto to getDayNightModeText(DayNightMode.Auto),
-                                    DayNightMode.Day to getDayNightModeText(DayNightMode.Day),
-                                    DayNightMode.Night to getDayNightModeText(DayNightMode.Night),
-                                ).fastForEach { (effectValue, text) ->
-                                    key(effectValue) {
-                                        DropdownMenuItem(
-                                            onClick = {
-                                                vm.onDayNightModeChange(effectValue)
-                                                vm.showDayNightModeDropdownMenu(false)
-                                            },
-                                            text = { Text(text = text) }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
         if (confirmClear) {
@@ -242,16 +182,6 @@ fun AdvancedSettingsScreen(
             ) {
                 BottomSheetNestedContent {
                     AppBlacklistContent(onDismiss = { showAppBlacklist = false })
-                }
-            }
-        }
-        if (showAnimationStyle) {
-            ModalBottomSheet(
-                onDismissRequest = { showAnimationStyle = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-            ) {
-                BottomSheetNestedContent {
-                    WaveStyleContent(onDismiss = { showAnimationStyle = false })
                 }
             }
         }

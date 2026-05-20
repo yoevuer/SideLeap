@@ -2,6 +2,7 @@ package hunoia.sideleap.ui.screen.home
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import com.blankj.utilcode.util.ColorUtils
@@ -15,6 +16,7 @@ import hunoia.sideleap.settings.backup.BackupHelper
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle
+import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.system.permission.isAccessibilitySettingsOn
 import hunoia.sideleap.system.permission.isIgnoringBatteryOptimizations
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -338,6 +340,37 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         saveVirtualMouseSettings()
     }
 
+    fun onShowAnimation(showAnimation: Boolean) {
+        updateUiState { it.copy(showAnimation = showAnimation) }
+        saveDisplaySettings()
+    }
+
+    fun showDayNightModeDropdownMenu(show: Boolean) {
+        updateUiState { it.copy(showDayNightModeDropdownMenu = show) }
+    }
+
+    fun onDynamicColorChange(value: Boolean) {
+        updateUiState { it.copy(dynamicColor = value) }
+        saveDisplaySettings()
+    }
+
+    fun onDayNightModeChange(dayNightMode: DayNightMode) {
+        updateUiState { it.copy(dayNightMode = dayNightMode) }
+        saveDisplaySettings()
+    }
+
+    private fun saveDisplaySettings() {
+        viewModelScope.launch {
+            SettingsProvider.updateAdvancedSettings {
+                it.copy(
+                    animationStyles = it.animationStyles.copy(isAnimationEnabled = uiState.showAnimation),
+                    dynamicColor = uiState.dynamicColor,
+                    dayNightMode = uiState.dayNightMode
+                )
+            }
+        }
+    }
+
     fun updatePermissionState() {
         viewModelScope.launch {
             val app = hunoia.sideleap.core.AppContext.get()
@@ -423,6 +456,17 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                     }
                 }
             }
+            launch {
+                SettingsProvider.advancedSettings.collectLatest { item ->
+                    updateUiState {
+                        it.copy(
+                            showAnimation = item.animationStyles.isAnimationEnabled,
+                            dynamicColor = item.dynamicColor,
+                            dayNightMode = item.dayNightMode
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -440,6 +484,11 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         val showResetWarningDialog: Boolean = false,
         val showBackupRestoreDialog: Boolean = false,
         val virtualMouse: GestureSettings.VirtualMouse = GestureSettings.VirtualMouse(),
+        val showAnimation: Boolean = false,
+        val dynamicColor: Boolean = false,
+        val dayNightMode: DayNightMode = DayNightMode.Auto,
+        val showDynamicColorOption: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+        val showDayNightModeDropdownMenu: Boolean = false,
     )
 
     sealed interface UiEvent {
