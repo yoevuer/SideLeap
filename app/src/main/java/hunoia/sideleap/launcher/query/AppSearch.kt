@@ -30,10 +30,11 @@ object AppSearch {
     private fun prefixRank(app: AppInfo, tokens: List<String>): Int {
         if (tokens.isEmpty()) return 0
         val index = buildIndex(app.label)
+        val joined = tokens.joinToString("")
         return when {
-            matchesTokens(index.initials, tokens) && index.initials.startsWith(tokens.joinToString("")) -> 2
-            matchesTokens(index.raw, tokens) && index.raw.startsWith(tokens.joinToString("")) -> 1
-            matchesTokens(index.pinyin, tokens) && index.pinyin.startsWith(tokens.joinToString("")) -> 1
+            matchesTokens(index.initials, tokens) && index.initials.startsWith(joined) -> 2
+            matchesTokens(index.raw, tokens) && index.raw.startsWith(joined) -> 1
+            matchesTokens(index.pinyin, tokens) && index.pinyin.startsWith(joined) -> 1
             else -> 0
         }
     }

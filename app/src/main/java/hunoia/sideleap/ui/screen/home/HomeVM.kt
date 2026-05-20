@@ -75,8 +75,8 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             val list = it.subGestures
             val index = list.indexOf(gesture)
             if (index < 0) it else {
-                it.copy(subGestures = list.toMutableList().apply {
-                    set(index, gesture.copy(enabled = enabled))
+                it.copy(subGestures = list.mapIndexed { i, g ->
+                    if (i == index) g.copy(enabled = enabled) else g
                 })
             }
         }
@@ -103,9 +103,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         }
         viewModelScope.launch {
             SettingsProvider.updateBottomGestureButtons {
-                it.toMutableList().apply {
-                    add(GestureButton.createBottom())
-                }
+                it + GestureButton.createBottom()
             }
             delay(50)
             sendUiEvent(UiEvent.ScrollToBottom)
@@ -119,9 +117,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         }
         viewModelScope.launch {
             SettingsProvider.updateSideGestureButtons {
-                it.toMutableList().apply {
-                    addAll(GestureButton.createSidePair())
-                }
+                it + GestureButton.createSidePair()
             }
             delay(50)
             sendUiEvent(UiEvent.ScrollToBottom)
@@ -190,10 +186,9 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             val buttons = it.bottomGestureButtons
             val index = buttons.indexOf(button)
             if (index < 0) it else {
-                val list = buttons.toMutableList().apply {
-                    set(index, button.copy(enabled = enabled))
-                }
-                it.copy(bottomGestureButtons = list)
+                it.copy(bottomGestureButtons = buttons.mapIndexed { i, b ->
+                    if (i == index) b.copy(enabled = enabled) else b
+                })
             }
         }
         saveSettings()
@@ -204,10 +199,9 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             val buttons = it.sideGestureButtons
             val index = buttons.indexOf(button)
             if (index < 0) it else {
-                val list = buttons.toMutableList().apply {
-                    set(index, button.copy(enabled = enabled))
-                }
-                it.copy(sideGestureButtons = list)
+                it.copy(sideGestureButtons = buttons.mapIndexed { i, b ->
+                    if (i == index) b.copy(enabled = enabled) else b
+                })
             }
         }
         saveSettings()

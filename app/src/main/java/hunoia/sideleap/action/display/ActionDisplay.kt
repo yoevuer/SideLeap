@@ -154,30 +154,11 @@ fun actionIcon(action: Action): Any? = when (action.value) {
 }
 
 @Composable
-fun GestureActions.actionTextCompose(): String {
-    var text = ""
-    val centerText = center.actionTextCompose(true)
-    if (centerText.isNotEmpty()) {
-        text += centerText
-    }
-    val upText = up.actionTextCompose(true)
-    if (upText.isNotEmpty()) {
-        text += if (text.isEmpty()) {
-            upText
-        } else {
-            ",$upText"
-        }
-    }
-    val downText = down.actionTextCompose(true)
-    if (downText.isNotEmpty()) {
-        text += if (text.isEmpty()) {
-            downText
-        } else {
-            ",$downText"
-        }
-    }
-    return text
-}
+fun GestureActions.actionTextCompose(): String =
+    listOfNotNull(center, up, down)
+        .map { it.actionTextCompose(true) }
+        .filter { it.isNotEmpty() }
+        .joinToString(separator = ",")
 
 @Composable
 fun List<Action>.actionTextCompose(emptyIfNone: Boolean = false): String {
