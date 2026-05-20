@@ -43,6 +43,12 @@ data class SubGestureAngle(
         return norm
     }
 
+    fun sectorWidth(index: Int): Float {
+        val s = boundaries[index]
+        val e = boundaries[(index + 1) % 8]
+        return if (e >= s) (e - s) * 360f else (e + 1f - s) * 360f
+    }
+
     companion object {
         val SECTOR_DIRECTIONS = listOf(
             SubGestureDirection.Right,

@@ -62,7 +62,7 @@ fun SubGestureAngleContent(
     color: Color = MaterialTheme.colorScheme.primary
 ) {
     var draftAngle by remember(angle) { mutableStateOf(angle) }
-    val names = listOf("右", "右上", "上", "左上", "左", "左下", "下", "右下")
+    val names = listOf("右上", "上", "左上", "左", "左下", "下", "右下", "右")
 
     Column(
         modifier = Modifier
@@ -122,7 +122,7 @@ fun SubGestureAngleContent(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = "${(draftAngle.boundaries[index] * 360f).roundToInt()}°",
+                                text = "${draftAngle.sectorWidth(index).roundToInt()}°",
                                 color = color,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
@@ -177,12 +177,9 @@ private fun SubGestureAngleDial(
                 var dragOffset = Offset.Zero
                 var candidates = emptyList<Int>()
                 var candidateIndex: Int? = null
-                var startBoundaryVal: Float? = null
-                var totalDelta: Float = 0f
                 detectDragGestures(
                     onDragStart = { offset ->
                         dragOffset = offset
-                        totalDelta = 0f
                         candidates = curAngle.boundaries.indices.filter { i ->
                             val degree = curAngle.boundaries[i] * 360f
                             val rad = Math.toRadians(degree.toDouble())
@@ -192,49 +189,28 @@ private fun SubGestureAngleDial(
                             )
                             Rect(center = pOffset, radius = dragHitRadius.toPx()).contains(offset)
                         }
-                        val startCandidate = candidates.singleOrNull()
-                        candidateIndex = startCandidate
-                        if (startCandidate != null) {
-                            startBoundaryVal = curAngle.boundaries[startCandidate]
-                        }
+                        candidateIndex = candidates.singleOrNull()
                     },
                     onDrag = onDrag@{ _, dragAmount ->
-                        val prevOffset = dragOffset
                         dragOffset += dragAmount
                         if (!viewBounds.contains(dragOffset)) return@onDrag
-                        val prevNorm = normalizedAngle(prevOffset, circleCenter)
                         val curNorm = normalizedAngle(dragOffset, circleCenter)
                         if (candidateIndex == null) {
-                            val newCandidate = selectDragTarget(curAngle, candidates, curNorm)
-                            candidateIndex = newCandidate
-                            if (newCandidate != null) {
-                                startBoundaryVal = curAngle.boundaries[newCandidate]
-                                totalDelta = 0f
-                            }
+                            candidateIndex = selectDragTarget(curAngle, candidates, curNorm)
                         }
                         val target = candidateIndex ?: return@onDrag
-                        val startVal = startBoundaryVal ?: return@onDrag
-                        var delta = curNorm - prevNorm
-                        if (delta > 0.5f) delta -= 1f else if (delta < -0.5f) delta += 1f
-                        totalDelta += delta
-                        var desired = startVal + totalDelta
-                        desired = ((desired % 1f) + 1f) % 1f
-                        val newAngle = curAngle.copyNewNoGap(target, desired)
+                        val newAngle = curAngle.copyNewNoGap(target, curNorm)
                         curOnAngleChange(newAngle)
                     },
                     onDragEnd = {
                         dragOffset = Offset.Zero
                         candidates = emptyList()
                         candidateIndex = null
-                        startBoundaryVal = null
-                        totalDelta = 0f
                     },
                     onDragCancel = {
                         dragOffset = Offset.Zero
                         candidates = emptyList()
                         candidateIndex = null
-                        startBoundaryVal = null
-                        totalDelta = 0f
                     }
                 )
             }
@@ -304,8 +280,8 @@ private fun selectDragTarget(
     if (candidates.size == 1) return candidates.first()
     val baseline = candidates.map { angle.boundaries[it] }.average().toFloat()
     return if (newP >= baseline) {
-        candidates.maxBy { angle.boundaries[it] }
+        candidates.maxBy { it }
     } else {
-        candidates.minBy { angle.boundaries[it] }
+        candidates.minBy { it }
     }
 }

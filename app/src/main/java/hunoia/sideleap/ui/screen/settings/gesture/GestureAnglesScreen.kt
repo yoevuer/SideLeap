@@ -48,6 +48,7 @@ import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.defaultGestureAngleFor
 import hunoia.sideleap.gesture.getDegree
+import hunoia.sideleap.gesture.getArcDegrees
 import hunoia.sideleap.gesture.getDegrees
 import hunoia.sideleap.gesture.getKProperty
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
@@ -108,14 +109,6 @@ fun GestureButtonAngleContent(
 
         Spacer(modifier = Modifier.height(SectionPadding))
 
-        Text(
-            text = stringResource(id = R.string.gesture_button_angles_hint),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Spacer(modifier = Modifier.height(SectionPadding))
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -144,17 +137,25 @@ fun GestureButtonAngleContent(
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    angle.getDegrees().fastForEach { degree ->
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = "${degree.roundToInt()}°",
-                            color = color,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleSmall
-                        )
+                    val sectorNames = gestureButtonSectorNames(gestureButton.position)
+                    val arcDegrees = angle.getArcDegrees()
+                    sectorNames.forEachIndexed { index: Int, name: String ->
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = name,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "${arcDegrees[index].roundToInt()}°",
+                                color = color,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
                     }
                 }
             }
@@ -188,6 +189,13 @@ private fun gestureButtonTitle(position: Position): String {
         Position.Left -> stringResource(id = R.string.left_gesture_button)
         Position.Right -> stringResource(id = R.string.right_gesture_button)
         Position.Bottom -> stringResource(id = R.string.bottom_gesture_button)
+    }
+}
+
+private fun gestureButtonSectorNames(position: Position): List<String> {
+    return when (position) {
+        Position.Bottom -> listOf("左2", "左", "中", "右", "右2")
+        else -> listOf("上2", "上", "中", "下", "下2")
     }
 }
 
