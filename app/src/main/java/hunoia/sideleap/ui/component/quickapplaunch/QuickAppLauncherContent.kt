@@ -266,7 +266,6 @@ private fun CandidateAppRows(
                             val isFrozen = app.packageName in frozenPkgs
                             AppItem(
                                 app = app,
-                                isFrozen = isFrozen,
                                 onClick = { onClick(app, isFrozen) },
                                 onLongPress = { onLongPress(app, isFrozen) }
                             )
@@ -312,7 +311,7 @@ private fun AppGrid(
     ) {
         LazyVerticalGrid(
             state = gridState,
-            columns = GridCells.Adaptive(minSize = 64.dp),
+            columns = GridCells.Fixed(4),
             verticalArrangement = Arrangement.spacedBy(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             contentPadding = PaddingValues(bottom = 36.dp),
@@ -325,7 +324,6 @@ private fun AppGrid(
                 val isFrozen = app.packageName in frozenPkgs
                 AppItem(
                     app = app,
-                    isFrozen = isFrozen,
                     onClick = { onClick(app, isFrozen) },
                     onLongPress = { onLongPress(app, isFrozen) }
                 )

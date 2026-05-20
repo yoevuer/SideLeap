@@ -33,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -122,14 +121,11 @@ internal fun rememberAppIconAsync(context: Context, packageName: String): Drawab
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun AppItem(app: AppInfo, isFrozen: Boolean = false, onClick: () -> Unit, onLongPress: () -> Unit) {
+internal fun AppItem(app: AppInfo, onClick: () -> Unit, onLongPress: () -> Unit) {
     val context = LocalContext.current
-    val iconAlpha = if (isFrozen) 0.5f else 1f
     Column(
         modifier = Modifier
             .width(64.dp)
-            .alpha(iconAlpha)
-            .clip(RoundedCornerShape(10.dp))
             .combinedClickable(onClick = { onClick() }, onLongClick = { onLongPress() })
             .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -139,7 +135,7 @@ internal fun AppItem(app: AppInfo, isFrozen: Boolean = false, onClick: () -> Uni
             AsyncImage(
                 model = icon,
                 contentDescription = app.label,
-                modifier = Modifier.height(40.dp).fillMaxWidth(),
+                modifier = Modifier.height(40.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)),
                 contentScale = ContentScale.Fit
             )
         } else {
