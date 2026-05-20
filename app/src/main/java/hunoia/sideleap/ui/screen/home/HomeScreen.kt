@@ -57,7 +57,6 @@ import hunoia.sideleap.R
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.bounds
-import hunoia.sideleap.settings.model.SubGesture
 import hunoia.sideleap.ui.gesture.actionTextCompose
 import hunoia.sideleap.ui.gesture.buttonTextCompose
 import hunoia.sideleap.system.intent.gotoAccessibilitySettings
@@ -111,9 +110,7 @@ fun HomeScreen(
                         animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
                     )
                 }
-                is UiEvent.NavigateToSubGestureEditor -> {
-                    // unused, handled directly in onClick
-                }
+
             }
         }
     ) { uiState ->
@@ -196,16 +193,6 @@ fun HomeScreen(
                                     Text(text = stringResource(id = R.string.reset_default_settings_warning),)
                                 }
                             )
-//                            DropdownMenuItem(
-//                                onClick = {
-//                                    vm.showMoreMenu(false) {
-//                                        onNavToUnlock()
-//                                    }
-//                                },
-//                                text = {
-//                                    Text(text = stringResource(id = R.string.unlock_advanced_feature))
-//                                }
-//                            )
                             DropdownMenuItem(
                                 onClick = {
                                     vm.showMoreMenu(false) {

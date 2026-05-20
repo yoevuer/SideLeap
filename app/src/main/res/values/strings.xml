@@ -2,14 +2,10 @@
 <resources>
     <string name="app_name">SideLeap</string>
     <string name="home_title">@string/app_name</string>
-    <string name="version_placeholder">Version %s</string>
-    <string name="accessibility_description">辅助服务用于模拟返回、主页、等按键操作，实现侧滑手势的各种自定义操控，不会收集任何数据。</string>
     <string name="more">更多</string>
+    <string name="accessibility_description">辅助服务用于模拟返回、主页、等按键操作，实现侧滑手势的各种自定义操控，不会收集任何数据。</string>
     <string name="delete">删除</string>
-    <string name="initial_settings">初始设置</string>
     <string name="gesture_switch">手势开关</string>
-    <string name="please_enable_accessibility_service_first">请先启用无障碍服务</string>
-    <string name="accessibility_service">无障碍服务</string>
     <string name="global_settings">全局设置</string>
     <string name="advanced_settings">高级设置</string>
     <string name="gesture_settings">手势设置</string>
@@ -32,7 +28,6 @@
     <string name="backup_failed">备份失败</string>
     <string name="restore_success">恢复成功</string>
     <string name="restore_failed">恢复失败</string>
-    <string name="app_settings">应用设置</string>
     <string name="gesture_button_list">触钮集合</string>
     <string name="side_gesture_button_list">侧边触钮</string>
     <string name="bottom_gesture_button_list">底部触钮</string>
@@ -61,17 +56,12 @@
     <string name="manage_hidden_apps">管理隐藏应用</string>
     <string name="frozen_app_manage">冻结应用管理</string>
     <string name="protected_list">保护名单</string>
-    <string name="frozen_app_manage_preparing">冻结应用管理功能准备中</string>
-    <string name="protected_list_preparing">保护名单功能准备中</string>
     <string name="frozen_app_count_info">已选：%1$d｜已冻结：%2$d</string>
     <string name="one_key_list">一键名单</string>
     <string name="other_apps">其他应用</string>
     <string name="no_apps_available">暂无应用</string>
     <string name="refresh">刷新</string>
     <string name="refresh_theme_colors">刷新配色</string>
-    <string name="refresh_theme_colors_hint">ColorBlendr 等第三方改色后点击刷新</string>
-    <string name="protected_list_hint">加入保护名单后会自动从一键名单移除</string>
-    <string name="frozen_state_indicator">冻结状态</string>
     <string name="frozen_success">已冻结</string>
     <string name="unfrozen_success">已解冻</string>
     <string name="frozen_state_unchanged">状态未变化</string>
@@ -87,7 +77,6 @@
     <string name="clear_quick_app_stats_done">已清除</string>
     <string name="lock_screen">锁屏界面</string>
     <string name="launcher">系统桌面</string>
-    <string name="click_to_hide_button_temporary">单击触发区隐藏1秒</string>
     <string name="dynamic_color">动态配色</string>
     <string name="dynamic_color_hint">从桌面壁纸中派生颜色</string>
     <string name="day_night_mode">深色模式</string>
@@ -172,9 +161,7 @@
     <string name="os_version_too_low">系统版本不支持</string>
     <string name="os_version_too_low_placeholder">系统版本不支持：%1$s</string>
     <string name="ignoring_battery_optimizations">电池优化</string>
-    <string name="ignoring_battery_optimizations_hint">应用需要后台运行以维持正常工作</string>
     <string name="launch_self_permission">应用自启动</string>
-    <string name="launch_self_permission_hint">配合电池优化选项提高后台留存能力</string>
     <string name="please_enable_launch_self_permission_by_yourself">请手动前往开启自启动权限</string>
     <string name="please_enable_ignoring_battery_optimizations_by_yourself">请手动前往启用电池优化白名单</string>
     <string name="invalid_color_value">非法色值，请重新输入</string>
@@ -273,7 +260,6 @@
     <string name="selected_count">已选 %1$d/%2$d</string>
     <string name="selected_count_no_limit">已选 %1$d</string>
     <string name="clear_all">清空</string>
-    <!-- selected_action_settings removed, using selected_count_no_limit -->
     <string name="set_long_press_action">设置</string>
     <string name="clear_long_press_action">清除</string>
     <string name="long_press_action_value">长按：%1$s</string>

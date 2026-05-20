@@ -19,7 +19,6 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -389,8 +388,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         val isGestureEnabled: Boolean = false,
         val isAccessibilityEnabled: Boolean = false,
         val isIgnoringBatteryOptimizations: Boolean = false,
-        val isDrawOverlayEnabled: Boolean = false,
-        val isPopBackgroundEnabled: Boolean = false,
         val isSubGestureListExpanded: Boolean = false,
         val isBottomGestureButtonListExpanded: Boolean = false,
         val isSideGestureButtonListExpanded: Boolean = false,
@@ -403,6 +400,5 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
         data object ScrollToBottom : UiEvent
         data class ScrollToEvent(val offsetY: Int) : UiEvent
-        data class NavigateToSubGestureEditor(val subGestureId: String) : UiEvent
     }
 }
