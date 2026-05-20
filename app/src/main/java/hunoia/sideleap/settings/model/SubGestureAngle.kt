@@ -36,7 +36,7 @@ data class SubGestureAngle(
     }
 
     companion object {
-        private val SECTOR_DIRECTIONS = listOf(
+        val SECTOR_DIRECTIONS = listOf(
             SubGestureDirection.Right,
             SubGestureDirection.UpRight,
             SubGestureDirection.Up,
@@ -47,4 +47,15 @@ data class SubGestureAngle(
             SubGestureDirection.DownRight,
         )
     }
+}
+
+fun SubGestureAngle.copyNewNoGap(index: Int, newP: Float): SubGestureAngle {
+    val p = newP.coerceIn(0f, 1f)
+    val prev = if (index == 0) boundaries.last() - 1f else boundaries[index - 1]
+    val next = if (index == 7) boundaries.first() + 1f else boundaries[index + 1]
+    val clamped = p.coerceIn(prev, next)
+    val wrapped = if (clamped < 0f) clamped + 1f else if (clamped >= 1f) clamped - 1f else clamped
+    val newBoundaries = boundaries.toMutableList()
+    newBoundaries[index] = wrapped
+    return SubGestureAngle(boundaries = newBoundaries)
 }

@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +35,7 @@ import hunoia.sideleap.action.payload.SubGestureActionData
 import hunoia.sideleap.gesture.SubGestureDirection
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.settings.model.SubGesture
+import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import hunoia.sideleap.ui.component.MyAlertDialog
 import hunoia.sideleap.ui.component.MyColumn
 import hunoia.sideleap.ui.component.SectionCard
@@ -42,6 +46,7 @@ import hunoia.sideleap.ui.theme.IconTextPadding
 import hunoia.sideleap.ui.theme.MarkColorSize
 import hunoia.sideleap.ui.theme.SectionPadding
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubGestureSettingsScreen(
     onBack: () -> Unit,
@@ -49,6 +54,7 @@ fun SubGestureSettingsScreen(
     vm: SubGestureSettingsVM = viewModel()
 ) {
     var showEditNameDialog by remember { mutableStateOf(false) }
+    var showGestureAngles by remember { mutableStateOf(false) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -86,6 +92,25 @@ fun SubGestureSettingsScreen(
                     }
                 }
             )
+        }
+
+        if (showGestureAngles) {
+            ModalBottomSheet(
+                onDismissRequest = { showGestureAngles = false },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ) {
+                BottomSheetNestedContent {
+                    SubGestureAngleContent(
+                        angle = gesture.angle,
+                        onDismiss = { showGestureAngles = false },
+                        onSave = { newAngle ->
+                            vm.updateAngle(newAngle)
+                            showGestureAngles = false
+                        },
+                        color = Color(gesture.color)
+                    )
+                }
+            }
         }
 
         Column {
@@ -138,15 +163,19 @@ fun SubGestureSettingsScreen(
                     modifier = Modifier.padding(top = SectionPadding),
                     title = stringResource(id = R.string.sub_gesture_angles)
                 ) {
-                    SubGestureAngleContent(
-                        angle = gesture.angle,
-                        onAngleChange = { vm.updateAngle(it) },
-                        color = Color(gesture.color)
+                    TextActionButton(
+                        onClick = { showGestureAngles = true },
+                        text = stringResource(id = R.string.sub_gesture_angles),
+                        secondaryText = subGestureAngleSummary(gesture.angle)
                     )
                 }
             }
         }
     }
+}
+
+private fun subGestureAngleSummary(angle: hunoia.sideleap.settings.model.SubGestureAngle): String {
+    return angle.boundaries.joinToString(" / ") { "${(it * 360f).toInt()}°" }
 }
 
 private val SubGestureDirection.displayName: String get() = when (this) {

@@ -11,31 +11,42 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.util.fastForEach
 import hunoia.sideleap.R
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults
 import hunoia.sideleap.settings.model.SubGestureAngle
+import hunoia.sideleap.settings.model.copyNewNoGap
+import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
+import hunoia.sideleap.ui.theme.ContentPaddingVertical
+import hunoia.sideleap.ui.theme.ItemPadding
+import hunoia.sideleap.ui.theme.SectionPadding
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -45,125 +56,230 @@ import kotlin.math.sin
 @Composable
 fun SubGestureAngleContent(
     angle: SubGestureAngle,
-    onAngleChange: (SubGestureAngle) -> Unit,
-    color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary
+    onDismiss: () -> Unit,
+    onSave: (SubGestureAngle) -> Unit,
+    color: Color = MaterialTheme.colorScheme.primary
 ) {
-    val outlineColor = MaterialTheme.colorScheme.outlineVariant
-    val surfaceColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.55f)
+    var draftAngle by remember(angle) { mutableStateOf(angle) }
     val names = listOf("右", "右上", "上", "左上", "左", "左下", "下", "右下")
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVertical)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            TextButton(onClick = { onAngleChange(SubGestureAngle()) }) {
+            Text(
+                text = stringResource(id = R.string.sub_gesture_angles),
+                style = MaterialTheme.typography.titleLarge
+            )
+            TextButton(onClick = { draftAngle = SubGestureAngle() }) {
                 Icon(Icons.Default.Restore, contentDescription = null)
                 Text(text = stringResource(id = R.string.reset))
             }
         }
 
-        val nestedScrollConnection = remember {
-            object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
-                override fun onPreScroll(available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset = available
-                override fun onPostScroll(consumed: Offset, available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset = Offset.Zero
-                override suspend fun onPreFling(available: Velocity): Velocity = available
-            }
-        }
+        Spacer(modifier = Modifier.height(SectionPadding))
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(260.dp)
-                .nestedScroll(nestedScrollConnection)
-                .background(color = surfaceColor, shape = MaterialTheme.shapes.extraLarge)
-                .border(width = 1.dp, color = outlineColor, shape = MaterialTheme.shapes.extraLarge)
+                .height(320.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.55f),
+                    shape = MaterialTheme.shapes.extraLarge
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = MaterialTheme.shapes.extraLarge
+                )
+                .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(260.dp)
-                    .pointerInput(angle) {
-                        var draggingIndex by mutableIntStateOf(-1)
-                        detectDragGestures(
-                            onDragStart = { startOffset ->
-                                val c = Offset(size.width / 2f, size.height / 2f)
-                                val dx = startOffset.x - c.x
-                                val dy = startOffset.y - c.y
-                                var norm = (atan2(-dy, dx) / (2f * PI.toFloat()))
-                                if (norm < 0f) norm += 1f
-                                draggingIndex = angle.boundaries.indices.minByOrNull { i ->
-                                    val diff = norm - angle.boundaries[i]
-                                    minOf(kotlin.math.abs(diff), kotlin.math.abs(diff - 1f), kotlin.math.abs(diff + 1f))
-                                } ?: -1
-                            },
-                            onDragEnd = { draggingIndex = -1 },
-                            onDragCancel = { draggingIndex = -1 }
-                        ) { change, _ ->
-                            val c = Offset(size.width / 2f, size.height / 2f)
-                            val dx = change.position.x - c.x
-                            val dy = change.position.y - c.y
-                            var norm = (atan2(-dy, dx) / (2f * PI.toFloat()))
-                            if (norm < 0f) norm += 1f
-                            if (angle.boundaries.size != 8) return@detectDragGestures
-                            val newBoundaries = angle.boundaries.toMutableList()
-                            if (draggingIndex !in newBoundaries.indices) return@detectDragGestures
-                            val index = draggingIndex
-                            val prev = if (index == 0) newBoundaries.last() - 1f else newBoundaries[index - 1]
-                            val next = if (index == 7) newBoundaries.first() + 1f else newBoundaries[index + 1]
-                            val clamped = norm.coerceIn(prev + 0.01f, next - 0.01f)
-                            val wrapped = if (clamped < 0f) clamped + 1f else if (clamped >= 1f) clamped - 1f else clamped
-                            newBoundaries[index] = wrapped
-                            try {
-                                onAngleChange(SubGestureAngle(boundaries = newBoundaries))
-                            } catch (_: Exception) { }
+            Column {
+                SubGestureAngleDial(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp),
+                    angle = draftAngle,
+                    onAngleChange = { draftAngle = it },
+                    color = color
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    names.forEachIndexed { index, name ->
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = name,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "${(draftAngle.boundaries[index] * 360f).roundToInt()}°",
+                                color = color,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.titleSmall
+                            )
                         }
                     }
-            ) {
-                val c = Offset(size.width / 2f, size.height / 2f)
-                val r = minOf(size.width, size.height) / 2f * 0.85f
-
-                drawCircle(color = outlineColor, radius = r, center = c, style = Stroke(width = 2f))
-                drawCircle(color = outlineColor, radius = 4f, center = c)
-
-                if (angle.boundaries.size == 8) {
-                    angle.boundaries.forEachIndexed { index, bound ->
-                        val angleRad = bound * 2f * PI.toFloat()
-                        val px = c.x + r * cos(angleRad)
-                        val py = c.y - r * sin(angleRad)
-                        drawLine(color = color, start = c, end = Offset(px, py), strokeWidth = 3f)
-                        drawCircle(color = androidx.compose.ui.graphics.Color.White, radius = 12f, center = Offset(px, py))
-                        drawCircle(color = color, radius = 8f, center = Offset(px, py))
-                    }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        val degrees = angle.boundaries.map { "${(it * 360f).roundToInt()}°" }
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = SectionPadding),
+            horizontalArrangement = Arrangement.spacedBy(ItemPadding)
         ) {
-            names.forEachIndexed { index, name ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = name,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = degrees[index],
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+            OutlinedButton(
+                modifier = Modifier.weight(1f),
+                onClick = onDismiss
+            ) {
+                Text(text = stringResource(id = R.string.cancel))
+            }
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = { onSave(draftAngle) }
+            ) {
+                Text(text = stringResource(id = R.string.confirm))
             }
         }
+    }
+}
+
+@Composable
+private fun SubGestureAngleDial(
+    onAngleChange: (SubGestureAngle) -> Unit,
+    angle: SubGestureAngle,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary
+) {
+    val dragHandleRadius = 10.dp
+    val dragHitRadius = 26.dp
+    var circleRadius by remember { mutableStateOf(0f) }
+    var circleCenter by remember { mutableStateOf(Offset.Zero) }
+    var viewBounds by remember { mutableStateOf(Rect.Zero) }
+
+    Canvas(
+        modifier = modifier.let {
+            val curOnAngleChange by rememberUpdatedState(newValue = onAngleChange)
+            val curAngle by rememberUpdatedState(newValue = angle)
+            it.pointerInput(dragHitRadius) {
+                var dragOffset = Offset.Zero
+                var candidates = emptyList<Int>()
+                var candidateIndex: Int? = null
+                detectDragGestures(
+                    onDragStart = { offset ->
+                        dragOffset = offset
+                        val norm = normalizedAngle(offset, circleCenter)
+                        candidates = curAngle.boundaries.indices.filter { i ->
+                            val boundNorm = curAngle.boundaries[i]
+                            val diff = normalizedDiff(norm, boundNorm)
+                            val hitPx = (minOf(circleRadius * PI.toFloat() * 2f, circleRadius) * 0.12f)
+                                .coerceAtLeast(dragHitRadius.toPx())
+                            diff * 360f < hitPx.coerceAtMost(circleRadius * 0.5f)
+                        }
+                        candidateIndex = candidates.singleOrNull()
+                    },
+                    onDrag = onDrag@{ _, dragAmount ->
+                        dragOffset += dragAmount
+                        if (!viewBounds.contains(dragOffset)) return@onDrag
+                        val norm = normalizedAngle(dragOffset, circleCenter)
+                        val target = candidateIndex
+                            ?: selectDragTarget(curAngle, candidates, norm)
+                            ?: return@onDrag
+                        candidateIndex = target
+                        val newAngle = curAngle.copyNewNoGap(target, norm)
+                        curOnAngleChange(newAngle)
+                    },
+                    onDragEnd = {
+                        dragOffset = Offset.Zero
+                        candidates = emptyList()
+                        candidateIndex = null
+                    },
+                    onDragCancel = {
+                        dragOffset = Offset.Zero
+                        candidates = emptyList()
+                        candidateIndex = null
+                    }
+                )
+            }
+        }
+    ) {
+        val dialRadius = size.minDimension * 0.26f
+        val lineRadius = size.minDimension * 0.39f
+        circleRadius = lineRadius
+        val myCenter = center
+        circleCenter = myCenter
+        viewBounds = Rect(offset = Offset.Zero, size = size)
+        val lineWidthPx = 3.dp.toPx()
+        val pointRadiusPx = dragHandleRadius.toPx()
+
+        drawCircle(color = color, radius = dialRadius, center = myCenter, alpha = 0.08f)
+        drawCircle(
+            color = color,
+            radius = dialRadius,
+            center = myCenter,
+            alpha = 0.25f,
+            style = Stroke(width = 2.dp.toPx())
+        )
+        drawCircle(
+            color = color,
+            radius = lineRadius,
+            center = myCenter,
+            alpha = 0.18f,
+            style = Stroke(width = 1.dp.toPx())
+        )
+
+        angle.boundaries.forEachIndexed { index, bound ->
+            val angleRad = bound * 2f * PI.toFloat()
+            val offset = Offset(
+                x = myCenter.x + lineRadius * cos(angleRad),
+                y = myCenter.y - lineRadius * sin(angleRad)
+            )
+            drawLine(color = color, start = myCenter, end = offset, strokeWidth = lineWidthPx)
+            drawCircle(color = Color.White, radius = pointRadiusPx + 2.dp.toPx(), center = offset)
+            drawCircle(color = color, radius = pointRadiusPx, center = offset)
+        }
+
+        drawCircle(color = color, radius = 7.dp.toPx(), center = myCenter)
+        drawCircle(color = Color.White, radius = 3.dp.toPx(), center = myCenter)
+    }
+}
+
+private fun normalizedAngle(offset: Offset, center: Offset): Float {
+    val dx = offset.x - center.x
+    val dy = offset.y - center.y
+    val angle = atan2(-dy.toDouble(), dx.toDouble())
+    var norm = (angle / (2 * PI)).toFloat()
+    if (norm < 0f) norm += 1f
+    return norm
+}
+
+private fun normalizedDiff(a: Float, b: Float): Float {
+    val diff = a - b
+    return minOf(kotlin.math.abs(diff), kotlin.math.abs(diff - 1f), kotlin.math.abs(diff + 1f))
+}
+
+private fun selectDragTarget(
+    angle: SubGestureAngle,
+    candidates: List<Int>,
+    newP: Float
+): Int? {
+    if (candidates.isEmpty()) return null
+    if (candidates.size == 1) return candidates.first()
+    val baseline = candidates.map { angle.boundaries[it] }.average().toFloat()
+    return if (newP >= baseline) {
+        candidates.maxBy { angle.boundaries[it] }
+    } else {
+        candidates.minBy { angle.boundaries[it] }
     }
 }
