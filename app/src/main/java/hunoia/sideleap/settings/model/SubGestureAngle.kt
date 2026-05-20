@@ -18,14 +18,22 @@ data class SubGestureAngle(
     init {
         require(boundaries.size == 8)
         require(boundaries.all { it >= 0f && it < 1f })
-        require(boundaries.zipWithNext().all { (a, b) -> a < b })
     }
 
     fun directionOf(offset: Offset): SubGestureDirection {
         val norm = normalizedAngle(offset)
-        val index = boundaries.indexOfFirst { norm < it }
-        val sectorIndex = if (index == -1) 0 else index
-        return SECTOR_DIRECTIONS[sectorIndex]
+        for (i in boundaries.indices) {
+            val start = boundaries[i]
+            val end = boundaries[(i + 1) % 8]
+            val inSector = if (start <= end) norm >= start && norm < end
+                           else norm >= start || norm < end
+            if (inSector) return SECTOR_DIRECTIONS[i]
+        }
+        val nearest = boundaries.indices.minByOrNull { i ->
+            var d = norm - boundaries[i]
+            if (d < 0f) d += 1f; d
+        } ?: 0
+        return SECTOR_DIRECTIONS[nearest]
     }
 
     private fun normalizedAngle(offset: Offset): Float {
@@ -50,12 +58,25 @@ data class SubGestureAngle(
 }
 
 fun SubGestureAngle.copyNewNoGap(index: Int, newP: Float): SubGestureAngle {
-    val p = newP.coerceIn(0f, 1f)
-    val prev = if (index == 0) boundaries.last() - 1f else boundaries[index - 1]
-    val next = if (index == 7) boundaries.first() + 1f else boundaries[index + 1]
-    val clamped = p.coerceIn(prev, next)
-    val wrapped = if (clamped < 0f) clamped + 1f else if (clamped >= 1f) clamped - 1f else clamped
+    val p = ((newP % 1f) + 1f) % 1f
+    val prev = boundaries[(index + 7) % 8]
+    val next = boundaries[(index + 1) % 8]
+    val distToPrev = minOf(
+        kotlin.math.abs(p - prev),
+        kotlin.math.abs(p + 1f - prev),
+        kotlin.math.abs(p - 1f - prev)
+    )
+    val distToNext = minOf(
+        kotlin.math.abs(p - next),
+        kotlin.math.abs(p + 1f - next),
+        kotlin.math.abs(p - 1f - next)
+    )
+    val inRange = if (prev < next) p in prev..next
+                  else p >= prev || p <= next
+    val clamped = if (inRange) p
+                  else if (distToPrev < distToNext) prev
+                  else next
     val newBoundaries = boundaries.toMutableList()
-    newBoundaries[index] = wrapped
+    newBoundaries[index] = clamped
     return SubGestureAngle(boundaries = newBoundaries)
 }

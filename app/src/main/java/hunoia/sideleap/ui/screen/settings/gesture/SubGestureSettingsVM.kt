@@ -1,5 +1,7 @@
 package hunoia.sideleap.ui.screen.settings.gesture
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -24,6 +26,8 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
     private val subGestureEditor = savedStateHandle.toRoute<SubGestureEditor>()
 
     override val initialState: UiState = UiState()
+
+    val colorPickerDialog = ColorPickerDialog()
 
     init {
         loadData()
@@ -148,6 +152,46 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
         }
     }
 
+    fun updateColor(color: Int) {
+        viewModelScope.launch {
+            SettingsProvider.updateSubGestureSettings { settings ->
+                settings.copy(
+                    subGestures = settings.subGestures.map { gesture ->
+                        if (gesture.id == subGestureEditor.subGestureId) gesture.copy(color = color)
+                        else gesture
+                    }
+                )
+            }
+        }
+    }
+
+    inner class ColorPickerDialog {
+
+        fun show(show: Boolean) {
+            updateUiState {
+                val color = it.subGesture?.let { g -> Color(g.color) } ?: it.colorPickerDialog.second
+                it.copy(
+                    colorPickerDialog = it.colorPickerDialog.copy(first = show, second = color)
+                )
+            }
+        }
+
+        fun onColorChange(color: Color) {
+            updateUiState {
+                it.copy(colorPickerDialog = it.colorPickerDialog.copy(second = color))
+            }
+        }
+
+        fun confirm() {
+            updateUiState {
+                val pickedColor = it.colorPickerDialog.second
+                it.copy(colorPickerDialog = it.colorPickerDialog.copy(first = false))
+            }
+            val picked = uiState.colorPickerDialog.second
+            updateColor(picked.toArgb())
+        }
+    }
+
     private fun loadData() {
         viewModelScope.launch {
             SettingsProvider.subGestureSettings.collectLatest { settings ->
@@ -168,6 +212,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
         val allSubGestures: List<SubGesture>? = null,
         val editingName: String = "",
         val showDeleteWarningDialog: Boolean = false,
+        val colorPickerDialog: Pair<Boolean, Color> = Pair(false, Color.Transparent),
     )
 
     sealed interface UiEvent

@@ -1,6 +1,7 @@
 package hunoia.sideleap.ui.screen.settings.gesture
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
@@ -36,6 +38,7 @@ import hunoia.sideleap.gesture.SubGestureDirection
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.settings.model.SubGesture
 import hunoia.sideleap.ui.component.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.ColorPickerDialog
 import hunoia.sideleap.ui.component.MyAlertDialog
 import hunoia.sideleap.ui.component.MyColumn
 import hunoia.sideleap.ui.component.SectionCard
@@ -113,6 +116,17 @@ fun SubGestureSettingsScreen(
             }
         }
 
+        if (uiState.colorPickerDialog.first) {
+            ColorPickerDialog(
+                onDismissRequest = { vm.colorPickerDialog.show(false) },
+                onColorPicked = { color ->
+                    vm.colorPickerDialog.onColorChange(color)
+                    vm.colorPickerDialog.confirm()
+                },
+                initialColor = uiState.colorPickerDialog.second
+            )
+        }
+
         Column {
             TopBar(
                 onBack = onBack,
@@ -165,17 +179,34 @@ fun SubGestureSettingsScreen(
                 ) {
                     TextActionButton(
                         onClick = { showGestureAngles = true },
-                        text = stringResource(id = R.string.sub_gesture_angles),
-                        secondaryText = subGestureAngleSummary(gesture.angle)
+                        text = stringResource(id = R.string.sub_gesture_angles)
+                    )
+                }
+
+                SectionCard(modifier = Modifier.padding(top = SectionPadding)) {
+                    TextActionButton(
+                        onClick = { vm.colorPickerDialog.show(true) },
+                        text = stringResource(id = R.string.gesture_button_color),
+                        prefix = {
+                            Box(
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .background(
+                                        color = Color(gesture.color),
+                                        shape = CircleShape
+                                    )
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.outlineVariant,
+                                        shape = CircleShape
+                                    )
+                            )
+                        }
                     )
                 }
             }
         }
     }
-}
-
-private fun subGestureAngleSummary(angle: hunoia.sideleap.settings.model.SubGestureAngle): String {
-    return angle.boundaries.joinToString(" / ") { "${(it * 360f).toInt()}°" }
 }
 
 private val SubGestureDirection.displayName: String get() = when (this) {
