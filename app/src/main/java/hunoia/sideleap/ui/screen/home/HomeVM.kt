@@ -13,6 +13,8 @@ import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent
 import hunoia.sideleap.ui.screen.home.HomeVM.UiState
 import hunoia.sideleap.settings.backup.BackupHelper
 import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.model.GestureSettings
+import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle
 import hunoia.sideleap.system.permission.isAccessibilitySettingsOn
 import hunoia.sideleap.system.permission.isIgnoringBatteryOptimizations
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -294,6 +296,48 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
+    fun onVirtualMouseChange(value: GestureSettings.VirtualMouse) {
+        updateUiState { it.copy(virtualMouse = value) }
+    }
+
+    fun saveVirtualMouseSettings() {
+        viewModelScope.launch {
+            SettingsProvider.updateGestureSettings {
+                it.copy(virtualMouse = uiState.virtualMouse)
+            }
+        }
+    }
+
+    fun onVirtualMouseContinuousModeChange(value: Boolean) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(continuousMode = value))
+        saveVirtualMouseSettings()
+    }
+
+    fun onVirtualMouseContinuousModeTimeoutChange(value: Long) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(continuousModeTimeoutMs = value))
+        saveVirtualMouseSettings()
+    }
+
+    fun onVirtualMouseClickAnimationChange(value: Boolean) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(clickAnimationEnabled = value))
+        saveVirtualMouseSettings()
+    }
+
+    fun onVirtualMouseTrailStyleChange(value: VirtualMouseTrailStyle) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(trailStyle = value))
+        saveVirtualMouseSettings()
+    }
+
+    fun onVirtualMouseLongPressEnabledChange(value: Boolean) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(longPressEnabled = value))
+        saveVirtualMouseSettings()
+    }
+
+    fun onVirtualMouseLongPressDelayChange(value: Long) {
+        onVirtualMouseChange(uiState.virtualMouse.copy(longPressDelayMs = value))
+        saveVirtualMouseSettings()
+    }
+
     fun updatePermissionState() {
         viewModelScope.launch {
             val app = hunoia.sideleap.core.AppContext.get()
@@ -372,6 +416,13 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                     }
                 }
             }
+            launch {
+                SettingsProvider.gestureSettings.collectLatest { settings ->
+                    updateUiState {
+                        it.copy(virtualMouse = settings.virtualMouse)
+                    }
+                }
+            }
         }
     }
 
@@ -387,7 +438,8 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         val isSideGestureButtonListExpanded: Boolean = false,
         val showMoreMenu: Boolean = false,
         val showResetWarningDialog: Boolean = false,
-        val showBackupRestoreDialog: Boolean = false
+        val showBackupRestoreDialog: Boolean = false,
+        val virtualMouse: GestureSettings.VirtualMouse = GestureSettings.VirtualMouse(),
     )
 
     sealed interface UiEvent {
