@@ -51,7 +51,6 @@ data class SubGestureAngle(
 
     companion object {
         val SECTOR_DIRECTIONS = listOf(
-            SubGestureDirection.Right,
             SubGestureDirection.UpRight,
             SubGestureDirection.Up,
             SubGestureDirection.UpLeft,
@@ -59,6 +58,7 @@ data class SubGestureAngle(
             SubGestureDirection.DownLeft,
             SubGestureDirection.Down,
             SubGestureDirection.DownRight,
+            SubGestureDirection.Right,
         )
     }
 }
