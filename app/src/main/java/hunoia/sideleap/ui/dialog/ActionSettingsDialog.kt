@@ -1,36 +1,42 @@
 package hunoia.sideleap.ui.dialog
 
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +48,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,33 +59,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import androidx.compose.foundation.basicMarquee
 import com.aaron.compose.component.LoadingComponent
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onClick
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
+import hunoia.sideleap.action.Action
+import hunoia.sideleap.action.GlobalActions
+import hunoia.sideleap.action.ShellCommandData
+import hunoia.sideleap.action.VirtualMouseActionData
+import hunoia.sideleap.action.display.actionText
+import hunoia.sideleap.core.serialization.JsonHelper
+
+import hunoia.sideleap.launcher.model.OpenAppOrUrlData
+import hunoia.sideleap.launcher.query.OpenAppOrUrlQuery
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxGotoBottomStrength
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxMoveScreenHover
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxMoveScreenRate
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinGotoBottomStrength
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinMoveScreenHover
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinMoveScreenRate
-import hunoia.sideleap.launcher.query.OpenAppOrUrlQuery
-import hunoia.sideleap.system.intent.normalizeOpenAppOrUrl
+import hunoia.sideleap.system.shizuku.ShizukuBinderExecutor
+import hunoia.sideleap.system.feedback.showToast
+import hunoia.sideleap.ui.component.MyTextSlider
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.SubMinInteractiveSize
-import hunoia.sideleap.ui.component.MyTextSlider
-
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.TextButton
-import androidx.compose.ui.platform.LocalContext
-import hunoia.sideleap.launcher.model.OpenAppOrUrlData
-import hunoia.sideleap.core.serialization.JsonHelper
-import hunoia.sideleap.action.ShellCommandData
-import hunoia.sideleap.action.VirtualMouseActionData
-import hunoia.sideleap.system.shizuku.ShizukuBinderExecutor
-import hunoia.sideleap.system.feedback.showToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -87,7 +96,7 @@ import kotlinx.coroutines.withContext
  */
 
 @Composable
-fun OpenAppOrUrlSettingsContent(
+fun ActivitySettingsContent(
     action: hunoia.sideleap.action.Action,
     onConfirm: (String) -> Unit
 ) {
@@ -97,12 +106,6 @@ fun OpenAppOrUrlSettingsContent(
         runCatching { JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data) }.getOrNull()
     }
 
-    var mode by remember { mutableStateOf(
-        when (existingData?.type) {
-            OpenAppOrUrlData.TYPE_URL -> 1
-            else -> 0
-        }
-    ) }
     var appQuery by remember { mutableStateOf("") }
     var selectedApp by remember {
         mutableStateOf(
@@ -111,13 +114,7 @@ fun OpenAppOrUrlSettingsContent(
             } else null
         )
     }
-    var selectedActivityClassName by remember {
-        mutableStateOf(
-            if (existingData?.type == OpenAppOrUrlData.TYPE_ACTIVITY) existingData.activityClassName else ""
-        )
-    }
     var activityQuery by remember { mutableStateOf("") }
-    var urlInput by remember { mutableStateOf(existingData?.url ?: "") }
 
     val filteredApps = launcherApps.filter {
         appQuery.isBlank() ||
@@ -138,9 +135,6 @@ fun OpenAppOrUrlSettingsContent(
         OpenAppOrUrlQuery.formatActivityOptionText(it, selectedApp?.packageName ?: "").contains(activityQuery, ignoreCase = true) ||
         it.className.contains(activityQuery, ignoreCase = true)
     }
-    val normalizedUrl = remember(urlInput) {
-        urlInput.trim().takeIf { it.isNotBlank() }?.let { normalizeOpenAppOrUrl(it) }
-    }
 
     Column(
         modifier = Modifier
@@ -148,225 +142,194 @@ fun OpenAppOrUrlSettingsContent(
             .padding(horizontal = ItemPadding),
         verticalArrangement = Arrangement.spacedBy(ItemPadding)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            listOf(
-                R.string.select_activity,
-                R.string.add_link
-            ).forEachIndexed { index, labelRes ->
-                Surface(
-                    onClick = { mode = index },
-                    shape = RoundedCornerShape(16.dp),
-                    color = if (mode == index) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.surfaceVariant
+        if (selectedApp == null) {
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = appQuery,
+                onValueChange = { appQuery = it },
+                label = { Text(stringResource(R.string.search_app_hint)) },
+                singleLine = true
+            )
+            if (appQuery.isBlank()) {
+                Text(
+                    text = stringResource(R.string.no_matching_results),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            } else if (filteredApps.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_matching_results),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 300.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(
-                        text = stringResource(labelRes),
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        color = if (mode == index) MaterialTheme.colorScheme.onPrimary
-                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelMedium
-                    )
+                    filteredApps.forEach { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedApp = item
+                                    appQuery = ""
+                                    activityQuery = ""
+                                }
+                                .padding(vertical = 6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(ItemPadding),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier.size(SubMinInteractiveSize),
+                                model = OpenAppOrUrlQuery.loadApplicationIcon(context, item.packageName),
+                                contentDescription = null,
+                                contentScale = ContentScale.Fit
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = item.label, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(
+                                    text = item.packageName,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            val app = selectedApp!!
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${app.label} (${app.packageName})",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                TextButton(onClick = { selectedApp = null }) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+            }
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = activityQuery,
+                onValueChange = { activityQuery = it },
+                label = { Text(stringResource(R.string.search_activity_hint)) },
+                singleLine = true
+            )
+            if (filteredActivities.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_matching_results),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 250.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    (if (activityQuery.isBlank()) activityOptions else filteredActivities).forEach { activity ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onConfirm(
+                                        JsonHelper.encodeToString(
+                                            OpenAppOrUrlData(
+                                                type = OpenAppOrUrlData.TYPE_ACTIVITY,
+                                                packageName = app.packageName,
+                                                activityClassName = activity.className
+                                            )
+                                        )
+                                    )
+                                }
+                                .padding(vertical = 6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(ItemPadding),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = null,
+                                modifier = Modifier.size(SubMinInteractiveSize)
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = OpenAppOrUrlQuery.formatActivityOptionText(activity, app.packageName),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = activity.className,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+}
 
-        when (mode) {
-            0 -> {
-                if (selectedApp == null) {
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = appQuery,
-                        onValueChange = { appQuery = it },
-                        label = { Text(stringResource(R.string.search_app_hint)) },
-                        singleLine = true
-                    )
-                    if (appQuery.isBlank()) {
-                        Text(
-                            text = stringResource(R.string.no_matching_results),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                    } else if (filteredApps.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.no_matching_results),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                    } else {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 300.dp)
-                                .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            filteredApps.forEach { item ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            selectedApp = item
-                                            selectedActivityClassName = activityOptions.firstOrNull()?.className.orEmpty()
-                                            appQuery = ""
-                                            activityQuery = ""
-                                        }
-                                        .padding(vertical = 6.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(ItemPadding),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    AsyncImage(
-                                        modifier = Modifier.size(SubMinInteractiveSize),
-                                        model = OpenAppOrUrlQuery.loadApplicationIcon(context, item.packageName),
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Fit
-                                    )
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(text = item.label, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        Text(
-                                            text = item.packageName,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    val app = selectedApp!!
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "${app.label} (${app.packageName})",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.weight(1f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        TextButton(onClick = { selectedApp = null }) {
-                            Text(text = stringResource(id = R.string.cancel))
-                        }
-                    }
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = activityQuery,
-                        onValueChange = { activityQuery = it },
-                        label = { Text(stringResource(R.string.search_activity_hint)) },
-                        singleLine = true
-                    )
-                    if (filteredActivities.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.no_matching_results),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                    } else {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 250.dp)
-                                .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            (if (activityQuery.isBlank()) activityOptions else filteredActivities).forEach { activity ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            onConfirm(
-                                                JsonHelper.encodeToString(
-                                                    OpenAppOrUrlData(
-                                                        type = OpenAppOrUrlData.TYPE_ACTIVITY,
-                                                        packageName = app.packageName,
-                                                        activityClassName = activity.className
-                                                    )
-                                                )
-                                            )
-                                        }
-                                        .padding(vertical = 6.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(ItemPadding),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SubMinInteractiveSize)
-                                    )
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = OpenAppOrUrlQuery.formatActivityOptionText(activity, app.packageName),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Text(
-                                            text = activity.className,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+@Composable
+fun UrlSettingsContent(
+    action: hunoia.sideleap.action.Action,
+    onConfirm: (String) -> Unit
+) {
+    val existingData = remember {
+        runCatching { JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data) }.getOrNull()
+    }
+    var urlInput by remember { mutableStateOf(existingData?.url ?: "") }
 
-            1 -> {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = urlInput,
-                    onValueChange = { urlInput = it },
-                    label = { Text(stringResource(R.string.url_link)) },
-                    singleLine = true
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ItemPadding),
+        verticalArrangement = Arrangement.spacedBy(ItemPadding)
+    ) {
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = urlInput,
+            onValueChange = { urlInput = it },
+            label = { Text(stringResource(R.string.url_link)) },
+            singleLine = true
+        )
+        TextButton(
+            modifier = Modifier.align(Alignment.End),
+            enabled = urlInput.isNotBlank(),
+            onClick = {
+                onConfirm(
+                    JsonHelper.encodeToString(
+                        OpenAppOrUrlData(
+                            type = OpenAppOrUrlData.TYPE_URL,
+                            url = urlInput.trim()
+                        )
+                    )
                 )
-                if (urlInput.isNotBlank()) {
-                    if (normalizedUrl != null) {
-                        Text(
-                            text = normalizedUrl,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    } else {
-                        Text(
-                            text = stringResource(R.string.invalid_url),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-                TextButton(
-                    modifier = Modifier.align(Alignment.End),
-                    enabled = normalizedUrl != null,
-                    onClick = {
-                        onConfirm(
-                            JsonHelper.encodeToString(
-                                OpenAppOrUrlData(
-                                    type = OpenAppOrUrlData.TYPE_URL,
-                                    url = normalizedUrl!!
-                                )
-                            )
-                        )
-                    }
-                ) {
-                    Icon(imageVector = Icons.Default.Check, contentDescription = null)
-                    Text(text = stringResource(id = R.string.confirm))
-                }
             }
+        ) {
+            Icon(imageVector = Icons.Default.Check, contentDescription = null)
+            Text(text = stringResource(id = R.string.confirm))
         }
     }
 }

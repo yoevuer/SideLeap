@@ -235,7 +235,8 @@
     <string name="action_click_current_position">模拟点击当前位置</string>
     <string name="action_virtual_mouse">虚拟鼠标</string>
     <string name="action_shell_command">执行 Shell 命令</string>
-    <string name="action_open_app_or_url">打开应用活动/链接</string>
+    <string name="action_open_activity">打开 Activity</string>
+    <string name="action_open_url">打开链接</string>
     <string name="action_quick_app_panel">快速启动面板</string>
     <string name="action_split_screen">应用分屏(7.0+)</string>
     <string name="action_desc_back">返回上一层界面</string>
@@ -245,7 +246,8 @@
     <string name="action_desc_lock_screen">关闭屏幕并锁定设备</string>
     <string name="action_desc_flashlight">切换手电筒开关</string>
     <string name="action_desc_screenshot">截取当前屏幕</string>
-    <string name="action_desc_open_app">打开应用、活动或链接</string>
+    <string name="action_desc_open_activity">启动指定 Activity</string>
+    <string name="action_desc_open_url">打开网页或链接</string>
     <string name="action_desc_quick_launcher">打开底部应用搜索抽屉</string>
     <string name="action_desc_virtual_mouse">滑动控制光标，松手点击</string>
     <string name="action_volume_scrub">滑动调节音量</string>
@@ -259,7 +261,8 @@
     <string name="action_setting_hint_previous_app">配置应用切换行为</string>
     <string name="action_setting_hint_move_screen">配置移动方向或位置</string>
     <string name="action_setting_hint_goto_bottom">配置滚动行为</string>
-    <string name="action_setting_hint_open_app_or_url">配置目标应用、Activity 或链接</string>
+    <string name="action_setting_hint_open_activity">选择目标 Activity</string>
+    <string name="action_setting_hint_open_url">输入链接</string>
     <string name="action_setting_hint_shell_command">输入 adb shell 后面的命令，例如 pm list packages</string>
     <string name="select_activity">选择活动</string>
     <string name="add_link">添加链接</string>
@@ -282,8 +285,7 @@
     <string name="no_available_apps">暂无可选应用</string>
     <string name="no_available_shortcuts">暂无可选快捷方式</string>
     <string name="search_hint_all">搜索</string>
-    <string name="open_app_or_url_card_title">打开 Activity / 链接</string>
-    <string name="open_app_or_url_card_desc">选择 Activity 或输入链接</string>
+
     <string name="search_clear_cd">清除</string>
     <string name="test">测试</string>
     <string name="testing">测试中...</string>

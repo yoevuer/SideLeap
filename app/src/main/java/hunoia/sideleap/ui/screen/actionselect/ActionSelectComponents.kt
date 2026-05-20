@@ -101,7 +101,6 @@ internal fun ActionPage(
     onShortcutClick: (LauncherInfo) -> Unit,
     modifier: Modifier = Modifier,
     subGestures: List<SubGesture> = emptyList(),
-    onOpenAppOrUrl: (() -> Unit)? = null,
     actions: List<Action>,
     appInfos: List<AppInfo>,
     createShortcuts: List<LauncherInfo>,
@@ -378,22 +377,7 @@ internal fun ActionPage(
                 }
             }
         }
-        if (selectedType == null && query.isBlank() && onOpenAppOrUrl != null) {
-            item(key = "open_app_or_url_card") {
-                Surface(onClick = onOpenAppOrUrl, shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = ContentPaddingHorizontal * 2, vertical = 8.dp)) {
-                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(MinIconSize))
-                        Column(modifier = Modifier.padding(start = 12.dp).weight(1f)) {
-                            Text(stringResource(R.string.open_app_or_url_card_title), style = MaterialTheme.typography.bodyLarge)
-                            Text(stringResource(R.string.open_app_or_url_card_desc), style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        }
-                        Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-        }
+
     }
 }
 

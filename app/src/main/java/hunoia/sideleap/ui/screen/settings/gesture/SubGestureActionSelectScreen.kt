@@ -95,8 +95,7 @@ fun SubGestureActionSelectContent(
                 onSelectApp = { appInfo, selected -> vm.select(appInfo, selected) },
                 onSelectShortcut = { shortcutInfo, selected -> vm.select(shortcutInfo, selected) },
                 onAppLongClick = { appInfo -> vm.toggleMiniWindow(appInfo) },
-                onShortcutClick = { },
-                onOpenAppOrUrl = { vm.showOpenAppOrUrlDialog() }
+                onShortcutClick = { }
             )
         }
     }
