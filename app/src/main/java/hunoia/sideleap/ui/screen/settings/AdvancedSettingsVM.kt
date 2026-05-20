@@ -44,10 +44,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
-    fun onBackActionDelayChange(value: Float) {
-        updateUiState { it.copy(backActionDelayMs = value.toLong().coerceIn(0L, 500L)) }
-    }
-
     fun onActionPanelAppLongPressLaunchPopupChanged(value: Boolean) {
         updateUiState {
             it.copy(actionPanelAppLongPressLaunchPopup = value)
@@ -145,7 +141,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                 it.copy(
                     animationStyles = it.animationStyles.copy(isAnimationEnabled = uiState.showAnimation),
                     fitSoftKeyboard = uiState.fitSoftKeyboard,
-                    backActionDelayMs = uiState.backActionDelayMs,
                     actionPanelAppLongPressLaunchPopup = uiState.actionPanelAppLongPressLaunchPopup,
                     quickLauncherAppLongPressLaunchPopup = uiState.quickLauncherAppLongPressLaunchPopup,
                     miniWindowHorizontalBias = uiState.miniWindowHorizontalBias,
@@ -181,7 +176,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                         it.copy(
                             showAnimation = item.animationStyles.isAnimationEnabled,
                             fitSoftKeyboard = item.fitSoftKeyboard,
-                            backActionDelayMs = item.backActionDelayMs,
                             actionPanelAppLongPressLaunchPopup = item.actionPanelAppLongPressLaunchPopup,
                             quickLauncherAppLongPressLaunchPopup = item.quickLauncherAppLongPressLaunchPopup,
                             miniWindowHorizontalBias = item.miniWindowHorizontalBias,
@@ -208,7 +202,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
     data class UiState(
         val showAnimation: Boolean = false,
         val fitSoftKeyboard: Boolean = false,
-        val backActionDelayMs: Long = 180L,
         val actionPanelAppLongPressLaunchPopup: Boolean = false,
         val quickLauncherAppLongPressLaunchPopup: Boolean = false,
         val miniWindowHorizontalBias: Float = 0.5f,

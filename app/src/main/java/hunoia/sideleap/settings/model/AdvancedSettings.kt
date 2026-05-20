@@ -11,7 +11,6 @@ import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.DynamicColor
 import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.ExcludeApps
 import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.ExcludeFromRecents
 import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.FitSoftKeyboard
-import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.BackActionDelayMs
 import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.HideHomeScreen
 import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.HideLandscape
 import hunoia.sideleap.settings.defaults.AdvancedSettingsDefaults.HideScreenLock
@@ -29,7 +28,6 @@ data class AdvancedSettings(
     val animationStyles: AnimationStyles = AnimationStyles,
     val actionPanelStyles: ActionPanelStyles = ActionPanelStyles,
     val fitSoftKeyboard: Boolean = FitSoftKeyboard,
-    val backActionDelayMs: Long = BackActionDelayMs,
     val actionPanelAppLongPressLaunchPopup: Boolean = ActionPanelAppLongPressLaunchPopup,
     val quickLauncherAppLongPressLaunchPopup: Boolean = QuickLauncherAppLongPressLaunchPopup,
     val miniWindowHorizontalBias: Float = MiniWindowHorizontalBias,
