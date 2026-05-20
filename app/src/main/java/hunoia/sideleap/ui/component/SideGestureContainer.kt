@@ -201,14 +201,14 @@ fun SideGestureContainer(
         virtualMouseLongPressAnchor = Offset.Unspecified
     }
 
-    fun clearSubGestureMode() {
+    fun clearSubGestureMode(notifyService: Boolean = true) {
         activeSubGesture = null
         subGestureAccum = Offset.Zero
         subGestureDepth = 0
         subGestureTouchCount = 0
         subGestureTimeoutJob?.cancel()
         subGestureTimeoutJob = null
-        curOnSubGestureModeChanged(false)
+        if (notifyService) curOnSubGestureModeChanged(false)
     }
 
     fun scheduleSubGestureTimeout() {
@@ -270,8 +270,34 @@ fun SideGestureContainer(
                     val action = activeSubGesture!!.actionFor(direction)
                     subGestureAccum = Offset.Zero
                     if (action != null && action != Action.NONE) {
-                        handleResolvedAction(action, sideGestureState.button, sideGestureState.finger)
-                        if (action.value != GlobalActions.SUB_GESTURE) clearSubGestureMode()
+                        when (action.value) {
+                            GlobalActions.VOLUME_SCRUB -> {
+                                isVolumeScrubMode = true
+                                volumeScrubAccumulator = 0f
+                                sideGestureState.cancel()
+                                clearSubGestureMode(notifyService = false)
+                            }
+                            GlobalActions.VIRTUAL_MOUSE -> {
+                                startVirtualMouseMode(action)
+                                sideGestureState.cancel()
+                                clearSubGestureMode(notifyService = false)
+                            }
+                            GlobalActions.MOVE_SCREEN -> {
+                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                    showVersionTooLowToast(context, R.string.action_move_screen)
+                                    sideGestureState.cancel()
+                                    clearSubGestureMode(notifyService = false)
+                                } else {
+                                    moveScreenState.onDragStart(sideGestureState.finger)
+                                    sideGestureState.cancel()
+                                    clearSubGestureMode(notifyService = false)
+                                }
+                            }
+                            else -> {
+                                handleResolvedAction(action, sideGestureState.button, sideGestureState.finger)
+                                if (action.value != GlobalActions.SUB_GESTURE) clearSubGestureMode()
+                            }
+                        }
                     }
                 }
                 return@onDrag
@@ -364,10 +390,12 @@ fun SideGestureContainer(
                 return@onDragEnd
             }
             if (isVirtualMouseMode) {
+                curOnSubGestureModeChanged(false)
                 finishVirtualMouseMode(click = true)
                 return@onDragEnd
             }
             if (isVolumeScrubMode) {
+                curOnSubGestureModeChanged(false)
                 isVolumeScrubMode = false
                 volumeScrubAccumulator = 0f
                 return@onDragEnd
@@ -407,10 +435,12 @@ fun SideGestureContainer(
                 return@onDragCancel
             }
             if (isVirtualMouseMode) {
+                curOnSubGestureModeChanged(false)
                 finishVirtualMouseMode(click = false)
                 return@onDragCancel
             }
             if (isVolumeScrubMode) {
+                curOnSubGestureModeChanged(false)
                 isVolumeScrubMode = false
                 volumeScrubAccumulator = 0f
                 return@onDragCancel
