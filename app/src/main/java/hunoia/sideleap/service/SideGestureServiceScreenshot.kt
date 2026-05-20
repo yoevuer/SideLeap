@@ -9,7 +9,7 @@ import com.blankj.utilcode.util.ScreenUtils
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-@RequiresApi(Build.VERSION_CODES.R)
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 suspend fun SideGestureService.takeScreenshot(): Bitmap? = suspendCancellableCoroutine { cont ->
     takeScreenshot(0, applicationContext.mainExecutor, object : AccessibilityService.TakeScreenshotCallback {
         override fun onSuccess(screenshotResult: AccessibilityService.ScreenshotResult) {

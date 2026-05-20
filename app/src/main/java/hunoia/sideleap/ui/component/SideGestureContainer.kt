@@ -339,7 +339,7 @@ fun SideGestureContainer(
                             startVirtualMouseMode(action)
                             sideGestureState.cancel()
                         } else if (action.value == GlobalActions.MOVE_SCREEN) {
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                                 showVersionTooLowToast(context, R.string.action_move_screen)
                                 sideGestureState.cancel()
                                 return@onDrag
@@ -383,6 +383,7 @@ fun SideGestureContainer(
                 val action = moveScreenState.done()
                 moveScreenState.onDragEnd()
                 handleResolvedAction(action, sideGestureState.button, touchPosition)
+                return@onDragEnd
             }
 
             if (!sideGestureState.isCanceled) {
@@ -442,11 +443,14 @@ fun SideGestureContainer(
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && moveScreenState.visible) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && moveScreenState.visible) {
             var screenshot by remember { mutableStateOf<Bitmap?>(null) }
             LaunchedEffect(Unit) {
-                delay(20)
-                screenshot = onTakeScreenshot?.invoke()
+                screenshot = try {
+                    onTakeScreenshot?.invoke()
+                } catch (_: Exception) {
+                    null
+                }
             }
             val ss = screenshot
             if (ss != null) {

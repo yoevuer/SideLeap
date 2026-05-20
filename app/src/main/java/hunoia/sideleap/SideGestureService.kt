@@ -303,7 +303,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                             performVirtualMouseActionAtPosition(x, y, keepActive, action)
                         },
                         onTakeScreenshot = {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                                 screenshotService.takeScreenshot()
                             } else null
                         },
