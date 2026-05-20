@@ -93,8 +93,8 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
                     b.id == curButton.id && b.position != curButton.position
                 }
                 if (anotherSideButton != null) {
-                    val index = list.indexOf(curButton)
-                    list[index] = anotherSideButton.copy(position = curButton.position)
+                    val index = list.indexOf(anotherSideButton)
+                    list[index] = curButton.copy(position = anotherSideButton.position)
                 }
             }
             it.copy(gestureButtons = l)
