@@ -278,10 +278,24 @@ private fun selectDragTarget(
 ): Int? {
     if (candidates.isEmpty()) return null
     if (candidates.size == 1) return candidates.first()
+
+    val inRange = candidates.filter { i ->
+        val prev = angle.boundaries[(i + 7) % 8]
+        val next = angle.boundaries[(i + 1) % 8]
+        if (prev < next) newP in prev..next
+        else newP >= prev || newP <= next
+    }
+
+    when (inRange.size) {
+        1 -> return inRange.first()
+        0 -> { /* fall through to baseline heuristic */ }
+        else -> return inRange.minBy { normalizedDiff(newP, angle.boundaries[it]) }
+    }
+
     val baseline = candidates.map { angle.boundaries[it] }.average().toFloat()
     return if (newP >= baseline) {
-        candidates.maxBy { it }
+        candidates.maxBy { angle.boundaries[it] }
     } else {
-        candidates.minBy { it }
+        candidates.minBy { angle.boundaries[it] }
     }
 }
