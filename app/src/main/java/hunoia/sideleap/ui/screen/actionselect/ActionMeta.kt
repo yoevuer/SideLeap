@@ -78,5 +78,6 @@ val ActionCategory.displayName: String get() = when (this) {
     ActionCategory.SYSTEM -> "系统"
     ActionCategory.WINDOW -> "窗口"
     ActionCategory.LAUNCHER -> "启动"
+    ActionCategory.SUB_GESTURE -> "子手势"
     ActionCategory.TOOL -> "工具"
 }

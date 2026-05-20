@@ -40,7 +40,7 @@ object ActionCatalog {
         ActionDefinition(GlobalActions.HIDE_GESTURE_BUTTON, ActionCategory.SYSTEM, ActionConfigKind.HIDE_GESTURE_BUTTON, "hide_gesture_button", "hide_gesture_button"),
         ActionDefinition(GlobalActions.VOLUME_SCRUB, ActionCategory.SYSTEM, ActionConfigKind.NONE, "volume_scrub", "volume_scrub"),
         ActionDefinition(GlobalActions.EXECUTE_SHELL_COMMAND, ActionCategory.TOOL, ActionConfigKind.SHELL_COMMAND, "shell_command", "shell_command"),
-        ActionDefinition(GlobalActions.SUB_GESTURE, ActionCategory.TOOL, ActionConfigKind.NONE, "sub_gesture", "sub_gesture", isDisplayed = false),
+        ActionDefinition(GlobalActions.SUB_GESTURE, ActionCategory.SUB_GESTURE, ActionConfigKind.NONE, "sub_gesture", "sub_gesture", isDisplayed = false),
     )
 
     private val byIdMap: Map<String, ActionDefinition> = definitions.associateBy { it.actionId }

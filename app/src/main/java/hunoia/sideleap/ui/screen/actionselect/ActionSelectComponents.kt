@@ -125,7 +125,7 @@ internal fun ActionPage(
             add(ActionCategory.NAVIGATION to ActionCategory.NAVIGATION.displayName)
             add(ActionCategory.SYSTEM to ActionCategory.SYSTEM.displayName)
             add(ActionCategory.TOOL to ActionCategory.TOOL.displayName)
-            add("sub_gesture" to context.getString(R.string.sub_gesture))
+            add(ActionCategory.SUB_GESTURE to ActionCategory.SUB_GESTURE.displayName)
             add("app" to context.getString(R.string.tab_apps))
             add("shortcut" to context.getString(R.string.tab_shortcuts))
         }
