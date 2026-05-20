@@ -2,11 +2,10 @@ package hunoia.sideleap.ui.component
 
 import android.graphics.Bitmap
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.view.ViewConfiguration
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -470,23 +469,6 @@ fun SideGestureContainer(
             }
         }
 
-        if (sideGestureState.retractProgress in 0f..1f) {
-            LaunchedEffect(Unit) {
-                animate(
-                    initialValue = 0f,
-                    targetValue = 1f,
-                    animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing)
-                ) { value, _ ->
-                    val eased = 1f - (1f - value) * (1f - value)
-                    sideGestureState.fingerXDisplay = sideGestureState.retractStartX +
-                        (sideGestureState.retractTargetX - sideGestureState.retractStartX) * eased
-                    sideGestureState.fingerYDisplay = sideGestureState.retractStartY +
-                        (sideGestureState.retractTargetY - sideGestureState.retractStartY) * eased
-                }
-                sideGestureState.endRetract()
-            }
-        }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && moveScreenState.visible) {
             var screenshot by remember { mutableStateOf<Bitmap?>(null) }
             LaunchedEffect(Unit) {
@@ -584,10 +566,17 @@ class SideGestureState(
     private var isOhoGestureEverCanTriggered = false
 
     private var slideVibrationFlags = false
+    private var animationRunnable: Runnable? = null
+    private val handler = Handler(Looper.getMainLooper())
 
     private val viewConfiguration = ViewConfiguration.get(hunoia.sideleap.core.AppContext.get())
 
     fun onDragStart(offset: Offset, imePadding: Int) {
+        animationRunnable?.let { handler.removeCallbacks(it) }
+        if (retractProgress in 0f..1f) {
+            fingerXDisplay = retractTargetX
+            fingerYDisplay = retractTargetY
+        }
         endRetract()
         fingerXDisplay = Float.NaN
         fingerYDisplay = Float.NaN
@@ -732,6 +721,7 @@ class SideGestureState(
 
         startRetract()
         reset()
+        launchRetractAnim()
         return returnAction
     }
 
@@ -739,6 +729,7 @@ class SideGestureState(
         if (isCanceled) return
         startRetract()
         reset()
+        launchRetractAnim()
         isCanceled = true
     }
 
@@ -747,6 +738,8 @@ class SideGestureState(
     }
 
     fun reset() {
+        animationRunnable?.let { handler.removeCallbacks(it) }
+        animationRunnable = null
         calcLongPressJob?.cancel()
         calcLongPressJob = null
         isCanceled = false
@@ -773,6 +766,32 @@ class SideGestureState(
         retractStartY = Float.NaN
         retractTargetX = Float.NaN
         retractTargetY = Float.NaN
+    }
+
+    private fun launchRetractAnim() {
+        if (retractProgress !in 0f..1f) return
+        animationRunnable?.let { handler.removeCallbacks(it) }
+        val startMs = SystemClock.uptimeMillis()
+        val sx = retractStartX; val sy = retractStartY
+        val tx = retractTargetX; val ty = retractTargetY
+        val r = object : Runnable {
+            override fun run() {
+                if (retractProgress !in 0f..1f) return
+                val elapsed = SystemClock.uptimeMillis() - startMs
+                if (elapsed >= 180L) {
+                    fingerXDisplay = tx; fingerYDisplay = ty
+                    endRetract()
+                    return
+                }
+                val fraction = elapsed.toFloat() / 180f
+                val eased = 1f - (1f - fraction) * (1f - fraction)
+                fingerXDisplay = sx + (tx - sx) * eased
+                fingerYDisplay = sy + (ty - sy) * eased
+                handler.postDelayed(this, 16)
+            }
+        }
+        animationRunnable = r
+        handler.post(r)
     }
 
     fun canDistanceTriggered(button: GestureButton, isLongSlide: Boolean, judgeAction: Boolean = true): Boolean {
