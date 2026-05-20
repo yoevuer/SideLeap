@@ -71,6 +71,7 @@ import hunoia.sideleap.ui.gesture.buttonTextCompose
 import hunoia.sideleap.system.intent.gotoAccessibilitySettings
 import hunoia.sideleap.system.intent.gotoIgnoreBatteryOptimizations
 import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent
+import hunoia.sideleap.ui.screen.freeze.FrozenAppManageContent
 import hunoia.sideleap.ui.theme.ContentPaddingHorizontal
 import hunoia.sideleap.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.sideleap.ui.theme.ItemPadding
@@ -108,14 +109,14 @@ fun HomeScreen(
     onNavToUnlock: () -> Unit,
     onNavToAdvancedSettings: () -> Unit,
     onNavToGestureSettings: () -> Unit,
-    onNavToFrozenAppManage: () -> Unit,
     onNavToGestureButtonSettings: (GestureButton) -> Unit,
     onNavToSubGestureEditor: (String) -> Unit,
     vm: HomeVM = viewModel()
 ) {
-    val scrollState = rememberScrollState()
-    var showVirtualMouseSettings by remember { mutableStateOf(false) }
-    var showDisplaySettings by remember { mutableStateOf(false) }
+        val scrollState = rememberScrollState()
+        var showVirtualMouseSettings by remember { mutableStateOf(false) }
+        var showFrozenManage by remember { mutableStateOf(false) }
+        var showDisplaySettings by remember { mutableStateOf(false) }
     var showAnimationStyle by remember { mutableStateOf(false) }
     val context = LocalContext.current
     UDFComponent(
@@ -228,6 +229,14 @@ fun HomeScreen(
                     }
                 }
             }
+            if (showFrozenManage) {
+                ModalBottomSheet(
+                    onDismissRequest = { showFrozenManage = false },
+                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                ) {
+                    FrozenAppManageContent(onDismiss = { showFrozenManage = false })
+                }
+            }
             Column {
                 TopBar(
                     onBack = { },
@@ -316,7 +325,7 @@ fun HomeScreen(
                             secondaryText = stringResource(id = R.string.gesture_settings_hint)
                         )
                         TextActionButton(
-                            onClick = onNavToFrozenAppManage,
+                            onClick = { showFrozenManage = true },
                             text = stringResource(id = R.string.frozen_app_manage)
                         )
                         TextActionButton(

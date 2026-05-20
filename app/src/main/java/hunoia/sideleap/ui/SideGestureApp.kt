@@ -27,7 +27,6 @@ import androidx.navigation.toRoute
 import hunoia.sideleap.ui.navigation.AdvancedSettings
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.ui.navigation.GestureSettings
-import hunoia.sideleap.ui.navigation.FrozenAppManage
 import hunoia.sideleap.ui.navigation.Home
 import hunoia.sideleap.ui.navigation.SubGestureEditor
 import hunoia.sideleap.ui.navigation.Unlock
@@ -36,7 +35,6 @@ import hunoia.sideleap.ui.screen.settings.AdvancedSettingsScreen
 import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonSettingsScreen
 import hunoia.sideleap.ui.screen.settings.gesture.GestureSettingsScreen
 import hunoia.sideleap.ui.screen.settings.gesture.SubGestureSettingsScreen
-import hunoia.sideleap.ui.screen.freeze.FrozenAppManageScreen
 import hunoia.sideleap.ui.screen.home.HomeScreen
 import hunoia.sideleap.ui.screen.unlock.UnlockScreen
 import hunoia.sideleap.ui.theme.SideGestureTheme
@@ -78,7 +76,6 @@ fun SideGestureApp() {
                         onNavToUnlock = { navController.navigate(Unlock) },
                         onNavToAdvancedSettings = { navController.navigate(AdvancedSettings) },
                         onNavToGestureSettings = { navController.navigate(GestureSettings) },
-                        onNavToFrozenAppManage = { navController.navigate(FrozenAppManage) },
                         onNavToGestureButtonSettings = { button ->
                             navController.navigate(GestureButtonSettings(button.id, button.position))
                         },
@@ -98,9 +95,6 @@ fun SideGestureApp() {
                 }
                 myComposable<GestureButtonSettings> {
                     GestureButtonSettingsScreen(onBack = { navController.navigateUp() })
-                }
-                myComposable<FrozenAppManage> {
-                    FrozenAppManageScreen(onBack = { navController.navigateUp() })
                 }
                 myComposable<SubGestureEditor> {
                     SubGestureSettingsScreen(
