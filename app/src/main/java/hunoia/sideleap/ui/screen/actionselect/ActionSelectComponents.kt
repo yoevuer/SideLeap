@@ -478,16 +478,6 @@ internal fun ActionItem(
                     }
                 }
             }
-            val descRes = def?.let { actionDescResMap[it.titleKey] }
-            if (descRes != null) {
-                Text(
-                    text = stringResource(descRes),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
         }
         if (!selectSingle) {
             Checkbox(
