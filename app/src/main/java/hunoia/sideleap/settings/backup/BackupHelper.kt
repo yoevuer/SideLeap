@@ -142,13 +142,9 @@ object BackupHelper {
         installedPackages: Set<String>
     ): hunoia.sideleap.settings.model.FrozenAppSettings? {
         settings ?: return null
-        val protected = settings.protectedPackageNames.filterTo(mutableSetOf()) { it in installedPackages }
         val oneKey = settings.oneKeyPackageNames
-            .filterTo(mutableSetOf()) { it in installedPackages && it !in protected }
-        return settings.copy(
-            oneKeyPackageNames = oneKey,
-            protectedPackageNames = protected
-        )
+            .filterTo(mutableSetOf()) { it in installedPackages }
+        return settings.copy(oneKeyPackageNames = oneKey)
     }
 
     private fun queryInstalledPackageNames(context: Context): Set<String> {

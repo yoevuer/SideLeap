@@ -34,7 +34,6 @@ data class FreezeResult(
 
 data class OneKeyFreezeResult(
     val oneKeyCount: Int,
-    val protectedCount: Int,
     val targetCount: Int,
     val candidateCount: Int,
     val successCount: Int
@@ -129,9 +128,8 @@ object FreezeAction {
         val settings = SettingsProvider.getFrozenAppSettings()
         val showSystemApps = settings.showSystemAppsInManagePage
         val oneKeySet = settings.oneKeyPackageNames
-        val protectedSet = settings.protectedPackageNames
 
-        val rawTargets = oneKeySet - protectedSet
+        val rawTargets = oneKeySet
 
         val pm = context.packageManager
         val installedTargets = mutableListOf<String>()
@@ -150,7 +148,7 @@ object FreezeAction {
             installedTargets.add(pkg)
         }
 
-        Log.i("OneKeyFreeze", "oneKeySet=${oneKeySet.size} protectedSet=${protectedSet.size} " +
+        Log.i("OneKeyFreeze", "oneKeySet=${oneKeySet.size} " +
             "rawTargets=${rawTargets.size} installedTargets=${installedTargets.size}")
 
         val frozenState = FreezeState.queryFrozenStateByPackage(context, installedTargets)
@@ -174,7 +172,6 @@ object FreezeAction {
 
         OneKeyFreezeResult(
             oneKeyCount = oneKeySet.size,
-            protectedCount = protectedSet.size,
             targetCount = installedTargets.size,
             candidateCount = candidates.size,
             successCount = successCount
@@ -230,7 +227,6 @@ object FreezeAction {
         }
         OneKeyFreezeResult(
             oneKeyCount = successCount,
-            protectedCount = 0,
             targetCount = successCount,
             candidateCount = successCount,
             successCount = successCount
@@ -255,7 +251,6 @@ object FreezeAction {
 
         OneKeyFreezeResult(
             oneKeyCount = targets.size,
-            protectedCount = 0,
             targetCount = targets.size,
             candidateCount = candidates.size,
             successCount = successCount
@@ -264,13 +259,11 @@ object FreezeAction {
 
     fun computeOneKeyTargetsInRange(
         apps: List<hunoia.sideleap.launcher.model.AppInfo>,
-        oneKeyPackageNames: Set<String>,
-        protectedPackageNames: Set<String>
+        oneKeyPackageNames: Set<String>
     ): List<String> {
         return apps
             .asSequence()
             .map { it.packageName }
-            .filter { it !in protectedPackageNames }
             .distinct()
             .filter { it in oneKeyPackageNames }
             .toList()

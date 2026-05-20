@@ -12,8 +12,7 @@ class FreezeActionTest {
     fun computeOneKeyTargetsInRange_emptyInput() {
         val result = FreezeAction.computeOneKeyTargetsInRange(
             apps = emptyList(),
-            oneKeyPackageNames = setOf("com.example.app"),
-            protectedPackageNames = emptySet()
+            oneKeyPackageNames = setOf("com.example.app")
         )
         assertTrue(result.isEmpty())
     }
@@ -27,23 +26,7 @@ class FreezeActionTest {
         )
         val result = FreezeAction.computeOneKeyTargetsInRange(
             apps = apps,
-            oneKeyPackageNames = setOf("com.example.app1", "com.example.app3"),
-            protectedPackageNames = emptySet()
-        )
-        assertEquals(listOf("com.example.app1", "com.example.app3"), result)
-    }
-
-    @Test
-    fun computeOneKeyTargetsInRange_filtersProtected() {
-        val apps = listOf(
-            AppInfo("com.example.app1", "", "App 1"),
-            AppInfo("com.example.app2", "", "App 2"),
-            AppInfo("com.example.app3", "", "App 3"),
-        )
-        val result = FreezeAction.computeOneKeyTargetsInRange(
-            apps = apps,
-            oneKeyPackageNames = setOf("com.example.app1", "com.example.app2", "com.example.app3"),
-            protectedPackageNames = setOf("com.example.app2")
+            oneKeyPackageNames = setOf("com.example.app1", "com.example.app3")
         )
         assertEquals(listOf("com.example.app1", "com.example.app3"), result)
     }
@@ -57,8 +40,7 @@ class FreezeActionTest {
         )
         val result = FreezeAction.computeOneKeyTargetsInRange(
             apps = apps,
-            oneKeyPackageNames = setOf("com.example.app1", "com.example.app2"),
-            protectedPackageNames = emptySet()
+            oneKeyPackageNames = setOf("com.example.app1", "com.example.app2")
         )
         assertEquals(listOf("com.example.app1", "com.example.app2"), result)
     }
@@ -71,8 +53,7 @@ class FreezeActionTest {
         )
         val result = FreezeAction.computeOneKeyTargetsInRange(
             apps = apps,
-            oneKeyPackageNames = setOf("com.example.app1"),
-            protectedPackageNames = emptySet()
+            oneKeyPackageNames = setOf("com.example.app1")
         )
         assertEquals(listOf("com.example.app1"), result)
     }
