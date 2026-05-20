@@ -20,13 +20,14 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.Icons
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
@@ -71,7 +72,15 @@ fun FrozenAppManageScreen(
                         vm.commitSelections()
                         onBack()
                     },
-                    title = stringResource(id = R.string.frozen_app_manage)
+                    title = stringResource(id = R.string.frozen_app_manage),
+                    actions = {
+                        IconButton(onClick = { vm.reloadApps() }) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = stringResource(id = R.string.refresh)
+                            )
+                        }
+                    }
                 )
             },
             floatingActionButton = {
@@ -179,11 +188,6 @@ fun FrozenAppManageScreen(
                         .weight(1f)
                         .fillMaxWidth()
                 ) {
-                    PullToRefreshBox(
-                        isRefreshing = uiState.refreshing,
-                        onRefresh = { vm.reloadApps() },
-                        modifier = Modifier.fillMaxSize()
-                    ) {
                     LazyVerticalGrid(
                         state = gridState,
                         columns = GridCells.Fixed(4),
@@ -284,13 +288,7 @@ fun FrozenAppManageScreen(
                         }
                     }
                 }
-            }
         }
-        }
-
-        BackHandler {
-            vm.commitSelections()
-            onBack()
         }
 
         BackHandler {

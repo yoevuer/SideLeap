@@ -8,6 +8,7 @@ import android.os.SystemClock
 import android.view.ViewConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -450,6 +451,16 @@ fun SideGestureContainer(
             sideGestureState.onDragCancel()
         }
     )
+    DisposableEffect(Unit) {
+        onDispose {
+            if (sideGestureState.retractProgress in 0f..1f) {
+                _savedOriginX = sideGestureState.originXAnimVal
+                _savedOriginY = sideGestureState.originYAnimVal
+                _savedFingerX = sideGestureState.retractTargetX
+                _savedFingerY = sideGestureState.retractTargetY
+            }
+        }
+    }
     Box(modifier = modifier) {
         ActionPanel(
             actionPanelStyle = actionPanelStyle,
@@ -509,6 +520,11 @@ private fun Action.withTouchPosition(position: Offset): Action {
     return withRuntimeTouchPosition(position.x.roundToInt(), position.y.roundToInt())
 }
 
+private var _savedOriginX = Float.NaN
+private var _savedOriginY = Float.NaN
+private var _savedFingerX = Float.NaN
+private var _savedFingerY = Float.NaN
+
 @Composable
 private fun rememberSideGestureState(
     buttons: List<GestureButton>,
@@ -517,7 +533,18 @@ private fun rememberSideGestureState(
 ): SideGestureState {
     val coroutineScope = rememberCoroutineScope()
     return remember(coroutineScope, buttons, advancedSettings, gestureSettings) {
-        SideGestureState(coroutineScope, buttons, advancedSettings, gestureSettings)
+        SideGestureState(coroutineScope, buttons, advancedSettings, gestureSettings).also {
+            if (_savedFingerX.isFinite()) {
+                it.originXAnimVal = _savedOriginX
+                it.originYAnimVal = _savedOriginY
+                it.fingerXDisplay = _savedFingerX
+                it.fingerYDisplay = _savedFingerY
+                _savedOriginX = Float.NaN
+                _savedOriginY = Float.NaN
+                _savedFingerX = Float.NaN
+                _savedFingerY = Float.NaN
+            }
+        }
     }
 }
 
@@ -542,8 +569,8 @@ class SideGestureState(
         private set
     private var buttonBounds: Rect? = null
 
-    var originXAnimVal by mutableStateOf(Float.NaN); private set
-    var originYAnimVal by mutableStateOf(Float.NaN); private set
+    var originXAnimVal by mutableStateOf(Float.NaN)
+    var originYAnimVal by mutableStateOf(Float.NaN)
     val fingerXAnimVal: Float get() = fingerXDisplay
     val fingerYAnimVal: Float get() = fingerYDisplay
     var fingerXDisplay by mutableStateOf(Float.NaN)
