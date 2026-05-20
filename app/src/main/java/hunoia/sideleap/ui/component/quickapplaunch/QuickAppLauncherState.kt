@@ -70,18 +70,7 @@ class QuickAppLauncherState(
     }
 
     val visibleApps: List<AppInfo>
-        get() {
-            val hiddenApps = launcherSettings.hiddenApps
-            return appListState.apps.filter { app ->
-                if (hiddenApps.contains(app.key())) {
-                    false
-                } else if (app.className.isEmpty()) {
-                    hiddenApps.none { it.startsWith("${app.packageName}/") }
-                } else {
-                    true
-                }
-            }
-        }
+        get() = appListState.apps
 
     val filteredApps: List<AppInfo>
         get() = sortApps(visibleApps, launcherSettings, tokens)

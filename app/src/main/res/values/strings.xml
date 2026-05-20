@@ -53,7 +53,6 @@
     <string name="mini_window_vertical_offset">小窗垂直位置补偿</string>
     <string name="hide_gesture_button">隐藏触钮</string>
     <string name="landscape">横屏模式</string>
-    <string name="manage_hidden_apps">管理隐藏应用</string>
     <string name="frozen_app_manage">冻结应用管理</string>
     <string name="frozen_app_count_info">已选：%1$d｜已冻结：%2$d</string>
     <string name="one_key_list">一键名单</string>

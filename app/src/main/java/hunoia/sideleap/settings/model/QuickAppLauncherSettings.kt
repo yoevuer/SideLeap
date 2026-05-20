@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Keep
 data class QuickAppLauncherSettings(
-    val hiddenApps: Set<String> = emptySet(),
     val recentLaunchTime: Map<String, Long> = emptyMap(),
     val launchCount: Map<String, Long> = emptyMap(),
     val showSystemApps: Boolean = true,

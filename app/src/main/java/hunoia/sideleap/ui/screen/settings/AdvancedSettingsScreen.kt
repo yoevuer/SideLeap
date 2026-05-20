@@ -45,7 +45,6 @@ import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleContent
 import hunoia.sideleap.ui.screen.freeze.AppBlacklistContent
-import hunoia.sideleap.ui.screen.quicklauncher.QuickAppLauncherManageContent
 import hunoia.sideleap.ui.component.BottomSheetNestedContent
 import hunoia.sideleap.ui.component.MyColumn
 import hunoia.sideleap.ui.component.MyAlertDialog
@@ -68,7 +67,6 @@ fun AdvancedSettingsScreen(
     vm: AdvancedSettingsVM = viewModel()
 ) {
     var showAppBlacklist by remember { mutableStateOf(false) }
-    var showQuickAppHidden by remember { mutableStateOf(false) }
     var showAnimationStyle by remember { mutableStateOf(false) }
     var showMiniWindowSettings by remember { mutableStateOf(false) }
     UDFComponent(component = vm.udfComponent, onEvent = {}) { uiState ->
@@ -86,10 +84,6 @@ fun AdvancedSettingsScreen(
                         onClick = { showAppBlacklist = true },
                         text = stringResource(id = R.string.exclude_app),
                         secondaryText = stringResource(id = R.string.exclude_app_hint)
-                    )
-                    TextActionButton(
-                        onClick = { showQuickAppHidden = true },
-                        text = stringResource(id = R.string.manage_hidden_apps)
                     )
                     TextActionButton(
                         onClick = { confirmClear = true },
@@ -260,16 +254,6 @@ fun AdvancedSettingsScreen(
             ) {
                 BottomSheetNestedContent {
                     AppBlacklistContent(onDismiss = { showAppBlacklist = false })
-                }
-            }
-        }
-        if (showQuickAppHidden) {
-            ModalBottomSheet(
-                onDismissRequest = { showQuickAppHidden = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-            ) {
-                BottomSheetNestedContent {
-                    QuickAppLauncherManageContent(onDismiss = { showQuickAppHidden = false })
                 }
             }
         }
