@@ -14,8 +14,8 @@ android {
         applicationId = "hunoia.sideleap"
         minSdk = 33
         targetSdk = 36
-        versionCode = 10600
-        versionName = "1.6.0"
+        versionCode = 10601
+        versionName = "1.6.1"
 
         ndk {
             abiFilters += listOf("arm64-v8a")
