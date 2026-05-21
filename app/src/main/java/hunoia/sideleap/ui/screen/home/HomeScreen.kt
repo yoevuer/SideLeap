@@ -237,7 +237,9 @@ fun HomeScreen(
                     onDismissRequest = { showFrozenManage = false },
                     sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                 ) {
-                    FrozenAppManageContent(onDismiss = { showFrozenManage = false })
+                    BottomSheetNestedContent {
+                        FrozenAppManageContent(onDismiss = { showFrozenManage = false })
+                    }
                 }
             }
             if (showMiniWindowSettings) {
@@ -327,23 +329,28 @@ fun HomeScreen(
                                 }
                             },
                             checked = uiState.isGestureEnabled,
-                            text = stringResource(id = R.string.gesture_switch)
+                            text = stringResource(id = R.string.gesture_switch),
+                            secondaryText = stringResource(id = R.string.gesture_switch_hint)
                         )
                         TextActionButton(
                             onClick = onNavToAdvancedSettings,
-                            text = stringResource(id = R.string.advanced_settings)
+                            text = stringResource(id = R.string.advanced_settings),
+                            secondaryText = stringResource(id = R.string.advanced_settings_hint)
                         )
                         TextActionButton(
                             onClick = onNavToGestureSettings,
-                            text = stringResource(id = R.string.gesture_settings)
+                            text = stringResource(id = R.string.gesture_settings),
+                            secondaryText = stringResource(id = R.string.gesture_settings_hint)
                         )
                         TextActionButton(
                             onClick = { showFrozenManage = true },
-                            text = stringResource(id = R.string.frozen_app_manage)
+                            text = stringResource(id = R.string.frozen_app_manage),
+                            secondaryText = stringResource(id = R.string.frozen_app_manage_hint)
                         )
                         TextActionButton(
                             onClick = { showDisplaySettings = true },
-                            text = stringResource(id = R.string.display)
+                            text = stringResource(id = R.string.display),
+                            secondaryText = stringResource(id = R.string.display_hint)
                         )
                     }
 
@@ -353,7 +360,8 @@ fun HomeScreen(
                     ) {
                         TextActionButton(
                             onClick = { showVirtualMouseSettings = true },
-                            text = stringResource(id = R.string.virtual_mouse)
+                            text = stringResource(id = R.string.virtual_mouse),
+                            secondaryText = stringResource(id = R.string.virtual_mouse_hint)
                         )
                     }
 
