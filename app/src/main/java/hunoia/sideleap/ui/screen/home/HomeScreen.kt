@@ -343,11 +343,6 @@ fun HomeScreen(
                             secondaryText = stringResource(id = R.string.gesture_settings_hint)
                         )
                         TextActionButton(
-                            onClick = { showFrozenManage = true },
-                            text = stringResource(id = R.string.frozen_app_manage),
-                            secondaryText = stringResource(id = R.string.frozen_app_manage_hint)
-                        )
-                        TextActionButton(
                             onClick = { showDisplaySettings = true },
                             text = stringResource(id = R.string.display),
                             secondaryText = stringResource(id = R.string.display_hint)
@@ -362,6 +357,11 @@ fun HomeScreen(
                             onClick = { showVirtualMouseSettings = true },
                             text = stringResource(id = R.string.virtual_mouse),
                             secondaryText = stringResource(id = R.string.virtual_mouse_hint)
+                        )
+                        TextActionButton(
+                            onClick = { showFrozenManage = true },
+                            text = stringResource(id = R.string.frozen_app_manage),
+                            secondaryText = stringResource(id = R.string.frozen_app_manage_hint)
                         )
                     }
 
