@@ -15,6 +15,9 @@
     <string name="gesture_settings_hint">手势角度·滑动相关·振动相关</string>
     <string name="sub_gesture_timeout_ms">子手势超时</string>
     <string name="sub_gesture_trigger_distance">子手势触发距离</string>
+    <string name="horizontal_volume_scrub">水平音量调节</string>
+    <string name="horizontal_volume_scrub_hint">左右滑动也可调节音量</string>
+    <string name="volume_scrub_sensitivity">灵敏度</string>
     <string name="add_gesture_button">添加触钮</string>
     <string name="reset_default_settings_warning">恢复默认设置</string>
     <string name="reset_default_settings_warning_desc">将重置为初始默认设置并彻底删除所有数据。</string>
@@ -345,6 +348,7 @@
     <string name="virtual_mouse_action_mode_continuous">连续</string>
     <string name="virtual_mouse_action_mode_single">单次</string>
     <string name="action_setting_hint_virtual_mouse">配置虚拟鼠标的连续模式</string>
+    <string name="action_setting_hint_volume_scrub">配置滑动方向和灵敏度</string>
     <string name="hover_trigger_delay">悬停触发延迟</string>
     <string name="intercept_system_back_gesture">拦截系统返回手势</string>
     <string name="intercept_system_back_gesture_hint">使用系统接口拦截，可能有兼容性问题</string>

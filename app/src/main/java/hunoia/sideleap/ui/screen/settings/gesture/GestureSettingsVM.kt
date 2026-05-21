@@ -38,7 +38,7 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                         isCustomVibration = uiState.isCustomVibration,
                         vibrations = uiState.vibrations,
                         isPreciseSlideType = uiState.isPreciseSlideTypeEnabled,
-                         subGestureTimeoutMs = uiState.subGestureTimeoutMs,
+                        subGestureTimeoutMs = uiState.subGestureTimeoutMs,
                          subGestureTriggerDistance = uiState.subGestureTriggerDistance.toInt(),
                     )
                 }

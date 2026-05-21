@@ -131,7 +131,8 @@ fun SideGestureContainer(
 
     var isVolumeScrubMode by remember { mutableStateOf(false) }
     var volumeScrubAccumulator by remember { mutableStateOf(0f) }
-    val volumeStepThreshold = remember { context.resources.displayMetrics.density * 18f }
+    var volumeScrubAccumulatorX by remember { mutableStateOf(0f) }
+    val volumeStepThreshold = remember(actionSettings.volumeScrub.stepThresholdDp) { context.resources.displayMetrics.density * actionSettings.volumeScrub.stepThresholdDp }
 
     var activeSubGesture by remember { mutableStateOf<SubGesture?>(null) }
     var subGestureAccum by remember { mutableStateOf(Offset.Zero) }
@@ -273,6 +274,7 @@ fun SideGestureContainer(
                             GlobalActions.VOLUME_SCRUB -> {
                                 isVolumeScrubMode = true
                                 volumeScrubAccumulator = 0f
+                                volumeScrubAccumulatorX = 0f
                                 sideGestureState.cancel()
                                 clearSubGestureMode(notifyService = false)
                             }
@@ -332,6 +334,17 @@ fun SideGestureContainer(
                     context.volumeUp()
                     volumeScrubAccumulator += volumeStepThreshold
                 }
+                if (actionSettings.volumeScrub.horizontalEnabled) {
+                    volumeScrubAccumulatorX += dragAmount.x
+                    while (volumeScrubAccumulatorX >= volumeStepThreshold) {
+                        context.volumeUp()
+                        volumeScrubAccumulatorX -= volumeStepThreshold
+                    }
+                    while (volumeScrubAccumulatorX <= -volumeStepThreshold) {
+                        context.volumeDown()
+                        volumeScrubAccumulatorX += volumeStepThreshold
+                    }
+                }
                 return@onDrag
             }
             if (actionPanelState.visible) {
@@ -359,6 +372,7 @@ fun SideGestureContainer(
                         if (action.value == GlobalActions.VOLUME_SCRUB) {
                             isVolumeScrubMode = true
                             volumeScrubAccumulator = 0f
+                            volumeScrubAccumulatorX = 0f
                             sideGestureState.cancel()
                         } else if (action.value == GlobalActions.VIRTUAL_MOUSE) {
                             startVirtualMouseMode(action)
@@ -397,6 +411,7 @@ fun SideGestureContainer(
                 curOnSubGestureModeChanged(false)
                 isVolumeScrubMode = false
                 volumeScrubAccumulator = 0f
+                volumeScrubAccumulatorX = 0f
                 return@onDragEnd
             }
             if (actionPanelState.visible) {
@@ -435,6 +450,7 @@ fun SideGestureContainer(
                 curOnSubGestureModeChanged(false)
                 isVolumeScrubMode = false
                 volumeScrubAccumulator = 0f
+                volumeScrubAccumulatorX = 0f
                 return@onDragCancel
             }
             if (actionPanelState.visible) {

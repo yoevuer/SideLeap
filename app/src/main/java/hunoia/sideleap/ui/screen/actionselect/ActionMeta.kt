@@ -65,6 +65,7 @@ val actionSettingHintResMap: Map<ActionConfigKind, Int> = mapOf(
     ActionConfigKind.OPEN_APP_OR_URL to R.string.action_setting_hint_open_activity,
     ActionConfigKind.SHELL_COMMAND to R.string.action_setting_hint_shell_command,
     ActionConfigKind.VIRTUAL_MOUSE to R.string.action_setting_hint_virtual_mouse,
+    ActionConfigKind.VOLUME_SCRUB to R.string.action_setting_hint_volume_scrub,
 )
 
 val actionPermissionHintResMap: Map<String, Int> = mapOf(

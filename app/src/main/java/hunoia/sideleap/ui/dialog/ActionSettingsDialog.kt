@@ -84,6 +84,7 @@ import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinMoveScreenHover
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinMoveScreenRate
 import hunoia.sideleap.system.shizuku.ShizukuBinderExecutor
 import hunoia.sideleap.system.feedback.showToast
+import hunoia.sideleap.ui.component.LabeledSwitch
 import hunoia.sideleap.ui.component.MyTextSlider
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
@@ -699,6 +700,44 @@ fun HideGestureButtonSettingsContent(vm: ActionSettingsVM = viewModel()) {
                     text = stringResource(id = R.string.hide_gesture_button_delay_ms),
                     valueDisplay = "${localHideDelay.toLong()}ms",
                     valueRange = 500f..5000f
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun VolumeScrubSettingsContent(vm: ActionSettingsVM = viewModel()) {
+    UDFComponent(
+        component = vm.udfComponent,
+        onEvent = {}
+    ) { uiState ->
+        LoadingComponent(
+            modifier = Modifier.fillMaxWidth(),
+            component = vm.loadingComponent
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(ItemPadding)
+            ) {
+                LabeledSwitch(
+                    onCheckedChange = { vm.onVolumeScrubHorizontalEnabledChange(it) },
+                    checked = uiState.actionSettings.volumeScrub.horizontalEnabled,
+                    text = stringResource(id = R.string.horizontal_volume_scrub),
+                    secondaryText = stringResource(id = R.string.horizontal_volume_scrub_hint)
+                )
+                val stepDp = uiState.actionSettings.volumeScrub.stepThresholdDp
+                var localStepDp by remember(stepDp) { mutableStateOf(stepDp.toFloat()) }
+                MyTextSlider(
+                    value = localStepDp,
+                    onValueChange = { localStepDp = it },
+                    onValueChangeFinished = {
+                        vm.onVolumeScrubStepThresholdChange(localStepDp)
+                        vm.saveSettings()
+                    },
+                    text = stringResource(id = R.string.volume_scrub_sensitivity),
+                    valueDisplay = "${localStepDp.toInt()}dp",
+                    valueRange = 8f..40f
                 )
             }
         }

@@ -80,6 +80,27 @@ class ActionSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
+    fun onVolumeScrubHorizontalEnabledChange(value: Boolean) {
+        updateUiState {
+            it.copy(
+                actionSettings = it.actionSettings.copy(
+                    volumeScrub = it.actionSettings.volumeScrub.copy(horizontalEnabled = value)
+                )
+            )
+        }
+        saveSettings()
+    }
+
+    fun onVolumeScrubStepThresholdChange(value: Float) {
+        updateUiState {
+            it.copy(
+                actionSettings = it.actionSettings.copy(
+                    volumeScrub = it.actionSettings.volumeScrub.copy(stepThresholdDp = value.roundToInt())
+                )
+            )
+        }
+    }
+
     fun saveSettings() {
         viewModelScope.launchWithLoading {
             SettingsProvider.updateActionSettings {

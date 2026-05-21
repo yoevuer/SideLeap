@@ -70,6 +70,7 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import hunoia.sideleap.ui.dialog.GotoBottomSettingsContent
 import hunoia.sideleap.ui.dialog.HideGestureButtonSettingsContent
 import hunoia.sideleap.ui.dialog.MoveScreenSettingsContent
+import hunoia.sideleap.ui.dialog.VolumeScrubSettingsContent
 import hunoia.sideleap.ui.dialog.ActivitySettingsContent
 import hunoia.sideleap.ui.dialog.UrlSettingsContent
 import hunoia.sideleap.ui.dialog.PreviousAppSettingsContent
@@ -409,6 +410,10 @@ fun ActionSettingsDialog(
 
                 GlobalActions.HIDE_GESTURE_BUTTON -> {
                     HideGestureButtonSettingsContent()
+                }
+
+                GlobalActions.VOLUME_SCRUB -> {
+                    VolumeScrubSettingsContent()
                 }
             }
         },

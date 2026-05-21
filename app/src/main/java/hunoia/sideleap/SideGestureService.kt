@@ -433,7 +433,8 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     fun showVolumeScrubOverlay(): Boolean {
         if (!beginVolumeScrubMode()) return false
-        val overlay = VolumeScrubOverlay(this).also { volumeScrubOverlay = it }
+        val scrubSettings = actionSettings?.volumeScrub ?: ActionSettings.VolumeScrub()
+        val overlay = VolumeScrubOverlay(this, scrubSettings.horizontalEnabled, scrubSettings.stepThresholdDp).also { volumeScrubOverlay = it }
         overlay.show(onDismiss = { endVolumeScrubMode() })
         return true
     }
