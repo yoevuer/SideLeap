@@ -38,7 +38,8 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                         isCustomVibration = uiState.isCustomVibration,
                         vibrations = uiState.vibrations,
                         isPreciseSlideType = uiState.isPreciseSlideTypeEnabled,
-                        subGestureTimeoutMs = uiState.subGestureTimeoutMs,
+                         subGestureTimeoutMs = uiState.subGestureTimeoutMs,
+                         subGestureTriggerDistance = uiState.subGestureTriggerDistance.toInt(),
                     )
                 }
             }
@@ -101,6 +102,12 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
+    fun onSubGestureTriggerDistanceChange(value: Float) {
+        updateUiState {
+            it.copy(subGestureTriggerDistance = value)
+        }
+    }
+
     fun onLongSlideTriggerImmediatelyChange(value: Boolean) {
         updateUiState {
             it.copy(longSlideTriggerImmediately = value)
@@ -153,6 +160,7 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                             vibrations = item.vibrations,
                             isPreciseSlideTypeEnabled = item.isPreciseSlideType,
                             subGestureTimeoutMs = item.subGestureTimeoutMs,
+                            subGestureTriggerDistance = item.subGestureTriggerDistance.toFloat(),
                         )
                     }
                 }
@@ -171,6 +179,7 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         val showPredefinedVibrationDropdown: Boolean = false,
         val isPreciseSlideTypeEnabled: Boolean = false,
         val subGestureTimeoutMs: Long = 0L,
+        val subGestureTriggerDistance: Float = 0f,
     )
 
     sealed interface UiEvent {

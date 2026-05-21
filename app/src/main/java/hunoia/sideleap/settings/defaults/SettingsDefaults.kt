@@ -38,6 +38,7 @@ object GestureSettingsDefaults {
     const val LongSlideTriggerDelayMs = 100L
     const val IsCustomVibration = false
     const val SubGestureTimeoutMs = 5000L
+    val SubGestureTriggerDistance = ConvertUtils.dp2px(30f)
     const val IsPreciseSlideType = true
     const val VirtualMouseSensitivityX = 1.6f
     const val VirtualMouseSensitivityY = 1.6f

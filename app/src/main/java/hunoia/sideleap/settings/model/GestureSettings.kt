@@ -9,6 +9,7 @@ import hunoia.sideleap.settings.defaults.GestureSettingsDefaults.LongSlideTrigge
 import hunoia.sideleap.settings.defaults.GestureSettingsDefaults.LongSlideTriggerImmediately
 import hunoia.sideleap.settings.defaults.GestureSettingsDefaults.SlideTriggerDistance
 import hunoia.sideleap.settings.defaults.GestureSettingsDefaults.SubGestureTimeoutMs
+import hunoia.sideleap.settings.defaults.GestureSettingsDefaults.SubGestureTriggerDistance
 import hunoia.sideleap.settings.defaults.GestureSettingsDefaults.VirtualMouseAcceleration
 import hunoia.sideleap.settings.defaults.GestureSettingsDefaults.VirtualMouseClickAnimationEnabled
 import hunoia.sideleap.settings.defaults.GestureSettingsDefaults.VirtualMouseContinuousMode
@@ -41,6 +42,7 @@ data class GestureSettings(
     val vibrations: Vibrations = DefaultVibrations,
     val isPreciseSlideType: Boolean = IsPreciseSlideType,
     val subGestureTimeoutMs: Long = SubGestureTimeoutMs,
+    val subGestureTriggerDistance: Int = SubGestureTriggerDistance,
     val virtualMouse: VirtualMouse = VirtualMouse()
 ) {
     @Serializable

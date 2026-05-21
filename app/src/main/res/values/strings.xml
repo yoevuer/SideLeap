@@ -14,6 +14,7 @@
     <string name="advanced_settings_hint">应用管理·触钮行为·显示</string>
     <string name="gesture_settings_hint">手势角度·滑动相关·振动相关</string>
     <string name="sub_gesture_timeout_ms">子手势超时</string>
+    <string name="sub_gesture_trigger_distance">子手势触发距离</string>
     <string name="add_gesture_button">添加触钮</string>
     <string name="reset_default_settings_warning">恢复默认设置</string>
     <string name="reset_default_settings_warning_desc">将重置为初始默认设置并彻底删除所有数据。</string>

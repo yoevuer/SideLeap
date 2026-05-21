@@ -66,7 +66,6 @@ import hunoia.sideleap.ui.component.DragGestureHandler
 import hunoia.sideleap.system.volumeDown
 import hunoia.sideleap.system.volumeUp
 import hunoia.sideleap.system.feedback.showVersionTooLowToast
-import com.blankj.utilcode.util.ConvertUtils
 import androidx.compose.ui.graphics.Color
 import hunoia.sideleap.action.payload.SubGestureActionData
 import hunoia.sideleap.core.serialization.JsonHelper
@@ -139,7 +138,7 @@ fun SideGestureContainer(
     var subGestureDepth by remember { mutableIntStateOf(0) }
     var subGestureTouchCount by remember { mutableIntStateOf(0) }
     var subGestureTimeoutJob by remember { mutableStateOf<Job?>(null) }
-    val subGestureThresholdPx = remember { ConvertUtils.dp2px(30f).toFloat() }
+    val subGestureThresholdPx = remember(gestureSettings.subGestureTriggerDistance) { gestureSettings.subGestureTriggerDistance.toFloat() }
 
     fun scheduleVirtualMouseLongPress() {
         virtualMouseLongPressJob?.cancel()

@@ -45,11 +45,13 @@ import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxLongSlideTriggerD
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxLongSlideTriggerDistance
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxSlideTriggerDistance
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxSubGestureTimeoutMs
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxSubGestureTriggerDistance
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinLongPressTriggerDelayMs
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinLongSlideTriggerDelayMs
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinLongSlideTriggerDistance
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinSlideTriggerDistance
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinSubGestureTimeoutMs
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinSubGestureTriggerDistance
 import hunoia.sideleap.system.vibration.VibrationDefaults.MaxCustomVibrationMs
 import hunoia.sideleap.system.vibration.VibrationDefaults.MinCustomVibrationMs
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.getPredefinedVibrationEffectText
@@ -307,6 +309,7 @@ private fun SlideSettingsContent(
     Column {
         var localLongPressDelay by remember(uiState.longPressTriggerDelayMs) { mutableStateOf(uiState.longPressTriggerDelayMs.toFloat()) }
         var localLongSlideDelay by remember(uiState.longSlideTriggerDelayMs) { mutableStateOf(uiState.longSlideTriggerDelayMs.toFloat()) }
+        var localSubTriggerDist by remember(uiState.subGestureTriggerDistance) { mutableStateOf(uiState.subGestureTriggerDistance) }
         var localSubTimeout by remember(uiState.subGestureTimeoutMs) { mutableStateOf(uiState.subGestureTimeoutMs / 1000f) }
         MyTextSlider(
             value = uiState.slideTriggerDistance,
@@ -347,6 +350,17 @@ private fun SlideSettingsContent(
             valueRange = MinLongSlideTriggerDelayMs.toFloat()..MaxLongSlideTriggerDelayMs.toFloat(),
         )
         MyTextSlider(
+            value = localSubTriggerDist,
+            onValueChange = { localSubTriggerDist = it },
+            onValueChangeFinished = {
+                vm.onSubGestureTriggerDistanceChange(localSubTriggerDist)
+                vm.saveSettings()
+            },
+            text = stringResource(id = R.string.sub_gesture_trigger_distance),
+            valueDisplay = "${localSubTriggerDist.toInt()}px",
+            valueRange = MinSubGestureTriggerDistance.toFloat()..MaxSubGestureTriggerDistance.toFloat(),
+        )
+        MyTextSlider(
             value = localSubTimeout,
             onValueChange = { localSubTimeout = it },
             onValueChangeFinished = {
@@ -361,5 +375,5 @@ private fun SlideSettingsContent(
 }
 
 private fun slideSettingsSummaryText(uiState: GestureSettingsVM.UiState): String {
-    return "滑动 ${uiState.slideTriggerDistance.toInt()} · 长按 ${uiState.longPressTriggerDelayMs}ms · 长滑 ${uiState.longSlideTriggerDistance.toInt()} · 延迟 ${uiState.longSlideTriggerDelayMs}ms · 子手势 ${uiState.subGestureTimeoutMs / 1000}s"
+    return "滑动 ${uiState.slideTriggerDistance.toInt()} · 长按 ${uiState.longPressTriggerDelayMs}ms · 长滑 ${uiState.longSlideTriggerDistance.toInt()} · 延迟 ${uiState.longSlideTriggerDelayMs}ms · 子手势 ${uiState.subGestureTimeoutMs / 1000}s · 子距离 ${uiState.subGestureTriggerDistance.toInt()}px"
 }
