@@ -28,6 +28,7 @@ import hunoia.sideleap.R
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.action.definition.ActionCatalog
 import hunoia.sideleap.gesture.SubGestureDirection
+import hunoia.sideleap.ui.component.ActionSettingsDialog
 import hunoia.sideleap.ui.component.TopBar
 import hunoia.sideleap.ui.screen.actionselect.ActionPage
 import hunoia.sideleap.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
@@ -68,6 +69,14 @@ fun SubGestureActionSelectContent(
                 vm.updateAppInfos()
                 vm.updateShortcutInfos()
             }
+        }
+
+        if (uiState.actionSettingsDialog.show) {
+            ActionSettingsDialog(
+                onDismissRequest = { vm.actionSettingsDialog.show(false) },
+                action = uiState.actionSettingsDialog.action,
+                onActionDataChanged = { vm.select(uiState.actionSettingsDialog.action.copy(data = it), true) }
+            )
         }
 
         Box(modifier = Modifier.fillMaxSize()) {

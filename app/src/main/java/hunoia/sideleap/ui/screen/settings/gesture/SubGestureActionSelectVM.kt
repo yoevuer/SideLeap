@@ -33,6 +33,8 @@ class SubGestureActionSelectVM(
 
     override val initialState: UiState = UiState(title = direction.displayName)
 
+    val actionSettingsDialog = ActionSettingsDialog()
+
     init {
         assembleActions()
     }
@@ -48,7 +50,9 @@ class SubGestureActionSelectVM(
     }
 
     fun showOpenAppOrUrlDialog() {}
-    fun showActionSettingsDialog(action: Action) {}
+    fun showActionSettingsDialog(action: Action) {
+        actionSettingsDialog.show(true, action)
+    }
 
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
@@ -165,6 +169,21 @@ class SubGestureActionSelectVM(
         val createShortcuts: List<LauncherInfo> = emptyList(),
         val launchShortcuts: List<LauncherInfo> = emptyList(),
         val selectedRecord: SelectedRecord = SelectedRecord(),
+        val actionSettingsDialog: ActionSettingsDialogValue = ActionSettingsDialogValue(false, Action.NONE),
+    )
+
+    inner class ActionSettingsDialog {
+
+        fun show(show: Boolean, action: Action = Action.NONE) {
+            updateUiState {
+                it.copy(actionSettingsDialog = it.actionSettingsDialog.copy(show = show, action = action))
+            }
+        }
+    }
+
+    data class ActionSettingsDialogValue(
+        val show: Boolean,
+        val action: Action
     )
 
     sealed interface UiEvent
