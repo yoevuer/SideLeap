@@ -118,5 +118,8 @@ data class WaveStyle(
         const val SHAPE_WAVE = 0
         const val SHAPE_PILL = 1
         const val SHAPE_FLOW = 2
+        const val SHAPE_LINE = 3
+        const val SHAPE_RING = 4
+        const val SHAPE_DROP = 5
     }
 }

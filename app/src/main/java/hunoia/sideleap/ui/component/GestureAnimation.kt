@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -143,17 +144,19 @@ private fun WaveGestureAnimation(
             when (animationStyle.shapeType) {
                 WaveStyle.SHAPE_PILL -> {
                     when (button.position) {
-                        Position.Left, Position.Right -> {
-                            val right = when (button.position) {
-                                Position.Left -> fingerXAnimVal.coerceAtMost(bezierMaxWidth)
-                                else -> (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
-                            }
-                            val left = when (button.position) {
-                                Position.Left -> 0f
-                                else -> right - bezierMaxWidth
-                            }
-                            val pillL = minOf(left, right)
-                            val pillR = maxOf(left, right)
+                        Position.Left -> {
+                            val right = fingerXAnimVal.coerceAtMost(bezierMaxWidth)
+                            val pillL = 0f
+                            val pillR = right
+                            val pillT = safeOrigin - bezierLengthHalf - transformOffset
+                            val pillB = safeOrigin + bezierLengthHalf - transformOffset
+                            val cr = (bezierLengthHalf).coerceAtMost((pillR - pillL) / 2f)
+                            addRoundRect(RoundRect(pillL, pillT, pillR, pillB, cr, cr))
+                        }
+                        Position.Right -> {
+                            val left = (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
+                            val pillL = left
+                            val pillR = size.width
                             val pillT = safeOrigin - bezierLengthHalf - transformOffset
                             val pillB = safeOrigin + bezierLengthHalf - transformOffset
                             val cr = (bezierLengthHalf).coerceAtMost((pillR - pillL) / 2f)
@@ -171,36 +174,94 @@ private fun WaveGestureAnimation(
                 }
                 WaveStyle.SHAPE_FLOW -> {
                     moveTo(moveToX, moveToY)
-                    val factor = factorDp
-                    var safeFingerX: Float
                     when (button.position) {
                         Position.Left, Position.Right -> {
-                            safeFingerX = when (button.position) {
+                            val safeFingerX = when (button.position) {
                                 Position.Left -> fingerXAnimVal.coerceAtMost(bezierMaxWidth)
                                 else -> (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
                             }
                             val midX = (moveToX + safeFingerX) / 2f
-                            val ctrlOffset = bezierLengthHalf * 0.8f
-                            cubicTo(midX, safeOrigin - bezierLengthHalf - ctrlOffset - transformOffset,
-                                safeFingerX, safeOrigin - ctrlOffset - transformOffset,
-                                safeFingerX, safeOrigin - transformOffset)
-                            cubicTo(safeFingerX, safeOrigin + ctrlOffset - transformOffset,
-                                midX, safeOrigin + bezierLengthHalf + ctrlOffset - transformOffset,
-                                when (button.position) { Position.Left -> -factor else -> size.width + factor },
-                                safeOrigin + bezierLengthHalf)
+                            val ctrlOffset = bezierLengthHalf * 0.6f
+                            cubicTo(
+                                midX, safeOrigin - bezierLengthHalf - ctrlOffset - transformOffset,
+                                safeFingerX + ctrlOffset, safeOrigin - ctrlOffset - transformOffset,
+                                safeFingerX, safeOrigin - transformOffset
+                            )
                         }
                         Position.Bottom -> {
-                            safeFingerX = safeOrigin - bezierLengthHalf
-                            val bottom = (size.height + fingerYAnimVal).coerceAtLeast(size.height - bezierMaxWidth)
-                            val midY = (moveToY + bottom) / 2f
-                            val ctrlOffset = bezierLengthHalf * 0.8f
-                            cubicTo(safeOrigin - bezierLengthHalf - ctrlOffset - transformOffset, midY,
-                                safeOrigin - ctrlOffset - transformOffset, bottom,
-                                safeOrigin - transformOffset, bottom)
-                            cubicTo(safeOrigin + ctrlOffset - transformOffset, bottom,
-                                safeOrigin + bezierLengthHalf + ctrlOffset - transformOffset, midY,
-                                safeOrigin + bezierLengthHalf, size.height + factor)
+                            val safeFingerY = (size.height + fingerYAnimVal).coerceAtLeast(size.height - bezierMaxWidth)
+                            val midY = (moveToY + safeFingerY) / 2f
+                            val ctrlOffset = bezierLengthHalf * 0.6f
+                            cubicTo(
+                                safeOrigin - bezierLengthHalf - ctrlOffset - transformOffset, midY,
+                                safeOrigin - ctrlOffset - transformOffset, safeFingerY + ctrlOffset,
+                                safeOrigin - transformOffset, safeFingerY
+                            )
                         }
+                    }
+                }
+                WaveStyle.SHAPE_LINE -> {
+                    moveTo(moveToX, moveToY)
+                    val targetX = when (button.position) {
+                        Position.Left -> fingerXAnimVal.coerceAtMost(bezierMaxWidth)
+                        Position.Right -> (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
+                        Position.Bottom -> safeOrigin
+                    }
+                    val targetY = when (button.position) {
+                        Position.Left, Position.Right -> safeOrigin
+                        Position.Bottom -> (size.height + fingerYAnimVal).coerceAtLeast(size.height - bezierMaxWidth)
+                    }
+                    lineTo(targetX, targetY)
+                }
+                WaveStyle.SHAPE_RING -> {
+                    val centerX = when (button.position) {
+                        Position.Left -> fingerXAnimVal.coerceAtMost(bezierMaxWidth)
+                        Position.Right -> (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
+                        Position.Bottom -> safeOrigin
+                    }
+                    val centerY = when (button.position) {
+                        Position.Left, Position.Right -> safeOrigin
+                        Position.Bottom -> (size.height + fingerYAnimVal).coerceAtLeast(size.height - bezierMaxWidth)
+                    }
+                    val dx = centerX - moveToX
+                    val dy = centerY - moveToY
+                    val radius = kotlin.math.sqrt(dx * dx + dy * dy) / 2f
+                    if (radius > 0f) {
+                        addOval(Rect(
+                            centerX - radius, centerY - radius,
+                            centerX + radius, centerY + radius
+                        ))
+                    }
+                }
+                WaveStyle.SHAPE_DROP -> {
+                    val tipX = when (button.position) {
+                        Position.Left -> fingerXAnimVal.coerceAtMost(bezierMaxWidth)
+                        Position.Right -> (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
+                        Position.Bottom -> safeOrigin
+                    }
+                    val tipY = when (button.position) {
+                        Position.Left, Position.Right -> safeOrigin
+                        Position.Bottom -> (size.height + fingerYAnimVal).coerceAtLeast(size.height - bezierMaxWidth)
+                    }
+                    val dx = tipX - moveToX
+                    val dy = tipY - moveToY
+                    val dist = kotlin.math.sqrt(dx * dx + dy * dy)
+                    if (dist >= 1f) {
+                        val r = (bezierLengthHalf * 0.3f).coerceAtMost(dist * 0.4f)
+                        val perpX = -dy / dist * r
+                        val perpY = dx / dist * r
+                        moveTo(tipX, tipY)
+                        cubicTo(
+                            tipX - perpX * 0.5f, tipY - perpY * 0.5f,
+                            moveToX - perpX, moveToY - perpY,
+                            moveToX, moveToY
+                        )
+                        cubicTo(
+                            moveToX + perpX, moveToY + perpY,
+                            tipX + perpX * 0.5f, tipY + perpY * 0.5f,
+                            tipX, tipY
+                        )
+                        close()
                     }
                 }
                 else -> {
