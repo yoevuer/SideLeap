@@ -93,6 +93,7 @@ import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.system.intent.KeepAliveHelper
 import com.blankj.utilcode.util.TimeUtils
+import kotlin.math.roundToInt
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.getDayNightModeText
 import hunoia.sideleap.gesture.SubGestureDirection
 import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle
@@ -117,7 +118,8 @@ fun HomeScreen(
         var showVirtualMouseSettings by remember { mutableStateOf(false) }
         var showFrozenManage by remember { mutableStateOf(false) }
         var showDisplaySettings by remember { mutableStateOf(false) }
-    var showAnimationStyle by remember { mutableStateOf(false) }
+        var showAnimationStyle by remember { mutableStateOf(false) }
+        var showMiniWindowSettings by remember { mutableStateOf(false) }
     val context = LocalContext.current
     UDFComponent(
         component = vm.udfComponent,
@@ -213,7 +215,8 @@ fun HomeScreen(
                             DisplaySettingsContent(
                                 uiState = uiState,
                                 vm = vm,
-                                showAnimationStyle = { showAnimationStyle = true }
+                                showAnimationStyle = { showAnimationStyle = true },
+                                showMiniWindowSettings = { showMiniWindowSettings = true }
                             )
                         }
                     }
@@ -235,6 +238,18 @@ fun HomeScreen(
                     sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                 ) {
                     FrozenAppManageContent(onDismiss = { showFrozenManage = false })
+                }
+            }
+            if (showMiniWindowSettings) {
+                ModalBottomSheet(
+                    onDismissRequest = { showMiniWindowSettings = false },
+                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                ) {
+                    BottomSheetNestedContent {
+                        MyColumn(scrollState = rememberScrollState()) {
+                            MiniWindowSettingsContent(uiState = uiState, vm = vm)
+                        }
+                    }
                 }
             }
             Column {
@@ -316,13 +331,11 @@ fun HomeScreen(
                         )
                         TextActionButton(
                             onClick = onNavToAdvancedSettings,
-                            text = stringResource(id = R.string.advanced_settings),
-                            secondaryText = stringResource(id = R.string.advanced_settings_hint)
+                            text = stringResource(id = R.string.advanced_settings)
                         )
                         TextActionButton(
                             onClick = onNavToGestureSettings,
-                            text = stringResource(id = R.string.gesture_settings),
-                            secondaryText = stringResource(id = R.string.gesture_settings_hint)
+                            text = stringResource(id = R.string.gesture_settings)
                         )
                         TextActionButton(
                             onClick = { showFrozenManage = true },
@@ -712,6 +725,7 @@ private fun DisplaySettingsContent(
     uiState: HomeVM.UiState,
     vm: HomeVM,
     showAnimationStyle: () -> Unit,
+    showMiniWindowSettings: () -> Unit,
 ) {
     Column {
         LabeledSwitch(
@@ -728,6 +742,10 @@ private fun DisplaySettingsContent(
                 secondaryText = stringResource(id = R.string.dynamic_color_hint)
             )
         }
+        TextActionButton(
+            onClick = { showMiniWindowSettings() },
+            text = stringResource(id = R.string.mini_window_position)
+        )
         Row(Modifier.fillMaxWidth()) {
             TextActionButton(
                 onClick = { vm.showDayNightModeDropdownMenu(true) },
@@ -762,6 +780,42 @@ private fun DisplaySettingsContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MiniWindowSettingsContent(uiState: HomeVM.UiState, vm: HomeVM) {
+    Column {
+        MyTextSlider(
+            value = uiState.miniWindowHorizontalBias,
+            onValueChange = { vm.onMiniWindowHorizontalBiasChange(it) },
+            onValueChangeFinished = { vm.saveDisplaySettings() },
+            text = "${stringResource(id = R.string.mini_window_horizontal_position)} ${(uiState.miniWindowHorizontalBias * 100).roundToInt()}%",
+            sliderValueHint = stringResource(id = R.string.left) to stringResource(id = R.string.right),
+        )
+        MyTextSlider(
+            value = uiState.miniWindowVerticalBias,
+            onValueChange = { vm.onMiniWindowVerticalBiasChange(it) },
+            onValueChangeFinished = { vm.saveDisplaySettings() },
+            text = "${stringResource(id = R.string.mini_window_vertical_position)} ${(uiState.miniWindowVerticalBias * 100).roundToInt()}%",
+            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+        )
+        MyTextSlider(
+            value = uiState.miniWindowVerticalEdgeMarginFraction,
+            onValueChange = { vm.onMiniWindowVerticalEdgeMarginChange(it) },
+            onValueChangeFinished = { vm.saveDisplaySettings() },
+            text = "${stringResource(id = R.string.mini_window_vertical_edge_margin)} ${(uiState.miniWindowVerticalEdgeMarginFraction * 100).roundToInt()}%",
+            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+            valueRange = 0f..0.2f,
+        )
+        MyTextSlider(
+            value = uiState.miniWindowVerticalOffsetFraction,
+            onValueChange = { vm.onMiniWindowVerticalOffsetChange(it) },
+            onValueChangeFinished = { vm.saveDisplaySettings() },
+            text = "${stringResource(id = R.string.mini_window_vertical_offset)} ${(uiState.miniWindowVerticalOffsetFraction * 100).roundToInt()}%",
+            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+            valueRange = -0.3f..0.3f,
+        )
     }
 }
 

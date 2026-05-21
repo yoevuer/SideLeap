@@ -61,7 +61,6 @@ fun AdvancedSettingsScreen(
     vm: AdvancedSettingsVM = viewModel()
 ) {
     var showAppBlacklist by remember { mutableStateOf(false) }
-    var showMiniWindowSettings by remember { mutableStateOf(false) }
     UDFComponent(component = vm.udfComponent, onEvent = {}) { uiState ->
         var confirmClear by remember { mutableStateOf(false) }
         Column {
@@ -100,35 +99,6 @@ fun AdvancedSettingsScreen(
                         text = stringResource(id = R.string.quick_launcher_launch_app),
                         secondaryText = stringResource(id = R.string.quick_launcher_launch_app_hint)
                     )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = MinItemHeightNoSecondary)
-                            .onSingleClick { showMiniWindowSettings = true }
-                            .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(ItemPadding)
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(id = R.string.mini_window_position),
-                                style = MaterialTheme.typography.titleMedium,
-                                maxLines = 1
-                            )
-                            Text(
-                                text = miniWindowSummaryText(uiState),
-                                color = MaterialTheme.colorScheme.secondary,
-                                style = MaterialTheme.typography.bodySmall,
-                                maxLines = 1
-                            )
-                        }
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
                 SectionCard(
                     modifier = Modifier.padding(top = SectionPadding),
                     title = stringResource(id = R.string.gesture_behavior)
@@ -185,67 +155,6 @@ fun AdvancedSettingsScreen(
                 }
             }
         }
-        if (showMiniWindowSettings) {
-            ModalBottomSheet(
-                onDismissRequest = { showMiniWindowSettings = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-            ) {
-                BottomSheetNestedContent {
-                    MyColumn(scrollState = rememberScrollState()) {
-                        MiniWindowSettingsContent(
-                            uiState = uiState,
-                            vm = vm,
-                        )
-                    }
-                }
-            }
-        }
     }
 }
-
-@Composable
-private fun MiniWindowSettingsContent(
-    uiState: AdvancedSettingsVM.UiState,
-    vm: AdvancedSettingsVM,
-) {
-    Column {
-        MyTextSlider(
-            value = uiState.miniWindowHorizontalBias,
-            onValueChange = { vm.onMiniWindowHorizontalBiasChange(it) },
-            onValueChangeFinished = { vm.saveSettings() },
-            text = "${stringResource(id = R.string.mini_window_horizontal_position)} ${(uiState.miniWindowHorizontalBias * 100).roundToInt()}%",
-            sliderValueHint = stringResource(id = R.string.left) to stringResource(id = R.string.right),
-        )
-        MyTextSlider(
-            value = uiState.miniWindowVerticalBias,
-            onValueChange = { vm.onMiniWindowVerticalBiasChange(it) },
-            onValueChangeFinished = { vm.saveSettings() },
-            text = "${stringResource(id = R.string.mini_window_vertical_position)} ${(uiState.miniWindowVerticalBias * 100).roundToInt()}%",
-            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
-        )
-        MyTextSlider(
-            value = uiState.miniWindowVerticalEdgeMarginFraction,
-            onValueChange = { vm.onMiniWindowVerticalEdgeMarginChange(it) },
-            onValueChangeFinished = { vm.saveSettings() },
-            text = "${stringResource(id = R.string.mini_window_vertical_edge_margin)} ${(uiState.miniWindowVerticalEdgeMarginFraction * 100).roundToInt()}%",
-            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
-            valueRange = 0f..0.2f,
-        )
-        MyTextSlider(
-            value = uiState.miniWindowVerticalOffsetFraction,
-            onValueChange = { vm.onMiniWindowVerticalOffsetChange(it) },
-            onValueChangeFinished = { vm.saveSettings() },
-            text = "${stringResource(id = R.string.mini_window_vertical_offset)} ${(uiState.miniWindowVerticalOffsetFraction * 100).roundToInt()}%",
-            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
-            valueRange = -0.3f..0.3f,
-        )
-    }
-}
-
-private fun miniWindowSummaryText(uiState: AdvancedSettingsVM.UiState): String {
-    val h = (uiState.miniWindowHorizontalBias * 100).roundToInt()
-    val v = (uiState.miniWindowVerticalBias * 100).roundToInt()
-    val m = (uiState.miniWindowVerticalEdgeMarginFraction * 100).roundToInt()
-    val o = (uiState.miniWindowVerticalOffsetFraction * 100).roundToInt()
-    return "水平 $h% · 垂直 $v% · 边距 $m% · 偏移 $o%"
 }

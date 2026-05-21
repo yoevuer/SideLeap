@@ -44,22 +44,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
-    fun onMiniWindowHorizontalBiasChange(value: Float) {
-        updateUiState { it.copy(miniWindowHorizontalBias = value.coerceIn(0f, 1f)) }
-    }
-
-    fun onMiniWindowVerticalBiasChange(value: Float) {
-        updateUiState { it.copy(miniWindowVerticalBias = value.coerceIn(0f, 1f)) }
-    }
-
-    fun onMiniWindowVerticalEdgeMarginChange(value: Float) {
-        updateUiState { it.copy(miniWindowVerticalEdgeMarginFraction = value.coerceIn(0f, 0.2f)) }
-    }
-
-    fun onMiniWindowVerticalOffsetChange(value: Float) {
-        updateUiState { it.copy(miniWindowVerticalOffsetFraction = value.coerceIn(-0.3f, 0.3f)) }
-    }
-
     fun onExcludeFromRecentsChange(value: Boolean) {
         updateUiState {
             it.copy(excludeFromRecents = value)
@@ -103,20 +87,16 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun saveSettings() {
         viewModelScope.launch {
+            val s = uiState
             SettingsProvider.updateAdvancedSettings {
-                val uiState = uiState
                 it.copy(
-                    fitSoftKeyboard = uiState.fitSoftKeyboard,
-                    actionPanelAppLongPressLaunchPopup = uiState.actionPanelAppLongPressLaunchPopup,
-                    quickLauncherAppLongPressLaunchPopup = uiState.quickLauncherAppLongPressLaunchPopup,
-                    miniWindowHorizontalBias = uiState.miniWindowHorizontalBias,
-                    miniWindowVerticalBias = uiState.miniWindowVerticalBias,
-                    miniWindowVerticalEdgeMarginFraction = uiState.miniWindowVerticalEdgeMarginFraction,
-                    miniWindowVerticalOffsetFraction = uiState.miniWindowVerticalOffsetFraction,
-                    hideLandscape = uiState.hideLandscape,
-                    hideScreenLock = uiState.hideScreenLock,
-                    hideHomeScreen = uiState.hideHomeScreen,
-                    excludeFromRecents = uiState.excludeFromRecents,
+                    fitSoftKeyboard = s.fitSoftKeyboard,
+                    actionPanelAppLongPressLaunchPopup = s.actionPanelAppLongPressLaunchPopup,
+                    quickLauncherAppLongPressLaunchPopup = s.quickLauncherAppLongPressLaunchPopup,
+                    hideLandscape = s.hideLandscape,
+                    hideScreenLock = s.hideScreenLock,
+                    hideHomeScreen = s.hideHomeScreen,
+                    excludeFromRecents = s.excludeFromRecents,
                 )
             }
         }
@@ -133,10 +113,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                             fitSoftKeyboard = item.fitSoftKeyboard,
                             actionPanelAppLongPressLaunchPopup = item.actionPanelAppLongPressLaunchPopup,
                             quickLauncherAppLongPressLaunchPopup = item.quickLauncherAppLongPressLaunchPopup,
-                            miniWindowHorizontalBias = item.miniWindowHorizontalBias,
-                            miniWindowVerticalBias = item.miniWindowVerticalBias,
-                            miniWindowVerticalEdgeMarginFraction = item.miniWindowVerticalEdgeMarginFraction,
-                            miniWindowVerticalOffsetFraction = item.miniWindowVerticalOffsetFraction,
                             hideLandscape = item.hideLandscape,
                             hideScreenLock = item.hideScreenLock,
                             hideHomeScreen = item.hideHomeScreen,
@@ -151,10 +127,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         val fitSoftKeyboard: Boolean = false,
         val actionPanelAppLongPressLaunchPopup: Boolean = false,
         val quickLauncherAppLongPressLaunchPopup: Boolean = false,
-        val miniWindowHorizontalBias: Float = 0.5f,
-        val miniWindowVerticalBias: Float = 0.7f,
-        val miniWindowVerticalEdgeMarginFraction: Float = 0.05f,
-        val miniWindowVerticalOffsetFraction: Float = 0f,
         val hideLandscape: Boolean = false,
         val hideScreenLock: Boolean = false,
         val hideHomeScreen: Boolean = false,

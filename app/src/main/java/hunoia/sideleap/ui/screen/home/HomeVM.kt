@@ -359,13 +359,33 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         saveDisplaySettings()
     }
 
-    private fun saveDisplaySettings() {
+    fun onMiniWindowHorizontalBiasChange(value: Float) {
+        updateUiState { it.copy(miniWindowHorizontalBias = value.coerceIn(0f, 1f)) }
+    }
+
+    fun onMiniWindowVerticalBiasChange(value: Float) {
+        updateUiState { it.copy(miniWindowVerticalBias = value.coerceIn(0f, 1f)) }
+    }
+
+    fun onMiniWindowVerticalEdgeMarginChange(value: Float) {
+        updateUiState { it.copy(miniWindowVerticalEdgeMarginFraction = value.coerceIn(0f, 0.2f)) }
+    }
+
+    fun onMiniWindowVerticalOffsetChange(value: Float) {
+        updateUiState { it.copy(miniWindowVerticalOffsetFraction = value.coerceIn(-0.3f, 0.3f)) }
+    }
+
+    fun saveDisplaySettings() {
         viewModelScope.launch {
             SettingsProvider.updateAdvancedSettings {
                 it.copy(
                     animationStyles = it.animationStyles.copy(isAnimationEnabled = uiState.showAnimation),
                     dynamicColor = uiState.dynamicColor,
-                    dayNightMode = uiState.dayNightMode
+                    dayNightMode = uiState.dayNightMode,
+                    miniWindowHorizontalBias = uiState.miniWindowHorizontalBias,
+                    miniWindowVerticalBias = uiState.miniWindowVerticalBias,
+                    miniWindowVerticalEdgeMarginFraction = uiState.miniWindowVerticalEdgeMarginFraction,
+                    miniWindowVerticalOffsetFraction = uiState.miniWindowVerticalOffsetFraction,
                 )
             }
         }
@@ -462,7 +482,11 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                         it.copy(
                             showAnimation = item.animationStyles.isAnimationEnabled,
                             dynamicColor = item.dynamicColor,
-                            dayNightMode = item.dayNightMode
+                            dayNightMode = item.dayNightMode,
+                            miniWindowHorizontalBias = item.miniWindowHorizontalBias,
+                            miniWindowVerticalBias = item.miniWindowVerticalBias,
+                            miniWindowVerticalEdgeMarginFraction = item.miniWindowVerticalEdgeMarginFraction,
+                            miniWindowVerticalOffsetFraction = item.miniWindowVerticalOffsetFraction,
                         )
                     }
                 }
@@ -489,6 +513,10 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         val dayNightMode: DayNightMode = DayNightMode.Auto,
         val showDynamicColorOption: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
         val showDayNightModeDropdownMenu: Boolean = false,
+        val miniWindowHorizontalBias: Float = 0.5f,
+        val miniWindowVerticalBias: Float = 0.7f,
+        val miniWindowVerticalEdgeMarginFraction: Float = 0.05f,
+        val miniWindowVerticalOffsetFraction: Float = 0f,
     )
 
     sealed interface UiEvent {
