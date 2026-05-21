@@ -97,6 +97,7 @@ fun GestureSettingsScreen(
             }
         }
     ) { uiState ->
+        var localVibrationMs by remember(uiState.vibrations.customVibrationMs) { mutableStateOf(uiState.vibrations.customVibrationMs.toFloat()) }
         if (showSlideSettings) {
             ModalBottomSheet(
                 onDismissRequest = { showSlideSettings = false },
@@ -267,22 +268,28 @@ fun GestureSettingsScreen(
                                 }
                                 MyTextSlider(
                                     enabled = uiState.vibrations.predefinedEffect == VibrationEffects.None,
-                                    value = uiState.vibrations.customVibrationMs.toFloat(),
-                                    onValueChange = { vm.onCustomVibrationMsChange(it) },
-                                    onValueChangeFinished = { vm.saveSettings() },
+                                    value = localVibrationMs,
+                                    onValueChange = { localVibrationMs = it },
+                                    onValueChangeFinished = {
+                                        vm.onCustomVibrationMsChange(localVibrationMs)
+                                        vm.saveSettings()
+                                    },
                                     text = stringResource(id = R.string.vibration_strength),
-                                    valueDisplay = "${uiState.vibrations.customVibrationMs}ms",
+                                    valueDisplay = "${localVibrationMs.toLong()}ms",
                                     valueRange = MinCustomVibrationMs.toFloat()..MaxCustomVibrationMs.toFloat()
                                 )
                             }
                         }
                     } else {
                         MyTextSlider(
-                            value = uiState.vibrations.customVibrationMs.toFloat(),
-                            onValueChange = { vm.onCustomVibrationMsChange(it) },
-                            onValueChangeFinished = { vm.saveSettings() },
+                            value = localVibrationMs,
+                            onValueChange = { localVibrationMs = it },
+                            onValueChangeFinished = {
+                                vm.onCustomVibrationMsChange(localVibrationMs)
+                                vm.saveSettings()
+                            },
                             text = stringResource(id = R.string.vibration_strength),
-                            valueDisplay = "${uiState.vibrations.customVibrationMs}ms",
+                            valueDisplay = "${localVibrationMs.toLong()}ms",
                             valueRange = MinCustomVibrationMs.toFloat()..MaxCustomVibrationMs.toFloat()
                         )
                     }
@@ -298,6 +305,9 @@ private fun SlideSettingsContent(
     vm: GestureSettingsVM,
 ) {
     Column {
+        var localLongPressDelay by remember(uiState.longPressTriggerDelayMs) { mutableStateOf(uiState.longPressTriggerDelayMs.toFloat()) }
+        var localLongSlideDelay by remember(uiState.longSlideTriggerDelayMs) { mutableStateOf(uiState.longSlideTriggerDelayMs.toFloat()) }
+        var localSubTimeout by remember(uiState.subGestureTimeoutMs) { mutableStateOf(uiState.subGestureTimeoutMs / 1000f) }
         MyTextSlider(
             value = uiState.slideTriggerDistance,
             onValueChange = { vm.onSlideTriggerDistanceChange(it) },
@@ -307,11 +317,14 @@ private fun SlideSettingsContent(
             valueRange = MinSlideTriggerDistance.toFloat()..MaxSlideTriggerDistance.toFloat(),
         )
         MyTextSlider(
-            value = uiState.longPressTriggerDelayMs.toFloat(),
-            onValueChange = { vm.onLongPressTriggerDelayMsChange(it) },
-            onValueChangeFinished = { vm.saveSettings() },
+            value = localLongPressDelay,
+            onValueChange = { localLongPressDelay = it },
+            onValueChangeFinished = {
+                vm.onLongPressTriggerDelayMsChange(localLongPressDelay)
+                vm.saveSettings()
+            },
             text = stringResource(id = R.string.long_press_trigger_delay_ms),
-            valueDisplay = "${uiState.longPressTriggerDelayMs}ms",
+            valueDisplay = "${localLongPressDelay.toLong()}ms",
             valueRange = MinLongPressTriggerDelayMs.toFloat()..MaxLongPressTriggerDelayMs.toFloat(),
         )
         MyTextSlider(
@@ -323,19 +336,25 @@ private fun SlideSettingsContent(
             valueRange = MinLongSlideTriggerDistance.toFloat()..MaxLongSlideTriggerDistance.toFloat(),
         )
         MyTextSlider(
-            value = uiState.longSlideTriggerDelayMs.toFloat(),
-            onValueChange = { vm.onLongSlideTriggerDelayMsChange(it) },
-            onValueChangeFinished = { vm.saveSettings() },
+            value = localLongSlideDelay,
+            onValueChange = { localLongSlideDelay = it },
+            onValueChangeFinished = {
+                vm.onLongSlideTriggerDelayMsChange(localLongSlideDelay)
+                vm.saveSettings()
+            },
             text = stringResource(id = R.string.long_slide_trigger_delay_ms),
-            valueDisplay = "${uiState.longSlideTriggerDelayMs}ms",
+            valueDisplay = "${localLongSlideDelay.toLong()}ms",
             valueRange = MinLongSlideTriggerDelayMs.toFloat()..MaxLongSlideTriggerDelayMs.toFloat(),
         )
         MyTextSlider(
-            value = uiState.subGestureTimeoutMs / 1000f,
-            onValueChange = { vm.onSubGestureTimeoutChange(it * 1000) },
-            onValueChangeFinished = { vm.saveSettings() },
+            value = localSubTimeout,
+            onValueChange = { localSubTimeout = it },
+            onValueChangeFinished = {
+                vm.onSubGestureTimeoutChange(localSubTimeout * 1000)
+                vm.saveSettings()
+            },
             text = "子手势超时",
-            valueDisplay = "${uiState.subGestureTimeoutMs / 1000}秒",
+            valueDisplay = "${localSubTimeout.toLong()}秒",
             valueRange = MinSubGestureTimeoutMs / 1000f..MaxSubGestureTimeoutMs / 1000f,
         )
     }

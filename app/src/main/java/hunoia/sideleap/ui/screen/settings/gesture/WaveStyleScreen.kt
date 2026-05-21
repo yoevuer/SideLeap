@@ -210,9 +210,12 @@ fun WaveStyleContent(
         }
 
         MyColumn(scrollState = scrollState) {
-            val style = uiState.animationStyle
+                    val style = uiState.animationStyle
 
-            SectionCard(title = stringResource(id = R.string.color_outline)) {
+                    var localStrokeWidth by remember(style.strokeWidth) { mutableStateOf(style.strokeWidth.toFloat()) }
+                    var localWidth by remember(style.width) { mutableStateOf(style.width.toFloat()) }
+
+                    SectionCard(title = stringResource(id = R.string.color_outline)) {
                     TextActionButton(
                         onClick = {
                             if (style.backgroundColorSource == ColorSource.Theme) {
@@ -260,11 +263,14 @@ fun WaveStyleContent(
                         }
                     )
                     MyTextSlider(
-                        value = uiState.animationStyle.strokeWidth.toFloat(),
-                        onValueChange = { vm.onStrokeWidthChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
+                        value = localStrokeWidth,
+                        onValueChange = { localStrokeWidth = it },
+                        onValueChangeFinished = {
+                            vm.onStrokeWidthChange(localStrokeWidth)
+                            vm.saveSettings()
+                        },
                         text = stringResource(id = R.string.stroke_width),
-                        valueDisplay = "${uiState.animationStyle.strokeWidth}px",
+                        valueDisplay = "${localStrokeWidth.roundToInt()}px",
                         valueRange = MinBezierStrokeWidth.toFloat()..MaxBezierStrokeWidth.toFloat()
                     )
                 }
@@ -337,11 +343,14 @@ fun WaveStyleContent(
                     title = stringResource(id = R.string.shape_size)
                 ) {
                     MyTextSlider(
-                        value = uiState.animationStyle.width.toFloat(),
-                        onValueChange = { vm.onWidthChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
+                        value = localWidth,
+                        onValueChange = { localWidth = it },
+                        onValueChangeFinished = {
+                            vm.onWidthChange(localWidth)
+                            vm.saveSettings()
+                        },
                         text = stringResource(id = R.string.width),
-                        valueDisplay = "${uiState.animationStyle.width}px",
+                        valueDisplay = "${localWidth.roundToInt()}px",
                         valueRange = MinBezierWidth.toFloat()..MaxBezierWidth.toFloat()
                     )
                     MyTextSlider(

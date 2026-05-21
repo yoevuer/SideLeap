@@ -1,6 +1,8 @@
 package hunoia.sideleap.ui.component
 
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +23,12 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -98,7 +105,7 @@ fun MyTextSlider(
         }
         MySlider(
             modifier = Modifier
-                .padding(horizontal = ContentPaddingHorizontal - 6.dp)
+                .padding(horizontal = ContentPaddingHorizontal)
                 .height(30.dp),
             enabled = enabled,
             value = value,
@@ -185,12 +192,31 @@ fun MySlider(
     val colorScheme = MaterialTheme.colorScheme
     val interactionSource = remember { MutableInteractionSource() }
     val colors = SliderDefaults.colors(thumbColor = colorScheme.primary)
+    var isDragging by remember { mutableStateOf(false) }
+    val safeOnValueChange by rememberUpdatedState(onValueChange)
+    val safeOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
+
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            when (interaction) {
+                is DragInteraction.Start -> isDragging = true
+                is DragInteraction.Stop -> {
+                    if (isDragging) safeOnValueChangeFinished?.invoke()
+                    isDragging = false
+                }
+                is PressInteraction.Release, is PressInteraction.Cancel -> {
+                    isDragging = false
+                }
+            }
+        }
+    }
+
     Slider(
         modifier = modifier,
         enabled = enabled,
         value = value,
-        onValueChange = onValueChange,
-        onValueChangeFinished = onValueChangeFinished,
+        onValueChange = { if (isDragging) safeOnValueChange(it) },
+        onValueChangeFinished = { },
         interactionSource = interactionSource,
         colors = colors,
         valueRange = valueRange,

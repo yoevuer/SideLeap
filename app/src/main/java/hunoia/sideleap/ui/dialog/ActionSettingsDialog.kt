@@ -527,6 +527,7 @@ fun MoveScreenSettingsContent(vm: ActionSettingsVM = viewModel()) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(ItemPadding)
             ) {
+                var localHoverDelay by remember(uiState.actionSettings.moveScreen.hoverDelayMs) { mutableStateOf(uiState.actionSettings.moveScreen.hoverDelayMs.toFloat()) }
                 MyTextSlider(
                     value = uiState.actionSettings.moveScreen.rate,
                     onValueChange = { vm.onMoveScreenRateChange(it) },
@@ -536,11 +537,14 @@ fun MoveScreenSettingsContent(vm: ActionSettingsVM = viewModel()) {
                     valueRange = MinMoveScreenRate..MaxMoveScreenRate
                 )
                 MyTextSlider(
-                    value = uiState.actionSettings.moveScreen.hoverDelayMs.toFloat(),
-                    onValueChange = { vm.onMoveScreenHoverChange(it) },
-                    onValueChangeFinished = { vm.saveSettings() },
+                    value = localHoverDelay,
+                    onValueChange = { localHoverDelay = it },
+                    onValueChangeFinished = {
+                        vm.onMoveScreenHoverChange(localHoverDelay)
+                        vm.saveSettings()
+                    },
                     text = stringResource(id = R.string.hover_trigger_delay),
-                    valueDisplay = "${uiState.actionSettings.moveScreen.hoverDelayMs.toInt()}ms",
+                    valueDisplay = "${localHoverDelay.toLong()}ms",
                     valueRange = MinMoveScreenHover..MaxMoveScreenHover
                 )
             }
@@ -647,12 +651,16 @@ fun GotoBottomSettingsContent(vm: ActionSettingsVM = viewModel()) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(ItemPadding)
             ) {
+                var localStrength by remember(uiState.actionSettings.gotoBottom.strength) { mutableStateOf(uiState.actionSettings.gotoBottom.strength.toFloat()) }
                 MyTextSlider(
-                    value = uiState.actionSettings.gotoBottom.strength.toFloat(),
-                    onValueChange = { vm.onGotoBottomStrengthChange(it) },
-                    onValueChangeFinished = { vm.saveSettings() },
+                    value = localStrength,
+                    onValueChange = { localStrength = it },
+                    onValueChangeFinished = {
+                        vm.onGotoBottomStrengthChange(localStrength)
+                        vm.saveSettings()
+                    },
                     text = stringResource(id = R.string.strength),
-                    valueDisplay = String.format("%.1f", uiState.actionSettings.gotoBottom.strength),
+                    valueDisplay = String.format("%.1f", localStrength),
                     valueRange = MinGotoBottomStrength..MaxGotoBottomStrength
                 )
             }
@@ -680,12 +688,16 @@ fun HideGestureButtonSettingsContent(vm: ActionSettingsVM = viewModel()) {
                     color = MaterialTheme.colorScheme.secondary,
                     style = MaterialTheme.typography.bodyMedium
                 )
+                var localHideDelay by remember(delayMs) { mutableStateOf(delayMs.toFloat()) }
                 MyTextSlider(
-                    value = delayMs.toFloat(),
-                    onValueChange = { vm.onHideGestureButtonDelayChange(it) },
-                    onValueChangeFinished = { vm.saveSettings() },
+                    value = localHideDelay,
+                    onValueChange = { localHideDelay = it },
+                    onValueChangeFinished = {
+                        vm.onHideGestureButtonDelayChange(localHideDelay)
+                        vm.saveSettings()
+                    },
                     text = stringResource(id = R.string.hide_gesture_button_delay_ms),
-                    valueDisplay = "${delayMs}ms",
+                    valueDisplay = "${localHideDelay.toLong()}ms",
                     valueRange = 500f..5000f
                 )
             }

@@ -40,6 +40,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -577,6 +578,7 @@ private fun VirtualMouseSettingsContent(
             text = stringResource(id = R.string.virtual_mouse_continuous_mode),
             secondaryText = stringResource(id = R.string.virtual_mouse_continuous_mode_hint)
         )
+        val currentVirtualMouse by rememberUpdatedState(virtualMouse)
         MyTextSlider(
             value = virtualMouse.continuousModeTimeoutMs / 1000f,
             onValueChange = { vm.onVirtualMouseContinuousModeTimeoutChange((it * 1000).toLong()) },
@@ -608,12 +610,16 @@ private fun VirtualMouseSettingsContent(
             valueDisplay = String.format("%.1f", virtualMouse.acceleration),
             valueRange = 0f..2f,
         )
+        var localCursorSize by remember(virtualMouse.cursorSizeDp) { mutableStateOf(virtualMouse.cursorSizeDp.toFloat()) }
         MyTextSlider(
-            value = virtualMouse.cursorSizeDp.toFloat(),
-            onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(cursorSizeDp = it.toInt())) },
-            onValueChangeFinished = { vm.saveVirtualMouseSettings() },
+            value = localCursorSize,
+            onValueChange = { localCursorSize = it },
+            onValueChangeFinished = {
+                vm.onVirtualMouseChange(currentVirtualMouse.copy(cursorSizeDp = localCursorSize.toInt()))
+                vm.saveVirtualMouseSettings()
+            },
             text = "光标大小",
-            valueDisplay = "${virtualMouse.cursorSizeDp}dp",
+            valueDisplay = "${localCursorSize.toInt()}dp",
             valueRange = 12f..64f,
         )
         MyTextSlider(
@@ -700,20 +706,28 @@ private fun VirtualMouseSettingsContent(
             secondaryText = stringResource(id = R.string.virtual_mouse_long_press_hint)
         )
         if (virtualMouse.longPressEnabled) {
+            var localLongPressDelay by remember(virtualMouse.longPressDelayMs) { mutableStateOf(virtualMouse.longPressDelayMs.toFloat()) }
             MyTextSlider(
-                value = virtualMouse.longPressDelayMs.toFloat(),
-                onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(longPressDelayMs = it.toLong())) },
-                onValueChangeFinished = { vm.saveVirtualMouseSettings() },
+                value = localLongPressDelay,
+                onValueChange = { localLongPressDelay = it },
+                onValueChangeFinished = {
+                    vm.onVirtualMouseChange(currentVirtualMouse.copy(longPressDelayMs = localLongPressDelay.toLong()))
+                    vm.saveVirtualMouseSettings()
+                },
                 text = "长按延迟",
-                valueDisplay = "${virtualMouse.longPressDelayMs}ms",
+                valueDisplay = "${localLongPressDelay.toLong()}ms",
                 valueRange = 400f..2000f,
             )
+            var localTolerance by remember(virtualMouse.longPressMoveToleranceDp) { mutableStateOf(virtualMouse.longPressMoveToleranceDp.toFloat()) }
             MyTextSlider(
-                value = virtualMouse.longPressMoveToleranceDp.toFloat(),
-                onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(longPressMoveToleranceDp = it.toInt())) },
-                onValueChangeFinished = { vm.saveVirtualMouseSettings() },
+                value = localTolerance,
+                onValueChange = { localTolerance = it },
+                onValueChangeFinished = {
+                    vm.onVirtualMouseChange(currentVirtualMouse.copy(longPressMoveToleranceDp = localTolerance.toInt()))
+                    vm.saveVirtualMouseSettings()
+                },
                 text = "停留容差",
-                valueDisplay = "${virtualMouse.longPressMoveToleranceDp}dp",
+                valueDisplay = "${localTolerance.toInt()}dp",
                 valueRange = 2f..16f,
             )
         }

@@ -354,12 +354,16 @@ fun GestureButtonSettingsScreen(
                                 text = stringResource(id = R.string.gesture_angles),
                                 secondaryText = stringResource(id = R.string.gesture_button_angles_hint)
                             )
+                            var localBtnWidth by remember(gestureButton.width) { mutableStateOf(gestureButton.width.toFloat()) }
                             MyTextSlider(
-                                value = gestureButton.width.toFloat(),
-                                onValueChange = { vm.onGestureButtonWidthChange(it) },
-                                onValueChangeFinished = { vm.onGestureButtonAdjustFinish() },
+                                value = localBtnWidth,
+                                onValueChange = { localBtnWidth = it },
+                                onValueChangeFinished = {
+                                    vm.onGestureButtonWidthChange(localBtnWidth)
+                                    vm.onGestureButtonAdjustFinish()
+                                },
                                 text = stringResource(id = R.string.gesture_button_width),
-                                valueDisplay = "${gestureButton.width.toInt()}px",
+                                valueDisplay = "${localBtnWidth.toInt()}px",
                                 valueRange = MinGestureButtonWidth.toFloat()..MaxGestureButtonWidth.toFloat()
                             )
                             MyTextRangeSlider(
