@@ -271,7 +271,7 @@ fun GestureSettingsScreen(
                                     onValueChange = { vm.onCustomVibrationMsChange(it) },
                                     onValueChangeFinished = { vm.saveSettings() },
                                     text = stringResource(id = R.string.vibration_strength),
-                                    sliderValueHint = stringResource(id = R.string.low) to stringResource(id = R.string.high),
+                                    valueDisplay = "${uiState.vibrations.customVibrationMs}ms",
                                     valueRange = MinCustomVibrationMs.toFloat()..MaxCustomVibrationMs.toFloat()
                                 )
                             }
@@ -282,7 +282,7 @@ fun GestureSettingsScreen(
                             onValueChange = { vm.onCustomVibrationMsChange(it) },
                             onValueChangeFinished = { vm.saveSettings() },
                             text = stringResource(id = R.string.vibration_strength),
-                            sliderValueHint = stringResource(id = R.string.low) to stringResource(id = R.string.high),
+                            valueDisplay = "${uiState.vibrations.customVibrationMs}ms",
                             valueRange = MinCustomVibrationMs.toFloat()..MaxCustomVibrationMs.toFloat()
                         )
                     }
@@ -303,40 +303,40 @@ private fun SlideSettingsContent(
             onValueChange = { vm.onSlideTriggerDistanceChange(it) },
             onValueChangeFinished = { vm.saveSettings() },
             text = stringResource(id = R.string.trigger_distance),
-            sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
-            valueRange = MinSlideTriggerDistance.toFloat()..MaxSlideTriggerDistance.toFloat()
+            valueDisplay = "${uiState.slideTriggerDistance.toInt()}px",
+            valueRange = MinSlideTriggerDistance.toFloat()..MaxSlideTriggerDistance.toFloat(),
         )
         MyTextSlider(
             value = uiState.longPressTriggerDelayMs.toFloat(),
             onValueChange = { vm.onLongPressTriggerDelayMsChange(it) },
             onValueChangeFinished = { vm.saveSettings() },
             text = stringResource(id = R.string.long_press_trigger_delay_ms),
-            sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
-            valueRange = MinLongPressTriggerDelayMs.toFloat()..MaxLongPressTriggerDelayMs.toFloat()
+            valueDisplay = "${uiState.longPressTriggerDelayMs}ms",
+            valueRange = MinLongPressTriggerDelayMs.toFloat()..MaxLongPressTriggerDelayMs.toFloat(),
         )
         MyTextSlider(
             value = uiState.longSlideTriggerDistance,
             onValueChange = { vm.onLongSlideTriggerDistanceChange(it) },
             onValueChangeFinished = { vm.saveSettings() },
             text = stringResource(id = R.string.long_slide_trigger_distance),
-            sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
-            valueRange = MinLongSlideTriggerDistance.toFloat()..MaxLongSlideTriggerDistance.toFloat()
+            valueDisplay = "${uiState.longSlideTriggerDistance.toInt()}px",
+            valueRange = MinLongSlideTriggerDistance.toFloat()..MaxLongSlideTriggerDistance.toFloat(),
         )
         MyTextSlider(
             value = uiState.longSlideTriggerDelayMs.toFloat(),
             onValueChange = { vm.onLongSlideTriggerDelayMsChange(it) },
             onValueChangeFinished = { vm.saveSettings() },
             text = stringResource(id = R.string.long_slide_trigger_delay_ms),
-            sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
-            valueRange = MinLongSlideTriggerDelayMs.toFloat()..MaxLongSlideTriggerDelayMs.toFloat()
+            valueDisplay = "${uiState.longSlideTriggerDelayMs}ms",
+            valueRange = MinLongSlideTriggerDelayMs.toFloat()..MaxLongSlideTriggerDelayMs.toFloat(),
         )
         MyTextSlider(
             value = uiState.subGestureTimeoutMs / 1000f,
             onValueChange = { vm.onSubGestureTimeoutChange(it * 1000) },
             onValueChangeFinished = { vm.saveSettings() },
-            text = stringResource(id = R.string.sub_gesture_timeout_ms) + "：${uiState.subGestureTimeoutMs / 1000}秒",
-            sliderValueHint = "1秒" to "15秒",
-            valueRange = MinSubGestureTimeoutMs / 1000f..MaxSubGestureTimeoutMs / 1000f
+            text = "子手势超时",
+            valueDisplay = "${uiState.subGestureTimeoutMs / 1000}秒",
+            valueRange = MinSubGestureTimeoutMs / 1000f..MaxSubGestureTimeoutMs / 1000f,
         )
     }
 }

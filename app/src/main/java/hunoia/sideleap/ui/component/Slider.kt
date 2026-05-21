@@ -5,12 +5,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RangeSlider
@@ -39,7 +42,8 @@ fun MyTextSlider(
     sliderValueHint: Pair<String, String>? = null,
     valueDisplay: String? = null,
     onValueChangeFinished: (() -> Unit)? = null,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    steps: Int? = null,
 ) {
     Column(
         modifier = modifier
@@ -48,47 +52,48 @@ fun MyTextSlider(
             .padding(vertical = ContentPaddingVerticalWithSection),
         verticalArrangement = Arrangement.spacedBy(IconTextPadding)
     ) {
-        Text(
+        Row(
             modifier = Modifier
                 .padding(horizontal = ContentPaddingHorizontal)
-                .width(IntrinsicSize.Max),
-            text = text,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1
-        )
-        if (sliderValueHint != null || valueDisplay != null) {
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.widthIn(max = 999.dp),
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1
+            )
+            if (valueDisplay != null) {
+                Spacer(modifier = Modifier.width(IconTextPadding))
+                Text(
+                    text = valueDisplay,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1
+                )
+            }
+        }
+        if (sliderValueHint != null) {
             Box(
                 modifier = Modifier
                     .padding(horizontal = ContentPaddingHorizontal)
                     .fillMaxWidth()
             ) {
-                if (sliderValueHint != null) {
-                    Text(
-                        modifier = Modifier.align(Alignment.CenterStart),
-                        text = sliderValueHint.first,
-                        color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.labelMedium,
-                        maxLines = 1
-                    )
-                }
-                if (valueDisplay != null) {
-                    Text(
-                        modifier = Modifier.align(Alignment.Center),
-                        text = valueDisplay,
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelMedium,
-                        maxLines = 1
-                    )
-                }
-                if (sliderValueHint != null) {
-                    Text(
-                        modifier = Modifier.align(Alignment.CenterEnd),
-                        text = sliderValueHint.second,
-                        color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.labelMedium,
-                        maxLines = 1
-                    )
-                }
+                Text(
+                    modifier = Modifier.align(Alignment.CenterStart),
+                    text = sliderValueHint.first,
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1
+                )
+                Text(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    text = sliderValueHint.second,
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1
+                )
             }
         }
         MySlider(
@@ -99,7 +104,8 @@ fun MyTextSlider(
             value = value,
             onValueChange = onValueChange,
             onValueChangeFinished = onValueChangeFinished,
-            valueRange = valueRange
+            valueRange = valueRange,
+            steps = steps,
         )
     }
 }
@@ -173,7 +179,8 @@ fun MySlider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onValueChangeFinished: (() -> Unit)? = null,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    steps: Int? = null,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val interactionSource = remember { MutableInteractionSource() }
@@ -187,6 +194,7 @@ fun MySlider(
         interactionSource = interactionSource,
         colors = colors,
         valueRange = valueRange,
+        steps = steps ?: 0,
         thumb = {
             SliderDefaults.Thumb(
                 modifier = Modifier

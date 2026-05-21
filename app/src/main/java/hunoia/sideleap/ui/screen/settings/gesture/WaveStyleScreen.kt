@@ -245,7 +245,6 @@ fun WaveStyleContent(
                         onValueChangeFinished = { vm.saveSettings() },
                         text = stringResource(id = R.string.stroke_width),
                         valueDisplay = "${uiState.animationStyle.strokeWidth}px",
-                        sliderValueHint = "0px" to "${MaxBezierStrokeWidthValue}px",
                         valueRange = MinBezierStrokeWidth.toFloat()..MaxBezierStrokeWidth.toFloat()
                     )
                 }
@@ -260,7 +259,6 @@ fun WaveStyleContent(
                         onValueChangeFinished = { vm.saveSettings() },
                         text = stringResource(id = R.string.width),
                         valueDisplay = "${uiState.animationStyle.width}px",
-                        sliderValueHint = "${MinBezierWidth.toInt()}px" to "${MaxBezierWidth.toInt()}px",
                         valueRange = MinBezierWidth.toFloat()..MaxBezierWidth.toFloat()
                     )
                     MyTextSlider(
@@ -269,17 +267,7 @@ fun WaveStyleContent(
                         onValueChangeFinished = { vm.saveSettings() },
                         text = stringResource(id = R.string.length),
                         valueDisplay = String.format("%.1f", uiState.animationStyle.bezierLengthHalfRatio),
-                        sliderValueHint = String.format("%.1f", MinBezierLength) to String.format("%.1f", MaxBezierLength),
                         valueRange = MinBezierLength.toFloat()..MaxBezierLength.toFloat()
-                    )
-                    MyTextSlider(
-                        value = uiState.animationStyle.iconScale,
-                        onValueChange = { vm.onIconScaleChange(it) },
-                        onValueChangeFinished = { vm.saveSettings() },
-                        text = stringResource(id = R.string.icon_scale),
-                        valueDisplay = "${(uiState.animationStyle.iconScale * 100).roundToInt()}%",
-                        sliderValueHint = "${(MinIconScale * 100).roundToInt()}%" to "${(MaxIconScale * 100).roundToInt()}%",
-                        valueRange = MinIconScale..MaxIconScale
                     )
                     Text(
                         modifier = Modifier
@@ -381,6 +369,15 @@ fun WaveStyleContent(
                                 onCheckedChange = { vm.onIconColorSourceChange(if (it) ColorSource.Theme else ColorSource.Custom) }
                             )
                         }
+                    )
+
+                    MyTextSlider(
+                        value = uiState.animationStyle.iconScale,
+                        onValueChange = { vm.onIconScaleChange(it) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = stringResource(id = R.string.icon_scale),
+                        valueDisplay = "${(uiState.animationStyle.iconScale * 100).roundToInt()}%",
+                        valueRange = MinIconScale..MaxIconScale
                     )
 
                     MyExpandableColumn(

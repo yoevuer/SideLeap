@@ -359,7 +359,7 @@ fun GestureButtonSettingsScreen(
                                 onValueChange = { vm.onGestureButtonWidthChange(it) },
                                 onValueChangeFinished = { vm.onGestureButtonAdjustFinish() },
                                 text = stringResource(id = R.string.gesture_button_width),
-                                sliderValueHint = stringResource(id = R.string.small) to stringResource(id = R.string.large),
+                                valueDisplay = "${gestureButton.width.toInt()}px",
                                 valueRange = MinGestureButtonWidth.toFloat()..MaxGestureButtonWidth.toFloat()
                             )
                             MyTextRangeSlider(

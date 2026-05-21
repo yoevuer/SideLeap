@@ -580,49 +580,49 @@ private fun VirtualMouseSettingsContent(
         MyTextSlider(
             value = virtualMouse.continuousModeTimeoutMs / 1000f,
             onValueChange = { vm.onVirtualMouseContinuousModeTimeoutChange((it * 1000).toLong()) },
-            text = stringResource(id = R.string.virtual_mouse_continuous_timeout, virtualMouse.continuousModeTimeoutMs / 1000),
+            text = "连续模式超时",
+            valueDisplay = "${virtualMouse.continuousModeTimeoutMs / 1000}秒",
             valueRange = 1f..10f,
-            sliderValueHint = "1秒" to "10秒"
         )
         MyTextSlider(
             value = virtualMouse.sensitivityX,
             onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(sensitivityX = it)) },
             onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_sensitivity_x, virtualMouse.sensitivityX),
-            sliderValueHint = "0.5x" to "4.0x",
-            valueRange = 0.5f..4f
+            text = "X 灵敏度",
+            valueDisplay = String.format("%.1fx", virtualMouse.sensitivityX),
+            valueRange = 0.5f..4f,
         )
         MyTextSlider(
             value = virtualMouse.sensitivityY,
             onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(sensitivityY = it)) },
             onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_sensitivity_y, virtualMouse.sensitivityY),
-            sliderValueHint = "0.5x" to "4.0x",
-            valueRange = 0.5f..4f
+            text = "Y 灵敏度",
+            valueDisplay = String.format("%.1fx", virtualMouse.sensitivityY),
+            valueRange = 0.5f..4f,
         )
         MyTextSlider(
             value = virtualMouse.acceleration,
             onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(acceleration = it)) },
             onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_acceleration, virtualMouse.acceleration),
-            sliderValueHint = "0.0" to "2.0",
-            valueRange = 0f..2f
+            text = "加速曲线",
+            valueDisplay = String.format("%.1f", virtualMouse.acceleration),
+            valueRange = 0f..2f,
         )
         MyTextSlider(
             value = virtualMouse.cursorSizeDp.toFloat(),
             onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(cursorSizeDp = it.toInt())) },
             onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_cursor_size, virtualMouse.cursorSizeDp),
-            sliderValueHint = "12dp" to "64dp",
-            valueRange = 12f..64f
+            text = "光标大小",
+            valueDisplay = "${virtualMouse.cursorSizeDp}dp",
+            valueRange = 12f..64f,
         )
         MyTextSlider(
             value = virtualMouse.cursorAlpha,
             onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(cursorAlpha = it)) },
             onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_cursor_alpha, (virtualMouse.cursorAlpha * 100).toInt()),
-            sliderValueHint = "20%" to "100%",
-            valueRange = 0.2f..1f
+            text = "光标透明度",
+            valueDisplay = "${(virtualMouse.cursorAlpha * 100).toInt()}%",
+            valueRange = 0.2f..1f,
         )
         Row(
             modifier = Modifier
@@ -675,17 +675,17 @@ private fun VirtualMouseSettingsContent(
                 value = virtualMouse.trailStrength,
                 onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(trailStrength = it)) },
                 onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-                text = stringResource(id = R.string.virtual_mouse_trail_strength, virtualMouse.trailStrength),
-                sliderValueHint = "0.5" to "2.0",
-                valueRange = 0.5f..2f
+                text = "拖尾强度",
+                valueDisplay = String.format("%.1f", virtualMouse.trailStrength),
+                valueRange = 0.5f..2f,
             )
             MyTextSlider(
                 value = virtualMouse.trailAlpha,
                 onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(trailAlpha = it)) },
                 onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-                text = stringResource(id = R.string.virtual_mouse_trail_alpha, (virtualMouse.trailAlpha * 100).toInt()),
-                sliderValueHint = "20%" to "100%",
-                valueRange = 0.2f..1f
+                text = "拖尾透明度",
+                valueDisplay = "${(virtualMouse.trailAlpha * 100).toInt()}%",
+                valueRange = 0.2f..1f,
             )
         }
         LabeledSwitch(
@@ -704,17 +704,17 @@ private fun VirtualMouseSettingsContent(
                 value = virtualMouse.longPressDelayMs.toFloat(),
                 onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(longPressDelayMs = it.toLong())) },
                 onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-                text = stringResource(id = R.string.virtual_mouse_long_press_delay, virtualMouse.longPressDelayMs),
-                sliderValueHint = "400ms" to "2000ms",
-                valueRange = 400f..2000f
+                text = "长按延迟",
+                valueDisplay = "${virtualMouse.longPressDelayMs}ms",
+                valueRange = 400f..2000f,
             )
             MyTextSlider(
                 value = virtualMouse.longPressMoveToleranceDp.toFloat(),
                 onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(longPressMoveToleranceDp = it.toInt())) },
                 onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-                text = stringResource(id = R.string.virtual_mouse_long_press_tolerance, virtualMouse.longPressMoveToleranceDp),
-                sliderValueHint = "2dp" to "16dp",
-                valueRange = 2f..16f
+                text = "停留容差",
+                valueDisplay = "${virtualMouse.longPressMoveToleranceDp}dp",
+                valueRange = 2f..16f,
             )
         }
     }
@@ -799,30 +799,30 @@ private fun MiniWindowSettingsContent(uiState: HomeVM.UiState, vm: HomeVM) {
             value = uiState.miniWindowHorizontalBias,
             onValueChange = { vm.onMiniWindowHorizontalBiasChange(it) },
             onValueChangeFinished = { vm.saveDisplaySettings() },
-            text = "${stringResource(id = R.string.mini_window_horizontal_position)} ${(uiState.miniWindowHorizontalBias * 100).roundToInt()}%",
-            sliderValueHint = stringResource(id = R.string.left) to stringResource(id = R.string.right),
+            text = stringResource(id = R.string.mini_window_horizontal_position),
+            valueDisplay = "${(uiState.miniWindowHorizontalBias * 100).roundToInt()}%",
         )
         MyTextSlider(
             value = uiState.miniWindowVerticalBias,
             onValueChange = { vm.onMiniWindowVerticalBiasChange(it) },
             onValueChangeFinished = { vm.saveDisplaySettings() },
-            text = "${stringResource(id = R.string.mini_window_vertical_position)} ${(uiState.miniWindowVerticalBias * 100).roundToInt()}%",
-            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+            text = stringResource(id = R.string.mini_window_vertical_position),
+            valueDisplay = "${(uiState.miniWindowVerticalBias * 100).roundToInt()}%",
         )
         MyTextSlider(
             value = uiState.miniWindowVerticalEdgeMarginFraction,
             onValueChange = { vm.onMiniWindowVerticalEdgeMarginChange(it) },
             onValueChangeFinished = { vm.saveDisplaySettings() },
-            text = "${stringResource(id = R.string.mini_window_vertical_edge_margin)} ${(uiState.miniWindowVerticalEdgeMarginFraction * 100).roundToInt()}%",
-            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+            text = stringResource(id = R.string.mini_window_vertical_edge_margin),
+            valueDisplay = "${(uiState.miniWindowVerticalEdgeMarginFraction * 100).roundToInt()}%",
             valueRange = 0f..0.2f,
         )
         MyTextSlider(
             value = uiState.miniWindowVerticalOffsetFraction,
             onValueChange = { vm.onMiniWindowVerticalOffsetChange(it) },
             onValueChangeFinished = { vm.saveDisplaySettings() },
-            text = "${stringResource(id = R.string.mini_window_vertical_offset)} ${(uiState.miniWindowVerticalOffsetFraction * 100).roundToInt()}%",
-            sliderValueHint = stringResource(id = R.string.top) to stringResource(id = R.string.bottom),
+            text = stringResource(id = R.string.mini_window_vertical_offset),
+            valueDisplay = "${(uiState.miniWindowVerticalOffsetFraction * 100).roundToInt()}%",
             valueRange = -0.3f..0.3f,
         )
     }

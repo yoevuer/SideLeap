@@ -532,7 +532,7 @@ fun MoveScreenSettingsContent(vm: ActionSettingsVM = viewModel()) {
                     onValueChange = { vm.onMoveScreenRateChange(it) },
                     onValueChangeFinished = { vm.saveSettings() },
                     text = stringResource(id = R.string.move_screen_rate),
-                    sliderValueHint = stringResource(id = R.string.slow) to stringResource(id = R.string.fast),
+                    valueDisplay = String.format("%.1f", uiState.actionSettings.moveScreen.rate),
                     valueRange = MinMoveScreenRate..MaxMoveScreenRate
                 )
                 MyTextSlider(
@@ -540,7 +540,7 @@ fun MoveScreenSettingsContent(vm: ActionSettingsVM = viewModel()) {
                     onValueChange = { vm.onMoveScreenHoverChange(it) },
                     onValueChangeFinished = { vm.saveSettings() },
                     text = stringResource(id = R.string.hover_trigger_delay),
-                    sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
+                    valueDisplay = "${uiState.actionSettings.moveScreen.hoverDelayMs.toInt()}ms",
                     valueRange = MinMoveScreenHover..MaxMoveScreenHover
                 )
             }
@@ -652,7 +652,7 @@ fun GotoBottomSettingsContent(vm: ActionSettingsVM = viewModel()) {
                     onValueChange = { vm.onGotoBottomStrengthChange(it) },
                     onValueChangeFinished = { vm.saveSettings() },
                     text = stringResource(id = R.string.strength),
-                    sliderValueHint = stringResource(id = R.string.small) to stringResource(id = R.string.large),
+                    valueDisplay = String.format("%.1f", uiState.actionSettings.gotoBottom.strength),
                     valueRange = MinGotoBottomStrength..MaxGotoBottomStrength
                 )
             }
@@ -685,7 +685,7 @@ fun HideGestureButtonSettingsContent(vm: ActionSettingsVM = viewModel()) {
                     onValueChange = { vm.onHideGestureButtonDelayChange(it) },
                     onValueChangeFinished = { vm.saveSettings() },
                     text = stringResource(id = R.string.hide_gesture_button_delay_ms),
-                    sliderValueHint = "500" to "5000",
+                    valueDisplay = "${delayMs}ms",
                     valueRange = 500f..5000f
                 )
             }
