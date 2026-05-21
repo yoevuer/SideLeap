@@ -752,7 +752,8 @@ private fun DisplaySettingsContent(
         }
         TextActionButton(
             onClick = { showMiniWindowSettings() },
-            text = stringResource(id = R.string.mini_window_position)
+            text = stringResource(id = R.string.mini_window_position),
+            secondaryText = stringResource(id = R.string.mini_window_position_hint)
         )
         Row(Modifier.fillMaxWidth()) {
             TextActionButton(

@@ -49,6 +49,7 @@
     <string name="quick_launcher_launch_app">启动器应用项启动方式</string>
     <string name="quick_launcher_launch_app_hint">调换快速启动器中应用项的短按与长按方式：默认短按小窗、长按全屏</string>
     <string name="mini_window_position">小窗位置</string>
+    <string name="mini_window_position_hint">调整小窗打开的位置</string>
     <string name="mini_window_horizontal_position">小窗打开水平位置</string>
     <string name="mini_window_vertical_position">小窗打开垂直位置</string>
     <string name="mini_window_vertical_edge_margin">小窗垂直边缘留白</string>
@@ -75,6 +76,7 @@
     <string name="clear_quick_app_stats">清除最近/频率记录</string>
     <string name="clear_quick_app_stats_confirm">确认清除最近使用和启动次数记录？</string>
     <string name="clear_quick_app_stats_done">已清除</string>
+    <string name="clear_quick_app_stats_hint">清除快速启动器的启动次数和最近使用记录</string>
     <string name="lock_screen">锁屏界面</string>
     <string name="launcher">系统桌面</string>
     <string name="dynamic_color">动态配色</string>

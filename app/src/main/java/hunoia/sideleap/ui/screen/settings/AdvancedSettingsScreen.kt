@@ -79,7 +79,8 @@ fun AdvancedSettingsScreen(
                     )
                     TextActionButton(
                         onClick = { confirmClear = true },
-                        text = stringResource(id = R.string.clear_quick_app_stats)
+                        text = stringResource(id = R.string.clear_quick_app_stats),
+                        secondaryText = stringResource(id = R.string.clear_quick_app_stats_hint)
                     )
                     LabeledSwitch(
                         onCheckedChange = { vm.onExcludeFromRecentsChange(it) },
