@@ -78,11 +78,15 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
-                AppQuery
-                    .queryLauncherActivities(AppContext.get())
-                    .filter {
-                        it.packageName != AppContext.get().packageName
-                    }
+                try {
+                    AppQuery
+                        .queryLauncherActivities(AppContext.get())
+                        .filter {
+                            it.packageName != AppContext.get().packageName
+                        }
+                } catch (_: Exception) {
+                    emptyList()
+                }
             }
             val frozenApps = withContext(Dispatchers.IO) {
                 FreezeState.queryFrozenApplicationsOnIo(AppContext.get())

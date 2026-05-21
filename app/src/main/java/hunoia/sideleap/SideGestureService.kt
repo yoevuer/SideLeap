@@ -43,6 +43,7 @@ import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.core.event.Events
 import hunoia.sideleap.core.event.WallpaperChangedEvent
+import hunoia.sideleap.launcher.query.AppQuery
 import hunoia.sideleap.launcher.query.LauncherEnvironment
 import hunoia.sideleap.service.SideGestureServiceProxy
 import hunoia.sideleap.service.takeScreenshot
@@ -236,6 +237,9 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         registerRuntimeObservers()
         windowController.replaceMainOverlay { renderMainOverlay() }
         settingsObserver.start()
+        coroutineScope.launch(Dispatchers.IO) {
+            AppQuery.queryLauncherActivities(this@SideGestureService)
+        }
     }
 
     private fun registerRuntimeObservers() {

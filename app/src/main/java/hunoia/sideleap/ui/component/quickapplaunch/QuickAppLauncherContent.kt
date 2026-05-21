@@ -320,7 +320,7 @@ private fun AppGrid(
             if (apps.isEmpty()) {
                 item { Box(modifier = Modifier.height(88.dp).fillMaxWidth()) }
             }
-            items(apps, key = { it.key() }) { app ->
+            items(apps, key = { it.key() }, contentType = { "app" }) { app ->
                 val isFrozen = app.packageName in frozenPkgs
                 AppItem(
                     app = app,

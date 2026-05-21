@@ -27,7 +27,12 @@ object AppQuery {
             launcherCache?.clear()
             App.applicationScope.launch {
                 withContext(Dispatchers.IO) {
-                    queryLauncherActivities(App.getContext(), false)
+                    try {
+                        queryLauncherActivities(App.getContext(), false)
+                    } catch (_: Exception) {
+                        // PackageManager may be busy during package change processing;
+                        // cache will be rebuilt on next query request
+                    }
                 }
             }
         }

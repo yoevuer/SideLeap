@@ -1,14 +1,17 @@
 package hunoia.sideleap.ui.component.quickapplaunch
 
 import android.content.Context
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import hunoia.sideleap.freeze.FrozenQuickAppLauncherQuery
 import hunoia.sideleap.launcher.launch.QuickAppLaunch
 import hunoia.sideleap.launcher.model.AppInfo
+import hunoia.sideleap.launcher.icon.IconResizeCache
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.launcher.query.AppSearch.sortApps
+import hunoia.sideleap.launcher.query.LauncherIconQuery
 import hunoia.sideleap.launcher.query.QuickAppLauncherAppList
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
@@ -66,14 +69,16 @@ class QuickAppLauncherState(
                 FrozenQuickAppLauncherQuery.queryApps(context)
             }
             appListState = state
+            prewarmIcons()
         }
     }
 
     val visibleApps: List<AppInfo>
         get() = appListState.apps
 
-    val filteredApps: List<AppInfo>
-        get() = sortApps(visibleApps, launcherSettings, tokens)
+    val filteredApps: List<AppInfo> by derivedStateOf {
+        sortApps(visibleApps, launcherSettings, tokens)
+    }
 
     fun addToken(token: String) {
         tokens = tokens + token
@@ -93,6 +98,19 @@ class QuickAppLauncherState(
 
     fun expandKeyboard() {
         keyboardExpanded = true
+    }
+
+    private fun prewarmIcons() {
+        coroutineScope.launch(Dispatchers.IO) {
+            val apps = appListState.apps
+            for (app in apps.take(25)) {
+                if (app.packageName !in IconResizeCache.iconCache) {
+                    LauncherIconQuery.loadApplicationIcon(context, app.packageName)?.let {
+                        IconResizeCache.iconCache[app.packageName] = it
+                    }
+                }
+            }
+        }
     }
 
     fun launchApp(app: AppInfo, isFrozen: Boolean, miniWindow: Boolean, debugPrefix: String?) {
