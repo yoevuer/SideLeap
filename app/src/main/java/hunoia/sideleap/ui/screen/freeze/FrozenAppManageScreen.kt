@@ -1,5 +1,8 @@
 package hunoia.sideleap.ui.screen.freeze
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,18 +38,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.imageLoader
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.component.UiBaseEvent
-import com.aaron.compose.ktx.onClick
 import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.icon
@@ -59,6 +61,7 @@ import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.theme.TopBarPaddingExtra
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FrozenAppManageContent(
     onDismiss: () -> Unit,
@@ -76,7 +79,7 @@ fun FrozenAppManageContent(
             }
         }
     ) { uiState ->
-        var oneKeyExpanded by remember { mutableStateOf(false) }
+        var selectedExpanded by remember { mutableStateOf(false) }
         var showMenu by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) { vm.reloadApps() }
 
@@ -114,8 +117,7 @@ fun FrozenAppManageContent(
                 )
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = {
-                    vm.onOneKeySelectFrozen()
-                    vm.commitSelections()
+                    vm.clearSelections()
                 }) {
                     Icon(Icons.Default.Restore, contentDescription = stringResource(R.string.reset))
                 }
@@ -166,11 +168,56 @@ fun FrozenAppManageContent(
                         )
                     }
                 }
-                listOf(selectedFiltered, unselectedFiltered).fastForEach { list ->
-                    items(
-                        items = list,
-                        key = { it.packageName }
-                    ) { app ->
+                if (selectedFiltered.isNotEmpty()) {
+                    item(key = "selected_header") {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { selectedExpanded = !selectedExpanded }
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = null,
+                                modifier = Modifier.graphicsLayer {
+                                    rotationX = if (selectedExpanded) 0f else 180f
+                                }
+                            )
+                            Spacer(Modifier.padding(4.dp))
+                            Text(
+                                text = stringResource(id = R.string.one_key_list),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
+                    }
+                    if (selectedExpanded) {
+                        items(selectedFiltered, key = { it.packageName }) { app ->
+                            val isFrozen = uiState.frozenStateByPackage[app.packageName] == true
+                            val checked = app.packageName in uiState.pendingOneKeyPackageNames
+                            FrozenAppItem(
+                                app = app,
+                                isFrozen = isFrozen,
+                                checked = checked,
+                                onCheckedChange = { vm.onOneKeyChecked(app.packageName, it) },
+                                onLongClick = { vm.onToggleFrozen(app.packageName) }
+                            )
+                        }
+                    }
+                }
+                if (unselectedFiltered.isNotEmpty()) {
+                    item(key = "unselected_header") {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            text = stringResource(id = R.string.other_apps),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                    items(unselectedFiltered, key = { it.packageName }) { app ->
                         val isFrozen = uiState.frozenStateByPackage[app.packageName] == true
                         val checked = app.packageName in uiState.pendingOneKeyPackageNames
                         FrozenAppItem(
@@ -187,6 +234,7 @@ fun FrozenAppManageContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun FrozenAppItem(
     app: AppInfo,
@@ -199,7 +247,10 @@ private fun FrozenAppItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .onClick { onCheckedChange(!checked) }
+            .combinedClickable(
+                onClick = { onCheckedChange(!checked) },
+                onLongClick = onLongClick
+            )
             .padding(vertical = ContentPaddingVertical),
         verticalAlignment = Alignment.CenterVertically
     ) {
