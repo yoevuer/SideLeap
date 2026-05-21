@@ -296,8 +296,13 @@
     <string name="stroke_width">轮廓宽度</string>
     <string name="width">宽度</string>
     <string name="length">长度</string>
+    <string name="icon_scale">图标缩放</string>
     <string name="reserved_bounds">预留边界</string>
     <string name="reserved_bounds_hint">防止超出屏幕，需要居中请关闭</string>
+    <string name="shape_style">形状风格</string>
+    <string name="shape_wave">波浪</string>
+    <string name="shape_pill">胶囊</string>
+    <string name="shape_flow">流线</string>
     <string name="bezier_transform">形变</string>
     <string name="bezier_transform_hint">根据手指移动变化形状</string>
     <string name="tint">着色</string>

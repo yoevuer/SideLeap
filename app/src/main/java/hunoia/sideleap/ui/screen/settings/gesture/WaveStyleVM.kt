@@ -88,6 +88,13 @@ class WaveStyleVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
+    fun onShapeTypeChange(shapeType: Int) {
+        updateUiState {
+            it.copy(animationStyle = it.animationStyle.copy(shapeType = shapeType))
+        }
+        saveSettings()
+    }
+
     fun onBackgroundColorSourceChange(source: ColorSource) {
         updateUiState {
             it.copy(animationStyle = it.animationStyle.copy(backgroundColorSource = source))

@@ -37,6 +37,7 @@ fun MyTextSlider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     sliderValueHint: Pair<String, String>? = null,
+    valueDisplay: String? = null,
     onValueChangeFinished: (() -> Unit)? = null,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f
 ) {
@@ -55,26 +56,39 @@ fun MyTextSlider(
             style = MaterialTheme.typography.titleMedium,
             maxLines = 1
         )
-        if (sliderValueHint != null) {
+        if (sliderValueHint != null || valueDisplay != null) {
             Box(
                 modifier = Modifier
                     .padding(horizontal = ContentPaddingHorizontal)
                     .fillMaxWidth()
             ) {
-                Text(
-                    modifier = Modifier.align(Alignment.CenterStart),
-                    text = sliderValueHint.first,
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1
-                )
-                Text(
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    text = sliderValueHint.second,
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1
-                )
+                if (sliderValueHint != null) {
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        text = sliderValueHint.first,
+                        color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1
+                    )
+                }
+                if (valueDisplay != null) {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = valueDisplay,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1
+                    )
+                }
+                if (sliderValueHint != null) {
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        text = sliderValueHint.second,
+                        color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1
+                    )
+                }
             }
         }
         MySlider(

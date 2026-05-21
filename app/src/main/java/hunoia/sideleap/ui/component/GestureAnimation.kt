@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -138,68 +139,109 @@ private fun WaveGestureAnimation(
                 neg = size.width
             ).let { if (button.isVertical) it else safeOrigin - bezierLengthHalf }
             val moveToY = if (button.isVertical) safeOrigin - bezierLengthHalf else size.height
-            moveTo(moveToX, moveToY)
 
-            // 避免边缘出现没覆盖全的白边
-            val factor = factorDp
-            var safeFingerX: Float
-            var safeFingerY: Float
-            when (button.position) {
-                Position.Left, Position.Right -> {
-                    safeFingerX = when (button.position) {
-                        Position.Left -> fingerXAnimVal.coerceAtMost(bezierMaxWidth)
-                        else -> (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
+            when (animationStyle.shapeType) {
+                WaveStyle.SHAPE_PILL -> {
+                    when (button.position) {
+                        Position.Left, Position.Right -> {
+                            val right = when (button.position) {
+                                Position.Left -> fingerXAnimVal.coerceAtMost(bezierMaxWidth)
+                                else -> (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
+                            }
+                            val left = when (button.position) {
+                                Position.Left -> 0f
+                                else -> right - bezierMaxWidth
+                            }
+                            val pillL = minOf(left, right)
+                            val pillR = maxOf(left, right)
+                            val pillT = safeOrigin - bezierLengthHalf - transformOffset
+                            val pillB = safeOrigin + bezierLengthHalf - transformOffset
+                            val cr = (bezierLengthHalf).coerceAtMost((pillR - pillL) / 2f)
+                            addRoundRect(RoundRect(pillL, pillT, pillR, pillB, cr, cr))
+                        }
+                        Position.Bottom -> {
+                            val bottom = (size.height + fingerYAnimVal).coerceAtLeast(size.height - bezierMaxWidth)
+                            val top = bottom - bezierMaxWidth
+                            val pillL = safeOrigin - bezierLengthHalf - transformOffset
+                            val pillR = safeOrigin + bezierLengthHalf - transformOffset
+                            val cr = (bezierLengthHalf).coerceAtMost((bottom - top) / 2f)
+                            addRoundRect(RoundRect(pillL, top, pillR, bottom, cr, cr))
+                        }
                     }
-                    safeFingerY = safeOrigin - bezierLengthHalf / 2.5f - transformOffset
-                    cubicTo(
-                        x1 = when (button.position) {
-                            Position.Left -> -factor
-                            else -> size.width + factor
-                        },
-                        y1 = safeFingerY,
-                        x2 = safeFingerX,
-                        y2 = safeFingerY,
-                        x3 = safeFingerX,
-                        y3 = safeOrigin - transformOffset
-                    )
-
-                    safeFingerY = safeOrigin + bezierLengthHalf / 2.5f - transformOffset
-                    cubicTo(
-                        x1 = safeFingerX,
-                        y1 = safeFingerY,
-                        x2 = when (button.position) {
-                            Position.Left -> 0f
-                            else -> size.width
-                        },
-                        y2 = safeFingerY,
-                        x3 = when (button.position) {
-                            Position.Left -> -factor
-                            else -> size.width + factor
-                        },
-                        y3 = safeOrigin + bezierLengthHalf
-                    )
                 }
-                Position.Bottom -> {
-                    safeFingerX = safeOrigin - bezierLengthHalf / 2.5f - transformOffset
-                    safeFingerY = (size.height + fingerYAnimVal).coerceAtLeast(size.height - bezierMaxWidth)
-                    cubicTo(
-                        x1 = safeFingerX,
-                        y1 = size.height + factor,
-                        x2 = safeFingerX,
-                        y2 = safeFingerY,
-                        x3 = safeOrigin - transformOffset,
-                        y3 = safeFingerY
-                    )
-
-                    safeFingerX = safeOrigin + bezierLengthHalf / 2.5f - transformOffset
-                    cubicTo(
-                        x1 = safeFingerX,
-                        y1 = safeFingerY,
-                        x2 = safeFingerX,
-                        y2 = size.height,
-                        x3 = safeOrigin + bezierLengthHalf,
-                        y3 = size.height + factor
-                    )
+                WaveStyle.SHAPE_FLOW -> {
+                    moveTo(moveToX, moveToY)
+                    val factor = factorDp
+                    var safeFingerX: Float
+                    when (button.position) {
+                        Position.Left, Position.Right -> {
+                            safeFingerX = when (button.position) {
+                                Position.Left -> fingerXAnimVal.coerceAtMost(bezierMaxWidth)
+                                else -> (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
+                            }
+                            val midX = (moveToX + safeFingerX) / 2f
+                            val ctrlOffset = bezierLengthHalf * 0.8f
+                            cubicTo(midX, safeOrigin - bezierLengthHalf - ctrlOffset - transformOffset,
+                                safeFingerX, safeOrigin - ctrlOffset - transformOffset,
+                                safeFingerX, safeOrigin - transformOffset)
+                            cubicTo(safeFingerX, safeOrigin + ctrlOffset - transformOffset,
+                                midX, safeOrigin + bezierLengthHalf + ctrlOffset - transformOffset,
+                                when (button.position) { Position.Left -> -factor else -> size.width + factor },
+                                safeOrigin + bezierLengthHalf)
+                        }
+                        Position.Bottom -> {
+                            safeFingerX = safeOrigin - bezierLengthHalf
+                            val bottom = (size.height + fingerYAnimVal).coerceAtLeast(size.height - bezierMaxWidth)
+                            val midY = (moveToY + bottom) / 2f
+                            val ctrlOffset = bezierLengthHalf * 0.8f
+                            cubicTo(safeOrigin - bezierLengthHalf - ctrlOffset - transformOffset, midY,
+                                safeOrigin - ctrlOffset - transformOffset, bottom,
+                                safeOrigin - transformOffset, bottom)
+                            cubicTo(safeOrigin + ctrlOffset - transformOffset, bottom,
+                                safeOrigin + bezierLengthHalf + ctrlOffset - transformOffset, midY,
+                                safeOrigin + bezierLengthHalf, size.height + factor)
+                        }
+                    }
+                }
+                else -> {
+                    moveTo(moveToX, moveToY)
+                    val factor = factorDp
+                    var safeFingerX: Float
+                    var safeFingerY: Float
+                    when (button.position) {
+                        Position.Left, Position.Right -> {
+                            safeFingerX = when (button.position) {
+                                Position.Left -> fingerXAnimVal.coerceAtMost(bezierMaxWidth)
+                                else -> (size.width + fingerXAnimVal).coerceAtLeast(size.width - bezierMaxWidth)
+                            }
+                            safeFingerY = safeOrigin - bezierLengthHalf / 2.5f - transformOffset
+                            cubicTo(
+                                x1 = when (button.position) { Position.Left -> -factor else -> size.width + factor },
+                                y1 = safeFingerY,
+                                x2 = safeFingerX, y2 = safeFingerY,
+                                x3 = safeFingerX, y3 = safeOrigin - transformOffset
+                            )
+                            safeFingerY = safeOrigin + bezierLengthHalf / 2.5f - transformOffset
+                            cubicTo(
+                                x1 = safeFingerX, y1 = safeFingerY,
+                                x2 = when (button.position) { Position.Left -> 0f else -> size.width },
+                                y2 = safeFingerY,
+                                x3 = when (button.position) { Position.Left -> -factor else -> size.width + factor },
+                                y3 = safeOrigin + bezierLengthHalf
+                            )
+                        }
+                        Position.Bottom -> {
+                            safeFingerX = safeOrigin - bezierLengthHalf / 2.5f - transformOffset
+                            safeFingerY = (size.height + fingerYAnimVal).coerceAtLeast(size.height - bezierMaxWidth)
+                            cubicTo(safeFingerX, size.height + factor,
+                                safeFingerX, safeFingerY,
+                                safeOrigin - transformOffset, safeFingerY)
+                            safeFingerX = safeOrigin + bezierLengthHalf / 2.5f - transformOffset
+                            cubicTo(safeFingerX, safeFingerY,
+                                safeFingerX, size.height,
+                                safeOrigin + bezierLengthHalf, size.height + factor)
+                        }
+                    }
                 }
             }
 
@@ -277,6 +319,7 @@ private fun WaveGestureAnimation(
                     )
                 }
             }
-        }
     }
+}
+
 }

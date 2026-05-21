@@ -2,16 +2,23 @@ package hunoia.sideleap.ui.screen.settings.gesture
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -23,12 +30,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
@@ -37,6 +50,7 @@ import com.aaron.compose.ktx.onSingleClick
 import hunoia.sideleap.R
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxBezierLength
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxBezierStrokeWidth
+import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxBezierStrokeWidthValue
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxBezierWidth
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MaxIconScale
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinBezierLength
@@ -45,10 +59,14 @@ import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinBezierWidth
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinIconScale
 import hunoia.sideleap.settings.model.ColorSource
 import hunoia.sideleap.settings.model.ThemeColorKey
+import hunoia.sideleap.settings.model.WaveStyle
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ANGLE
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW_NEW
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_TRIANGLE
+import hunoia.sideleap.settings.model.WaveStyle.Companion.SHAPE_FLOW
+import hunoia.sideleap.settings.model.WaveStyle.Companion.SHAPE_PILL
+import hunoia.sideleap.settings.model.WaveStyle.Companion.SHAPE_WAVE
 import hunoia.sideleap.ui.screen.settings.gesture.getWaveStyleIcon
 import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleVM.UiEvent
 import hunoia.sideleap.ui.theme.MinInteractiveSize
@@ -64,6 +82,7 @@ import hunoia.sideleap.ui.component.MyTextSlider
 import hunoia.sideleap.ui.component.LabeledSwitch
 import hunoia.sideleap.ui.component.ThemeColorPickerDialog
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * @author DS-Z
@@ -89,6 +108,34 @@ private fun resolvePreviewColor(source: ColorSource, themeKey: ThemeColorKey, cu
         ThemeColorKey.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
         ThemeColorKey.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
         ThemeColorKey.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
+    }
+}
+
+@Composable
+private fun ShapePreview(shapeType: Int, modifier: Modifier, color: Color) {
+    Canvas(modifier = modifier) {
+        val path = Path()
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val cy = h / 2f
+        when (shapeType) {
+            SHAPE_WAVE -> {
+                path.moveTo(2f, cy)
+                path.cubicTo(w * 0.3f, 2f, w * 0.7f, h - 2f, w - 2f, cy)
+            }
+            SHAPE_PILL -> {
+                val pillH = h * 0.5f
+                path.addRoundRect(
+                    RoundRect(2f, cy - pillH / 2f, w - 2f, cy + pillH / 2f, pillH / 2f, pillH / 2f)
+                )
+            }
+            SHAPE_FLOW -> {
+                path.moveTo(2f, h - 2f)
+                path.cubicTo(w * 0.25f, 2f, w * 0.75f, h - 2f, w - 2f, cy)
+            }
+        }
+        drawPath(path, color = color, style = Stroke(2.dp.toPx()))
     }
 }
 
@@ -197,7 +244,8 @@ fun WaveStyleContent(
                         onValueChange = { vm.onStrokeWidthChange(it) },
                         onValueChangeFinished = { vm.saveSettings() },
                         text = stringResource(id = R.string.stroke_width),
-                        sliderValueHint = stringResource(id = R.string.small) to stringResource(id = R.string.large),
+                        valueDisplay = "${uiState.animationStyle.strokeWidth}px",
+                        sliderValueHint = "0px" to "${MaxBezierStrokeWidthValue}px",
                         valueRange = MinBezierStrokeWidth.toFloat()..MaxBezierStrokeWidth.toFloat()
                     )
                 }
@@ -211,7 +259,8 @@ fun WaveStyleContent(
                         onValueChange = { vm.onWidthChange(it) },
                         onValueChangeFinished = { vm.saveSettings() },
                         text = stringResource(id = R.string.width),
-                        sliderValueHint = stringResource(id = R.string.small) to stringResource(id = R.string.large),
+                        valueDisplay = "${uiState.animationStyle.width}px",
+                        sliderValueHint = "${MinBezierWidth.toInt()}px" to "${MaxBezierWidth.toInt()}px",
                         valueRange = MinBezierWidth.toFloat()..MaxBezierWidth.toFloat()
                     )
                     MyTextSlider(
@@ -219,9 +268,79 @@ fun WaveStyleContent(
                         onValueChange = { vm.onLengthHalfRatioChange(it) },
                         onValueChangeFinished = { vm.saveSettings() },
                         text = stringResource(id = R.string.length),
-                        sliderValueHint = stringResource(id = R.string.short1) to stringResource(id = R.string.long1),
+                        valueDisplay = String.format("%.1f", uiState.animationStyle.bezierLengthHalfRatio),
+                        sliderValueHint = String.format("%.1f", MinBezierLength) to String.format("%.1f", MaxBezierLength),
                         valueRange = MinBezierLength.toFloat()..MaxBezierLength.toFloat()
                     )
+                    MyTextSlider(
+                        value = uiState.animationStyle.iconScale,
+                        onValueChange = { vm.onIconScaleChange(it) },
+                        onValueChangeFinished = { vm.saveSettings() },
+                        text = stringResource(id = R.string.icon_scale),
+                        valueDisplay = "${(uiState.animationStyle.iconScale * 100).roundToInt()}%",
+                        sliderValueHint = "${(MinIconScale * 100).roundToInt()}%" to "${(MaxIconScale * 100).roundToInt()}%",
+                        valueRange = MinIconScale..MaxIconScale
+                    )
+                    Text(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        text = stringResource(id = R.string.shape_style),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(
+                            SHAPE_WAVE to stringResource(id = R.string.shape_wave),
+                            SHAPE_PILL to stringResource(id = R.string.shape_pill),
+                            SHAPE_FLOW to stringResource(id = R.string.shape_flow),
+                        ).fastForEach { (type, label) ->
+                            val selected = uiState.animationStyle.shapeType == type
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clipToBackground(
+                                        color = when (selected) {
+                                            true -> MaterialTheme.colorScheme.primary
+                                            else -> MaterialTheme.colorScheme.surfaceVariant
+                                        },
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
+                                    .onSingleClick { vm.onShapeTypeChange(type) }
+                                    .padding(vertical = 8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(
+                                            if (selected) MaterialTheme.colorScheme.primaryContainer
+                                            else MaterialTheme.colorScheme.surfaceContainerHigh
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    ShapePreview(
+                                        shapeType = type,
+                                        modifier = Modifier.size(24.dp),
+                                        color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
+                                                else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (selected) MaterialTheme.colorScheme.onPrimary
+                                            else MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    }
                     LabeledSwitch(
                         onCheckedChange = { vm.onSafeBoundsChange(it) },
                         checked = uiState.animationStyle.safeBounds,

@@ -18,11 +18,11 @@ object SettingsUiDefaults {
     val MinLongSlideTriggerDistance = ConvertUtils.dp2px(80f)
     val MaxLongSlideTriggerDistance = ConvertUtils.dp2px(100f)
     const val MinBezierStrokeWidth = 0
-    val MaxBezierStrokeWidth = ConvertUtils.dp2px(5f)
-    val MinBezierWidth = ConvertUtils.dp2px(20f)
+    val MaxBezierStrokeWidth = ConvertUtils.dp2px(MaxBezierStrokeWidthValue.toFloat())
+    val MinBezierWidth = ConvertUtils.dp2px(10f)
     val MaxBezierWidth = ConvertUtils.dp2px(80f)
-    const val MinBezierLength = 1.8f
-    const val MaxBezierLength = 4.0f
+    const val MinBezierLength = 1.0f
+    const val MaxBezierLength = 6.0f
     const val MinIconScale = 0.0f
     const val MaxIconScale = 1.0f
     const val MinMoveScreenRate = 1f
@@ -43,6 +43,7 @@ object SettingsUiDefaults {
     const val GestureButtonColorAlpha = 0.36f
     const val DisabledAlpha = 0.36f
     const val DimAlpha = 0.5f
+    const val MaxBezierStrokeWidthValue = 8
 
     @Composable
     fun getPredefinedVibrationEffectText(effect: VibrationEffects): String {

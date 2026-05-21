@@ -75,6 +75,7 @@ object AnimationStylesDefaults {
     val WaveStyleIconColor = android.graphics.Color.argb(200, 255, 255, 255)
     const val WaveStyleIconScale = 0.6f
     const val WaveStyleIconType = WaveStyle.ICON_TYPE_ARROW
+    const val WaveStyleShapeType = WaveStyle.SHAPE_WAVE
     val WaveStyleBackgroundColorSource = ColorSource.Theme
     val WaveStyleStrokeColorSource = ColorSource.Theme
     val WaveStyleIconColorSource = ColorSource.Theme
@@ -98,6 +99,7 @@ data class WaveStyle(
     val iconColor: Int = AnimationStylesDefaults.WaveStyleIconColor,
     val iconScale: Float = AnimationStylesDefaults.WaveStyleIconScale,
     val iconType: Int = AnimationStylesDefaults.WaveStyleIconType,
+    val shapeType: Int = AnimationStylesDefaults.WaveStyleShapeType,
     val stickySlideEnabled: Boolean = false,
     val backgroundColorSource: ColorSource = AnimationStylesDefaults.WaveStyleBackgroundColorSource,
     val strokeColorSource: ColorSource = AnimationStylesDefaults.WaveStyleStrokeColorSource,
@@ -112,5 +114,9 @@ data class WaveStyle(
         const val ICON_TYPE_TRIANGLE = 2
         const val ICON_TYPE_ANGLE = 3
         const val ICON_TYPE_ARROW_NEW = 4
+
+        const val SHAPE_WAVE = 0
+        const val SHAPE_PILL = 1
+        const val SHAPE_FLOW = 2
     }
 }
