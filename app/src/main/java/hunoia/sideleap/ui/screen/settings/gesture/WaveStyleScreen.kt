@@ -64,11 +64,7 @@ import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ANGLE
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW_NEW
 import hunoia.sideleap.settings.model.WaveStyle.Companion.ICON_TYPE_TRIANGLE
-import hunoia.sideleap.settings.model.WaveStyle.Companion.SHAPE_DROP
-import hunoia.sideleap.settings.model.WaveStyle.Companion.SHAPE_FLOW
 import hunoia.sideleap.settings.model.WaveStyle.Companion.SHAPE_LINE
-import hunoia.sideleap.settings.model.WaveStyle.Companion.SHAPE_PILL
-import hunoia.sideleap.settings.model.WaveStyle.Companion.SHAPE_RING
 import hunoia.sideleap.settings.model.WaveStyle.Companion.SHAPE_WAVE
 import hunoia.sideleap.ui.screen.settings.gesture.getWaveStyleIcon
 import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleVM.UiEvent
@@ -127,32 +123,9 @@ private fun ShapePreview(shapeType: Int, modifier: Modifier, color: Color) {
                 path.moveTo(2f, cy)
                 path.cubicTo(w * 0.3f, 2f, w * 0.7f, h - 2f, w - 2f, cy)
             }
-            SHAPE_PILL -> {
-                val pillH = h * 0.5f
-                path.addRoundRect(
-                    RoundRect(2f, cy - pillH / 2f, w - 2f, cy + pillH / 2f, pillH / 2f, pillH / 2f)
-                )
-            }
-            SHAPE_FLOW -> {
-                path.moveTo(2f, h - 2f)
-                path.cubicTo(w * 0.25f, 2f, w * 0.75f, h - 2f, w - 2f, cy)
-            }
             SHAPE_LINE -> {
-                path.moveTo(2f, cy)
-                path.lineTo(w - 2f, cy)
-            }
-            SHAPE_RING -> {
-                val r = minOf(w, h) * 0.35f
-                path.addOval(
-                    androidx.compose.ui.geometry.Rect(cx - r, cy - r, cx + r, cy + r)
-                )
-            }
-            SHAPE_DROP -> {
-                val r = minOf(w, h) * 0.3f
                 path.moveTo(cx, 2f)
-                path.cubicTo(cx + r, cy - r * 0.3f, w - 2f, cy + r * 0.4f, cx, h - 2f)
-                path.cubicTo(2f, cy + r * 0.4f, cx - r, cy - r * 0.3f, cx, 2f)
-                path.close()
+                path.lineTo(cx, h - 2f)
             }
         }
         drawPath(path, color = color, style = Stroke(2.dp.toPx()))
@@ -287,11 +260,7 @@ fun WaveStyleContent(
                     ) {
                         listOf(
                             SHAPE_WAVE to stringResource(id = R.string.shape_wave),
-                            SHAPE_PILL to stringResource(id = R.string.shape_pill),
-                            SHAPE_FLOW to stringResource(id = R.string.shape_flow),
                             SHAPE_LINE to stringResource(id = R.string.shape_line),
-                            SHAPE_RING to stringResource(id = R.string.shape_ring),
-                            SHAPE_DROP to stringResource(id = R.string.shape_drop),
                         ).fastForEach { (type, label) ->
                             val selected = uiState.animationStyle.shapeType == type
                             Column(

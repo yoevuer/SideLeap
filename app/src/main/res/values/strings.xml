@@ -303,11 +303,7 @@
     <string name="reserved_bounds_hint">防止超出屏幕，需要居中请关闭</string>
     <string name="shape_style">形状风格</string>
     <string name="shape_wave">波浪</string>
-    <string name="shape_pill">胶囊</string>
-    <string name="shape_flow">流线</string>
     <string name="shape_line">直线</string>
-    <string name="shape_ring">圆环</string>
-    <string name="shape_drop">水滴</string>
     <string name="bezier_transform">形变</string>
     <string name="bezier_transform_hint">根据手指移动变化形状</string>
     <string name="tint">着色</string>
