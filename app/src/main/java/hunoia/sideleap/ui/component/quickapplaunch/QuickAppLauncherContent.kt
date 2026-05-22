@@ -172,6 +172,8 @@ internal fun QuickAppLauncherContent(
                         val candidateRows = state.launcherSettings.candidateRows.coerceIn(1, 3)
                         val chunkedApps = remember(state.filteredApps, candidateRows) { state.filteredApps.chunked(candidateRows) }
                         val candidateHeight = candidateHeightFor(contentHeightFraction, candidateRows)
+                        val keyboardHeight = keyHeightFor(contentHeightFraction) * 3 + 20.dp
+                        val contentHeight = candidateHeight + keyboardHeight
                         AnimatedContent(
                             targetState = state.keyboardExpanded,
                             transitionSpec = {
@@ -221,7 +223,7 @@ internal fun QuickAppLauncherContent(
                                     gridState = gridState,
                                     gridAtTop = gridAtTop,
                                     keyboardExpanded = state.keyboardExpanded,
-                                    contentHeightFraction = contentHeightFraction,
+                                    gridHeight = contentHeight,
                                     onExpandKeyboard = { state.expandKeyboard() },
                                     onClick = { app, isFrozen ->
                                         state.launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
@@ -284,7 +286,7 @@ private fun AppGrid(
     gridState: LazyGridState,
     gridAtTop: Boolean,
     keyboardExpanded: Boolean,
-    contentHeightFraction: Float,
+    gridHeight: Dp,
     onExpandKeyboard: () -> Unit,
     onClick: (AppInfo, Boolean) -> Unit,
     onLongPress: (AppInfo, Boolean) -> Unit
@@ -293,7 +295,7 @@ private fun AppGrid(
 
     Box(
         modifier = Modifier
-            .height(gridHeightFor(contentHeightFraction))
+            .height(gridHeight)
             .fillMaxWidth()
             .pointerInput(gridAtTop) {
                 var totalDrag = 0f
@@ -382,9 +384,4 @@ private fun keyHeightFor(f: Float): Dp {
 private fun candidateHeightFor(f: Float, rows: Int): Dp {
     val t = heightFractionLerp(f)
     return ((48 + 8 * t) * rows.coerceIn(1, 3)).dp
-}
-
-private fun gridHeightFor(f: Float): Dp {
-    val t = heightFractionLerp(f)
-    return (180 + 80 * t).dp
 }
