@@ -249,17 +249,10 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
                 }
             }
         }
-        composeView.alpha = 0f
         wm.addView(composeView, lp)
         overlayView = composeView
         overlayParams = lp
-
-        composeView.animate()
-            .alpha(1f)
-            .setDuration(200L)
-            .setInterpolator(android.view.animation.AccelerateDecelerateInterpolator())
-            .withEndAction { isShowing = false }
-            .start()
+        isShowing = false
     }
 
 

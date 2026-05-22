@@ -114,10 +114,8 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
         val nextHeight = height.coerceIn(1, screenHeight)
         val nextX = ((screenWidth - nextWidth) / 2).coerceAtLeast(0)
         val nextY = (screenHeight - nextHeight - BottomMarginPx).coerceAtLeast(0)
-        val firstLayout = !hasPanelSize
         hasPanelSize = true
         if (lp.width == nextWidth && lp.height == nextHeight && lp.x == nextX && lp.y == nextY) {
-            if (firstLayout) startShowAnimation(view)
             return
         }
 
@@ -126,20 +124,6 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
         lp.x = nextX
         lp.y = nextY
         runCatching { wm.updateViewLayout(view, lp) }
-        if (firstLayout) startShowAnimation(view)
-    }
-
-    private fun startShowAnimation(view: View) {
-        if (!isShowing || isHiding || overlayView !== view) return
-        view.animate().cancel()
-        view.animate()
-            .alpha(1f)
-            .setDuration(200L)
-            .setInterpolator(android.view.animation.AccelerateDecelerateInterpolator())
-            .withEndAction {
-                if (overlayView === view) isShowing = false
-            }
-            .start()
     }
 
     private fun createLayoutParams(): WindowManager.LayoutParams {

@@ -104,6 +104,7 @@ internal fun QuickAppLauncherContent(
     val panelShiftY by animateFloatAsState(if (state.panelVisible) 0f else 18f, animationSpec = tween(AnimPanelShift.toInt()), label = "panelShiftY")
     var gridAtTop by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) { onRegisterCloseAnimated?.invoke(state.closeAnimated) }
+    LaunchedEffect(Unit) { state.panelVisible = true }
     val gridState = rememberLazyGridState()
     LaunchedEffect(gridState) {
         snapshotFlow { gridState.firstVisibleItemIndex to gridState.firstVisibleItemScrollOffset }

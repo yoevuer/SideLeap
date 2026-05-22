@@ -41,7 +41,7 @@ class QuickAppLauncherState(
     var launcherSettings by mutableStateOf(initialSettings)
         private set
     var keyboardExpanded by mutableStateOf(true)
-    var panelVisible by mutableStateOf(true)
+    var panelVisible by mutableStateOf(false)
     var closing by mutableStateOf(false)
 
     val closeAnimated: () -> Unit = {
