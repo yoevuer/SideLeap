@@ -317,7 +317,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun onVirtualMouseContinuousModeTimeoutChange(value: Long) {
         onVirtualMouseChange(uiState.virtualMouse.copy(continuousModeTimeoutMs = value))
-        saveVirtualMouseSettings()
     }
 
     fun onVirtualMouseClickAnimationChange(value: Boolean) {
