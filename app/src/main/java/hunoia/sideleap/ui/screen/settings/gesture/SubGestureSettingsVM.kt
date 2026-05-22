@@ -73,6 +73,11 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
                 upLeftAction = original.upRightAction,
                 downRightAction = original.downLeftAction,
                 downLeftAction = original.downRightAction,
+                angle = original.angle.copy(
+                    boundaries = original.angle.boundaries.let { b ->
+                        listOf(3, 2, 1, 0, 7, 6, 5, 4).map { i -> ((0.5f - b[i]) + 1f) % 1f }
+                    }
+                ),
             )
             SettingsProvider.updateSubGestureSettings { settings ->
                 settings.copy(subGestures = settings.subGestures + mirrored)
