@@ -115,6 +115,14 @@ private fun WaveGestureAnimation(
             Position.Bottom -> if (fingerYAnimVal > 0f) return@Canvas
         }
 
+        val clipMargin = bezierLengthHalf + bezierOffset + bezierSpacing + bezierTransformOffsetCoerce
+        val clipBounds = when (button.position) {
+            Position.Left -> androidx.compose.ui.geometry.Rect(0f, 0f, (bezierMaxWidth + clipMargin).coerceAtMost(size.width), size.height)
+            Position.Right -> androidx.compose.ui.geometry.Rect((size.width - bezierMaxWidth - clipMargin).coerceAtLeast(0f), 0f, size.width, size.height)
+            Position.Bottom -> androidx.compose.ui.geometry.Rect(0f, (size.height - bezierMaxWidth - clipMargin).coerceAtLeast(0f), size.width, size.height)
+        }
+        drawContext.canvas.clipRect(clipBounds.left, clipBounds.top, clipBounds.right, clipBounds.bottom)
+
         // 贝塞尔形变偏移值
         val transformOffset = button.whenVertical(
             vertical = originYAnimVal - fingerYAnimVal,

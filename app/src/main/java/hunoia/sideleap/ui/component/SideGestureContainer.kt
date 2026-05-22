@@ -2,8 +2,6 @@ package hunoia.sideleap.ui.component
 
 import android.graphics.Bitmap
 import android.os.Build
-import android.os.SystemClock
-import android.view.ViewConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -19,7 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalContext
 import hunoia.sideleap.R
 import hunoia.sideleap.action.GlobalActions
@@ -34,37 +31,17 @@ import hunoia.sideleap.gesture.application.virtualMouseInitialPosition
 import hunoia.sideleap.action.withRuntimeTouchPosition
 import hunoia.sideleap.settings.model.ActionPanelStyle
 import hunoia.sideleap.settings.model.ActionPanelStyles
+import hunoia.sideleap.settings.model.ActionSettings
+import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.AnimationStyle
 import hunoia.sideleap.settings.model.ArcStyle
+import hunoia.sideleap.settings.model.GestureSettings
+import hunoia.sideleap.settings.model.WaveStyle
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
-import hunoia.sideleap.gesture.TriggerDirection.Center
-import hunoia.sideleap.gesture.TriggerDirection.Center2
-import hunoia.sideleap.gesture.TriggerDirection.Down
-import hunoia.sideleap.gesture.TriggerDirection.Down2
-import hunoia.sideleap.gesture.TriggerDirection.Up
-import hunoia.sideleap.gesture.TriggerDirection.Up2
-import hunoia.sideleap.settings.model.WaveStyle
-import hunoia.sideleap.settings.model.ActionSettings
-import hunoia.sideleap.settings.model.AdvancedSettings
-import hunoia.sideleap.settings.model.GestureSettings
-import hunoia.sideleap.gesture.GESTURE_ANGLE_BASE
-import hunoia.sideleap.gesture.actionsBy
-import hunoia.sideleap.gesture.bounds
-import hunoia.sideleap.gesture.calcDirection
-import hunoia.sideleap.gesture.canDistanceTriggered
-import hunoia.sideleap.gesture.find
-import hunoia.sideleap.gesture.getStickySlideValue
-import hunoia.sideleap.gesture.getTriggerDirection
-import hunoia.sideleap.gesture.isEmptyOrNone
-import hunoia.sideleap.gesture.stickySlideValue
 import hunoia.sideleap.gesture.styleBy
-import hunoia.sideleap.system.vibration.tryVibrateForLongPress
-import hunoia.sideleap.system.vibration.tryVibrateForLongSlide
-import hunoia.sideleap.system.vibration.tryVibrateForSlide
 import hunoia.sideleap.system.vibration.tryVibrateForSubGesture
-import hunoia.sideleap.system.vibration.tryVibrateForTap
 import hunoia.sideleap.ui.component.DragGestureHandler
 import hunoia.sideleap.system.volumeDown
 import hunoia.sideleap.system.volumeUp
@@ -78,8 +55,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.abs
-import kotlin.math.absoluteValue
 import kotlin.math.atan
 import kotlin.math.hypot
 import kotlin.math.roundToInt
@@ -526,7 +501,7 @@ private fun Action.withTouchPosition(position: Offset): Action {
 }
 
 @Composable
-private fun rememberSideGestureState(
+internal fun rememberSideGestureState(
     buttons: List<GestureButton>,
     advancedSettings: AdvancedSettings = AdvancedSettings(),
     gestureSettings: GestureSettings = GestureSettings()
@@ -534,227 +509,6 @@ private fun rememberSideGestureState(
     val coroutineScope = rememberCoroutineScope()
     return remember(coroutineScope, buttons, advancedSettings, gestureSettings) {
         SideGestureState(coroutineScope, buttons, advancedSettings, gestureSettings)
-    }
-}
-
-class SideGestureState(
-    private val coroutineScope: CoroutineScope,
-    private val buttons: List<GestureButton>,
-    private val advancedSettings: AdvancedSettings = AdvancedSettings(),
-    private val gestureSettings: GestureSettings = GestureSettings()
-) {
-
-    var isCanceled: Boolean by mutableStateOf(false)
-        private set
-
-    var button: GestureButton? by mutableStateOf(null)
-        private set
-    var triggerDirection: TriggerDirection by mutableStateOf(Center2)
-        private set
-
-    var origin = Offset.Unspecified
-        private set
-    var finger = Offset.Unspecified
-        private set
-    private var buttonBounds: Rect? = null
-
-    var originXAnimVal by mutableStateOf(Float.NaN); private set
-    var originYAnimVal by mutableStateOf(Float.NaN); private set
-    val fingerXAnimVal: Float get() = fingerXDisplay
-    val fingerYAnimVal: Float get() = fingerYDisplay
-    private var fingerXDisplay by mutableStateOf(Float.NaN)
-    private var fingerYDisplay by mutableStateOf(Float.NaN)
-
-    var onLongPress: (Action) -> Unit = {}
-
-    private var longSlideFirstTriggerMs = 0L
-    private var calcLongPressJob: Job? = null
-
-    private val curStickySlideValue: Float
-        get() = stickySlideValue(advancedSettings.animationStyles)
-
-    /**
-     * 区分上下滑和侧滑，当可以触发侧滑时，即使后面触发方向变成上下滑也需要取消手势
-     */
-    private var isOhoGestureEverCanTriggered = false
-
-    private var slideVibrationFlags = false
-
-    private val viewConfiguration = ViewConfiguration.get(hunoia.sideleap.core.AppContext.get())
-
-    fun onDragStart(offset: Offset, imePadding: Int) {
-        isCanceled = false
-        origin = offset
-        finger = offset
-        button = buttons.find(offset, imePadding)
-        buttonBounds = button?.bounds(imePadding)
-
-        val button = button ?: run {
-            fingerXDisplay = Float.NaN
-            fingerYDisplay = Float.NaN
-            return
-        }
-        val gestureSettings = gestureSettings
-
-        val longPressAction = button.slideActions.center2.firstOrNull()
-        if (longPressAction != null && longPressAction != Action.NONE) {
-            calcLongPressJob = coroutineScope.launch {
-                delay(gestureSettings.longPressTriggerDelayMs)
-                gestureSettings.vibrations.tryVibrateForLongPress()
-                onLongPress(longPressAction)
-            }
-        }
-
-        originXAnimVal = offset.x
-        originYAnimVal = offset.y
-
-        when (button.position) {
-            Position.Left, Position.Right -> {
-                fingerXDisplay = getStickySlideValue(button, curStickySlideValue, true)
-                fingerYDisplay = offset.y
-            }
-            Position.Bottom -> {
-                fingerXDisplay = offset.x
-                fingerYDisplay = getStickySlideValue(button, curStickySlideValue, false)
-            }
-        }
-    }
-
-    /**
-     * @return 返回null表示不识别任何手势，emptyList()表示还没触发动作，
-     * 长列表表示触发长动作，否则表示触发一个动作
-     */
-    fun onDrag(dragAmount: Offset): List<Action>? {
-        finger += dragAmount
-
-        val touchSlop = viewConfiguration.scaledTouchSlop
-        val minus = finger - origin
-        if (calcLongPressJob?.isActive == true &&
-            (minus.x.absoluteValue > touchSlop ||
-            minus.y.absoluteValue > touchSlop)
-        ) {
-            calcLongPressJob?.cancel()
-        }
-
-        // 理论上能到这里button不应该为空
-        val button = button ?: return null
-        // 没触发方向，这一轮不再识别手势
-        val newDirection = calcDirection(button, origin, finger, buttonBounds, gestureSettings) ?: return null
-        triggerDirection = newDirection
-
-        val gestureSettings = gestureSettings
-        if (gestureSettings.isPreciseSlideType) {
-            if (newDirection == Center) {
-                if (!isOhoGestureEverCanTriggered) {
-                    isOhoGestureEverCanTriggered = canDistanceTriggered(button, origin, finger, newDirection, gestureSettings, false, curStickySlideValue, judgeAction = false)
-                }
-            } else if (isOhoGestureEverCanTriggered &&
-                (newDirection == Up2 || newDirection == Down2)
-            ) {
-                return null
-            }
-        }
-
-        fingerXDisplay += dragAmount.x
-        fingerYDisplay += dragAmount.y
-
-        val canTriggerLong = canDistanceTriggered(button, origin, finger, triggerDirection, gestureSettings, true, curStickySlideValue)
-        if (canTriggerLong) {
-            val longSlideDelayMs = gestureSettings.longSlideTriggerDelayMs
-            val timeMs = SystemClock.uptimeMillis()
-            if (longSlideFirstTriggerMs == 0L) {
-                longSlideFirstTriggerMs = timeMs
-            } else if (timeMs - longSlideFirstTriggerMs >= longSlideDelayMs) {
-                val actions = button.longSlideActions.actionsBy(newDirection)
-                if (gestureSettings.longSlideTriggerImmediately) {
-                    gestureSettings.vibrations.tryVibrateForLongSlide()
-                    return actions
-                }
-            }
-        } else {
-            longSlideFirstTriggerMs = 0L
-        }
-
-        if (gestureSettings.vibrations.vibrateImmediately &&
-            !slideVibrationFlags && canDistanceTriggered(button, origin, finger, triggerDirection, gestureSettings, false, curStickySlideValue)
-        ) {
-            slideVibrationFlags = true
-            gestureSettings.vibrations.tryVibrateForSlide()
-        }
-
-        return emptyList()
-    }
-
-    fun onDragEnd(): Action {
-        calcLongPressJob?.cancel()
-        val button = button ?: return Action.NONE
-        val gestureSettings = gestureSettings
-        val triggerDirection = triggerDirection
-        val longSlideDelayMs = gestureSettings.longSlideTriggerDelayMs
-        var returnAction = Action.NONE
-        if (!gestureSettings.longSlideTriggerImmediately &&
-            canDistanceTriggered(button, origin, finger, triggerDirection, gestureSettings, true, curStickySlideValue) &&
-            SystemClock.uptimeMillis() - longSlideFirstTriggerMs >= longSlideDelayMs
-        ) {
-            val actions = button.longSlideActions.actionsBy(triggerDirection)
-            val action = actions.firstOrNull()
-            if (action != null && action != Action.NONE) {
-                gestureSettings.vibrations.tryVibrateForLongSlide()
-                returnAction = action
-            }
-        } else if (canDistanceTriggered(button, origin, finger, triggerDirection, gestureSettings, false, curStickySlideValue)) {
-            val actions = button.slideActions.actionsBy(triggerDirection)
-            val action = actions.firstOrNull()
-            if (action != null && action != Action.NONE) {
-                if (!slideVibrationFlags) {
-                    gestureSettings.vibrations.tryVibrateForSlide()
-                }
-                returnAction = action
-            }
-        }
-
-        if (returnAction == Action.NONE) {
-            val distance = hypot(finger.x - origin.x, finger.y - origin.y)
-            if (distance <= viewConfiguration.scaledTouchSlop) {
-                val tapAction = button.tapActions.center.firstOrNull()
-                if (tapAction != null && tapAction != Action.NONE) {
-                    if (!slideVibrationFlags) {
-                        gestureSettings.vibrations.tryVibrateForTap()
-                    }
-                    returnAction = tapAction
-                }
-            }
-        }
-
-        reset()
-        return returnAction
-    }
-
-    fun cancel() {
-        if (isCanceled) return
-        reset()
-        isCanceled = true
-    }
-
-    fun onDragCancel() {
-        reset()
-    }
-
-    fun reset() {
-        calcLongPressJob?.cancel()
-        calcLongPressJob = null
-        isCanceled = false
-        origin = Offset.Unspecified
-        finger = Offset.Unspecified
-        fingerXDisplay = Float.NaN
-        fingerYDisplay = Float.NaN
-        longSlideFirstTriggerMs = 0L
-        isOhoGestureEverCanTriggered = false
-        slideVibrationFlags = false
-    }
-
-    fun canDistanceTriggered(button: GestureButton, isLongSlide: Boolean, judgeAction: Boolean = true): Boolean {
-        return hunoia.sideleap.gesture.canDistanceTriggered(button, origin, finger, triggerDirection, gestureSettings, isLongSlide, curStickySlideValue, judgeAction)
     }
 }
 
