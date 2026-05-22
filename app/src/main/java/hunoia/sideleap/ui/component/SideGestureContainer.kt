@@ -60,8 +60,11 @@ import hunoia.sideleap.gesture.getTriggerDirection
 import hunoia.sideleap.gesture.isEmptyOrNone
 import hunoia.sideleap.gesture.stickySlideValue
 import hunoia.sideleap.gesture.styleBy
+import hunoia.sideleap.system.vibration.tryVibrateForLongPress
 import hunoia.sideleap.system.vibration.tryVibrateForLongSlide
 import hunoia.sideleap.system.vibration.tryVibrateForSlide
+import hunoia.sideleap.system.vibration.tryVibrateForSubGesture
+import hunoia.sideleap.system.vibration.tryVibrateForTap
 import hunoia.sideleap.ui.component.DragGestureHandler
 import hunoia.sideleap.system.volumeDown
 import hunoia.sideleap.system.volumeUp
@@ -269,6 +272,7 @@ fun SideGestureContainer(
                     val direction = activeSubGesture!!.angle.directionOf(subGestureAccum)
                     val action = activeSubGesture!!.actionFor(direction)
                     subGestureAccum = Offset.Zero
+                    gestureSettings.vibrations.tryVibrateForSubGesture()
                     if (action != null && action != Action.NONE) {
                         when (action.value) {
                             GlobalActions.VOLUME_SCRUB -> {
@@ -596,7 +600,7 @@ class SideGestureState(
         if (longPressAction != null && longPressAction != Action.NONE) {
             calcLongPressJob = coroutineScope.launch {
                 delay(gestureSettings.longPressTriggerDelayMs)
-                gestureSettings.vibrations.tryVibrateForSlide()
+                gestureSettings.vibrations.tryVibrateForLongPress()
                 onLongPress(longPressAction)
             }
         }
@@ -715,7 +719,7 @@ class SideGestureState(
                 val tapAction = button.tapActions.center.firstOrNull()
                 if (tapAction != null && tapAction != Action.NONE) {
                     if (!slideVibrationFlags) {
-                        gestureSettings.vibrations.tryVibrateForSlide()
+                        gestureSettings.vibrations.tryVibrateForTap()
                     }
                     returnAction = tapAction
                 }

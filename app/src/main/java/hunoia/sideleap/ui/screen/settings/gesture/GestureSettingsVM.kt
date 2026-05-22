@@ -136,6 +136,27 @@ class GestureSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
+    fun onVibrateForTap(value: Boolean) {
+        updateUiState {
+            it.copy(vibrations = it.vibrations.copy(tapEnabled = value))
+        }
+        saveSettings()
+    }
+
+    fun onVibrateForLongPress(value: Boolean) {
+        updateUiState {
+            it.copy(vibrations = it.vibrations.copy(longPressEnabled = value))
+        }
+        saveSettings()
+    }
+
+    fun onVibrateForSubGesture(value: Boolean) {
+        updateUiState {
+            it.copy(vibrations = it.vibrations.copy(subGestureEnabled = value))
+        }
+        saveSettings()
+    }
+
     fun onCustomVibrationChange(value: Boolean) {
         updateUiState {
             it.copy(isCustomVibration = value)

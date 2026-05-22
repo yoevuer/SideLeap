@@ -37,3 +37,27 @@ fun Vibrations.tryVibrateForMoveScreen() {
         vibrate(ctx, this)
     }
 }
+
+@RequiresPermission(VIBRATE)
+fun Vibrations.tryVibrateForTap() {
+    val ctx = appContext ?: return
+    if (tapEnabled) {
+        vibrate(ctx, this)
+    }
+}
+
+@RequiresPermission(VIBRATE)
+fun Vibrations.tryVibrateForLongPress() {
+    val ctx = appContext ?: return
+    if (longPressEnabled) {
+        vibrate(ctx, this)
+    }
+}
+
+@RequiresPermission(VIBRATE)
+fun Vibrations.tryVibrateForSubGesture() {
+    val ctx = appContext ?: return
+    if (subGestureEnabled) {
+        vibrate(ctx, this)
+    }
+}

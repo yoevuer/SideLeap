@@ -117,6 +117,12 @@
     <string name="vibration_hint">识别或触发手势时振动</string>
     <string name="vibrate_immediately">快速振动</string>
     <string name="vibrate_immediately_hint">识别到手势立即振动，而不是等到抬手</string>
+    <string name="vibration_tap">单击振动</string>
+    <string name="vibration_tap_hint">触发单击动作时振动</string>
+    <string name="vibration_long_press">长按振动</string>
+    <string name="vibration_long_press_hint">触发长按动作时振动</string>
+    <string name="vibration_sub_gesture">子手势振动</string>
+    <string name="vibration_sub_gesture_hint">触发子手势方向时振动</string>
     <string name="custom_vibration">自定义振动</string>
     <string name="custom_vibration_hint">自定义振动风格或振动强度</string>
     <string name="vibration_style">振动风格</string>

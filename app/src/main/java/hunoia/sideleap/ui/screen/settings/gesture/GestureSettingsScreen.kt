@@ -195,6 +195,24 @@ fun GestureSettingsScreen(
                         text = stringResource(id = R.string.vibrate_immediately),
                         secondaryText = stringResource(id = R.string.vibrate_immediately_hint)
                     )
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onVibrateForTap(it) },
+                        checked = uiState.vibrations.tapEnabled,
+                        text = stringResource(id = R.string.vibration_tap),
+                        secondaryText = stringResource(id = R.string.vibration_tap_hint)
+                    )
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onVibrateForLongPress(it) },
+                        checked = uiState.vibrations.longPressEnabled,
+                        text = stringResource(id = R.string.vibration_long_press),
+                        secondaryText = stringResource(id = R.string.vibration_long_press_hint)
+                    )
+                    LabeledSwitch(
+                        onCheckedChange = { vm.onVibrateForSubGesture(it) },
+                        checked = uiState.vibrations.subGestureEnabled,
+                        text = stringResource(id = R.string.vibration_sub_gesture),
+                        secondaryText = stringResource(id = R.string.vibration_sub_gesture_hint)
+                    )
                     if (uiState.canShowPredefinedVibration) {
                         LabeledSwitch(
                             onCheckedChange = { vm.onCustomVibrationChange(it) },

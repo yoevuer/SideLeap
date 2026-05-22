@@ -9,6 +9,9 @@ object VibrationDefaults {
     const val LongSlideEnabled = true
     const val ActionPanelEnabled = true
     const val MoveScreenEnabled = true
+    const val TapEnabled = true
+    const val LongPressEnabled = true
+    const val SubGestureEnabled = true
     val PredefinedEffect = VibrationEffects.Click
     const val CustomVibrationMs = 50L
     const val MinCustomVibrationMs = 0L
@@ -23,6 +26,9 @@ data class Vibrations(
     val longSlideEnabled: Boolean = VibrationDefaults.LongSlideEnabled,
     val actionPanelEnabled: Boolean = VibrationDefaults.ActionPanelEnabled,
     val moveScreenEnabled: Boolean = VibrationDefaults.MoveScreenEnabled,
+    val tapEnabled: Boolean = VibrationDefaults.TapEnabled,
+    val longPressEnabled: Boolean = VibrationDefaults.LongPressEnabled,
+    val subGestureEnabled: Boolean = VibrationDefaults.SubGestureEnabled,
     val predefinedEffect: VibrationEffects = VibrationDefaults.PredefinedEffect,
     val customVibrationMs: Long = VibrationDefaults.CustomVibrationMs,
     val vibrateImmediately: Boolean = VibrationDefaults.VibrateImmediately
