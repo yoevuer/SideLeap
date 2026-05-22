@@ -33,7 +33,7 @@ import hunoia.sideleap.settings.model.SubGesture
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.freeze.api.FreezeState
 import hunoia.sideleap.launcher.query.ShortcutQuery
-import com.blankj.utilcode.util.FileUtils
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -629,7 +629,7 @@ class ActionSelectVM(
                         listOfNotNull(action.shortcutInfo, action.longPressAction?.shortcutInfo).forEach { shortcutInfo ->
                             if (shortcutInfo.iconPath.isNullOrEmpty()) return@forEach
                             if (shortcutInfo.iconPath in newPaths) return@forEach
-                            FileUtils.delete(shortcutInfo.iconPath)
+                            File(shortcutInfo.iconPath).delete()
                         }
                     }
                 }

@@ -21,7 +21,7 @@ import hunoia.sideleap.system.window.setBasic
 import hunoia.sideleap.system.window.updateLayout
 import hunoia.sideleap.system.window.updateMainView
 import hunoia.sideleap.service.GestureView
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 
 class SideGestureWindowController(private val host: SideGestureService) {
     var mainView: View? = null
@@ -121,8 +121,8 @@ class SideGestureWindowController(private val host: SideGestureService) {
 internal fun WindowManager.LayoutParams.updateGestureButton(button: GestureButton) {
     updateGestureButton(
         button = button,
-        rootWidth = ScreenUtils.getScreenWidth(),
-        rootHeight = ScreenUtils.getScreenHeight()
+        rootWidth = DensityProvider.screenWidthPx,
+        rootHeight = DensityProvider.screenHeightPx
     )
 }
 

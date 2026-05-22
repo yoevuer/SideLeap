@@ -1,9 +1,9 @@
 package hunoia.sideleap.core.crash
 
 import hunoia.sideleap.core.Paths
-import com.blankj.utilcode.util.FileIOUtils
-import com.blankj.utilcode.util.FileUtils
-import com.blankj.utilcode.util.TimeUtils
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -20,14 +20,14 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
 
     fun getCrashFile(): File? {
         val path = crashFilePath
-        if (!FileUtils.isFileExists(path)) {
+        if (!File(path).exists()) {
             return null
         }
         return File(path)
     }
 
     fun getCrashList(): List<String> {
-        val string = FileIOUtils.readFile2String(crashFilePath)
+        val string = File(crashFilePath).readText()
         if (string.isNullOrEmpty()) {
             return emptyList()
         }
@@ -40,7 +40,7 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
     }
 
     fun reset() {
-        FileUtils.delete(crashFilePath)
+        File(crashFilePath).delete()
     }
 
     private fun saveErrorInfo(e: Throwable) {
@@ -50,17 +50,18 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
         e.printStackTrace(printWriter)
         printWriter.close()
         val errorStackInfo = stringWriter.toString()
-        stringBuffer.append("Time: ${TimeUtils.millis2String(System.currentTimeMillis())}\n")
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        stringBuffer.append("Time: ${dateFormat.format(Date(System.currentTimeMillis()))}\n")
         stringBuffer.append(errorStackInfo)
         stringBuffer.append("$SEPARATOR\n")
 
-        val cache = FileIOUtils.readFile2String(crashFilePath)
+        val cache = File(crashFilePath).readText()
         if (!cache.isNullOrEmpty()) {
             stringBuffer.append(cache)
         }
 
-        FileUtils.createOrExistsDir(crashDir)
-        FileUtils.createOrExistsFile(crashFilePath)
-        FileIOUtils.writeFileFromString(crashFilePath, stringBuffer.toString(), false)
+        File(crashDir).mkdirs()
+        File(crashFilePath).createNewFile()
+        File(crashFilePath).writeText(stringBuffer.toString())
     }
 }

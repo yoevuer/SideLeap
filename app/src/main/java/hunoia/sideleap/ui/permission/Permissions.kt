@@ -6,7 +6,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.blankj.utilcode.util.PermissionUtils
+
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.PermissionStatus
@@ -24,7 +24,6 @@ val PermissionStatus.deniedForever: Boolean
 fun rememberGetInstalledAppsPermissionState(
     onPermissionResult: (Boolean) -> Unit = {}
 ): PermissionState {
-    PermissionUtils.isGranted()
     val context = LocalContext.current
     val delegate = rememberPermissionState(PERMISSION_GET_INSTALLED_APPS, onPermissionResult)
     return remember(context, delegate) {

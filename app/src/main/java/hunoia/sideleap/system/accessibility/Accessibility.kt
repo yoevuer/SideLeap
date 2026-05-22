@@ -7,7 +7,7 @@ import android.graphics.Path
 import android.graphics.Point
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 
 object Accessibility {
 
@@ -58,8 +58,8 @@ object Accessibility {
         gotoBottomStrength: Int = 10
     ): Boolean {
         service ?: return false
-        val screenWidth = ScreenUtils.getScreenWidth()
-        val screenHeight = ScreenUtils.getScreenHeight()
+        val screenWidth = DensityProvider.screenWidthPx
+        val screenHeight = DensityProvider.screenHeightPx
         val point = Point(screenWidth / 2, screenHeight / 2)
         val builder = GestureDescription.Builder()
         if (toTop) {

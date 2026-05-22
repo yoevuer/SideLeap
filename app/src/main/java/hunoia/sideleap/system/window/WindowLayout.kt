@@ -6,10 +6,10 @@ import android.os.Build
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.ui.unit.IntSize
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 
 val rootSize: IntSize
-    get() = IntSize(ScreenUtils.getScreenWidth(), ScreenUtils.getScreenHeight())
+    get() = IntSize(DensityProvider.screenWidthPx, DensityProvider.screenHeightPx)
 
 fun WindowManager.LayoutParams.updateMainView() {
     val rootSize = rootSize

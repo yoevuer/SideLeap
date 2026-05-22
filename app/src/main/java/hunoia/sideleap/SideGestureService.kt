@@ -41,6 +41,7 @@ import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.SubGestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
+import hunoia.sideleap.core.AppContext
 import hunoia.sideleap.core.event.Events
 import hunoia.sideleap.core.event.WallpaperChangedEvent
 import hunoia.sideleap.launcher.query.AppQuery
@@ -82,7 +83,7 @@ import hunoia.sideleap.system.copySensitiveText
 import hunoia.sideleap.system.accessibility.Accessibility
 import hunoia.sideleap.ui.component.password.PasswordGeneratorPanel
 import hunoia.sideleap.ui.component.password.PasswordPanelContent
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -177,7 +178,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             updateGestureButtons()
         }
     )
-    private var orientation = if (ScreenUtils.isLandscape()) 2 else 1
+    private var orientation = if (AppContext.get().resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 2 else 1
 
     private var isNowInLockScreenPage = false
     private var isMouseMode = false

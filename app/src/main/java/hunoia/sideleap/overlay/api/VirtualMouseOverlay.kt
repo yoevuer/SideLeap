@@ -14,7 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ComposeView
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import hunoia.sideleap.gesture.application.VirtualMousePointerAction
@@ -178,8 +178,8 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-            width = ScreenUtils.getScreenWidth()
-            height = ScreenUtils.getScreenHeight()
+            width = DensityProvider.screenWidthPx
+            height = DensityProvider.screenHeightPx
             gravity = Gravity.START or Gravity.TOP
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS

@@ -1,8 +1,7 @@
 package hunoia.sideleap.gesture.application
 
 import androidx.compose.ui.geometry.Offset
-import com.blankj.utilcode.util.ConvertUtils
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.settings.model.GestureSettings
 import kotlin.math.hypot
 
@@ -19,8 +18,8 @@ fun virtualMouseInitialPosition(
         return clampVirtualMousePosition(previousPosition)
     }
     return Offset(
-        x = ScreenUtils.getScreenWidth() * 0.5f,
-        y = ScreenUtils.getScreenHeight() * settings.initialYRatio.coerceIn(0f, 1f),
+        x = DensityProvider.screenWidthPx * 0.5f,
+        y = DensityProvider.screenHeightPx * settings.initialYRatio.coerceIn(0f, 1f),
     )
 }
 
@@ -45,7 +44,7 @@ fun isVirtualMouseStillMovement(
     dragAmount: Offset,
     settings: GestureSettings.VirtualMouse,
 ): Boolean {
-    val deadZone = ConvertUtils.dp2px(settings.movementDeadZoneDp.toFloat()).toFloat()
+    val deadZone = DensityProvider.dp2px(settings.movementDeadZoneDp.toFloat()).toFloat()
     return hypot(dragAmount.x, dragAmount.y) <= deadZone
 }
 
@@ -55,7 +54,7 @@ fun isVirtualMouseWithinLongPressTolerance(
     settings: GestureSettings.VirtualMouse,
 ): Boolean {
     if (!anchor.x.isFinite() || !anchor.y.isFinite() || !current.x.isFinite() || !current.y.isFinite()) return false
-    val tolerance = ConvertUtils.dp2px(settings.longPressMoveToleranceDp.toFloat()).toFloat()
+    val tolerance = DensityProvider.dp2px(settings.longPressMoveToleranceDp.toFloat()).toFloat()
     return hypot(current.x - anchor.x, current.y - anchor.y) <= tolerance
 }
 
@@ -64,9 +63,9 @@ fun isVirtualMouseCancelGesture(
     settings: GestureSettings.VirtualMouse,
 ): Boolean {
     if (!touchPosition.x.isFinite() || !touchPosition.y.isFinite()) return false
-    val threshold = ConvertUtils.dp2px(settings.edgeCancelThresholdDp.toFloat()).toFloat()
-    val width = ScreenUtils.getScreenWidth().toFloat()
-    val height = ScreenUtils.getScreenHeight().toFloat()
+    val threshold = DensityProvider.dp2px(settings.edgeCancelThresholdDp.toFloat()).toFloat()
+    val width = DensityProvider.screenWidthPx.toFloat()
+    val height = DensityProvider.screenHeightPx.toFloat()
     val atBottom = touchPosition.y >= height - threshold
     return (touchPosition.x <= threshold && atBottom) ||
         (touchPosition.x >= width - threshold && atBottom)
@@ -74,7 +73,7 @@ fun isVirtualMouseCancelGesture(
 
 fun clampVirtualMousePosition(position: Offset): Offset {
     return Offset(
-        x = position.x.coerceIn(0f, ScreenUtils.getScreenWidth().toFloat()),
-        y = position.y.coerceIn(0f, ScreenUtils.getScreenHeight().toFloat()),
+        x = position.x.coerceIn(0f, DensityProvider.screenWidthPx.toFloat()),
+        y = position.y.coerceIn(0f, DensityProvider.screenHeightPx.toFloat()),
     )
 }

@@ -60,7 +60,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.blankj.utilcode.util.ScreenUtils
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
@@ -97,8 +96,9 @@ internal fun QuickAppLauncherContent(
         )
     }
     val density = LocalDensity.current
-    val orientation = LocalConfiguration.current.orientation
-    val screenWidthPx = remember(orientation) { ScreenUtils.getScreenWidth() }
+    val configuration = LocalConfiguration.current
+    val orientation = configuration.orientation
+    val screenWidthPx = remember(orientation) { with(density) { configuration.screenWidthDp.dp.toPx().roundToInt() } }
     val panelWidthDp = with(density) { (screenWidthPx * state.launcherSettings.panelWidthFraction).toDp() }
     val panelAlpha by animateFloatAsState(if (state.panelVisible) 1f else 0f, animationSpec = tween(AnimOverlayFade.toInt()), label = "panelAlpha")
     val panelShiftY by animateFloatAsState(if (state.panelVisible) 0f else 18f, animationSpec = tween(AnimPanelShift.toInt()), label = "panelShiftY")

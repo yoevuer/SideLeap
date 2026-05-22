@@ -2,7 +2,7 @@ package hunoia.sideleap.gesture
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.settings.model.AnimationStyles
 import hunoia.sideleap.settings.model.GestureSettings
@@ -124,7 +124,7 @@ fun getStickySlideValue(button: GestureButton, stickySlideValue: Float, isX: Boo
     return stickySlideValue
 }
 
-private val STICKY_SLIDE_DP = ConvertUtils.dp2px(36f).toFloat()
+private val STICKY_SLIDE_DP = DensityProvider.dp2px(36f).toFloat()
 
 fun stickySlideValue(animationStyles: AnimationStyles): Float {
     val waveStyle = animationStyles.value as? WaveStyle

@@ -1,14 +1,17 @@
 package hunoia.sideleap.gesture
 
 import android.os.SystemClock
+import android.graphics.Color as AndroidColor
 import androidx.annotation.Keep
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.blankj.utilcode.util.ColorUtils
-import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.action.GestureActions
 import hunoia.sideleap.settings.model.LongSlideActionPanelStyles
+import kotlin.random.Random
 import kotlinx.serialization.Serializable
+
+private fun randomColor(): Int = AndroidColor.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
 
 object GestureButtonDefaults {
 
@@ -16,7 +19,7 @@ object GestureButtonDefaults {
     const val Enabled = true
     const val Start = 0.0f
     const val End = 0.1f
-    val Width = ConvertUtils.dp2px(16f)
+    val Width = DensityProvider.dp2px(16f)
     val SlideActions = GestureActions()
     val LongSlideActions = GestureActions()
     val LongSlideActionPanelStyles = LongSlideActionPanelStyles()
@@ -85,7 +88,7 @@ data class GestureButton(
 
         fun createSidePair(): List<GestureButton> {
             val id = SystemClock.uptimeMillis().toString()
-            val colorInt = ColorUtils.getRandomColor(false)
+            val colorInt = randomColor()
             val color = Color(colorInt).toArgb()
             val b1 = GestureButton(
                 id = id,
@@ -104,7 +107,7 @@ data class GestureButton(
 
         fun createBottom(): GestureButton {
             val id = SystemClock.uptimeMillis().toString()
-            val colorInt = ColorUtils.getRandomColor(false)
+            val colorInt = randomColor()
             val color = Color(colorInt).toArgb()
             return GestureButton(
                 id = id,

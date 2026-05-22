@@ -62,7 +62,7 @@ import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.system.vibration.tryVibrateForMoveScreen
 import hunoia.sideleap.action.MoveScreenData
 import hunoia.sideleap.core.serialization.JsonHelper
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -267,8 +267,8 @@ class MoveScreenState(
     private val coroutineScope: CoroutineScope
 ) : LongSlideState() {
 
-    private val screenWidth = ScreenUtils.getScreenWidth()
-    private val screenHeight = ScreenUtils.getScreenHeight()
+    private val screenWidth = DensityProvider.screenWidthPx
+    private val screenHeight = DensityProvider.screenHeightPx
 
     var visible: Boolean by mutableStateOf(false)
         private set

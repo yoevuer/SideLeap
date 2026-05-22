@@ -63,8 +63,7 @@ import hunoia.sideleap.settings.model.ThemeColorKey
 import hunoia.sideleap.ui.theme.DialogTitleFontSize
 import hunoia.sideleap.ui.theme.DialogTitlePadding
 import hunoia.sideleap.ui.theme.ItemPadding
-import com.blankj.utilcode.util.ConvertUtils
-import com.blankj.utilcode.util.ToastUtils
+import hunoia.sideleap.core.DensityProvider
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import hunoia.sideleap.ui.dialog.GotoBottomSettingsContent
@@ -136,6 +135,7 @@ fun ColorPickerDialog(
     initialColor: Color = MaterialTheme.colorScheme.primary,
     autoDismiss: Boolean = true
 ) {
+    val context = LocalContext.current
     var showModifyColorValueDialog by remember {
         mutableStateOf(false)
     }
@@ -312,10 +312,9 @@ fun ColorPickerDialog(
                             colorController.selectByColor(newColor, true)
                             showModifyColorValueDialog = false
                         } catch (ignored: Exception) {
-                            ToastUtils
-                                .getDefaultMaker()
-                                .setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, ConvertUtils.dp2px(100f))
-                            ToastUtils.showShort(R.string.invalid_color_value)
+                            val toast = android.widget.Toast.makeText(context, R.string.invalid_color_value, android.widget.Toast.LENGTH_SHORT)
+                            toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, DensityProvider.dp2px(100f))
+                            toast.show()
                         }
                     }
                 ) {

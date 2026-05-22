@@ -5,11 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import com.blankj.utilcode.util.AppUtils
+
 import hunoia.sideleap.R
 
 fun Context.gotoAppDetailSettings() {
-    AppUtils.launchAppDetailsSettings(packageName)
+    Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        data = android.net.Uri.parse("package:$packageName")
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }.also { startActivity(it) }
 }
 
 fun Context.launchAssist(): Boolean {

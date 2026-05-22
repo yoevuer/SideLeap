@@ -1,7 +1,7 @@
 package hunoia.sideleap.action.handlers
 
 import android.os.Build
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.R
 import hunoia.sideleap.action.api.ActionExecutionResult
 import hunoia.sideleap.action.api.ActionHandler
@@ -45,8 +45,8 @@ object MoveScreenActionHandler : ActionHandler {
             return
         }
         val data = JsonHelper.decodeFromString<MoveScreenData>(action.data)
-        if (data.x in 0..ScreenUtils.getScreenWidth() &&
-            data.y in 0..ScreenUtils.getScreenHeight()
+        if (data.x in 0..DensityProvider.screenWidthPx &&
+            data.y in 0..DensityProvider.screenHeightPx
         ) {
             when (data.action) {
                 ActionSettings.MoveScreen.Action.LongPress -> {
@@ -83,7 +83,7 @@ object MoveScreenActionHandler : ActionHandler {
     private suspend fun handleClickCurrentPosition(action: Action, context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return
         val (x, y) = action.runtimeTouchPosition() ?: return
-        if (x in 0..ScreenUtils.getScreenWidth() && y in 0..ScreenUtils.getScreenHeight()) {
+        if (x in 0..DensityProvider.screenWidthPx && y in 0..DensityProvider.screenHeightPx) {
             context.hideGestureButton(250L)
             delay(80)
             Accessibility.click(context.accessibilityService, x, y)

@@ -73,7 +73,7 @@ import hunoia.sideleap.system.window.applyOverlayViewTreeOwners
 import hunoia.sideleap.system.window.windowManager
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.settings.SettingsProvider
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.ui.theme.SideGestureTheme
@@ -277,8 +277,8 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         closeAdjustPanel()
         val wm = host.context.windowManager()
         val density = host.context.resources.displayMetrics.density
-        val screenWidth = ScreenUtils.getScreenWidth()
-        val screenHeight = ScreenUtils.getScreenHeight()
+        val screenWidth = DensityProvider.screenWidthPx
+        val screenHeight = DensityProvider.screenHeightPx
         val initialWidth = (screenWidth * 0.92f).roundToInt()
         val initialHeight = 480.dpToPx(density)
         val lp = WindowManager.LayoutParams().apply {
@@ -326,8 +326,8 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         contentWidth: Int, contentHeight: Int
     ) {
         if (contentWidth <= 0 || contentHeight <= 0) return
-        val screenWidth = ScreenUtils.getScreenWidth()
-        val screenHeight = ScreenUtils.getScreenHeight()
+        val screenWidth = DensityProvider.screenWidthPx
+        val screenHeight = DensityProvider.screenHeightPx
         val nextWidth = contentWidth.coerceIn(1, screenWidth)
         val nextHeight = contentHeight.coerceIn(1, screenHeight)
         if (lp.width == nextWidth && lp.height == nextHeight) return
@@ -355,8 +355,8 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     }
 
     private fun WindowManager.LayoutParams.applyPanelLayout(settings: QuickAppLauncherSettings) {
-        val screenWidth = ScreenUtils.getScreenWidth()
-        val screenHeight = ScreenUtils.getScreenHeight()
+        val screenWidth = DensityProvider.screenWidthPx
+        val screenHeight = DensityProvider.screenHeightPx
         val panelWidth = (screenWidth * settings.panelWidthFraction.coerceIn(0.65f, 1f)).roundToInt().coerceIn(1, screenWidth)
         val estimatedHeight = estimatePanelHeightPx(settings).coerceAtMost(screenHeight)
         width = panelWidth

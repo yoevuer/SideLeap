@@ -5,20 +5,22 @@ import android.content.Context
 import android.content.Intent
 import hunoia.sideleap.R
 import hunoia.sideleap.system.feedback.showToast
-import com.blankj.utilcode.util.RomUtils
+import android.os.Build
 
 object KeepAliveHelper {
 
     fun gotoSettings(context: Context) {
         try {
+            val manufacturer = Build.MANUFACTURER
+            val brand = Build.BRAND
             when {
-                RomUtils.isHuawei() -> gotoHuaweiSetting(context)
-                RomUtils.isXiaomi() -> gotoXiaomiSetting(context)
-                RomUtils.isOppo() -> gotoOPPOSetting(context)
-                RomUtils.isVivo() -> gotoVIVOSetting(context)
-                RomUtils.isSmartisan() -> gotoSmartisanSetting(context)
-                RomUtils.isSamsung() -> gotoSamsungSetting(context)
-                RomUtils.isMeizu() -> gotoMeizuSetting(context)
+                manufacturer.equals("Huawei", ignoreCase = true) || brand.equals("Huawei", ignoreCase = true) -> gotoHuaweiSetting(context)
+                manufacturer.equals("Xiaomi", ignoreCase = true) -> gotoXiaomiSetting(context)
+                manufacturer.equals("Oppo", ignoreCase = true) -> gotoOPPOSetting(context)
+                manufacturer.equals("Vivo", ignoreCase = true) -> gotoVIVOSetting(context)
+                manufacturer.equals("Smartisan", ignoreCase = true) -> gotoSmartisanSetting(context)
+                manufacturer.equals("Samsung", ignoreCase = true) || brand.equals("Samsung", ignoreCase = true) -> gotoSamsungSetting(context)
+                manufacturer.equals("Meizu", ignoreCase = true) -> gotoMeizuSetting(context)
                 else -> showToast(R.string.please_enable_launch_self_permission_by_yourself)
             }
         } catch (ignored: Exception) {

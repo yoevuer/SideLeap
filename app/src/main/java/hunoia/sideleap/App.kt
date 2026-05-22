@@ -9,6 +9,7 @@ import android.os.Process
 import com.aaron.compose.component.UDFComponentDefaults
 import hunoia.sideleap.ui.UDFComponentDefaultsImpl
 import hunoia.sideleap.core.AppContext
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.core.crash.CrashHandler
 import hunoia.sideleap.core.event.Events
 import hunoia.sideleap.system.handler.isMainThread
@@ -53,6 +54,7 @@ class App : Application() {
         Events.isMainThread = { isMainThread() }
         initToastScope(AppContext.applicationScope!!)
         initVibrationContext(applicationContext)
+        DensityProvider.init(applicationContext)
 
         UDFComponentDefaults.set(UDFComponentDefaultsImpl())
 

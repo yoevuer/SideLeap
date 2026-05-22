@@ -2,9 +2,9 @@
 
 package hunoia.sideleap.settings.defaults
 
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.settings.model.ActionPanelStyles
 import hunoia.sideleap.settings.model.AnimationStyles
-import com.blankj.utilcode.util.ConvertUtils
 import hunoia.sideleap.system.vibration.Vibrations as VibrationModel
 
 object AdvancedSettingsDefaults {
@@ -31,14 +31,14 @@ object AdvancedSettingsDefaults {
 
 object GestureSettingsDefaults {
 
-    val SlideTriggerDistance = ConvertUtils.dp2px(30f)
-    val LongSlideTriggerDistance = ConvertUtils.dp2px(100f)
+    val SlideTriggerDistance = DensityProvider.dp2px(30f)
+    val LongSlideTriggerDistance = DensityProvider.dp2px(100f)
     const val LongPressTriggerDelayMs = 250L
     const val LongSlideTriggerImmediately = true
     const val LongSlideTriggerDelayMs = 100L
     const val IsCustomVibration = false
     const val SubGestureTimeoutMs = 5000L
-    val SubGestureTriggerDistance = ConvertUtils.dp2px(30f)
+    val SubGestureTriggerDistance = DensityProvider.dp2px(30f)
     const val IsPreciseSlideType = true
     const val VirtualMouseSensitivityX = 1.6f
     const val VirtualMouseSensitivityY = 1.6f

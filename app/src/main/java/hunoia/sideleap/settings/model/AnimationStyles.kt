@@ -1,6 +1,7 @@
 package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -68,7 +69,7 @@ object AnimationStylesDefaults {
     const val WaveStyleBackgroundColor = android.graphics.Color.BLACK
     const val WaveStyleStrokeColor = android.graphics.Color.TRANSPARENT
     const val WaveStyleStrokeWidth = 0
-    val WaveStyleWidth = com.blankj.utilcode.util.ConvertUtils.dp2px(40f)
+    val WaveStyleWidth = DensityProvider.dp2px(40f)
     const val WaveStyleBezierLengthHalfRatio = 2.5f
     const val WaveStyleSafeBounds = true
     const val WaveStyleTransformEnabled = true

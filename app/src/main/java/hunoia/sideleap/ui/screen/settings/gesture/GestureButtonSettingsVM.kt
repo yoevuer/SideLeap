@@ -19,7 +19,7 @@ import hunoia.sideleap.system.window.rootSize
 import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonSettingsVM.UiEvent
 import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonSettingsVM.UiState
 import hunoia.sideleap.settings.SettingsProvider
-import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.core.DensityProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -38,7 +38,7 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
 
     private val maxExcludeSystemGestureFraction: Float by lazy {
         val rootSize = rootSize
-        val maxExcludeSystemGestureHeight = ConvertUtils.dp2px(200f)
+        val maxExcludeSystemGestureHeight = DensityProvider.dp2px(200f)
         maxExcludeSystemGestureHeight.toFloat() / rootSize.height.toFloat()
     }
 

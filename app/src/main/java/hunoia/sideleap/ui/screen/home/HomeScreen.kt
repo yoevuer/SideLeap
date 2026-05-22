@@ -93,7 +93,9 @@ import hunoia.sideleap.ui.component.TopBar
 import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.system.intent.KeepAliveHelper
-import com.blankj.utilcode.util.TimeUtils
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.roundToInt
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.getDayNightModeText
 import hunoia.sideleap.gesture.SubGestureDirection
@@ -172,7 +174,7 @@ fun HomeScreen(
                     vm.showBackupRestoreDialog(false)
                     val appName = context.getString(context.applicationInfo.labelRes)
                     val timestamp = System.currentTimeMillis()
-                    val date = TimeUtils.millis2String(timestamp, "yyyyMMdd_HHmmss")
+                    val date = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date(timestamp))
                     val fileName = "${appName}_$date.zip"
                     createFileLauncher.launch(fileName)
                 },

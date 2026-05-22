@@ -7,10 +7,12 @@ import hunoia.sideleap.BuildConfig
 import hunoia.sideleap.core.Paths
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.settings.model.Backup
-import com.blankj.utilcode.util.EncodeUtils
-import com.blankj.utilcode.util.FileIOUtils
-import com.blankj.utilcode.util.FileUtils
-import com.blankj.utilcode.util.ZipUtils
+import android.util.Base64
+import java.io.FileOutputStream
+import java.io.FileInputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+import java.util.zip.ZipInputStream
 import kotlinx.coroutines.flow.first
 import android.content.pm.PackageManager
 import android.os.Build
@@ -31,34 +33,49 @@ object BackupHelper {
 
     suspend fun backup(context: Context, saveTo: Uri) {
         try {
-            FileUtils.createOrExistsDir(backupDir)
+            File(backupDir).mkdirs()
 
             val backupItemBytes = getBackupItemBytes()
             val backupItemFile = File(backupItemFilePath).also {
-                FileUtils.createFileByDeleteOldFile(it)
+                it.delete()
+                it.createNewFile()
                 it.appendBytes(backupItemBytes)
             }
 
             val zipImageDirFile = File(zipImagePath).also {
-                FileUtils.createFileByDeleteOldFile(it)
+                it.delete()
+                it.createNewFile()
             }
-            val imageFiles = FileUtils.listFilesInDir(Paths.Image)
-            ZipUtils.zipFiles(imageFiles, zipImageDirFile)
+            val imageFiles = File(Paths.Image).listFiles()?.toList() ?: emptyList()
+            ZipOutputStream(FileOutputStream(zipImageDirFile)).use { zos ->
+                for (file in imageFiles) {
+                    zos.putNextEntry(ZipEntry(file.name))
+                    file.inputStream().use { it.copyTo(zos) }
+                    zos.closeEntry()
+                }
+            }
 
             val zipFile = File(zipFilePath).also {
-                FileUtils.createFileByDeleteOldFile(it)
+                it.delete()
+                it.createNewFile()
             }
-            ZipUtils.zipFiles(listOf(backupItemFile, zipImageDirFile), zipFile)
+            ZipOutputStream(FileOutputStream(zipFile)).use { zos ->
+                for (file in listOf(backupItemFile, zipImageDirFile)) {
+                    zos.putNextEntry(ZipEntry(file.name))
+                    file.inputStream().use { it.copyTo(zos) }
+                    zos.closeEntry()
+                }
+            }
 
             context.contentResolver.openOutputStream(saveTo)!!.use { outputStream ->
-                val zipFileBytes = FileIOUtils.readFile2BytesByStream(zipFile)
+                val zipFileBytes = zipFile.readBytes()
                 outputStream.write(zipFileBytes)
                 outputStream.flush()
             }
         } catch (ex: Exception) {
             throw ex
         } finally {
-            FileUtils.deleteAllInDir(backupDir)
+            File(backupDir).deleteRecursively()
         }
     }
 
@@ -67,13 +84,14 @@ object BackupHelper {
             context.contentResolver.openInputStream(restoreFrom)!!.use { inputStream ->
                 val input = inputStream.readBytes()
                 val restoreDirFile = File(restoreDir).also {
-                    FileUtils.createOrExistsDir(it)
+                    it.mkdirs()
                 }
                 val restoreFile = File(restoreFilePath).also {
-                    FileUtils.createFileByDeleteOldFile(it)
+                    it.delete()
+                    it.createNewFile()
                     it.appendBytes(input)
                 }
-                val extracted = ZipUtils.unzipFile(restoreFile, restoreDirFile)
+                val extracted = unzipFile(restoreFile, restoreDirFile)
                 var restored = false
                 var imagesRestored = false
                 for (file in extracted) {
@@ -83,11 +101,11 @@ object BackupHelper {
                             restored = true
                         }
                         ZIP_IMAGES -> {
-                            FileUtils.deleteAllInDir(Paths.Image)
-                            FileUtils.createOrExistsDir(Paths.Image)
-                            ZipUtils.unzipFile(file, restoreDirFile).forEach { imageFile ->
+                            File(Paths.Image).deleteRecursively()
+                            File(Paths.Image).mkdirs()
+                            unzipFile(file, restoreDirFile).forEach { imageFile ->
                                 val destFile = File("${Paths.Image}/${imageFile.name}")
-                                FileUtils.copy(imageFile, destFile)
+                                imageFile.copyTo(destFile, overwrite = true)
                             }
                             imagesRestored = true
                         }
@@ -99,18 +117,18 @@ object BackupHelper {
         } catch (ex: Exception) {
             throw ex
         } finally {
-            FileUtils.deleteAllInDir(restoreDir)
+            File(restoreDir).deleteRecursively()
         }
     }
 
     private suspend fun getBackupItemBytes(): ByteArray {
         val backup = SettingsProvider.snapshotAll()
         val json = JsonHelper.encodeToString(backup)
-        return EncodeUtils.base64Encode(json.toByteArray())
+        return Base64.encode(json.toByteArray(), Base64.NO_WRAP)
     }
 
     private suspend fun restoreBackupFromBytes(context: Context, bytes: ByteArray) {
-        val decoded = EncodeUtils.base64Decode(bytes)
+        val decoded = Base64.decode(bytes, Base64.NO_WRAP)
         val backup = JsonHelper.decodeFromString<Backup>(String(decoded))
         if (backup.initialSettings == null && backup.advancedSettings == null &&
             backup.gestureSettings == null && backup.actionSettings == null &&
@@ -160,5 +178,22 @@ object BackupHelper {
         } catch (_: Exception) {
             emptySet()
         }
+    }
+
+    private fun unzipFile(zipFile: File, destDir: File): List<File> {
+        val extracted = mutableListOf<File>()
+        ZipInputStream(FileInputStream(zipFile)).use { zis ->
+            var entry = zis.nextEntry
+            while (entry != null) {
+                val target = File(destDir, entry.name)
+                if (!entry.isDirectory) {
+                    target.parentFile?.mkdirs()
+                    FileOutputStream(target).use { fos -> zis.copyTo(fos) }
+                }
+                extracted.add(target)
+                entry = zis.nextEntry
+            }
+        }
+        return extracted
     }
 }

@@ -5,7 +5,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import com.blankj.utilcode.util.ColorUtils
+
 import hunoia.sideleap.R
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.settings.model.SubGesture
@@ -67,7 +67,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                 val newGesture = SubGesture(
                     id = id,
                     name = "子手势 ${settings.subGestures.size + 1}",
-                    color = ColorUtils.getRandomColor(false)
+                    color = android.graphics.Color.argb(255, kotlin.random.Random.nextInt(256), kotlin.random.Random.nextInt(256), kotlin.random.Random.nextInt(256))
                 )
                 settings.copy(subGestures = settings.subGestures + newGesture)
             }

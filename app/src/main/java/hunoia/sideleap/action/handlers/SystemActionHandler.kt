@@ -6,8 +6,7 @@ import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_POWER_DIA
 import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT
 import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN
 import android.os.Build
-import com.blankj.utilcode.util.FlashlightUtils
-import com.blankj.utilcode.util.PermissionUtils
+import androidx.core.content.ContextCompat
 import hunoia.sideleap.R
 import hunoia.sideleap.action.api.ActionExecutionResult
 import hunoia.sideleap.action.api.ActionHandler
@@ -56,36 +55,33 @@ object SystemActionHandler : ActionHandler {
         }
     }
 
+    private var flashlightOn = false
+
     private fun handleFlashlight(context: ActionHandlerContext) {
-        if (FlashlightUtils.isFlashlightEnable()) {
-            val block = {
-                context.scope.launch(Dispatchers.Default) {
-                    val turnOn = !FlashlightUtils.isFlashlightOn()
-                    if (turnOn) {
-                        FlashlightUtils.setFlashlightStatus(true)
-                    } else {
-                        FlashlightUtils.setFlashlightStatus(false)
-                        FlashlightUtils.destroy()
+        try {
+            val cameraManager = context.appContext.getSystemService(android.content.Context.CAMERA_SERVICE) as android.hardware.camera2.CameraManager
+            val cameraId = cameraManager.cameraIdList.firstOrNull()
+            if (cameraId != null) {
+                val block = {
+                    context.scope.launch(Dispatchers.Default) {
+                        flashlightOn = !flashlightOn
+                        cameraManager.setTorchMode(cameraId, flashlightOn)
                     }
                 }
-            }
-            if (PermissionUtils.isGranted(Manifest.permission.CAMERA)) {
-                block()
+                if (ContextCompat.checkSelfPermission(
+                        context.appContext, Manifest.permission.CAMERA
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                ) {
+                    block()
+                } else {
+                    context.showToast(context.appContext.getString(R.string.grant_camera_permission))
+                    context.showToast(context.appContext.getString(R.string.goto_grant_camera_permission))
+                    context.appContext.gotoAppDetailSettings()
+                }
             } else {
-                context.showToast(context.appContext.getString(R.string.grant_camera_permission))
-                PermissionUtils
-                    .permission(Manifest.permission.CAMERA)
-                    .callback { isAllGranted, _, _, deniedForever ->
-                        if (isAllGranted) {
-                            block()
-                        } else if (deniedForever.isNotEmpty()) {
-                            context.showToast(context.appContext.getString(R.string.goto_grant_camera_permission))
-                            context.appContext.gotoAppDetailSettings()
-                        }
-                    }
-                    .request()
+                context.showToast(context.appContext.getString(R.string.flashlight_failed))
             }
-        } else {
+        } catch (e: Exception) {
             context.showToast(context.appContext.getString(R.string.flashlight_failed))
         }
     }

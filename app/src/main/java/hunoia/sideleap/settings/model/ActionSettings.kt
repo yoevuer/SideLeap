@@ -1,7 +1,7 @@
 package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
-import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.GotoBottomStrength
 import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.HideGestureButtonDelayMs
 import hunoia.sideleap.settings.defaults.ActionSettingsDefaults.MoveScreenHoverDelayMs
@@ -30,7 +30,7 @@ data class ActionSettings(
     data class MoveScreen(
         val rate: Float = MoveScreenRate,
         val hoverDelayMs: Long = MoveScreenHoverDelayMs,
-        val radius: Int = ConvertUtils.dp2px(12f)
+        val radius: Int = DensityProvider.dp2px(12f)
     ) {
         enum class Action {
             Tap, DoubleTap, LongPress

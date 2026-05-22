@@ -14,7 +14,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.drawable.updateBounds
 import androidx.core.graphics.scale
-import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.launcher.model.LauncherInfo
 import kotlin.math.min
 
@@ -63,7 +63,7 @@ fun LauncherInfo.ShortcutInfo.getIcon(context: Context): Drawable? {
                     ?: ResourcesCompat.getDrawable(resources, iconRes, context.theme)
             }
 
-        val stdSize = ConvertUtils.dp2px(48f)
+        val stdSize = DensityProvider.dp2px(48f)
         if (model is Bitmap) {
             val minSize = min(model.width, model.height)
             if (minSize < stdSize) {

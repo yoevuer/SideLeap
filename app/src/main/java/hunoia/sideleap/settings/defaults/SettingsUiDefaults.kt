@@ -4,23 +4,23 @@ package hunoia.sideleap.settings.defaults
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.R
 import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.system.vibration.VibrationEffects
 
 object SettingsUiDefaults {
 
-    val MinGestureButtonWidth = ConvertUtils.dp2px(1f)
-    val MaxGestureButtonWidth = ConvertUtils.dp2px(60f)
-    val MinSlideTriggerDistance = ConvertUtils.dp2px(24f)
-    val MaxSlideTriggerDistance = ConvertUtils.dp2px(40f)
-    val MinLongSlideTriggerDistance = ConvertUtils.dp2px(80f)
-    val MaxLongSlideTriggerDistance = ConvertUtils.dp2px(100f)
+    val MinGestureButtonWidth = DensityProvider.dp2px(1f)
+    val MaxGestureButtonWidth = DensityProvider.dp2px(60f)
+    val MinSlideTriggerDistance = DensityProvider.dp2px(24f)
+    val MaxSlideTriggerDistance = DensityProvider.dp2px(40f)
+    val MinLongSlideTriggerDistance = DensityProvider.dp2px(80f)
+    val MaxLongSlideTriggerDistance = DensityProvider.dp2px(100f)
     const val MinBezierStrokeWidth = 0
-    val MaxBezierStrokeWidth = ConvertUtils.dp2px(MaxBezierStrokeWidthValue.toFloat())
-    val MinBezierWidth = ConvertUtils.dp2px(10f)
-    val MaxBezierWidth = ConvertUtils.dp2px(80f)
+    val MaxBezierStrokeWidth = DensityProvider.dp2px(MaxBezierStrokeWidthValue.toFloat())
+    val MinBezierWidth = DensityProvider.dp2px(10f)
+    val MaxBezierWidth = DensityProvider.dp2px(80f)
     const val MinBezierLength = 1.0f
     const val MaxBezierLength = 6.0f
     const val MinIconScale = 0.0f
@@ -40,8 +40,8 @@ object SettingsUiDefaults {
     const val MaxLongPressTriggerDelayMs = 1000L
     const val MinSubGestureTimeoutMs = 1000L
     const val MaxSubGestureTimeoutMs = 15000L
-    val MinSubGestureTriggerDistance = ConvertUtils.dp2px(16f)
-    val MaxSubGestureTriggerDistance = ConvertUtils.dp2px(60f)
+    val MinSubGestureTriggerDistance = DensityProvider.dp2px(16f)
+    val MaxSubGestureTriggerDistance = DensityProvider.dp2px(60f)
     const val GestureButtonColorAlpha = 0.36f
     const val DisabledAlpha = 0.36f
     const val DimAlpha = 0.5f

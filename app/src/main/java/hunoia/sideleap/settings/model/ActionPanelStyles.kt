@@ -1,7 +1,7 @@
 package hunoia.sideleap.settings.model
 
 import androidx.annotation.Keep
-import com.blankj.utilcode.util.ConvertUtils
+import hunoia.sideleap.core.DensityProvider
 import hunoia.sideleap.core.serialization.JsonHelper
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -58,9 +58,9 @@ object ActionPanelStylesDefaults {
     const val TYPE_PIE = 4
 
     const val Type = TYPE_ARC
-    val ArcStyleItemSize = ConvertUtils.dp2px(48f)
-    val GridStyleItemSize = ConvertUtils.dp2px(48f)
-    val PieStyleItemSize = ConvertUtils.dp2px(48f)
+    val ArcStyleItemSize = DensityProvider.dp2px(48f)
+    val GridStyleItemSize = DensityProvider.dp2px(48f)
+    val PieStyleItemSize = DensityProvider.dp2px(48f)
 }
 
 sealed interface ActionPanelStyle

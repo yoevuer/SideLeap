@@ -1,16 +1,23 @@
 package hunoia.sideleap.core
 
-import com.blankj.utilcode.util.PathUtils
-
 /**
  * @author aaronzzxup@gmail.com
  * @since 2025/7/1
  */
 object Paths {
 
-    val AppData = PathUtils.getExternalAppDataPath()
+    val AppData: String by lazy {
+        val ctx = AppContext.get()
+        ctx.getExternalFilesDir(null)?.absolutePath ?: ctx.filesDir.absolutePath
+    }
 
-    val AppCache = PathUtils.getExternalAppCachePath()
+    val AppCache: String by lazy {
+        val ctx = AppContext.get()
+        ctx.externalCacheDir?.absolutePath ?: ctx.cacheDir.absolutePath
+    }
 
-    val Image = PathUtils.getExternalAppPicturesPath()
+    val Image: String by lazy {
+        val ctx = AppContext.get()
+        "${ctx.getExternalFilesDir(null)?.absolutePath ?: ctx.filesDir.absolutePath}/Pictures"
+    }
 }

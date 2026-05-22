@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 import kotlin.math.roundToInt
 
 interface RuntimePanelOverlayHost : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
@@ -108,8 +108,8 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
     ) {
         if (isHiding) return
         if (width <= 0 || height <= 0) return
-        val screenWidth = ScreenUtils.getScreenWidth()
-        val screenHeight = ScreenUtils.getScreenHeight()
+        val screenWidth = DensityProvider.screenWidthPx
+        val screenHeight = DensityProvider.screenHeightPx
         val nextWidth = width.coerceIn(1, screenWidth)
         val nextHeight = height.coerceIn(1, screenHeight)
         val nextX = ((screenWidth - nextWidth) / 2).coerceAtLeast(0)
@@ -127,8 +127,8 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
     }
 
     private fun createLayoutParams(): WindowManager.LayoutParams {
-        val screenWidth = ScreenUtils.getScreenWidth()
-        val screenHeight = ScreenUtils.getScreenHeight()
+        val screenWidth = DensityProvider.screenWidthPx
+        val screenHeight = DensityProvider.screenHeightPx
         val panelWidth = (screenWidth * 0.9f).toInt()
         val panelHeight = estimatePanelHeightPx().coerceAtMost(screenHeight)
 

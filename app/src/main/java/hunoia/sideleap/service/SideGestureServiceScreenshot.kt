@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import hunoia.sideleap.SideGestureService
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -16,7 +16,7 @@ suspend fun SideGestureService.takeScreenshot(): Bitmap? = suspendCancellableCor
             val value = Bitmap.wrapHardwareBuffer(screenshotResult.hardwareBuffer, screenshotResult.colorSpace)
             var bmp: Bitmap? = null
             if (value != null) {
-                bmp = Bitmap.createBitmap(value, 0, 0, ScreenUtils.getScreenWidth(), ScreenUtils.getScreenHeight())
+                bmp = Bitmap.createBitmap(value, 0, 0, DensityProvider.screenWidthPx, DensityProvider.screenHeightPx)
             }
             cont.resume(bmp)
         }

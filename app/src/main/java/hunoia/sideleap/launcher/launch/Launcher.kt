@@ -14,7 +14,7 @@ import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.launcher.model.OpenAppOrUrlData
 import hunoia.sideleap.system.feedback.showToast
-import com.blankj.utilcode.util.ScreenUtils
+import hunoia.sideleap.core.DensityProvider
 import kotlin.math.roundToInt
 
 object Launcher {
@@ -259,8 +259,8 @@ private object MiniWindow {
                 method.invoke(it, mode)
             } catch (e: Exception) {
             }
-            val screenWidth = ScreenUtils.getScreenWidth()
-            val screenHeight = ScreenUtils.getScreenHeight()
+            val screenWidth = DensityProvider.screenWidthPx
+            val screenHeight = DensityProvider.screenHeightPx
             val width = screenWidth
             val scaledWidth = width * 0.7f
             val left = ((screenWidth - scaledWidth) * horizontalBias.coerceIn(0f, 1f)).roundToInt()
