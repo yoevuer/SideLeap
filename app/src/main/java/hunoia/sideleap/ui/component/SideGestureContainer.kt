@@ -382,7 +382,10 @@ fun SideGestureContainer(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             var screenshot by remember { mutableStateOf<Bitmap?>(null) }
             LaunchedEffect(moveScreenState.visible) {
-                if (!moveScreenState.visible) return@LaunchedEffect
+                if (!moveScreenState.visible) {
+                    screenshot = null
+                    return@LaunchedEffect
+                }
                 screenshot = try {
                     onTakeScreenshot?.invoke()
                 } catch (_: Exception) {
