@@ -278,6 +278,8 @@ fun SideGestureContainer(
                                 if (action.value != GlobalActions.SUB_GESTURE) clearSubGestureMode()
                             }
                         }
+                    } else {
+                        clearSubGestureMode()
                     }
                 }
                 return@onDrag
