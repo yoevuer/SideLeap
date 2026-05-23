@@ -21,13 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import hunoia.sideleap.R
 import hunoia.sideleap.action.GlobalActions
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.action.virtualMouseSettings
 import hunoia.sideleap.gesture.application.VirtualMousePointerAction
-import hunoia.sideleap.gesture.application.clampVirtualMousePosition
-import hunoia.sideleap.gesture.application.isVirtualMouseCancelGesture
-import hunoia.sideleap.gesture.application.isVirtualMouseWithinLongPressTolerance
-import hunoia.sideleap.gesture.application.moveVirtualMouseCursor
-import hunoia.sideleap.gesture.application.virtualMouseInitialPosition
 import hunoia.sideleap.action.withRuntimeTouchPosition
 import hunoia.sideleap.settings.model.ActionPanelStyle
 import hunoia.sideleap.settings.model.ActionPanelStyles
@@ -51,7 +45,6 @@ import hunoia.sideleap.action.payload.SubGestureActionData
 import hunoia.sideleap.core.serialization.JsonHelper
 import hunoia.sideleap.settings.model.SubGesture
 import hunoia.sideleap.settings.model.SubGestureSettings
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -97,15 +90,16 @@ fun SideGestureContainer(
     val sideGestureState = rememberSideGestureState(buttons, advancedSettings, gestureSettings)
     val actionPanelState = rememberActionPanelState()
     val moveScreenState = rememberMoveScreenState(gestureSettings, actionSettings.moveScreen)
-    var isVirtualMouseMode by remember { mutableStateOf(false) }
-    var cursorPosition by remember { mutableStateOf(virtualMouseInitialPosition(gestureSettings.virtualMouse)) }
-    var virtualMouseSettings by remember { mutableStateOf(gestureSettings.virtualMouse) }
-    var virtualMouseTouchPosition by remember { mutableStateOf(Offset.Unspecified) }
-    var virtualMouseLeftCancelEdge by remember { mutableStateOf(false) }
-    var virtualMouseClickPulseKey by remember { mutableStateOf(0) }
-    var virtualMouseLongPressJob by remember { mutableStateOf<Job?>(null) }
-    var virtualMouseLongPressTriggered by remember { mutableStateOf(false) }
-    var virtualMouseLongPressAnchor by remember { mutableStateOf(Offset.Unspecified) }
+    val vmHandle = rememberVirtualMouseHandle(
+        gestureSettings = gestureSettings,
+        onVirtualMouseStart = { curOnVirtualMouseStart() },
+        onVirtualMouseEnd = { curOnVirtualMouseEnd() },
+        onVirtualMouseSettingsUpdate = { settings -> curOnVirtualMouseSettingsUpdate(settings) },
+        virtualMousePreviousPosition = { virtualMousePreviousPosition() },
+        onPointerActionAtPosition = { x, y, keepActive, action ->
+            curOnPointerActionAtPosition(x, y, keepActive, action)
+        },
+    )
 
     var isVolumeScrubMode by remember { mutableStateOf(false) }
     var volumeScrubAccumulator by remember { mutableStateOf(0f) }
@@ -118,66 +112,6 @@ fun SideGestureContainer(
     var subGestureTouchCount by remember { mutableIntStateOf(0) }
     var subGestureTimeoutJob by remember { mutableStateOf<Job?>(null) }
     val subGestureThresholdPx = remember(gestureSettings.subGestureTriggerDistance) { gestureSettings.subGestureTriggerDistance.toFloat() }
-
-    fun scheduleVirtualMouseLongPress() {
-        virtualMouseLongPressJob?.cancel()
-        virtualMouseLongPressJob = null
-        val settings = virtualMouseSettings
-        if (!settings.longPressEnabled || settings.longPressDelayMs <= 0L || virtualMouseLongPressTriggered) return
-        virtualMouseLongPressAnchor = virtualMouseTouchPosition
-        virtualMouseLongPressJob = coroutineScope.launch {
-            delay(settings.longPressDelayMs)
-            if (!isVirtualMouseMode || virtualMouseLongPressTriggered) return@launch
-            if (!isVirtualMouseWithinLongPressTolerance(virtualMouseLongPressAnchor, virtualMouseTouchPosition, settings)) return@launch
-            val target = cursorPosition
-            virtualMouseLongPressTriggered = true
-            virtualMouseClickPulseKey += 1
-            curOnPointerActionAtPosition(
-                target.x.roundToInt(),
-                target.y.roundToInt(),
-                settings.continuousMode,
-                VirtualMousePointerAction.LongPress,
-            )
-        }
-    }
-
-    fun startVirtualMouseMode(action: Action): Boolean {
-        if (isVirtualMouseMode) return false
-        if (!curOnVirtualMouseStart()) return false
-        virtualMouseSettings = action.virtualMouseSettings(gestureSettings.virtualMouse)
-        curOnVirtualMouseSettingsUpdate(virtualMouseSettings)
-        cursorPosition = virtualMouseInitialPosition(virtualMouseSettings, virtualMousePreviousPosition())
-        virtualMouseTouchPosition = sideGestureState.finger
-        virtualMouseLeftCancelEdge = false
-        virtualMouseLongPressTriggered = false
-        virtualMouseLongPressAnchor = Offset.Unspecified
-        isVirtualMouseMode = true
-        scheduleVirtualMouseLongPress()
-        return true
-    }
-
-    fun finishVirtualMouseMode(click: Boolean) {
-        if (!isVirtualMouseMode) return
-        virtualMouseLongPressJob?.cancel()
-        virtualMouseLongPressJob = null
-        val target = cursorPosition
-        isVirtualMouseMode = false
-        if (click && !virtualMouseLongPressTriggered) {
-            virtualMouseClickPulseKey += 1
-            curOnPointerActionAtPosition(
-                target.x.roundToInt(),
-                target.y.roundToInt(),
-                virtualMouseSettings.continuousMode,
-                VirtualMousePointerAction.Click,
-            )
-        } else if (!virtualMouseLongPressTriggered) {
-            curOnVirtualMouseEnd()
-        }
-        virtualMouseTouchPosition = Offset.Unspecified
-        virtualMouseLeftCancelEdge = false
-        virtualMouseLongPressTriggered = false
-        virtualMouseLongPressAnchor = Offset.Unspecified
-    }
 
     fun clearSubGestureMode(notifyService: Boolean = true) {
         activeSubGesture = null
@@ -258,7 +192,7 @@ fun SideGestureContainer(
                                 clearSubGestureMode(notifyService = false)
                             }
                             GlobalActions.VIRTUAL_MOUSE -> {
-                                startVirtualMouseMode(action)
+                                vmHandle.start(action, sideGestureState.finger, virtualMousePreviousPosition())
                                 sideGestureState.cancel()
                                 clearSubGestureMode(notifyService = false)
                             }
@@ -284,25 +218,8 @@ fun SideGestureContainer(
                 }
                 return@onDrag
             }
-            if (isVirtualMouseMode) {
-                virtualMouseTouchPosition = virtualMouseTouchPosition + dragAmount
-                val stillForLongPress = isVirtualMouseWithinLongPressTolerance(
-                    virtualMouseLongPressAnchor,
-                    virtualMouseTouchPosition,
-                    virtualMouseSettings
-                )
-                if (!stillForLongPress && !virtualMouseLongPressTriggered) {
-                    scheduleVirtualMouseLongPress()
-                }
-                val inCancelEdge = virtualMouseSettings.continuousMode &&
-                    isVirtualMouseCancelGesture(virtualMouseTouchPosition, virtualMouseSettings)
-                if (!inCancelEdge) {
-                    virtualMouseLeftCancelEdge = true
-                } else if (virtualMouseLeftCancelEdge) {
-                    finishVirtualMouseMode(click = false)
-                    return@onDrag
-                }
-                cursorPosition = moveVirtualMouseCursor(cursorPosition, dragAmount, virtualMouseSettings)
+            if (vmHandle.isActive) {
+                if (!vmHandle.onDrag(dragAmount)) return@onDrag
                 return@onDrag
             }
             if (isVolumeScrubMode) {
@@ -356,7 +273,7 @@ fun SideGestureContainer(
                             volumeScrubAccumulatorX = 0f
                             sideGestureState.cancel()
                         } else if (action.value == GlobalActions.VIRTUAL_MOUSE) {
-                            startVirtualMouseMode(action)
+                            vmHandle.start(action, sideGestureState.finger, virtualMousePreviousPosition())
                             sideGestureState.cancel()
                         } else if (action.value == GlobalActions.MOVE_SCREEN) {
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -383,9 +300,9 @@ fun SideGestureContainer(
                 if (subGestureTouchCount >= 5) clearSubGestureMode()
                 return@onDragEnd
             }
-            if (isVirtualMouseMode) {
+            if (vmHandle.isActive) {
                 curOnSubGestureModeChanged(false)
-                finishVirtualMouseMode(click = true)
+                vmHandle.onDragEnd()
                 return@onDragEnd
             }
             if (isVolumeScrubMode) {
@@ -422,9 +339,9 @@ fun SideGestureContainer(
                 clearSubGestureMode()
                 return@onDragCancel
             }
-            if (isVirtualMouseMode) {
+            if (vmHandle.isActive) {
                 curOnSubGestureModeChanged(false)
-                finishVirtualMouseMode(click = false)
+                vmHandle.onDragCancel()
                 return@onDragCancel
             }
             if (isVolumeScrubMode) {
@@ -486,14 +403,6 @@ fun SideGestureContainer(
             }
         }
 
-        if (isVirtualMouseMode) {
-            VirtualMouseCursor(
-                position = cursorPosition,
-                modifier = Modifier.matchParentSize(),
-                settings = virtualMouseSettings,
-                clickPulseKey = virtualMouseClickPulseKey,
-            )
-        }
     }
 }
 
