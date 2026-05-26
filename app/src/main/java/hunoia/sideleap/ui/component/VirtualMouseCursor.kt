@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import hunoia.sideleap.ui.theme.AnimRipple
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -71,7 +72,7 @@ fun VirtualMouseCursor(
     LaunchedEffect(clickPulseKey, settings.clickAnimationEnabled) {
         if (!settings.clickAnimationEnabled || clickPulseKey == 0) return@LaunchedEffect
         rippleAnim.snapTo(0f)
-        rippleAnim.animateTo(1f, animationSpec = tween(durationMillis = 400, easing = LinearEasing))
+        rippleAnim.animateTo(1f, animationSpec = tween(durationMillis = AnimRipple.toInt(), easing = LinearEasing))
         rippleAnim.snapTo(0f)
     }
     Canvas(modifier = modifier.fillMaxSize()) {

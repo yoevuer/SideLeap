@@ -924,7 +924,7 @@ private fun AnimatedVisibilityScope.ActionPanelSelectableItem(
 ) {
     val transition = transition
     var isHovered by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(if (isHovered) 1.08f else 1f, spring(stiffness = Spring.StiffnessHigh), label = "actionScale")
+    val scale by animateFloatAsState(if (isHovered) 1.15f else 1f, spring(stiffness = Spring.StiffnessHigh), label = "actionScale")
     LaunchedEffect(transition, actionPanelState, index, action, panelOrigin, targetAnimOffset) {
         snapshotFlow { actionPanelState.finger }
             .filter { it.isSpecified && !transition.isRunning && transition.currentState == Visible }
