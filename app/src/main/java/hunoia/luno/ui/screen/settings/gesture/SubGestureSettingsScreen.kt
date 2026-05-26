@@ -34,6 +34,7 @@ import hunoia.luno.R
 import hunoia.luno.action.display.actionText
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.gesture.SubGestureDirection
+import hunoia.luno.ui.ext.displayNameRes
 import hunoia.luno.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.luno.settings.model.SubGesture
 import hunoia.luno.ui.navigation.SubGestureActionSelect
@@ -166,7 +167,7 @@ fun SubGestureSettingsScreen(
             )
 
             MyColumn {
-                SectionCard(title = "方向动作") {
+                SectionCard(title = stringResource(id = R.string.direction_actions)) {
                     val directions = listOf(
                         SubGestureDirection.Up, SubGestureDirection.Down,
                         SubGestureDirection.Left, SubGestureDirection.Right,
@@ -180,7 +181,7 @@ fun SubGestureSettingsScreen(
                             onClick = {
                                 onNavToSubGestureActionSelect(SubGestureActionSelect(gesture.id, direction))
                             },
-                            text = direction.displayName,
+                            text = stringResource(id = direction.displayNameRes),
                             secondaryText = text.ifEmpty { stringResource(id = R.string.action_none) }
                         )
                     }
@@ -220,17 +221,6 @@ fun SubGestureSettingsScreen(
             }
         }
     }
-}
-
-private val SubGestureDirection.displayName: String get() = when (this) {
-    SubGestureDirection.Up -> "上"
-    SubGestureDirection.Down -> "下"
-    SubGestureDirection.Left -> "左"
-    SubGestureDirection.Right -> "右"
-    SubGestureDirection.UpRight -> "右上"
-    SubGestureDirection.DownRight -> "右下"
-    SubGestureDirection.DownLeft -> "左下"
-    SubGestureDirection.UpLeft -> "左上"
 }
 
 @Composable

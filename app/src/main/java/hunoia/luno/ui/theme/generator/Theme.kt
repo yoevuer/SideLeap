@@ -3,7 +3,9 @@ package hunoia.luno.ui.theme.generator
 import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -12,6 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import hunoia.luno.ui.theme.ShapeExtraLarge
+import hunoia.luno.ui.theme.ShapeLarge
+import hunoia.luno.ui.theme.ShapeMedium
+import hunoia.luno.ui.theme.ShapeSmall
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -274,6 +280,12 @@ fun AppTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = AppTypography,
+        shapes = Shapes(
+            small = RoundedCornerShape(ShapeSmall),
+            medium = RoundedCornerShape(ShapeMedium),
+            large = RoundedCornerShape(ShapeLarge),
+            extraLarge = RoundedCornerShape(ShapeExtraLarge)
+        ),
         content = content
     )
 }

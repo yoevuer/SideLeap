@@ -23,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import hunoia.luno.ui.theme.NavExitOffsetDivisor
 
 import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.ui.navigation.AdvancedSettings
@@ -31,7 +32,6 @@ import hunoia.luno.ui.navigation.GestureSettings
 import hunoia.luno.ui.navigation.Home
 import hunoia.luno.ui.navigation.SubGestureActionSelect
 import hunoia.luno.ui.navigation.SubGestureEditor
-import hunoia.luno.ui.navigation.Unlock
 import hunoia.luno.ui.screen.settings.AdvancedSettingsScreen
 import hunoia.luno.ui.screen.actionselect.ActionSelectContent
 
@@ -39,8 +39,8 @@ import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsScreen
 import hunoia.luno.ui.screen.settings.gesture.GestureSettingsScreen
 import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectContent
 import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsScreen
+import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectContent
 import hunoia.luno.ui.screen.home.HomeScreen
-import hunoia.luno.ui.screen.unlock.UnlockScreen
 import hunoia.luno.ui.theme.SideGestureTheme
 import hunoia.luno.ui.navigation.LocalNavController
 import kotlin.reflect.KType
@@ -66,10 +66,10 @@ fun SideGestureApp() {
                     slideInHorizontally(animationSpec = tween(durationMs)) { it }
                 },
                 exitTransition = {
-                    slideOutHorizontally(animationSpec = tween(durationMs)) { -it / 3 }
+                    slideOutHorizontally(animationSpec = tween(durationMs)) { -it / NavExitOffsetDivisor }
                 },
                 popEnterTransition = {
-                    slideInHorizontally(animationSpec = tween(durationMs)) { -it / 3 }
+                    slideInHorizontally(animationSpec = tween(durationMs)) { -it / NavExitOffsetDivisor }
                 },
                 popExitTransition = {
                     slideOutHorizontally(animationSpec = tween(durationMs)) { it }
@@ -77,7 +77,6 @@ fun SideGestureApp() {
             ) {
                 myComposable<Home> {
                     HomeScreen(
-                        onNavToUnlock = { navController.navigate(Unlock) },
                         onNavToAdvancedSettings = { navController.navigate(AdvancedSettings) },
                         onNavToGestureSettings = { navController.navigate(GestureSettings) },
                         onNavToGestureButtonSettings = { button ->
@@ -87,9 +86,6 @@ fun SideGestureApp() {
                             navController.navigate(SubGestureEditor(subGestureId))
                         }
                     )
-                }
-                myComposable<Unlock> {
-                    UnlockScreen(onBack = { navController.navigateUp() })
                 }
                 myComposable<AdvancedSettings> {
                     AdvancedSettingsScreen(onBack = { navController.navigateUp() })

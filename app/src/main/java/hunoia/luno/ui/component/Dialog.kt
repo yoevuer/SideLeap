@@ -59,9 +59,12 @@ import hunoia.luno.action.display.actionText
 import hunoia.luno.core.event.Events
 import hunoia.luno.core.event.WallpaperChangedEvent
 import hunoia.luno.settings.model.ThemeColorKey
+import hunoia.luno.ui.theme.DialogHexTextWidth
 import hunoia.luno.ui.theme.DialogTitleFontSize
 import hunoia.luno.ui.theme.DialogTitlePadding
 import hunoia.luno.ui.theme.ItemPadding
+import hunoia.luno.ui.theme.SubMinInteractiveSize
+import hunoia.luno.ui.ext.displayNameRes
 import hunoia.luno.core.DensityProvider
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
@@ -187,7 +190,7 @@ fun ColorPickerDialog(
                     valueRange = 0f..1f
                 )
                 Text(
-                    text = "透明度: ${(alpha * 100).toInt()}%",
+                    text = stringResource(id = R.string.color_picker_alpha_label, (alpha * 100).toInt()),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.labelMedium
                 )
@@ -239,7 +242,7 @@ fun ColorPickerDialog(
 
                     SystemFontScaleHandler(false) {
                         Text(
-                            modifier = Modifier.width(120.dp),
+                            modifier = Modifier.width(DialogHexTextWidth),
                             text = "#$hexColor",
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.labelLarge
@@ -430,7 +433,7 @@ fun ThemeColorPickerDialog(
         containerColor = MaterialTheme.colorScheme.surface,
         onDismissRequest = onDismissRequest,
         title = {
-            Text(text = "选择主题色")
+            Text(text = stringResource(id = R.string.color_picker_title))
         },
         text = {
             LazyVerticalGrid(
@@ -466,12 +469,12 @@ fun ThemeColorPickerDialog(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
+                                .size(SubMinInteractiveSize)
                                 .clip(CircleShape)
                                 .background(resolvedColor)
                         )
                         Text(
-                            text = themeKey.displayName,
+                            text = stringResource(id = themeKey.displayNameRes),
                             style = MaterialTheme.typography.labelSmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,

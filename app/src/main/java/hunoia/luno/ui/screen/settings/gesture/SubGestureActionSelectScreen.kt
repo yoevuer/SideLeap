@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import hunoia.luno.ui.ext.displayNameRes
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -77,7 +78,7 @@ fun SubGestureActionSelectContent(
             Column(modifier = Modifier.fillMaxSize()) {
                 TopBar(
                     onBack = onDismiss,
-                    title = direction.displayName
+                    title = stringResource(id = direction.displayNameRes)
                 )
 
                 ActionPage(
@@ -111,13 +112,4 @@ fun SubGestureActionSelectContent(
     }
 }
 
-private val SubGestureDirection.displayName: String get() = when (this) {
-    SubGestureDirection.Up -> "上"
-    SubGestureDirection.Down -> "下"
-    SubGestureDirection.Left -> "左"
-    SubGestureDirection.Right -> "右"
-    SubGestureDirection.UpRight -> "右上"
-    SubGestureDirection.DownRight -> "右下"
-    SubGestureDirection.DownLeft -> "左下"
-    SubGestureDirection.UpLeft -> "左上"
-}
+

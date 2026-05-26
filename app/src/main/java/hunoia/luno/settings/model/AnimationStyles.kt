@@ -95,25 +95,7 @@ enum class ThemeColorKey {
     Surface, SurfaceVariant,
     OnSurface, OnSurfaceVariant,
     Outline, OutlineVariant,
-    SurfaceContainerLow, SurfaceContainer, SurfaceContainerHigh;
-
-    val displayName: String get() = when (this) {
-        Primary -> "主要色"
-        PrimaryContainer -> "主要容器"
-        Secondary -> "次要色"
-        SecondaryContainer -> "次要容器"
-        Tertiary -> "第三色"
-        TertiaryContainer -> "第三容器"
-        Surface -> "表面色"
-        SurfaceVariant -> "表面变体"
-        OnSurface -> "文字色"
-        OnSurfaceVariant -> "辅助文字"
-        Outline -> "轮廓色"
-        OutlineVariant -> "轮廓变体"
-        SurfaceContainerLow -> "低层表面"
-        SurfaceContainer -> "中层表面"
-        SurfaceContainerHigh -> "高层表面"
-    }
+    SurfaceContainerLow, SurfaceContainer, SurfaceContainerHigh
 }
 
 object AnimationStylesDefaults {

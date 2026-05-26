@@ -383,13 +383,22 @@ private fun SlideSettingsContent(
                 vm.onSubGestureTimeoutChange(localSubTimeout * 1000)
                 vm.saveSettings()
             },
-            text = "子手势超时",
-            valueDisplay = "${localSubTimeout.toLong()}秒",
+            text = stringResource(id = R.string.sub_gesture_timeout_label),
+            valueDisplay = stringResource(id = R.string.sub_gesture_timeout_value, localSubTimeout.toLong()),
             valueRange = MinSubGestureTimeoutMs / 1000f..MaxSubGestureTimeoutMs / 1000f,
         )
     }
 }
 
+@Composable
 private fun slideSettingsSummaryText(uiState: GestureSettingsVM.UiState): String {
-    return "滑动 ${uiState.slideTriggerDistance.toInt()} · 长按 ${uiState.longPressTriggerDelayMs}ms · 长滑 ${uiState.longSlideTriggerDistance.toInt()} · 延迟 ${uiState.longSlideTriggerDelayMs}ms · 子手势 ${uiState.subGestureTimeoutMs / 1000}s · 子距离 ${uiState.subGestureTriggerDistance.toInt()}px"
+    return stringResource(
+        id = R.string.gesture_settings_summary,
+        uiState.slideTriggerDistance.toInt(),
+        uiState.longPressTriggerDelayMs,
+        uiState.longSlideTriggerDistance.toInt(),
+        uiState.longSlideTriggerDelayMs,
+        uiState.subGestureTimeoutMs / 1000,
+        uiState.subGestureTriggerDistance.toInt()
+    )
 }

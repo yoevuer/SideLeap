@@ -100,6 +100,11 @@ import hunoia.luno.settings.defaults.SettingsUiDefaults.getDayNightModeText
 import hunoia.luno.gesture.SubGestureDirection
 import hunoia.luno.settings.model.GestureSettings.VirtualMouseTrailStyle
 import hunoia.luno.ui.screen.home.AnimationStyleContent
+import hunoia.luno.ui.screen.home.sheet.AnimationStyleSheet
+import hunoia.luno.ui.screen.home.sheet.DisplaySettingsSheet
+import hunoia.luno.ui.screen.home.sheet.FrozenAppManageSheet
+import hunoia.luno.ui.screen.home.sheet.MiniWindowSettingsSheet
+import hunoia.luno.ui.screen.home.sheet.VirtualMouseSettingsSheet
 
 /**
  * @author aaronzzxup@gmail.com
@@ -109,7 +114,6 @@ import hunoia.luno.ui.screen.home.AnimationStyleContent
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onNavToUnlock: () -> Unit,
     onNavToAdvancedSettings: () -> Unit,
     onNavToGestureSettings: () -> Unit,
     onNavToGestureButtonSettings: (GestureButton) -> Unit,
@@ -191,63 +195,36 @@ fun HomeScreen(
             }
         }
 
-        Box {
-            if (showVirtualMouseSettings) {
-                val scrollState = rememberScrollState()
-                OptimizedBottomSheet(
-                    onDismissRequest = { showVirtualMouseSettings = false },
-                    scrollState = OptimizedScrollState.Scroll(scrollState)
-                ) {
-                    MyColumn(scrollState = scrollState) {
-                        VirtualMouseSettingsContent(
-                            virtualMouse = uiState.virtualMouse,
-                            vm = vm,
-                        )
-                    }
-                }
-            }
-            if (showDisplaySettings) {
-                val scrollState = rememberScrollState()
-                OptimizedBottomSheet(
-                    onDismissRequest = { showDisplaySettings = false },
-                    scrollState = OptimizedScrollState.Scroll(scrollState)
-                ) {
-                    MyColumn(scrollState = scrollState) {
-                        DisplaySettingsContent(
-                            uiState = uiState,
-                            vm = vm,
-                            showAnimationStyle = { showAnimationStyle = true },
-                            showMiniWindowSettings = { showMiniWindowSettings = true }
-                        )
-                    }
-                }
-            }
-            if (showAnimationStyle) {
-                OptimizedBottomSheet(
-                    onDismissRequest = { showAnimationStyle = false }
-                ) {
-                    AnimationStyleContent(onDismiss = { showAnimationStyle = false })
-                }
-            }
-            if (showFrozenManage) {
-                OptimizedBottomSheet(
-                    onDismissRequest = { showFrozenManage = false }
-                ) {
-                    FrozenAppManageContent(onDismiss = { showFrozenManage = false })
-                }
-            }
-            if (showMiniWindowSettings) {
-                val scrollState = rememberScrollState()
-                OptimizedBottomSheet(
-                    onDismissRequest = { showMiniWindowSettings = false },
-                    scrollState = OptimizedScrollState.Scroll(scrollState)
-                ) {
-                    MyColumn(scrollState = scrollState) {
-                        MiniWindowSettingsContent(uiState = uiState, vm = vm)
-                    }
-                }
-            }
-            Column {
+            Box {
+                VirtualMouseSettingsSheet(
+                    show = showVirtualMouseSettings,
+                    onDismiss = { showVirtualMouseSettings = false },
+                    virtualMouse = uiState.virtualMouse,
+                    vm = vm
+                )
+                DisplaySettingsSheet(
+                    show = showDisplaySettings,
+                    onDismiss = { showDisplaySettings = false },
+                    uiState = uiState,
+                    vm = vm,
+                    onShowAnimationStyle = { showAnimationStyle = true },
+                    onShowMiniWindowSettings = { showMiniWindowSettings = true }
+                )
+                AnimationStyleSheet(
+                    show = showAnimationStyle,
+                    onDismiss = { showAnimationStyle = false }
+                )
+                FrozenAppManageSheet(
+                    show = showFrozenManage,
+                    onDismiss = { showFrozenManage = false }
+                )
+                MiniWindowSettingsSheet(
+                    show = showMiniWindowSettings,
+                    onDismiss = { showMiniWindowSettings = false },
+                    uiState = uiState,
+                    vm = vm
+                )
+                Column {
                 TopBar(
                     onBack = { },
                     title = stringResource(id = R.string.home_title),
@@ -558,7 +535,7 @@ private val VirtualMouseTrailStyleOptions = listOf(
 )
 
 @Composable
-private fun VirtualMouseSettingsContent(
+internal fun VirtualMouseSettingsContent(
     virtualMouse: GestureSettings.VirtualMouse,
     vm: HomeVM,
 ) {
@@ -575,32 +552,32 @@ private fun VirtualMouseSettingsContent(
             value = virtualMouse.continuousModeTimeoutMs / 1000f,
             onValueChange = { vm.onVirtualMouseContinuousModeTimeoutChange((it * 1000).toLong()) },
             onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = "连续模式超时",
-            valueDisplay = "${virtualMouse.continuousModeTimeoutMs / 1000}秒",
+            text = stringResource(id = R.string.virtual_mouse_continuous_timeout_plain),
+            valueDisplay = stringResource(id = R.string.virtual_mouse_continuous_timeout, virtualMouse.continuousModeTimeoutMs / 1000),
             valueRange = 1f..10f,
         )
         MyTextSlider(
             value = virtualMouse.sensitivityX,
             onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(sensitivityX = it)) },
             onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = "X 灵敏度",
-            valueDisplay = String.format("%.1fx", virtualMouse.sensitivityX),
+            text = stringResource(id = R.string.virtual_mouse_sensitivity_x_plain),
+            valueDisplay = stringResource(id = R.string.virtual_mouse_sensitivity_x, virtualMouse.sensitivityX),
             valueRange = 0.5f..4f,
         )
         MyTextSlider(
             value = virtualMouse.sensitivityY,
             onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(sensitivityY = it)) },
             onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = "Y 灵敏度",
-            valueDisplay = String.format("%.1fx", virtualMouse.sensitivityY),
+            text = stringResource(id = R.string.virtual_mouse_sensitivity_y_plain),
+            valueDisplay = stringResource(id = R.string.virtual_mouse_sensitivity_y, virtualMouse.sensitivityY),
             valueRange = 0.5f..4f,
         )
         MyTextSlider(
             value = virtualMouse.acceleration,
             onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(acceleration = it)) },
             onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = "加速曲线",
-            valueDisplay = String.format("%.1f", virtualMouse.acceleration),
+            text = stringResource(id = R.string.virtual_mouse_acceleration_plain),
+            valueDisplay = stringResource(id = R.string.virtual_mouse_acceleration, virtualMouse.acceleration),
             valueRange = 0f..2f,
         )
         var localCursorSize by remember(virtualMouse.cursorSizeDp) { mutableStateOf(virtualMouse.cursorSizeDp.toFloat()) }
@@ -611,16 +588,16 @@ private fun VirtualMouseSettingsContent(
                 vm.onVirtualMouseChange(currentVirtualMouse.copy(cursorSizeDp = localCursorSize.toInt()))
                 vm.saveVirtualMouseSettings()
             },
-            text = "光标大小",
-            valueDisplay = "${localCursorSize.toInt()}dp",
+            text = stringResource(id = R.string.virtual_mouse_cursor_size_plain),
+            valueDisplay = stringResource(id = R.string.virtual_mouse_cursor_size, localCursorSize.toInt()),
             valueRange = 12f..64f,
         )
         MyTextSlider(
             value = virtualMouse.cursorAlpha,
             onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(cursorAlpha = it)) },
             onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = "光标透明度",
-            valueDisplay = "${(virtualMouse.cursorAlpha * 100).toInt()}%",
+            text = stringResource(id = R.string.virtual_mouse_cursor_alpha_plain),
+            valueDisplay = stringResource(id = R.string.virtual_mouse_cursor_alpha, (virtualMouse.cursorAlpha * 100).toInt()),
             valueRange = 0.2f..1f,
         )
         Row(
@@ -674,16 +651,16 @@ private fun VirtualMouseSettingsContent(
                 value = virtualMouse.trailStrength,
                 onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(trailStrength = it)) },
                 onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-                text = "拖尾强度",
-                valueDisplay = String.format("%.1f", virtualMouse.trailStrength),
+            text = stringResource(id = R.string.virtual_mouse_trail_strength_plain),
+            valueDisplay = stringResource(id = R.string.virtual_mouse_trail_strength, virtualMouse.trailStrength),
                 valueRange = 0.5f..2f,
             )
             MyTextSlider(
                 value = virtualMouse.trailAlpha,
                 onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(trailAlpha = it)) },
                 onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-                text = "拖尾透明度",
-                valueDisplay = "${(virtualMouse.trailAlpha * 100).toInt()}%",
+            text = stringResource(id = R.string.virtual_mouse_trail_alpha_plain),
+            valueDisplay = stringResource(id = R.string.virtual_mouse_trail_alpha, (virtualMouse.trailAlpha * 100).toInt()),
                 valueRange = 0.2f..1f,
             )
         }
@@ -707,8 +684,8 @@ private fun VirtualMouseSettingsContent(
                     vm.onVirtualMouseChange(currentVirtualMouse.copy(longPressDelayMs = localLongPressDelay.toLong()))
                     vm.saveVirtualMouseSettings()
                 },
-                text = "长按延迟",
-                valueDisplay = "${localLongPressDelay.toLong()}ms",
+            text = stringResource(id = R.string.virtual_mouse_long_press_delay_plain),
+            valueDisplay = stringResource(id = R.string.virtual_mouse_long_press_delay, localLongPressDelay.toLong()),
                 valueRange = 400f..2000f,
             )
             var localTolerance by remember(virtualMouse.longPressMoveToleranceDp) { mutableStateOf(virtualMouse.longPressMoveToleranceDp.toFloat()) }
@@ -719,24 +696,25 @@ private fun VirtualMouseSettingsContent(
                     vm.onVirtualMouseChange(currentVirtualMouse.copy(longPressMoveToleranceDp = localTolerance.toInt()))
                     vm.saveVirtualMouseSettings()
                 },
-                text = "停留容差",
-                valueDisplay = "${localTolerance.toInt()}dp",
+            text = stringResource(id = R.string.virtual_mouse_long_press_tolerance_plain),
+            valueDisplay = stringResource(id = R.string.virtual_mouse_long_press_tolerance, localTolerance.toInt()),
                 valueRange = 2f..16f,
             )
         }
     }
 }
 
-private fun virtualMouseTrailStyleText(style: VirtualMouseTrailStyle): String {
+@Composable
+internal fun virtualMouseTrailStyleText(style: VirtualMouseTrailStyle): String {
     return when (style) {
-        VirtualMouseTrailStyle.None -> "关闭"
-        VirtualMouseTrailStyle.Dots -> "残影点"
-        VirtualMouseTrailStyle.LightBand -> "光带"
+        VirtualMouseTrailStyle.None -> stringResource(id = R.string.virtual_mouse_trail_style_close)
+        VirtualMouseTrailStyle.Dots -> stringResource(id = R.string.virtual_mouse_trail_style_dot)
+        VirtualMouseTrailStyle.LightBand -> stringResource(id = R.string.virtual_mouse_trail_style_band)
     }
 }
 
 @Composable
-private fun DisplaySettingsContent(
+internal fun DisplaySettingsContent(
     uiState: HomeVM.UiState,
     vm: HomeVM,
     showAnimationStyle: () -> Unit,
@@ -800,7 +778,7 @@ private fun DisplaySettingsContent(
 }
 
 @Composable
-private fun MiniWindowSettingsContent(uiState: HomeVM.UiState, vm: HomeVM) {
+internal fun MiniWindowSettingsContent(uiState: HomeVM.UiState, vm: HomeVM) {
     Column {
         MyTextSlider(
             value = uiState.miniWindowHorizontalBias,

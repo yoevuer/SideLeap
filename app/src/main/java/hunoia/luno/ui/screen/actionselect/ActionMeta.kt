@@ -74,13 +74,4 @@ val actionPermissionHintResMap: Map<String, Int> = mapOf(
     "power_button" to R.string.action_permission_hint_power_button,
 )
 
-val ActionCategory.displayName: String get() = when (this) {
-    ActionCategory.NONE -> ""
-    ActionCategory.NAVIGATION -> "导航"
-    ActionCategory.MEDIA -> "媒体"
-    ActionCategory.SYSTEM -> "系统"
-    ActionCategory.WINDOW -> "窗口"
-    ActionCategory.LAUNCHER -> "启动"
-    ActionCategory.SUB_GESTURE -> "子手势"
-    ActionCategory.TOOL -> "工具"
-}
+

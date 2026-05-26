@@ -31,7 +31,7 @@ class SubGestureActionSelectVM(
     private val direction: SubGestureDirection
 ) : BaseComposeVM<UiState, UiEvent>() {
 
-    override val initialState: UiState = UiState(title = direction.displayName)
+    override val initialState: UiState = UiState()
 
     val actionSettingsDialog = ActionSettingsDialog()
 
@@ -195,19 +195,6 @@ class SubGestureActionSelectVM(
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return SubGestureActionSelectVM(subGestureId, direction) as T
-        }
-    }
-
-    private companion object {
-        private val SubGestureDirection.displayName: String get() = when (this) {
-            SubGestureDirection.Up -> "上"
-            SubGestureDirection.Down -> "下"
-            SubGestureDirection.Left -> "左"
-            SubGestureDirection.Right -> "右"
-            SubGestureDirection.UpRight -> "右上"
-            SubGestureDirection.DownRight -> "右下"
-            SubGestureDirection.DownLeft -> "左下"
-            SubGestureDirection.UpLeft -> "左上"
         }
     }
 }

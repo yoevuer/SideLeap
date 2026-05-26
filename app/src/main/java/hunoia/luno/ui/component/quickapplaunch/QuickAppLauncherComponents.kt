@@ -36,7 +36,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import hunoia.luno.R
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import hunoia.luno.launcher.model.AppInfo
@@ -96,8 +98,8 @@ internal fun KeyboardRow(
                 ) {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         when (label) {
-                            "调整" -> Icon(Icons.Outlined.Tune, contentDescription = "调整面板")
-                            "删除" -> Icon(Icons.Outlined.DeleteOutline, contentDescription = "删除输入")
+                            "调整" -> Icon(Icons.Outlined.Tune, contentDescription = stringResource(R.string.quick_app_launcher_adjust))
+                            "删除" -> Icon(Icons.Outlined.DeleteOutline, contentDescription = stringResource(R.string.quick_app_launcher_delete_input))
                             else -> Text(label)
                         }
                     }

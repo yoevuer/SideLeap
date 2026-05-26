@@ -192,10 +192,23 @@ private fun gestureButtonTitle(position: Position): String {
     }
 }
 
+@Composable
 private fun gestureButtonSectorNames(position: Position): List<String> {
     return when (position) {
-        Position.Bottom -> listOf("左2", "左", "中", "右", "右2")
-        else -> listOf("上2", "上", "中", "下", "下2")
+        Position.Bottom -> listOf(
+            stringResource(R.string.gesture_angle_left2),
+            stringResource(R.string.left),
+            stringResource(R.string.direction_center),
+            stringResource(R.string.right),
+            stringResource(R.string.gesture_angle_right2)
+        )
+        else -> listOf(
+            stringResource(R.string.gesture_angle_top2),
+            stringResource(R.string.top),
+            stringResource(R.string.direction_center),
+            stringResource(R.string.bottom),
+            stringResource(R.string.gesture_angle_bottom2)
+        )
     }
 }
 

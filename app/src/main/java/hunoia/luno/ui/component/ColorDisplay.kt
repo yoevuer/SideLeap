@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.unit.dp
+import hunoia.luno.ui.theme.MinIconSize
 
 @Composable
 fun MyColorDisplay(
@@ -22,7 +23,7 @@ fun MyColorDisplay(
 ) {
     Box(
         modifier = modifier
-            .defaultMinSize(minWidth = 30.dp, minHeight = 30.dp)
+            .defaultMinSize(minWidth = MinIconSize, minHeight = MinIconSize)
             .background(
                 color = color,
                 shape = CircleShape

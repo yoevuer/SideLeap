@@ -6,7 +6,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
+import hunoia.luno.R
 import hunoia.luno.action.Action
+import hunoia.luno.core.AppContext
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.core.serialization.JsonHelper
@@ -66,7 +68,10 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
             val newId = java.util.UUID.randomUUID().toString()
             val mirrored = original.copy(
                 id = newId,
-                name = "镜像·${original.name.ifEmpty { "子手势" }}",
+                name = AppContext.get().getString(
+                    R.string.mirror_sub_gesture_name,
+                    original.name.ifEmpty { AppContext.get().getString(R.string.sub_gesture) }
+                ),
                 leftAction = original.rightAction,
                 rightAction = original.leftAction,
                 upRightAction = original.upLeftAction,

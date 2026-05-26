@@ -40,7 +40,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import hunoia.luno.R
+import hunoia.luno.gesture.SubGestureDirection
 import hunoia.luno.settings.defaults.SettingsUiDefaults
+import hunoia.luno.ui.ext.displayNameRes
 import hunoia.luno.settings.model.SubGestureAngle
 import hunoia.luno.settings.model.copyNewNoGap
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
@@ -62,7 +64,16 @@ fun SubGestureAngleContent(
     color: Color = MaterialTheme.colorScheme.primary
 ) {
     var draftAngle by remember(angle) { mutableStateOf(angle) }
-    val names = listOf("右上", "上", "左上", "左", "左下", "下", "右下", "右")
+    val names = listOf(
+        stringResource(id = SubGestureDirection.UpRight.displayNameRes),
+        stringResource(id = SubGestureDirection.Up.displayNameRes),
+        stringResource(id = SubGestureDirection.UpLeft.displayNameRes),
+        stringResource(id = SubGestureDirection.Left.displayNameRes),
+        stringResource(id = SubGestureDirection.DownLeft.displayNameRes),
+        stringResource(id = SubGestureDirection.Down.displayNameRes),
+        stringResource(id = SubGestureDirection.DownRight.displayNameRes),
+        stringResource(id = SubGestureDirection.Right.displayNameRes)
+    )
 
     Column(
         modifier = Modifier

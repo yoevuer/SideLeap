@@ -19,7 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import hunoia.luno.R
 import hunoia.luno.settings.model.QuickAppLauncherSettings
 import hunoia.luno.settings.SettingsProvider
 import kotlinx.coroutines.launch
@@ -43,23 +45,23 @@ internal fun QuickAppLauncherAdjustPanel(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            AdjustSlider("位置高度", settings.panelHeightFraction, 0.05f, 0.9f, activeLabel, { activeLabel = it }) { value ->
+            AdjustSlider(stringResource(R.string.quick_app_launcher_panel_height), settings.panelHeightFraction, 0.05f, 0.9f, activeLabel, { activeLabel = it }) { value ->
                 updateLayout(settings.copy(panelHeightFraction = value))
             }
             Spacer(modifier = Modifier.height(12.dp))
-            AdjustSlider("内部高度", settings.contentHeightFraction, 0.35f, 0.9f, activeLabel, { activeLabel = it }) { value ->
+            AdjustSlider(stringResource(R.string.quick_app_launcher_content_height), settings.contentHeightFraction, 0.35f, 0.9f, activeLabel, { activeLabel = it }) { value ->
                 updateLayout(settings.copy(contentHeightFraction = value))
             }
             Spacer(modifier = Modifier.height(12.dp))
-            AdjustSlider("宽度", settings.panelWidthFraction, 0.65f, 1.0f, activeLabel, { activeLabel = it }) { value ->
+            AdjustSlider(stringResource(R.string.quick_app_launcher_panel_width), settings.panelWidthFraction, 0.65f, 1.0f, activeLabel, { activeLabel = it }) { value ->
                 updateLayout(settings.copy(panelWidthFraction = value))
             }
             Spacer(modifier = Modifier.height(12.dp))
-            AdjustSlider("水平位置", settings.panelHorizontalBias, 0.0f, 1.0f, activeLabel, { activeLabel = it }) { value ->
+            AdjustSlider(stringResource(R.string.quick_app_launcher_horizontal_bias), settings.panelHorizontalBias, 0.0f, 1.0f, activeLabel, { activeLabel = it }) { value ->
                 updateLayout(settings.copy(panelHorizontalBias = value))
             }
             Spacer(modifier = Modifier.height(12.dp))
-            AdjustSlider("候选应用行数", settings.candidateRows.toFloat(), 1f, 3f, activeLabel, { activeLabel = it }, valueFormatter = { it.roundToInt().toString() }) { value ->
+            AdjustSlider(stringResource(R.string.quick_app_launcher_candidate_rows), settings.candidateRows.toFloat(), 1f, 3f, activeLabel, { activeLabel = it }, valueFormatter = { it.roundToInt().toString() }) { value ->
                 updateLayout(settings.copy(candidateRows = value.roundToInt().coerceIn(1, 3)))
             }
         }

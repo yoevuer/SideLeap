@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 
 import hunoia.luno.R
+import hunoia.luno.core.AppContext
 import hunoia.luno.gesture.GestureButton
 import hunoia.luno.settings.model.SubGesture
 import hunoia.luno.settings.model.SubGestureSettings
@@ -69,7 +70,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             SettingsProvider.updateSubGestureSettings { settings ->
                 val newGesture = SubGesture(
                     id = id,
-                    name = "子手势 ${settings.subGestures.size + 1}",
+                    name = AppContext.get().getString(R.string.sub_gesture_default_name, settings.subGestures.size + 1),
                     color = android.graphics.Color.argb(255, kotlin.random.Random.nextInt(256), kotlin.random.Random.nextInt(256), kotlin.random.Random.nextInt(256))
                 )
                 settings.copy(subGestures = settings.subGestures + newGesture)

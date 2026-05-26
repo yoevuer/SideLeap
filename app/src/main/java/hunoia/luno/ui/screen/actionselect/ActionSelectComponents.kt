@@ -3,6 +3,7 @@ package hunoia.luno.ui.screen.actionselect
 import android.content.Context
 import hunoia.luno.ui.component.AppSearchBar
 import hunoia.luno.ui.component.EmptyState
+import hunoia.luno.ui.ext.displayNameRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import androidx.compose.foundation.Image
@@ -129,10 +130,10 @@ internal fun ActionPage(
         buildList {
             add(null to context.getString(R.string.all_categories))
             if (!selectSingle) add("selected" to context.getString(R.string.tab_selected))
-            add(ActionCategory.NAVIGATION to ActionCategory.NAVIGATION.displayName)
-            add(ActionCategory.SYSTEM to ActionCategory.SYSTEM.displayName)
-            add(ActionCategory.TOOL to ActionCategory.TOOL.displayName)
-            add(ActionCategory.SUB_GESTURE to ActionCategory.SUB_GESTURE.displayName)
+            add(ActionCategory.NAVIGATION to context.getString(ActionCategory.NAVIGATION.displayNameRes))
+            add(ActionCategory.SYSTEM to context.getString(ActionCategory.SYSTEM.displayNameRes))
+            add(ActionCategory.TOOL to context.getString(ActionCategory.TOOL.displayNameRes))
+            add(ActionCategory.SUB_GESTURE to context.getString(ActionCategory.SUB_GESTURE.displayNameRes))
             add("app" to context.getString(R.string.tab_apps))
             add("shortcut" to context.getString(R.string.tab_shortcuts))
         }
@@ -289,7 +290,7 @@ internal fun ActionPage(
                 grouped.forEach { (category, categoryActions) ->
                     stickyHeader(key = "cat_${category.name}") {
                         Text(
-                            text = category.displayName,
+                            text = stringResource(id = category.displayNameRes),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier

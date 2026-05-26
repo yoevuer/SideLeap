@@ -14,14 +14,10 @@ import hunoia.luno.R
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxGridColumns
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxGridCornerRadius
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxGridRows
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxGridScrollHotZoneHeight
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxGridScrollSpeed
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxItemSize
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MinGridColumns
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MinGridCornerRadius
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MinGridRows
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinGridScrollHotZoneHeight
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinGridScrollSpeed
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MinItemSize
 import hunoia.luno.settings.model.GridStyle
 import hunoia.luno.ui.theme.RootPadding
@@ -40,8 +36,6 @@ fun GridStyleSettingsContent(
     var localItemSize by remember(gridStyle.itemSize) { mutableStateOf(gridStyle.itemSize.toFloat()) }
     var localColumns by remember(gridStyle.columns) { mutableStateOf(gridStyle.columns.toFloat()) }
     var localRows by remember(gridStyle.rows) { mutableStateOf(gridStyle.rows.toFloat()) }
-    var localScrollSpeed by remember(gridStyle.scrollSpeed) { mutableStateOf(gridStyle.scrollSpeed.toFloat()) }
-    var localScrollHotZoneHeight by remember(gridStyle.scrollHotZoneHeight) { mutableStateOf(gridStyle.scrollHotZoneHeight.toFloat()) }
     var localCornerRadius by remember(gridStyle.cornerRadius) { mutableStateOf(gridStyle.cornerRadius.toFloat()) }
 
     Column(
@@ -74,27 +68,6 @@ fun GridStyleSettingsContent(
                 text = stringResource(id = R.string.rows),
                 valueDisplay = "${localRows.roundToInt()}",
                 valueRange = MinGridRows.toFloat()..MaxGridRows.toFloat()
-            )
-        }
-        SectionCard(
-            modifier = Modifier.padding(top = SectionPadding),
-            title = stringResource(id = R.string.scrolling)
-        ) {
-            MyTextSlider(
-                value = localScrollSpeed,
-                onValueChange = { localScrollSpeed = it },
-                onValueChangeFinished = { onStyleChange(gridStyle.copy(scrollSpeed = localScrollSpeed.toInt())) },
-                text = stringResource(id = R.string.scroll_speed),
-                valueDisplay = "${localScrollSpeed.roundToInt()}",
-                valueRange = MinGridScrollSpeed.toFloat()..MaxGridScrollSpeed.toFloat()
-            )
-            MyTextSlider(
-                value = localScrollHotZoneHeight,
-                onValueChange = { localScrollHotZoneHeight = it },
-                onValueChangeFinished = { onStyleChange(gridStyle.copy(scrollHotZoneHeight = localScrollHotZoneHeight.toInt())) },
-                text = stringResource(id = R.string.scroll_hot_zone_height),
-                valueDisplay = "${localScrollHotZoneHeight.roundToInt()}px",
-                valueRange = MinGridScrollHotZoneHeight.toFloat()..MaxGridScrollHotZoneHeight.toFloat()
             )
         }
         SectionCard(

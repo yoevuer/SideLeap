@@ -30,6 +30,11 @@ val SubMinInteractiveSize = 36.dp
 val MinIconSize = 24.dp
 val DialogTitlePadding = RootPadding * 2
 val DialogTitleFontSize = 24.sp
+val DialogHexTextWidth = 120.dp
+
+// Gesture / interaction thresholds
+val MiniWindowWidth = 200.dp
+const val NavExitOffsetDivisor = 3
 
 // Shape corner radii
 val ShapeSmall = 8.dp

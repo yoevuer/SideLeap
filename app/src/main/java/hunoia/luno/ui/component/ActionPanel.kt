@@ -80,6 +80,7 @@ import hunoia.luno.action.shortcutInfo
 import hunoia.luno.system.vibration.tryVibrateForActionPanel
 import hunoia.luno.ui.theme.AnimNormal
 import hunoia.luno.ui.theme.AnimPanelResize
+import hunoia.luno.ui.theme.MiniWindowWidth
 import hunoia.luno.ui.theme.RootPadding
 import hunoia.luno.ui.theme.ShapeSmall
 import kotlinx.coroutines.CoroutineScope
@@ -147,7 +148,7 @@ fun ActionPanel(
                                 val boxMaxHeight = maxHeight
                                 val spec = tween<Dp>(AnimPanelResize.toInt())
                                 val width by animateDpAsState(
-                                    targetValue = if (miniWindow) 200.dp else boxMaxWidth,
+                                    targetValue = if (miniWindow) MiniWindowWidth else boxMaxWidth,
                                     animationSpec = spec
                                 )
                                 val height by animateDpAsState(
@@ -255,14 +256,15 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
             val transition = transition
             actionPanelState.actions.fastForEachIndexed { index, action ->
                 key(index) {
-                    val targetAnimOffset = remember(parentSize, actionPanelState.position, actionPanelState.actions.size, index) {
+                    val targetAnimOffset = remember(parentSize, actionPanelState.position, actionPanelState.actions.size, index, actionPanelStyle.arcLength) {
                         arcActionOffset(
                             parentSize = parentSize,
                             origin = actionPanelOrigin(parentSize, actionPanelState.origin, actionPanelState.position, itemSizePx),
                             position = actionPanelState.position,
                             actionCount = actionCount,
                             index = index,
-                            itemSizePx = itemSizePx
+                            itemSizePx = itemSizePx,
+                            arcLength = actionPanelStyle.arcLength
                         )
                     }
                     val panelOrigin = actionPanelOrigin(parentSize, actionPanelState.origin, actionPanelState.position, itemSizePx)
@@ -415,7 +417,7 @@ private fun AnimatedVisibilityScope.GridActionPanel(
                         itemSizePx = itemSizePx,
                         vibrations = vibrations,
                         modifier = Modifier.size(itemSize),
-                        shape = RoundedCornerShape(14.dp)
+                        shape = RoundedCornerShape(actionPanelStyle.cornerRadius.toDp())
                     ) {
                         ActionPanelIcon(
                             action = action,
@@ -455,14 +457,14 @@ private fun AnimatedVisibilityScope.PieActionPanel(
             if (parentSize.isEmpty() || !origin.isSpecified) return@Canvas
 
             val panelOrigin = actionPanelOrigin(parentSize, origin, position, itemSizePx)
-            val maxOuterRadius = pieMaxOuterRadius(parentSize, panelOrigin, position, actionCount, itemSizePx)
+            val maxOuterRadius = pieMaxOuterRadius(parentSize, panelOrigin, position, actionCount, itemSizePx, actionPanelStyle.arcLength)
             if (maxOuterRadius <= 0f) return@Canvas
 
-            val bgColor = primaryColor.copy(alpha = 0.15f)
+            val bgColor = primaryColor.copy(alpha = 0.35f)
             val gapRatio = 0.15f
             val segCount = 8
             val minGapPx = itemSizePx * 0.2f
-            val maxItemsPerLayer = arcLayerCapacity(itemSizePx * 2f, itemSizePx, minGapPx)
+            val maxItemsPerLayer = arcLayerCapacity(itemSizePx * 2f, itemSizePx, minGapPx, actionPanelStyle.arcLength)
             val layerCount = ceil(actionCount / maxItemsPerLayer.toFloat()).toInt().coerceAtLeast(1)
             val itemsPerLayer = ceil(actionCount / layerCount.toFloat()).toInt().coerceAtLeast(1)
             var remaining = actionCount
@@ -479,7 +481,7 @@ private fun AnimatedVisibilityScope.PieActionPanel(
                 val innerR = (resolvedRadius - itemSizePx * 0.5f).coerceAtLeast(1f)
                 val outerR = min(resolvedRadius + itemSizePx * 0.5f, maxOuterRadius)
 
-                val sectorSpan = 170f / countInLayer
+                val sectorSpan = actionPanelStyle.arcLength.toFloat() / countInLayer
                 val fillSpan = sectorSpan * (1f - gapRatio)
 
                 for (i in 0 until countInLayer) {
@@ -541,10 +543,10 @@ private fun AnimatedVisibilityScope.PieActionPanel(
             actionPanelState.actions.fastForEachIndexed { index, action ->
                 key(index) {
                     val panelOrigin = actionPanelOrigin(parentSize, origin, position, itemSizePx)
-                    val targetAnimOffset = remember(parentSize, position, origin, actionCount, index, itemSizePx) {
+                    val targetAnimOffset = remember(parentSize, position, origin, actionCount, index, itemSizePx, actionPanelStyle.arcLength) {
                         if (parentSize.isEmpty()) return@remember Offset.Zero
                         val minGapPx = itemSizePx * 0.2f
-                        val maxItemsPerLayer = arcLayerCapacity(itemSizePx * 2f, itemSizePx, minGapPx)
+                        val maxItemsPerLayer = arcLayerCapacity(itemSizePx * 2f, itemSizePx, minGapPx, actionPanelStyle.arcLength)
                         val layerCount = ceil(actionCount / maxItemsPerLayer.toFloat()).toInt().coerceAtLeast(1)
                         val itemsPerLayer = ceil(actionCount / layerCount.toFloat()).toInt().coerceAtLeast(1)
                         val layer = index / itemsPerLayer
@@ -558,7 +560,8 @@ private fun AnimatedVisibilityScope.PieActionPanel(
                             Position.Bottom -> panelOrigin.y - itemSizePx
                         }.coerceAtLeast(itemSizePx * 1.5f)
                         val resolvedRadius = min(radius, maxRad)
-                        val sectorCenter = -85f + 170f * (indexInLayer + 0.5f) / countInLayer
+                        val arcDegrees = actionPanelStyle.arcLength.toFloat()
+                        val sectorCenter = -85f + arcDegrees * (indexInLayer + 0.5f) / countInLayer
                         val rad = Math.toRadians(sectorCenter.toDouble())
                         val x = cos(rad).toFloat() * resolvedRadius
                         val y = sin(rad).toFloat() * resolvedRadius
@@ -584,7 +587,7 @@ private fun AnimatedVisibilityScope.PieActionPanel(
                                         transition.currentState == Visible
                             }
                             .collect { finger ->
-                                if (pieHitContains(finger, panelOrigin, position, actionCount, index, itemSizePx, parentSize)) {
+                                if (pieHitContains(finger, panelOrigin, position, actionCount, index, itemSizePx, parentSize, actionPanelStyle.arcLength)) {
                                     if (!actionPanelState.isSelected(action)) {
                                         isHovered = true
                                         actionPanelState.select(index, action)
@@ -671,12 +674,13 @@ private fun pieHitContains(
     actionCount: Int,
     index: Int,
     itemSizePx: Float,
-    parentSize: Size
+    parentSize: Size,
+    arcLength: Int
 ): Boolean {
     if (parentSize.isEmpty() || actionCount <= 0) return false
     if (!panelOrigin.isSpecified || panelOrigin.x.isNaN() || panelOrigin.y.isNaN()) return false
     val minGapPx = itemSizePx * 0.2f
-    val maxItemsPerLayer = arcLayerCapacity(itemSizePx * 2f, itemSizePx, minGapPx)
+    val maxItemsPerLayer = arcLayerCapacity(itemSizePx * 2f, itemSizePx, minGapPx, arcLength)
     val layerCount = ceil(actionCount / maxItemsPerLayer.toFloat()).toInt().coerceAtLeast(1)
     val itemsPerLayer = ceil(actionCount / layerCount.toFloat()).toInt().coerceAtLeast(1)
     val layer = index / itemsPerLayer
@@ -704,7 +708,8 @@ private fun pieHitContains(
         Position.Right -> Math.toDegrees(atan2(dy.toDouble(), (-dx).toDouble())).toFloat()
         Position.Bottom -> Math.toDegrees(atan2(dx.toDouble(), (-dy).toDouble())).toFloat()
     }
-    val sectorWidth = 170f / countInLayer
+    val arcDegrees = arcLength.toFloat()
+    val sectorWidth = arcDegrees / countInLayer
     val sectorStart = -85f + indexInLayer * sectorWidth
     val sectorEnd = sectorStart + sectorWidth
     return canonAngle in sectorStart..sectorEnd
@@ -715,11 +720,12 @@ private fun pieMaxOuterRadius(
     panelOrigin: Offset,
     position: Position,
     actionCount: Int,
-    itemSizePx: Float
+    itemSizePx: Float,
+    arcLength: Int
 ): Float {
     if (actionCount <= 0) return 0f
     val minGapPx = itemSizePx * 0.2f
-    val maxItemsPerLayer = arcLayerCapacity(itemSizePx * 2f, itemSizePx, minGapPx)
+    val maxItemsPerLayer = arcLayerCapacity(itemSizePx * 2f, itemSizePx, minGapPx, arcLength)
     val layerCount = ceil(actionCount / maxItemsPerLayer.toFloat()).toInt().coerceAtLeast(1)
     val lastLayer = layerCount - 1
     val radius = itemSizePx * (2.0f + lastLayer * 1.25f)
@@ -769,14 +775,16 @@ private fun arcActionOffset(
     position: Position,
     actionCount: Int,
     index: Int,
-    itemSizePx: Float
+    itemSizePx: Float,
+    arcLength: Int
 ): Offset {
     if (parentSize.isEmpty() || actionCount <= 0) return Offset.Zero
     val minGapPx = itemSizePx * 0.2f
     val maxItemsPerLayer = arcLayerCapacity(
         radius = itemSizePx * 2.0f,
         itemSizePx = itemSizePx,
-        minGapPx = minGapPx
+        minGapPx = minGapPx,
+        arcLength = arcLength
     )
     val layerCount = ceil(actionCount / maxItemsPerLayer.toFloat()).toInt().coerceAtLeast(1)
     val itemsPerLayer = ceil(actionCount / layerCount.toFloat()).toInt().coerceAtLeast(1)
@@ -791,7 +799,8 @@ private fun arcActionOffset(
         Position.Bottom -> origin.y - itemSizePx
     }.coerceAtLeast(itemSizePx * 1.5f)
     val resolvedRadius = min(radius, maxRadius)
-    val sweepDegree = if (countInLayer == 1) 0f else min(170f, 35f * (countInLayer - 1))
+    val arcDegrees = arcLength.toFloat()
+    val sweepDegree = if (countInLayer == 1) 0f else min(arcDegrees, 35f * (countInLayer - 1))
     val angleDegree = if (countInLayer == 1) 0f else {
         -sweepDegree / 2f + sweepDegree * indexInLayer / (countInLayer - 1)
     }
@@ -806,12 +815,12 @@ private fun arcActionOffset(
     return targetCenter - origin
 }
 
-private fun arcLayerCapacity(radius: Float, itemSizePx: Float, minGapPx: Float): Int {
+private fun arcLayerCapacity(radius: Float, itemSizePx: Float, minGapPx: Float, arcLength: Int): Int {
     val minDistance = itemSizePx + minGapPx
     val diameter = radius * 2f
     if (diameter <= minDistance) return 1
     val minAngle = Math.toDegrees(2.0 * asin((minDistance / diameter).coerceAtMost(1f).toDouble())).toFloat()
-    return floor(170f / minAngle).toInt().coerceAtLeast(1) + 1
+    return floor(arcLength.toFloat() / minAngle).toInt().coerceAtLeast(1) + 1
 }
 
 private fun gridActionOffset(

@@ -72,15 +72,11 @@ object SettingsUiDefaults {
     val MaxGridColumns = 8
     val MinGridRows = 1
     val MaxGridRows = 6
-    val MinGridScrollSpeed = 1
-    val MaxGridScrollSpeed = 30
-    val MinGridScrollHotZoneHeight = DensityProvider.dp2px(10f)
-    val MaxGridScrollHotZoneHeight = DensityProvider.dp2px(60f)
     val MinGridCornerRadius = DensityProvider.dp2px(4f)
     val MaxGridCornerRadius = DensityProvider.dp2px(40f)
 
-    val MinArcLength = DensityProvider.dp2px(30f)
-    val MaxArcLength = DensityProvider.dp2px(120f)
+    const val MinArcLength = 30
+    const val MaxArcLength = 270
     const val MinSpacing = 0.8f
     const val MaxSpacing = 2.0f
     val MinItemSize = DensityProvider.dp2px(24f)

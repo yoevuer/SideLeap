@@ -51,10 +51,6 @@ data object Home
 
 @Keep
 @Serializable
-data object Unlock
-
-@Keep
-@Serializable
 data object FrozenAppManage
 
 @Keep

@@ -135,7 +135,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
                 updateUiState {
                     it.copy(runningPackageActions = it.runningPackageActions - packageName)
                 }
-                showComposeToast(e.message ?: "操作失败")
+                showComposeToast(e.message ?: AppContext.get().getString(R.string.operation_failed))
             }
             recompute()
         }
@@ -165,7 +165,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             } catch (e: Exception) {
                 Log.e(TAG, "onOneKeyFreezeAll failed", e)
                 updateUiState { it.copy(bulkActionRunning = false) }
-                showComposeToast(e.message ?: "批量冻结失败")
+                showComposeToast(e.message ?: AppContext.get().getString(R.string.bulk_freeze_failed))
             }
             recompute()
         }
@@ -195,7 +195,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
             } catch (e: Exception) {
                 Log.e(TAG, "onOneKeyUnfreezeAll failed", e)
                 updateUiState { it.copy(bulkActionRunning = false) }
-                showComposeToast(e.message ?: "批量解冻失败")
+                showComposeToast(e.message ?: AppContext.get().getString(R.string.bulk_unfreeze_failed))
             }
             recompute()
         }
