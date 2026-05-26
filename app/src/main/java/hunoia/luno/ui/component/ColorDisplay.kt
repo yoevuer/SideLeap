@@ -39,7 +39,7 @@ fun MyColorDisplay(
                 modifier = Modifier.matchParentSize(),
                 imageVector = Icons.Default.Close,
                 contentDescription = null,
-                tint = Color.Red
+                tint = MaterialTheme.colorScheme.error
             )
         }
     }

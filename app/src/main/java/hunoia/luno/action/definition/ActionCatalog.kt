@@ -23,6 +23,7 @@ object ActionCatalog {
         ActionDefinition(GlobalActions.FLASHLIGHT, ActionCategory.SYSTEM, ActionConfigKind.NONE, "flashlight", "flashlight"),
         ActionDefinition(GlobalActions.ASSIST_APP, ActionCategory.SYSTEM, ActionConfigKind.NONE, "assist_app", "assist_app"),
         ActionDefinition(GlobalActions.SCREENSHOT, ActionCategory.SYSTEM, ActionConfigKind.NONE, "screenshot", "screenshot"),
+        ActionDefinition(GlobalActions.SPLIT_SCREEN, ActionCategory.SYSTEM, ActionConfigKind.NONE, "split_screen", "split_screen"),
         ActionDefinition(GlobalActions.POWER_BUTTON, ActionCategory.SYSTEM, ActionConfigKind.NONE, "power_button", "power_button"),
         ActionDefinition(GlobalActions.KEEP_SCREEN_ON, ActionCategory.SYSTEM, ActionConfigKind.NONE, "keep_screen_on", "keep_screen_on"),
         ActionDefinition(GlobalActions.POPUP_SCREEN, ActionCategory.NAVIGATION, ActionConfigKind.NONE, "popup_screen", "popup_screen"),

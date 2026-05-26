@@ -39,7 +39,6 @@ import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsScreen
 import hunoia.luno.ui.screen.settings.gesture.GestureSettingsScreen
 import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectContent
 import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsScreen
-import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectContent
 import hunoia.luno.ui.screen.home.HomeScreen
 import hunoia.luno.ui.theme.SideGestureTheme
 import hunoia.luno.ui.navigation.LocalNavController

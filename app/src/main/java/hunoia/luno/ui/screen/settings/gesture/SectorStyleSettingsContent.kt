@@ -1,8 +1,12 @@
 package hunoia.luno.ui.screen.settings.gesture
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +27,8 @@ import hunoia.luno.ui.theme.ScrollBottomPadding
 import hunoia.luno.ui.theme.SectionPadding
 import hunoia.luno.ui.component.MyTextSlider
 import hunoia.luno.ui.component.SectionCard
+import hunoia.luno.ui.screen.settings.gesture.ArcStylePreview
+import hunoia.luno.ui.screen.settings.gesture.PieStylePreview
 import kotlin.math.roundToInt
 
 @Composable
@@ -33,6 +39,7 @@ fun ArcOrPieSettingsContent(
     onItemSizeChange: (Int) -> Unit,
     onArcLengthChange: (Int) -> Unit,
     onSpacingChange: (Float) -> Unit,
+    isPie: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var localItemSize by remember(itemSize) { mutableStateOf(itemSize.toFloat()) }
@@ -43,8 +50,24 @@ fun ArcOrPieSettingsContent(
         modifier = modifier
             .navigationBarsPadding()
             .padding(RootPadding)
-            .padding(bottom = ScrollBottomPadding)
+            .padding(bottom = ScrollBottomPadding),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if (isPie) {
+            PieStylePreview(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .padding(bottom = SectionPadding)
+            )
+        } else {
+            ArcStylePreview(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .padding(bottom = SectionPadding)
+            )
+        }
         SectionCard(title = stringResource(id = R.string.icon)) {
             MyTextSlider(
                 value = localItemSize,

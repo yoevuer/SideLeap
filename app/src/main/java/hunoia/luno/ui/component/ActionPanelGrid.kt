@@ -82,8 +82,8 @@ internal fun AnimatedVisibilityScope.GridActionPanel(
                     ) {
                         ActionPanelIcon(
                             action = action,
-                            iconSize = itemSize * 0.58f,
-                            bitmapIconSize = itemSize * 0.76f
+                            iconSize = itemSize * 0.65f,
+                            bitmapIconSize = itemSize * 0.82f
                         )
                     }
                 }

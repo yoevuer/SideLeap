@@ -50,7 +50,8 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -228,7 +229,6 @@ fun HomeScreen(
                 TopBar(
                     onBack = { },
                     title = stringResource(id = R.string.home_title),
-                    titleStyle = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.W900),
                     showBackIcon = false,
                     actions = {
                         IconButton(onClick = { vm.showMoreMenu(true) }) {
@@ -435,18 +435,17 @@ fun HomeScreen(
                                     )
                                 }
                             }
-                            Text(
+                            androidx.compose.material3.TextButton(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .heightIn(min = MinItemHeightNoSecondary)
-                                    .onSingleClick {
-                                        vm.addSideGestureButton()
-                                    }
-                                    .wrapContentSize(),
-                                text = stringResource(id = R.string.add_gesture_button),
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.titleMedium
-                            )
+                                    .heightIn(min = MinItemHeightNoSecondary),
+                                onClick = { vm.addSideGestureButton() }
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.add_gesture_button),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
                         }
 
                         MyExpandableColumn(
@@ -512,13 +511,21 @@ fun HomeScreen(
                                     return@fastForEach
                                 }
                                 val bounds = button.bounds()
-                                drawRect(
+                                drawRoundRect(
                                     color = when (button.isDefault) {
                                         true -> colorScheme.primary.copy(alpha = GestureButtonColorAlpha)
                                         else -> Color(button.color).copy(alpha = GestureButtonColorAlpha)
                                     },
                                     topLeft = bounds.topLeft,
-                                    size = bounds.size
+                                    size = bounds.size,
+                                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(4.dp.toPx(), 4.dp.toPx())
+                                )
+                                drawRoundRect(
+                                    color = colorScheme.outlineVariant,
+                                    topLeft = bounds.topLeft,
+                                    size = bounds.size,
+                                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(4.dp.toPx(), 4.dp.toPx()),
+                                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.dp.toPx())
                                 )
                             }
                         }
@@ -826,20 +833,20 @@ private fun BackupRestoreDialog(
             color = MaterialTheme.colorScheme.surface
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
-                SectionCard {
-                    TextActionButton(
-                        onClick = onBackupRequest,
-                        text = stringResource(id = R.string.backup),
-                        secondaryText = stringResource(id = R.string.backup_hint)
-                    )
-                }
-                SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
-                    TextActionButton(
-                        onClick = onRestoreRequest,
-                        text = stringResource(id = R.string.restore),
-                        secondaryText = stringResource(id = R.string.restore_hint)
-                    )
-                }
+                TextActionButton(
+                    onClick = onBackupRequest,
+                    text = stringResource(id = R.string.backup),
+                    secondaryText = stringResource(id = R.string.backup_hint)
+                )
+                androidx.compose.material3.HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 12.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+                TextActionButton(
+                    onClick = onRestoreRequest,
+                    text = stringResource(id = R.string.restore),
+                    secondaryText = stringResource(id = R.string.restore_hint)
+                )
             }
         }
     }

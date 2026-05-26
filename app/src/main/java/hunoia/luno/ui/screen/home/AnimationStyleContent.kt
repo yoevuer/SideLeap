@@ -741,14 +741,14 @@ private fun StyleChip(
             .clipToBackground(
                 color = if (selected) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(12.dp)
+                shape = MaterialTheme.shapes.medium
             )
             .onSingleClick { onClick() }
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = Modifier.size(32.dp).clip(RoundedCornerShape(6.dp))
+            modifier = Modifier.size(32.dp).clip(MaterialTheme.shapes.small)
                 .background(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh),
             contentAlignment = Alignment.Center
         ) {
@@ -762,7 +762,10 @@ private fun StyleChip(
 
 @Composable
 private fun ShapePreview(shapeType: Int, modifier: Modifier, color: Color) {
-    Canvas(modifier = modifier) {
+    Box(
+        modifier = modifier.background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f), MaterialTheme.shapes.small)
+    ) {
+        Canvas(modifier = Modifier.matchParentSize()) {
         val path = Path()
         val w = size.width
         val h = size.height
@@ -778,13 +781,17 @@ private fun ShapePreview(shapeType: Int, modifier: Modifier, color: Color) {
                 path.lineTo(cx, h - 2f)
             }
         }
-        drawPath(path, color = color, style = Stroke(2.dp.toPx()))
+            drawPath(path, color = color, style = Stroke(2.5.dp.toPx()))
+        }
     }
 }
 
 @Composable
 private fun LinePreview(modifier: Modifier, color: Color) {
-    Canvas(modifier = modifier) {
+    Box(
+        modifier = modifier.background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f), MaterialTheme.shapes.small)
+    ) {
+        Canvas(modifier = Modifier.matchParentSize()) {
         val w = size.width
         val h = size.height
         val cx = w / 2f
@@ -797,34 +804,43 @@ private fun LinePreview(modifier: Modifier, color: Color) {
             end = Offset(cx, top + lineH),
             strokeWidth = strokeWidth.coerceAtLeast(1f),
             cap = StrokeCap.Round
-        )
+            )
+        }
     }
 }
 
 @Composable
 private fun CapsulePreview(modifier: Modifier, color: Color) {
-    Canvas(modifier = modifier) {
+    Box(
+        modifier = modifier.background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f), MaterialTheme.shapes.small)
+    ) {
+        Canvas(modifier = Modifier.matchParentSize()) {
         val w = size.width
         val h = size.height
         val rectW = w * 0.8f
         val rectH = h * 0.55f
         val corner = rectH / 2f
-        drawRoundRect(
-            color = color,
-            topLeft = androidx.compose.ui.geometry.Offset((w - rectW) / 2f, (h - rectH) / 2f),
-            size = Size(rectW, rectH),
-            cornerRadius = CornerRadius(corner, corner),
-            style = Stroke(2.dp.toPx())
-        )
+            drawRoundRect(
+                color = color,
+                topLeft = androidx.compose.ui.geometry.Offset((w - rectW) / 2f, (h - rectH) / 2f),
+                size = Size(rectW, rectH),
+                cornerRadius = CornerRadius(corner, corner),
+                style = Stroke(2.5.dp.toPx())
+            )
+        }
     }
 }
 
 @Composable
 private fun BubblePreview(modifier: Modifier, color: Color) {
-    Canvas(modifier = modifier) {
-        val cx = size.width / 2f
-        val cy = size.height / 2f
-        val r = minOf(size.width, size.height) * 0.42f
-        drawCircle(color = color, radius = r, center = Offset(cx, cy), style = Stroke(2.dp.toPx()))
+    Box(
+        modifier = modifier.background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f), MaterialTheme.shapes.small)
+    ) {
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val cx = size.width / 2f
+            val cy = size.height / 2f
+            val r = minOf(size.width, size.height) * 0.42f
+            drawCircle(color = color, radius = r, center = Offset(cx, cy), style = Stroke(2.5.dp.toPx()))
+        }
     }
 }

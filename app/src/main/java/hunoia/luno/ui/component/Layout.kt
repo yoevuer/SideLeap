@@ -81,7 +81,8 @@ fun SectionCard(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.surfaceContainer
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            tonalElevation = 2.dp
         ) {
             Column {
                 content()

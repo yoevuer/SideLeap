@@ -184,7 +184,7 @@ private fun ActionPanelStyleCard(
 }
 
 @Composable
-private fun PreviewStage(
+internal fun PreviewStage(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -209,7 +209,7 @@ private fun PreviewStage(
 }
 
 @Composable
-private fun GridStylePreview(modifier: Modifier = Modifier) {
+internal fun GridStylePreview(modifier: Modifier = Modifier) {
     PreviewStage(modifier = modifier) {
         val colorScheme = MaterialTheme.colorScheme
         Box(
@@ -242,7 +242,7 @@ private fun GridStylePreview(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ArcStylePreview(modifier: Modifier = Modifier) {
+internal fun ArcStylePreview(modifier: Modifier = Modifier) {
     PreviewStage(modifier = modifier) {
         val colorScheme = MaterialTheme.colorScheme
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -270,7 +270,7 @@ private fun ArcStylePreview(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun PieStylePreview(modifier: Modifier = Modifier) {
+internal fun PieStylePreview(modifier: Modifier = Modifier) {
     PreviewStage(modifier = modifier) {
         val colorScheme = MaterialTheme.colorScheme
         Canvas(modifier = Modifier.fillMaxSize()) {

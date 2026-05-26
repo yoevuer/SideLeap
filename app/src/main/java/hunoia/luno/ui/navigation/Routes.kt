@@ -51,10 +51,6 @@ data object Home
 
 @Keep
 @Serializable
-data object FrozenAppManage
-
-@Keep
-@Serializable
 data class SubGestureEditor(
     val subGestureId: String
 )

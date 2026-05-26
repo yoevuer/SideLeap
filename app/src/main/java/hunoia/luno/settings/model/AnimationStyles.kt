@@ -77,12 +77,8 @@ data class LineStyle(
     val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.LineStyleStrokeColorThemeKey,
     val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.LineStyleIconColorThemeKey,
 ) : AnimationStyle {
-
     companion object {
         const val ICON_TYPE_ARROW = 1
-        const val ICON_TYPE_TRIANGLE = 2
-        const val ICON_TYPE_ANGLE = 3
-        const val ICON_TYPE_ARROW_NEW = 4
     }
 }
 
@@ -134,7 +130,7 @@ object AnimationStylesDefaults {
     val CapsuleStyleCornerRadius = DensityProvider.dp2px(18f)
     val CapsuleStyleIconColor = android.graphics.Color.argb(220, 255, 255, 255)
     const val CapsuleStyleIconScale = 0.52f
-    const val CapsuleStyleIconType = CapsuleStyle.ICON_TYPE_ARROW
+    const val CapsuleStyleIconType = WaveStyle.ICON_TYPE_ARROW
     val CapsuleStyleBackgroundColorSource = ColorSource.Theme
     val CapsuleStyleStrokeColorSource = ColorSource.Theme
     val CapsuleStyleIconColorSource = ColorSource.Theme
@@ -149,7 +145,7 @@ object AnimationStylesDefaults {
     val BubbleStyleMaxOffset = DensityProvider.dp2px(72f)
     val BubbleStyleIconColor = android.graphics.Color.argb(232, 255, 255, 255)
     const val BubbleStyleIconScale = 0.52f
-    const val BubbleStyleIconType = BubbleStyle.ICON_TYPE_ARROW
+    const val BubbleStyleIconType = WaveStyle.ICON_TYPE_ARROW
     val BubbleStyleBackgroundColorSource = ColorSource.Theme
     val BubbleStyleStrokeColorSource = ColorSource.Theme
     val BubbleStyleIconColorSource = ColorSource.Theme
@@ -230,12 +226,8 @@ data class CapsuleStyle(
     val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.CapsuleStyleStrokeColorThemeKey,
     val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.CapsuleStyleIconColorThemeKey,
 ) : AnimationStyle {
-
     companion object {
         const val ICON_TYPE_ARROW = 1
-        const val ICON_TYPE_TRIANGLE = 2
-        const val ICON_TYPE_ANGLE = 3
-        const val ICON_TYPE_ARROW_NEW = 4
     }
 }
 
@@ -257,11 +249,7 @@ data class BubbleStyle(
     val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.BubbleStyleStrokeColorThemeKey,
     val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.BubbleStyleIconColorThemeKey,
 ) : AnimationStyle {
-
     companion object {
         const val ICON_TYPE_ARROW = 1
-        const val ICON_TYPE_TRIANGLE = 2
-        const val ICON_TYPE_ANGLE = 3
-        const val ICON_TYPE_ARROW_NEW = 4
     }
 }

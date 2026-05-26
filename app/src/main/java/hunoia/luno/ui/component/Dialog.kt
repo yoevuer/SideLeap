@@ -138,10 +138,9 @@ fun ColorPickerDialog(
     autoDismiss: Boolean = true
 ) {
     val context = LocalContext.current
-    var showModifyColorValueDialog by remember {
-        mutableStateOf(false)
-    }
     var alpha by remember { mutableStateOf(initialColor.alpha) }
+    var hexInput by remember { mutableStateOf("") }
+    var hexError by remember { mutableStateOf(false) }
     val colorController = rememberColorPickerController()
     LaunchedEffect(initialColor) {
         alpha = initialColor.alpha
@@ -196,11 +195,7 @@ fun ColorPickerDialog(
                 )
 
                 Row(
-                    modifier = Modifier
-                        .onSingleClick {
-                            showModifyColorValueDialog = true
-                        }
-                        .padding(ItemPadding),
+                    modifier = Modifier.padding(ItemPadding),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(ItemPadding / 2)
                 ) {
@@ -240,20 +235,39 @@ fun ColorPickerDialog(
                         )
                     }
 
-                    SystemFontScaleHandler(false) {
-                        Text(
-                            modifier = Modifier.width(DialogHexTextWidth),
-                            text = "#$hexColor",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
+                    OutlinedTextField(
+                        modifier = Modifier.weight(1f),
+                        value = hexInput,
+                        onValueChange = { hexInput = it.filter { c -> c.isDigit() || c in 'a'..'f' || c in 'A'..'F' }.take(8) },
+                        prefix = {
+                            Text(
+                                text = "#",
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = DimAlpha)
+                            )
+                        },
+                        placeholder = { Text("$hexColor", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
+                        isError = hexError,
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.labelLarge
+                    )
                 }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
+                    if (hexInput.isNotEmpty()) {
+                        try {
+                            val newColor = Color("#$hexInput".toColorInt())
+                            colorController.selectByColor(newColor, true)
+                            hexError = false
+                        } catch (e: Exception) {
+                            hexError = true
+                            val toast = android.widget.Toast.makeText(context, R.string.invalid_color_value, android.widget.Toast.LENGTH_SHORT)
+                            toast.show()
+                            return@TextButton
+                        }
+                    }
                     onColorPicked(resolvedColor)
                     if (autoDismiss) {
                         onDismissRequest()
@@ -271,66 +285,6 @@ fun ColorPickerDialog(
             }
         }
     )
-    if (showModifyColorValueDialog) {
-        var textFieldValue by remember {
-            mutableStateOf(TextFieldValue(hexColor, selection = TextRange(hexColor.length)))
-        }
-        AlertDialog(
-            containerColor = MaterialTheme.colorScheme.surface,
-            onDismissRequest = { showModifyColorValueDialog = false },
-            title = { },
-            text = {
-                val focusRequester = remember { FocusRequester() }
-                LaunchedEffect(focusRequester) {
-                    focusRequester.requestFocus()
-                }
-                OutlinedTextField(
-                    modifier = Modifier.focusRequester(focusRequester),
-                    value = textFieldValue,
-                    onValueChange = onValueChange@{ newVal ->
-                        val maxLength = 8
-                        textFieldValue = if (newVal.text.length > maxLength) {
-                            newVal.copy(newVal.text.take(maxLength))
-                        } else {
-                            newVal
-                        }
-
-                    },
-                    prefix = {
-                        Text(
-                            text = "#",
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = DimAlpha)
-                        )
-                    }
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        try {
-                            val colorValue = textFieldValue.text
-                            val newColor = Color("#$colorValue".toColorInt())
-                            colorController.selectByColor(newColor, true)
-                            showModifyColorValueDialog = false
-                        } catch (ignored: Exception) {
-                            val toast = android.widget.Toast.makeText(context, R.string.invalid_color_value, android.widget.Toast.LENGTH_SHORT)
-                            toast.setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, DensityProvider.dp2px(100f))
-                            toast.show()
-                        }
-                    }
-                ) {
-                    Text(text = stringResource(id = R.string.confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showModifyColorValueDialog = false }
-                ) {
-                    Text(text = stringResource(id = R.string.cancel))
-                }
-            }
-        )
-    }
 }
 
 @Composable

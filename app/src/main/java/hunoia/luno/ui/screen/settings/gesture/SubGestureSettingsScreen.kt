@@ -80,7 +80,8 @@ fun SubGestureSettingsScreen(
         val gesture = uiState.subGesture ?: return@UDFComponent
 
         if (showEditNameDialog) {
-            AlertDialog(
+            androidx.compose.material3.AlertDialog(
+                containerColor = MaterialTheme.colorScheme.surface,
                 onDismissRequest = { showEditNameDialog = false },
                 title = { Text(text = stringResource(id = R.string.sub_gesture)) },
                 text = {

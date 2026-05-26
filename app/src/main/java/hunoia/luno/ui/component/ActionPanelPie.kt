@@ -265,6 +265,7 @@ internal fun AnimatedVisibilityScope.PieActionPanel(
                     ) {
                         if (actionIcon is ImageVector) {
                             Image(
+                                modifier = Modifier.size(itemSize * 0.65f),
                                 imageVector = actionIcon,
                                 contentDescription = null,
                                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
@@ -272,6 +273,7 @@ internal fun AnimatedVisibilityScope.PieActionPanel(
                         } else {
                             AsyncImage(
                                 modifier = Modifier
+                                    .size(itemSize * 0.82f)
                                     .graphicsLayer {
                                         val appInfo = action.appInfo
                                         if (appInfo != null) {

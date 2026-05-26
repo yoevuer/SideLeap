@@ -511,12 +511,14 @@ fun GestureButtonSettingsScreen(
                         )
                     }
                     else -> {
+                        val isPie = configStyleType == hunoia.luno.settings.model.ActionPanelStyles.TYPE_PIE
                         val arcStyle = currentStyle.value as? hunoia.luno.settings.model.ArcStyle
                             ?: hunoia.luno.settings.model.ArcStyle()
                         ArcOrPieSettingsContent(
                             itemSize = arcStyle.itemSize,
                             arcLength = arcStyle.arcLength,
                             spacing = arcStyle.spreadSpacing,
+                            isPie = isPie,
                             onItemSizeChange = { newSize ->
                                 val newStyles = currentStyle.copy(
                                     json = hunoia.luno.core.serialization.JsonHelper.encodeToString(
