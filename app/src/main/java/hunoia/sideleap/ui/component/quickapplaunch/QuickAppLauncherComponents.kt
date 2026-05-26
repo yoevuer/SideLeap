@@ -42,6 +42,7 @@ import coil.compose.AsyncImage
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.query.LauncherIconQuery
 import hunoia.sideleap.launcher.icon.IconResizeCache
+import hunoia.sideleap.ui.theme.ShapeSmall
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -143,7 +144,7 @@ internal fun AppItem(app: AppInfo, onClick: () -> Unit, onLongPress: () -> Unit)
                 modifier = Modifier
                     .height(40.dp)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
+                        .clip(RoundedCornerShape(ShapeSmall))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             )
         }

@@ -61,13 +61,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.ui.theme.AnimOverlayFade
 import hunoia.sideleap.ui.theme.AnimPanelShift
 import hunoia.sideleap.ui.theme.AnimPostHideDelay
+import hunoia.sideleap.ui.theme.ScrollBottomPadding
+import hunoia.sideleap.ui.theme.ShapeExtraLarge
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
 
@@ -167,7 +169,7 @@ internal fun QuickAppLauncherContent(
             ) {
                 Card(
                     modifier = Modifier.width(panelWidthDp),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(ShapeExtraLarge),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
@@ -319,7 +321,7 @@ private fun AppGrid(
             columns = GridCells.Fixed(4),
             verticalArrangement = Arrangement.spacedBy(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
-            contentPadding = PaddingValues(bottom = 36.dp),
+            contentPadding = PaddingValues(bottom = ScrollBottomPadding),
             modifier = Modifier.fillMaxSize()
         ) {
             if (apps.isEmpty()) {
@@ -369,7 +371,7 @@ private fun AppGrid(
                         .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "⌨", fontSize = 18.sp)
+                Text(text = "⌨", style = MaterialTheme.typography.titleMedium)
             }
         }
     }

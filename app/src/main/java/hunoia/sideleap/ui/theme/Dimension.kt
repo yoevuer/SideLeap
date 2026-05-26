@@ -31,6 +31,12 @@ val MinIconSize = 24.dp
 val DialogTitlePadding = RootPadding * 2
 val DialogTitleFontSize = 24.sp
 
+// Shape corner radii
+val ShapeSmall = 8.dp
+val ShapeMedium = 12.dp
+val ShapeLarge = 16.dp
+val ShapeExtraLarge = 20.dp
+
 // Animation durations (ms)
 const val AnimRipple = 400L
 const val AnimNormal = 150L

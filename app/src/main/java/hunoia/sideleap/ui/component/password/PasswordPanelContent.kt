@@ -26,6 +26,7 @@ import hunoia.sideleap.system.copySensitiveText
 import hunoia.sideleap.ui.theme.AnimOverlayFade
 import hunoia.sideleap.ui.theme.AnimPanelShift
 import hunoia.sideleap.ui.theme.AnimPostHideDelay
+import hunoia.sideleap.ui.theme.ShapeExtraLarge
 import hunoia.sideleap.ui.theme.SideGestureTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -71,7 +72,7 @@ fun RuntimePanelScope.PasswordPanelContent(applicationContext: Context) {
                 .onSizeChanged { size ->
                     updatePanelSize(size.width, size.height)
                 },
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(ShapeExtraLarge),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
             )

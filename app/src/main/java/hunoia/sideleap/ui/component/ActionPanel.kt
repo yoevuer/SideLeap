@@ -81,6 +81,7 @@ import hunoia.sideleap.system.vibration.tryVibrateForActionPanel
 import hunoia.sideleap.ui.theme.AnimNormal
 import hunoia.sideleap.ui.theme.AnimPanelResize
 import hunoia.sideleap.ui.theme.RootPadding
+import hunoia.sideleap.ui.theme.ShapeSmall
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -157,7 +158,7 @@ fun ActionPanel(
                             }
                             .background(
                                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(ShapeSmall)
                             )
                     )
                 }

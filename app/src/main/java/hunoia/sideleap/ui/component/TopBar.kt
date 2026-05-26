@@ -10,7 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
 import hunoia.sideleap.ui.theme.TopBarPaddingExtra
 
 /**
@@ -36,7 +35,7 @@ fun TopBar(
     actions: @Composable RowScope.() -> Unit = {},
     showBackIcon: Boolean = true,
     onTitleClick: (() -> Unit)? = null,
-    titleStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+    titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
     containerColor: Color = Color.Transparent,
     postfixTitle: (@Composable () -> Unit)? = null
 ) {
