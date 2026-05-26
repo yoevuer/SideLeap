@@ -4,15 +4,12 @@
 
 SideLeap is an Android edge gesture, quick launcher, and system action enhancement tool. Configurable trigger areas let you bind actions like back, home, volume, app launch, virtual mouse, and more to swipe, long-swipe, tap, and long-press gestures.
 
-Current version: `v1.5.9`
-
-## Screenshots
-
-<!-- TBD -->
+Current version: `v1.6.0`
 
 ## Features
 
 - **Gesture triggers** — Left, right, and bottom trigger areas; short-swipe, long-swipe, tap, and long-press gestures; per-button angle configuration.
+- **Sub-gestures** — Each trigger button can configure 8-direction sub-gestures, executed by swiping anywhere on screen after trigger.
 - **Action panel** — Expandable multi-action panel on long-swipe trigger, with arc and grid layouts.
 - **Quick launcher** — Launch apps and shortcuts, hide apps, recent/frequent records.
 - **System actions** — Back, home, recents, notification panel, quick settings, volume, mute, media controls, and more.
@@ -34,10 +31,6 @@ Current version: `v1.5.9`
 - **Shizuku Provider**: freeze/unfreeze and other elevated operations.
 - **Battery optimization & auto-start**: improves background service survival rate.
 - Other permissions (notification, camera, Bluetooth, etc.) are requested on-demand for their respective system actions.
-
-## Tech Stack
-
-Kotlin · Jetpack Compose · Material 3 · AndroidX DataStore · Kotlinx Serialization · Accessibility Service · Shizuku · Coil
 
 ## Build
 
