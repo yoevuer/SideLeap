@@ -11,4 +11,5 @@ object DataStoreFiles {
     const val QUICK_APP_LAUNCHER = "gg"
     const val FROZEN_APP_SETTINGS = "hh"
     const val SUB_GESTURE_SETTINGS = "ii"
+    const val FOCUS_TARGETS = "jj"
 }

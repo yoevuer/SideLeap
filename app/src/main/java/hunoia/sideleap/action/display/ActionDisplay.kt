@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.ViewCarousel
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeMute
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -85,7 +86,8 @@ private val actionTextResMap: Map<String, Int> = mapOf(
     GlobalActions.OPEN_PASSWORD_GENERATOR to R.string.action_open_password_generator,
     GlobalActions.VOLUME_SCRUB to R.string.action_volume_scrub,
     GlobalActions.EXECUTE_SHELL_COMMAND to R.string.action_shell_command,
-    GlobalActions.SUB_GESTURE to R.string.action_sub_gesture
+    GlobalActions.SUB_GESTURE to R.string.action_sub_gesture,
+    GlobalActions.FOCUS_INPUT to R.string.action_focus_input
 )
 
 private val actionIconMap: Map<String, Any> = mapOf(
@@ -124,7 +126,8 @@ private val actionIconMap: Map<String, Any> = mapOf(
     GlobalActions.OPEN_PASSWORD_GENERATOR to Icons.Default.Password,
     GlobalActions.VOLUME_SCRUB to Icons.AutoMirrored.Filled.VolumeUp,
     GlobalActions.EXECUTE_SHELL_COMMAND to Icons.Default.Terminal,
-    GlobalActions.SUB_GESTURE to Icons.Default.Gesture
+    GlobalActions.SUB_GESTURE to Icons.Default.Gesture,
+    GlobalActions.FOCUS_INPUT to Icons.Default.Keyboard
 )
 
 fun Context.actionText(action: Action, emptyIfNone: Boolean = true): String = when (action.value) {
