@@ -15,11 +15,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +36,8 @@ import hunoia.sideleap.action.payload.SubGestureActionData
 import hunoia.sideleap.gesture.SubGestureDirection
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.settings.model.SubGesture
-import hunoia.sideleap.ui.component.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.OptimizedBottomSheet
+import hunoia.sideleap.ui.component.OptimizedScrollState
 import hunoia.sideleap.ui.component.ColorPickerDialog
 import hunoia.sideleap.ui.component.MyAlertDialog
 import hunoia.sideleap.ui.component.MyColumn
@@ -108,36 +107,30 @@ fun SubGestureSettingsScreen(
         }
 
         if (showGestureAngles) {
-            ModalBottomSheet(
-                onDismissRequest = { showGestureAngles = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            OptimizedBottomSheet(
+                onDismissRequest = { showGestureAngles = false }
             ) {
-                BottomSheetNestedContent {
-                    SubGestureAngleContent(
-                        angle = gesture.angle,
-                        onDismiss = { showGestureAngles = false },
-                        onSave = { newAngle ->
-                            vm.updateAngle(newAngle)
-                            showGestureAngles = false
-                        },
-                        color = Color(gesture.color)
-                    )
-                }
+                SubGestureAngleContent(
+                    angle = gesture.angle,
+                    onDismiss = { showGestureAngles = false },
+                    onSave = { newAngle ->
+                        vm.updateAngle(newAngle)
+                        showGestureAngles = false
+                    },
+                    color = Color(gesture.color)
+                )
             }
         }
 
         if (showActionSelect && pendingDirection != null) {
-            ModalBottomSheet(
-                onDismissRequest = { showActionSelect = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            OptimizedBottomSheet(
+                onDismissRequest = { showActionSelect = false }
             ) {
-                BottomSheetNestedContent {
-                    SubGestureActionSelectContent(
-                        subGestureId = gesture.id,
-                        direction = pendingDirection!!,
-                        onDismiss = { showActionSelect = false }
-                    )
-                }
+                SubGestureActionSelectContent(
+                    subGestureId = gesture.id,
+                    direction = pendingDirection!!,
+                    onDismiss = { showActionSelect = false }
+                )
             }
         }
 

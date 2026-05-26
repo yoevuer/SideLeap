@@ -1,8 +1,9 @@
 package hunoia.sideleap.ui.component.password
 
 import android.content.Context
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,12 +38,12 @@ fun RuntimePanelScope.PasswordPanelContent(applicationContext: Context) {
         var closing by remember { mutableStateOf(false) }
         val panelAlpha by animateFloatAsState(
             targetValue = if (panelVisible) 1f else 0f,
-            animationSpec = tween(AnimOverlayFade.toInt()),
+            animationSpec = spring(stiffness = Spring.StiffnessMedium),
             label = "passwordPanelAlpha"
         )
         val panelShiftY by animateFloatAsState(
             targetValue = if (panelVisible) 0f else 18f,
-            animationSpec = tween(AnimPanelShift.toInt()),
+            animationSpec = spring(stiffness = Spring.StiffnessMedium),
             label = "passwordPanelShiftY"
         )
         val closeAnimated = {

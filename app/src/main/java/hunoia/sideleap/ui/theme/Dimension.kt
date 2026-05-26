@@ -32,7 +32,6 @@ val DialogTitlePadding = RootPadding * 2
 val DialogTitleFontSize = 24.sp
 
 // Animation durations (ms)
-const val AnimFast = 90L
 const val AnimNormal = 150L
 const val AnimMedium = 200L
 const val AnimSlow = 250L
@@ -40,6 +39,5 @@ const val AnimPanelShift = 180L
 const val AnimPanelResize = 250L
 const val AnimOverlayFade = 200L
 const val AnimPostHideDelay = 250L
-const val AnimScreenshotSettle = 20L
 const val AnimFrameInterval = 16L
 const val AnimTriggerDebounce = 500L

@@ -5,6 +5,8 @@ import android.view.View
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -100,8 +102,8 @@ internal fun QuickAppLauncherContent(
     val orientation = configuration.orientation
     val screenWidthPx = remember(orientation) { with(density) { configuration.screenWidthDp.dp.toPx().roundToInt() } }
     val panelWidthDp = with(density) { (screenWidthPx * state.launcherSettings.panelWidthFraction).toDp() }
-    val panelAlpha by animateFloatAsState(if (state.panelVisible) 1f else 0f, animationSpec = tween(AnimOverlayFade.toInt()), label = "panelAlpha")
-    val panelShiftY by animateFloatAsState(if (state.panelVisible) 0f else 18f, animationSpec = tween(AnimPanelShift.toInt()), label = "panelShiftY")
+    val panelAlpha by animateFloatAsState(if (state.panelVisible) 1f else 0f, animationSpec = spring(stiffness = Spring.StiffnessMedium), label = "panelAlpha")
+    val panelShiftY by animateFloatAsState(if (state.panelVisible) 0f else 18f, animationSpec = spring(stiffness = Spring.StiffnessMedium), label = "panelShiftY")
     var gridAtTop by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) { onRegisterCloseAnimated?.invoke(state.closeAnimated) }
     LaunchedEffect(Unit) { state.panelVisible = true }
@@ -178,7 +180,7 @@ internal fun QuickAppLauncherContent(
                         AnimatedContent(
                             targetState = state.keyboardExpanded,
                             transitionSpec = {
-                                fadeIn(animationSpec = tween(120)) togetherWith fadeOut(animationSpec = tween(90)) using SizeTransform(clip = false)
+                                fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(150)) using SizeTransform(clip = false)
                             },
                             label = "keyboardExpand"
                         ) { expanded ->

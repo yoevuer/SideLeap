@@ -29,10 +29,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -81,7 +79,8 @@ import hunoia.sideleap.ui.theme.RootPadding
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.ui.theme.SectionPaddingNoTitle
 import hunoia.sideleap.ui.theme.TopBarPaddingExtra
-import hunoia.sideleap.ui.component.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.OptimizedBottomSheet
+import hunoia.sideleap.ui.component.OptimizedScrollState
 import hunoia.sideleap.ui.component.MyAlertDialog
 import hunoia.sideleap.ui.component.MyColumn
 import hunoia.sideleap.ui.component.MyExpandableColumn
@@ -194,66 +193,57 @@ fun HomeScreen(
 
         Box {
             if (showVirtualMouseSettings) {
-                ModalBottomSheet(
+                val scrollState = rememberScrollState()
+                OptimizedBottomSheet(
                     onDismissRequest = { showVirtualMouseSettings = false },
-                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                    scrollState = OptimizedScrollState.Scroll(scrollState)
                 ) {
-                    BottomSheetNestedContent {
-                        MyColumn(scrollState = rememberScrollState()) {
-                            VirtualMouseSettingsContent(
-                                virtualMouse = uiState.virtualMouse,
-                                vm = vm,
-                            )
-                        }
+                    MyColumn(scrollState = scrollState) {
+                        VirtualMouseSettingsContent(
+                            virtualMouse = uiState.virtualMouse,
+                            vm = vm,
+                        )
                     }
                 }
             }
             if (showDisplaySettings) {
-                ModalBottomSheet(
+                val scrollState = rememberScrollState()
+                OptimizedBottomSheet(
                     onDismissRequest = { showDisplaySettings = false },
-                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                    scrollState = OptimizedScrollState.Scroll(scrollState)
                 ) {
-                    BottomSheetNestedContent {
-                        MyColumn(scrollState = rememberScrollState()) {
-                            DisplaySettingsContent(
-                                uiState = uiState,
-                                vm = vm,
-                                showAnimationStyle = { showAnimationStyle = true },
-                                showMiniWindowSettings = { showMiniWindowSettings = true }
-                            )
-                        }
+                    MyColumn(scrollState = scrollState) {
+                        DisplaySettingsContent(
+                            uiState = uiState,
+                            vm = vm,
+                            showAnimationStyle = { showAnimationStyle = true },
+                            showMiniWindowSettings = { showMiniWindowSettings = true }
+                        )
                     }
                 }
             }
             if (showAnimationStyle) {
-                ModalBottomSheet(
-                    onDismissRequest = { showAnimationStyle = false },
-                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                OptimizedBottomSheet(
+                    onDismissRequest = { showAnimationStyle = false }
                 ) {
-                    BottomSheetNestedContent {
-                        WaveStyleContent(onDismiss = { showAnimationStyle = false })
-                    }
+                    WaveStyleContent(onDismiss = { showAnimationStyle = false })
                 }
             }
             if (showFrozenManage) {
-                ModalBottomSheet(
-                    onDismissRequest = { showFrozenManage = false },
-                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                OptimizedBottomSheet(
+                    onDismissRequest = { showFrozenManage = false }
                 ) {
-                    BottomSheetNestedContent {
-                        FrozenAppManageContent(onDismiss = { showFrozenManage = false })
-                    }
+                    FrozenAppManageContent(onDismiss = { showFrozenManage = false })
                 }
             }
             if (showMiniWindowSettings) {
-                ModalBottomSheet(
+                val scrollState = rememberScrollState()
+                OptimizedBottomSheet(
                     onDismissRequest = { showMiniWindowSettings = false },
-                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                    scrollState = OptimizedScrollState.Scroll(scrollState)
                 ) {
-                    BottomSheetNestedContent {
-                        MyColumn(scrollState = rememberScrollState()) {
-                            MiniWindowSettingsContent(uiState = uiState, vm = vm)
-                        }
+                    MyColumn(scrollState = scrollState) {
+                        MiniWindowSettingsContent(uiState = uiState, vm = vm)
                     }
                 }
             }
