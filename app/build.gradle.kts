@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "hunoia.sideleap"
+    namespace = "hunoia.luno"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "hunoia.sideleap"
+        applicationId = "hunoia.luno"
         minSdk = 33
         targetSdk = 36
         versionCode = 10601

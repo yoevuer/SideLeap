@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SideLeap</string>
+    <string name="app_name">Luno</string>
     <string name="home_title">@string/app_name</string>
     <string name="more">更多</string>
     <string name="accessibility_description">辅助服务用于模拟返回、主页、等按键操作，实现侧滑手势的各种自定义操控，不会收集任何数据。</string>
     <string name="delete">删除</string>
     <string name="gesture_switch">手势开关</string>
-    <string name="gesture_switch_hint">控制 SideLeap 手势的启用和停用</string>
+    <string name="gesture_switch_hint">控制 Luno 手势的启用和停用</string>
     <string name="global_settings">全局设置</string>
     <string name="advanced_settings">高级设置</string>
     <string name="gesture_settings">手势设置</string>

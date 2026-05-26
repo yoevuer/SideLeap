@@ -36,7 +36,7 @@ google-services.json
 
 # Project-generated files
 /app/mapping.txt
-/app/src/main/SideLeap.png
+/app/src/main/Luno.png
 
 *.p12
 *.pfx
@@ -49,7 +49,7 @@ keystore.properties
 .kotlin/
 
 # Generated theme files
-/app/src/main/java/hunoia/sideleap/ui/theme/generator/Color.kt
+/app/src/main/java/hunoia/luno/ui/theme/generator/Color.kt
 
 # CLI build artifacts
 cli/target/

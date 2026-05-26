@@ -1,8 +1,8 @@
-# SideLeap
+# Luno
 
 [中文](README.md)
 
-SideLeap is an Android edge gesture, quick launcher, and system action enhancement tool. Configurable trigger areas let you bind actions like back, home, volume, app launch, virtual mouse, and more to swipe, long-swipe, tap, and long-press gestures.
+Luno is an Android edge gesture, quick launcher, and system action enhancement tool. Configurable trigger areas let you bind actions like back, home, volume, app launch, virtual mouse, and more to swipe, long-swipe, tap, and long-press gestures.
 
 Current version: `v1.6.0`
 

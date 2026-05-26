@@ -57,10 +57,10 @@
             android:launchMode="singleTop"
             android:noHistory="true"
             android:process=":service"
-            android:taskAffinity="hunoia.sideleap.quicklauncher"
+            android:taskAffinity="hunoia.luno.quicklauncher"
             android:theme="@style/Theme.SideGesture.Transparent">
             <intent-filter>
-                <action android:name="hunoia.sideleap.action.QUICK_APP_LAUNCHER" />
+                <action android:name="hunoia.luno.action.QUICK_APP_LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

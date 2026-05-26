@@ -1,0 +1,27 @@
+package hunoia.luno.action.handlers
+
+import hunoia.luno.action.api.ActionExecutionResult
+import hunoia.luno.action.api.ActionHandler
+import hunoia.luno.action.api.ActionHandlerContext
+import hunoia.luno.action.GlobalActions
+import hunoia.luno.action.Action
+import hunoia.luno.launcher.launch.Launcher
+import hunoia.luno.action.shortcutInfo
+
+object ShortcutActionHandler : ActionHandler {
+
+    override val supportedActions = setOf(GlobalActions.EXTRA_LAUNCH_SHORTCUT)
+
+    override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
+        when (action.value) {
+            GlobalActions.EXTRA_LAUNCH_SHORTCUT -> {
+                val shortcutInfo = action.shortcutInfo
+                if (shortcutInfo != null) {
+                    Launcher.launchShortcutInfo(context.appContext, shortcutInfo)
+                }
+            }
+            else -> return ActionExecutionResult.Ignored
+        }
+        return ActionExecutionResult.Success
+    }
+}
