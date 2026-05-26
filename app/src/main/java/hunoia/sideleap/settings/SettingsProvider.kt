@@ -12,10 +12,14 @@ import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.SubGestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
+import hunoia.sideleap.settings.model.SavedFocusTarget
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.settings.store.dataStore
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 object SettingsProvider {
 
@@ -46,6 +50,9 @@ object SettingsProvider {
     private val _subGestureSettings: DataStore<SubGestureSettings> by lazy {
         App.getContext().dataStore(DataStoreFiles.SUB_GESTURE_SETTINGS, SubGestureSettings())
     }
+    private val _focusTargets: DataStore<Map<String, List<SavedFocusTarget>>> by lazy {
+        App.getContext().dataStore(DataStoreFiles.FOCUS_TARGETS, emptyMap())
+    }
 
     val initialSettings: Flow<InitialSettings> = _initialSettings.data
     val advancedSettings: Flow<AdvancedSettings> = _advancedSettings.data
@@ -56,6 +63,7 @@ object SettingsProvider {
     val quickAppLauncherSettings: Flow<QuickAppLauncherSettings> = _quickAppLauncherSettings.data
     val frozenAppSettings: Flow<FrozenAppSettings> = _frozenAppSettings.data
     val subGestureSettings: Flow<SubGestureSettings> = _subGestureSettings.data
+    val focusTargets: Flow<Map<String, List<SavedFocusTarget>>> = _focusTargets.data
 
     suspend fun getInitialSettings(): InitialSettings = _initialSettings.data.first()
     suspend fun getAdvancedSettings(): AdvancedSettings = _advancedSettings.data.first()
@@ -66,6 +74,7 @@ object SettingsProvider {
     suspend fun getQuickAppLauncherSettings(): QuickAppLauncherSettings = _quickAppLauncherSettings.data.first()
     suspend fun getFrozenAppSettings(): FrozenAppSettings = _frozenAppSettings.data.first()
     suspend fun getSubGestureSettings(): SubGestureSettings = _subGestureSettings.data.first()
+    suspend fun getFocusTargets(): Map<String, List<SavedFocusTarget>> = _focusTargets.data.first()
 
     suspend fun updateInitialSettings(transform: suspend (InitialSettings) -> InitialSettings) {
         _initialSettings.updateData(transform)
@@ -124,42 +133,56 @@ object SettingsProvider {
     suspend fun updateSubGestureSettings(transform: suspend (SubGestureSettings) -> SubGestureSettings) {
         _subGestureSettings.updateData(transform)
     }
-
-    suspend fun snapshotAll(): Backup = Backup(
-        initialSettings = getInitialSettings(),
-        advancedSettings = getAdvancedSettings(),
-        gestureSettings = getGestureSettings(),
-        actionSettings = getActionSettings(),
-        gestureButtons = getSideGestureButtons(),
-        bottomGestureButtons = getBottomGestureButtons(),
-        quickAppLauncherSettings = getQuickAppLauncherSettings(),
-        frozenAppSettings = getFrozenAppSettings(),
-        subGestureSettings = getSubGestureSettings(),
-        timestamp = System.currentTimeMillis(),
-        version = BuildConfig.VERSION_NAME
-    )
-
-    suspend fun restoreAll(backup: Backup) {
-        backup.initialSettings?.let { value -> _initialSettings.updateData { value } }
-        backup.advancedSettings?.let { value -> _advancedSettings.updateData { value } }
-        backup.gestureSettings?.let { value -> _gestureSettings.updateData { value } }
-        backup.actionSettings?.let { value -> _actionSettings.updateData { value } }
-        backup.gestureButtons?.let { value -> _sideGestureButtons.updateData { value } }
-        backup.bottomGestureButtons?.let { value -> _bottomGestureButtons.updateData { value } }
-        backup.quickAppLauncherSettings?.let { value -> _quickAppLauncherSettings.updateData { value } }
-        backup.frozenAppSettings?.let { value -> _frozenAppSettings.updateData { value } }
-        backup.subGestureSettings?.let { value -> _subGestureSettings.updateData { value } }
+    suspend fun updateFocusTargets(transform: suspend (Map<String, List<SavedFocusTarget>>) -> Map<String, List<SavedFocusTarget>>) {
+        _focusTargets.updateData(transform)
     }
 
-    suspend fun resetAll() {
-        _initialSettings.updateData { InitialSettings() }
-        _advancedSettings.updateData { AdvancedSettings() }
-        _gestureSettings.updateData { GestureSettings() }
-        _actionSettings.updateData { ActionSettings() }
-        _sideGestureButtons.updateData { GestureButton.SideDefaults }
-        _bottomGestureButtons.updateData { GestureButton.BottomDefaults }
-        _quickAppLauncherSettings.updateData { QuickAppLauncherSettings() }
-        _frozenAppSettings.updateData { FrozenAppSettings() }
-        _subGestureSettings.updateData { SubGestureSettings() }
+    suspend fun snapshotAll(): Backup = coroutineScope {
+        val initialDeferred = async { getInitialSettings() }
+        val advancedDeferred = async { getAdvancedSettings() }
+        val gestureDeferred = async { getGestureSettings() }
+        val actionDeferred = async { getActionSettings() }
+        val buttonsDeferred = async { getSideGestureButtons() }
+        val bottomButtonsDeferred = async { getBottomGestureButtons() }
+        val qlaDeferred = async { getQuickAppLauncherSettings() }
+        val frozenDeferred = async { getFrozenAppSettings() }
+        val subGestureDeferred = async { getSubGestureSettings() }
+        Backup(
+            initialSettings = initialDeferred.await(),
+            advancedSettings = advancedDeferred.await(),
+            gestureSettings = gestureDeferred.await(),
+            actionSettings = actionDeferred.await(),
+            gestureButtons = buttonsDeferred.await(),
+            bottomGestureButtons = bottomButtonsDeferred.await(),
+            quickAppLauncherSettings = qlaDeferred.await(),
+            frozenAppSettings = frozenDeferred.await(),
+            subGestureSettings = subGestureDeferred.await(),
+            timestamp = System.currentTimeMillis(),
+            version = BuildConfig.VERSION_NAME
+        )
+    }
+
+    suspend fun restoreAll(backup: Backup) = coroutineScope {
+        launch { backup.initialSettings?.let { v -> _initialSettings.updateData { v } } }
+        launch { backup.advancedSettings?.let { v -> _advancedSettings.updateData { v } } }
+        launch { backup.gestureSettings?.let { v -> _gestureSettings.updateData { v } } }
+        launch { backup.actionSettings?.let { v -> _actionSettings.updateData { v } } }
+        launch { backup.gestureButtons?.let { v -> _sideGestureButtons.updateData { v } } }
+        launch { backup.bottomGestureButtons?.let { v -> _bottomGestureButtons.updateData { v } } }
+        launch { backup.quickAppLauncherSettings?.let { v -> _quickAppLauncherSettings.updateData { v } } }
+        launch { backup.frozenAppSettings?.let { v -> _frozenAppSettings.updateData { v } } }
+        launch { backup.subGestureSettings?.let { v -> _subGestureSettings.updateData { v } } }
+    }
+
+    suspend fun resetAll() = coroutineScope {
+        launch { _initialSettings.updateData { InitialSettings() } }
+        launch { _advancedSettings.updateData { AdvancedSettings() } }
+        launch { _gestureSettings.updateData { GestureSettings() } }
+        launch { _actionSettings.updateData { ActionSettings() } }
+        launch { _sideGestureButtons.updateData { GestureButton.SideDefaults } }
+        launch { _bottomGestureButtons.updateData { GestureButton.BottomDefaults } }
+        launch { _quickAppLauncherSettings.updateData { QuickAppLauncherSettings() } }
+        launch { _frozenAppSettings.updateData { FrozenAppSettings() } }
+        launch { _subGestureSettings.updateData { SubGestureSettings() } }
     }
 }

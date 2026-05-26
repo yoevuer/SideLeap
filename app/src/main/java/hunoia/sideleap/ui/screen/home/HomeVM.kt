@@ -14,7 +14,9 @@ import hunoia.sideleap.ui.screen.home.HomeVM.UiEvent
 import hunoia.sideleap.ui.screen.home.HomeVM.UiState
 import hunoia.sideleap.settings.backup.BackupHelper
 import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.model.AdvancedSettings
 import hunoia.sideleap.settings.model.GestureSettings
+import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle
 import hunoia.sideleap.settings.model.DayNightMode
 import hunoia.sideleap.system.permission.isAccessibilitySettingsOn
@@ -23,6 +25,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 /**
@@ -440,55 +443,36 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun loadData() {
         viewModelScope.launch {
-            launch {
-                SettingsProvider.initialSettings.collectLatest { initialSettings ->
-                    updateUiState {
-                        it.copy(isGestureEnabled = initialSettings.gestureEnabled)
-                    }
-                }
-            }
-            launch {
-                SettingsProvider.sideGestureButtons.collectLatest { buttons ->
-                    updateUiState {
-                        it.copy(sideGestureButtons = buttons.sortedBy { b -> b.id })
-                    }
-                }
-            }
-            launch {
-                SettingsProvider.bottomGestureButtons.collectLatest { buttons ->
-                    updateUiState {
-                        it.copy(bottomGestureButtons = buttons.sortedBy { b -> b.id })
-                    }
-                }
-            }
-            launch {
-                SettingsProvider.subGestureSettings.collectLatest { settings ->
-                    updateUiState {
-                        it.copy(subGestures = settings.subGestures)
-                    }
-                }
-            }
-            launch {
-                SettingsProvider.gestureSettings.collectLatest { settings ->
-                    updateUiState {
-                        it.copy(virtualMouse = settings.virtualMouse)
-                    }
-                }
-            }
-            launch {
-                SettingsProvider.advancedSettings.collectLatest { item ->
-                    updateUiState {
-                        it.copy(
-                            showAnimation = item.animationStyles.isAnimationEnabled,
-                            dynamicColor = item.dynamicColor,
-                            dayNightMode = item.dayNightMode,
-                            miniWindowHorizontalBias = item.miniWindowHorizontalBias,
-                            miniWindowVerticalBias = item.miniWindowVerticalBias,
-                            miniWindowVerticalEdgeMarginFraction = item.miniWindowVerticalEdgeMarginFraction,
-                            miniWindowVerticalOffsetFraction = item.miniWindowVerticalOffsetFraction,
-                        )
-                    }
-                }
+            combine(
+                SettingsProvider.initialSettings,
+                SettingsProvider.sideGestureButtons,
+                SettingsProvider.bottomGestureButtons,
+                SettingsProvider.subGestureSettings,
+                SettingsProvider.gestureSettings,
+                SettingsProvider.advancedSettings,
+            ) { values ->
+                val initial = values[0] as InitialSettings
+                val sideButtons = values[1] as List<GestureButton>
+                val bottomButtons = values[2] as List<GestureButton>
+                val subGestureSettings = values[3] as SubGestureSettings
+                val gestureSettings = values[4] as GestureSettings
+                val advancedSettings = values[5] as AdvancedSettings
+                uiState.copy(
+                    isGestureEnabled = initial.gestureEnabled,
+                    sideGestureButtons = sideButtons.sortedBy { it.id },
+                    bottomGestureButtons = bottomButtons.sortedBy { it.id },
+                    subGestures = subGestureSettings.subGestures,
+                    virtualMouse = gestureSettings.virtualMouse,
+                    showAnimation = advancedSettings.animationStyles.isAnimationEnabled,
+                    dynamicColor = advancedSettings.dynamicColor,
+                    dayNightMode = advancedSettings.dayNightMode,
+                    miniWindowHorizontalBias = advancedSettings.miniWindowHorizontalBias,
+                    miniWindowVerticalBias = advancedSettings.miniWindowVerticalBias,
+                    miniWindowVerticalEdgeMarginFraction = advancedSettings.miniWindowVerticalEdgeMarginFraction,
+                    miniWindowVerticalOffsetFraction = advancedSettings.miniWindowVerticalOffsetFraction,
+                )
+            }.collectLatest { state ->
+                updateUiState { state }
             }
         }
     }

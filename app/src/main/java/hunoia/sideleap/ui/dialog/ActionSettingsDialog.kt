@@ -85,6 +85,8 @@ import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinMoveScreenRate
 import hunoia.sideleap.system.shizuku.ShizukuBinderExecutor
 import hunoia.sideleap.system.feedback.showToast
 import hunoia.sideleap.ui.component.LabeledSwitch
+import hunoia.sideleap.settings.SettingsProvider
+import hunoia.sideleap.settings.model.SavedFocusTarget
 import hunoia.sideleap.ui.component.MyTextSlider
 import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
@@ -633,6 +635,121 @@ fun PreviousAppSettingsContent(vm: ActionSettingsVM = viewModel()) {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun FocusInputSettingsContent() {
+    val scope = rememberCoroutineScope()
+    var targets by remember { mutableStateOf<Map<String, List<SavedFocusTarget>>>(emptyMap()) }
+    var loaded by remember { mutableStateOf(false) }
+
+    val dateFormat = remember {
+        java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.getDefault())
+    }
+
+    LaunchedEffect(Unit) {
+        targets = SettingsProvider.getFocusTargets()
+        loaded = true
+    }
+
+    if (!loaded) return
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        if (targets.isEmpty()) {
+            Text(
+                text = "暂无已保存的搜索框",
+                modifier = Modifier.padding(vertical = 16.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            targets.forEach { (pkg, entries) ->
+                Column {
+                    Text(
+                        text = entries.firstOrNull()?.appName?.ifEmpty { pkg } ?: pkg,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
+                    )
+                    entries.forEach { entry ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp, horizontal = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = entry.viewId,
+                                    fontSize = 12.sp,
+                                    color = if (entry.disabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                if (entry.className.isNotEmpty()) {
+                                    Text(
+                                        text = entry.className,
+                                        fontSize = 10.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                                Text(
+                                    text = if (entry.timestamp > 0) dateFormat.format(entry.timestamp) else "",
+                                    fontSize = 10.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                )
+                            }
+                            TextButton(onClick = {
+                                scope.launch {
+                                    SettingsProvider.updateFocusTargets { map ->
+                                        val updated = entries.map {
+                                            if (it.viewId == entry.viewId && it.timestamp == entry.timestamp) it.copy(disabled = !it.disabled)
+                                            else it
+                                        }
+                                        map + (pkg to updated)
+                                    }
+                                    targets = SettingsProvider.getFocusTargets()
+                                }
+                            }) {
+                                Text(
+                                    if (entry.disabled) "启用" else "禁用",
+                                    color = if (entry.disabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            TextButton(onClick = {
+                                scope.launch {
+                                    SettingsProvider.updateFocusTargets { map ->
+                                        val updated = entries.filter { it.viewId != entry.viewId || it.timestamp != entry.timestamp }
+                                        map + (pkg to updated)
+                                    }
+                                    targets = SettingsProvider.getFocusTargets()
+                                }
+                            }) {
+                                Text("删除", color = MaterialTheme.colorScheme.error)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (targets.isNotEmpty()) {
+            TextButton(
+                onClick = {
+                    scope.launch {
+                        SettingsProvider.updateFocusTargets { emptyMap() }
+                        targets = emptyMap()
+                    }
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            ) {
+                Text("清空全部", color = MaterialTheme.colorScheme.error)
             }
         }
     }

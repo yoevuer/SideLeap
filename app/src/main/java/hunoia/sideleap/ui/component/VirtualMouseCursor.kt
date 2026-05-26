@@ -1,14 +1,20 @@
 package hunoia.sideleap.ui.component
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -16,9 +22,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
+import hunoia.sideleap.action.Action
+import hunoia.sideleap.action.virtualMouseSettings
+import hunoia.sideleap.gesture.application.VirtualMousePointerAction
+import hunoia.sideleap.gesture.application.isVirtualMouseCancelGesture
+import hunoia.sideleap.gesture.application.isVirtualMouseWithinLongPressTolerance
+import hunoia.sideleap.gesture.application.moveVirtualMouseCursor
+import hunoia.sideleap.gesture.application.virtualMouseInitialPosition
 import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun VirtualMouseCursor(
@@ -29,6 +46,7 @@ fun VirtualMouseCursor(
 ) {
     val trail = remember { mutableStateListOf<Offset>() }
     var pulse by remember { mutableStateOf(0f) }
+    val rippleAnim = remember { Animatable(0f) }
     val accentColor = MaterialTheme.colorScheme.primary
     val trailStrength = settings.trailStrength.coerceIn(0.5f, 2f)
     val trailAlpha = settings.trailAlpha.coerceIn(0.2f, 1f)
@@ -50,39 +68,32 @@ fun VirtualMouseCursor(
         }
         pulse = 0f
     }
+    LaunchedEffect(clickPulseKey, settings.clickAnimationEnabled) {
+        if (!settings.clickAnimationEnabled || clickPulseKey == 0) return@LaunchedEffect
+        rippleAnim.snapTo(0f)
+        rippleAnim.animateTo(1f, animationSpec = tween(durationMillis = 400, easing = LinearEasing))
+        rippleAnim.snapTo(0f)
+    }
     Canvas(modifier = modifier.fillMaxSize()) {
         if (!position.x.isFinite() || !position.y.isFinite()) return@Canvas
         val baseColor = accentColor.copy(alpha = settings.cursorAlpha)
         val radius = settings.cursorSizeDp.dp.toPx() / 2f
         val ringRadius = radius * (1f - pulse * 0.12f)
         if (settings.trailStyle == VirtualMouseTrailStyle.Dots) {
+            val dotRadius = radius * (0.18f + 0.16f * trailStrength)
             trail.dropLast(1).forEachIndexed { index, offset ->
                 val progress = (index + 1).toFloat() / trail.size
                 val alpha = progress * trailAlpha * settings.cursorAlpha * 0.55f
-                drawCircle(
-                    color = baseColor.copy(alpha = alpha),
-                    radius = radius * (0.18f + 0.16f * trailStrength),
-                    center = offset
-                )
+                drawCircle(color = baseColor.copy(alpha = alpha), radius = dotRadius, center = offset)
             }
         } else if (settings.trailStyle == VirtualMouseTrailStyle.LightBand) {
+            val wideStroke = radius * (0.7f + 0.35f * trailStrength)
+            val coreStroke = radius * (0.22f + 0.16f * trailStrength)
             trail.zipWithNext().forEachIndexed { index, (start, end) ->
                 val progress = (index + 1).toFloat() / trail.size
                 val alpha = progress * trailAlpha * settings.cursorAlpha
-                drawLine(
-                    color = baseColor.copy(alpha = alpha * 0.18f),
-                    start = start,
-                    end = end,
-                    strokeWidth = radius * (0.7f + 0.35f * trailStrength),
-                    cap = StrokeCap.Round,
-                )
-                drawLine(
-                    color = baseColor.copy(alpha = alpha * 0.46f),
-                    start = start,
-                    end = end,
-                    strokeWidth = radius * (0.22f + 0.16f * trailStrength),
-                    cap = StrokeCap.Round,
-                )
+                drawLine(color = baseColor.copy(alpha = alpha * 0.18f), start = start, end = end, strokeWidth = wideStroke, cap = StrokeCap.Round)
+                drawLine(color = baseColor.copy(alpha = alpha * 0.46f), start = start, end = end, strokeWidth = coreStroke, cap = StrokeCap.Round)
             }
         }
         if (pulse > 0f) {
@@ -114,5 +125,148 @@ fun VirtualMouseCursor(
         drawCircle(color = Color.Black.copy(alpha = 0.75f * settings.cursorAlpha), radius = radius * 0.16f, center = position)
         drawCircle(color = Color.White.copy(alpha = 0.9f * settings.cursorAlpha), radius = radius * 0.1f, center = position)
         drawCircle(color = baseColor, radius = radius * 0.06f, center = position)
+        if (rippleAnim.value > 0f) {
+            drawCircle(
+                color = baseColor.copy(alpha = (1f - rippleAnim.value) * 0.4f),
+                radius = radius * (1f + rippleAnim.value * 3f),
+                center = position,
+                style = Stroke(width = 2.dp.toPx()),
+            )
+        }
+    }
+}
+
+class VirtualMouseHandle(
+    internal val isActiveState: MutableState<Boolean>,
+    internal val start: (Action, Offset, Offset) -> Boolean,
+    internal val onDrag: (Offset) -> Boolean,
+    internal val onDragEnd: () -> Unit,
+    internal val onDragCancel: () -> Unit,
+) {
+    val isActive: Boolean get() = isActiveState.value
+}
+
+@Composable
+internal fun rememberVirtualMouseHandle(
+    gestureSettings: GestureSettings,
+    modifier: Modifier = Modifier,
+    onVirtualMouseStart: () -> Boolean,
+    onVirtualMouseEnd: () -> Unit,
+    onVirtualMouseSettingsUpdate: (GestureSettings.VirtualMouse) -> Unit,
+    virtualMousePreviousPosition: () -> Offset,
+    onPointerActionAtPosition: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit,
+): VirtualMouseHandle {
+    val coroutineScope = rememberCoroutineScope()
+    val isActive = remember { mutableStateOf(false) }
+    val cursorPosition = remember { mutableStateOf(virtualMouseInitialPosition(gestureSettings.virtualMouse)) }
+    val touchPosition = remember { mutableStateOf(Offset.Unspecified) }
+    val leftCancelEdge = remember { mutableStateOf(false) }
+    val clickPulseKey = remember { mutableStateOf(0) }
+    val longPressJob = remember { mutableStateOf<Job?>(null) }
+    val longPressTriggered = remember { mutableStateOf(false) }
+    val longPressAnchor = remember { mutableStateOf(Offset.Unspecified) }
+    val vmSettings = remember { mutableStateOf(gestureSettings.virtualMouse) }
+
+    LaunchedEffect(gestureSettings.virtualMouse) {
+        vmSettings.value = gestureSettings.virtualMouse
+    }
+
+    fun scheduleLongPress() {
+        longPressJob.value?.cancel()
+        longPressJob.value = null
+        val s = vmSettings.value
+        if (!s.longPressEnabled || s.longPressDelayMs <= 0L || longPressTriggered.value) return
+        longPressAnchor.value = touchPosition.value
+        longPressJob.value = coroutineScope.launch {
+            delay(s.longPressDelayMs)
+            if (!isActive.value || longPressTriggered.value) return@launch
+            if (!isVirtualMouseWithinLongPressTolerance(longPressAnchor.value, touchPosition.value, s)) return@launch
+            val target = cursorPosition.value
+            longPressTriggered.value = true
+            clickPulseKey.value += 1
+            onPointerActionAtPosition(
+                target.x.roundToInt(),
+                target.y.roundToInt(),
+                s.continuousMode,
+                VirtualMousePointerAction.LongPress,
+            )
+        }
+    }
+
+    fun finish(click: Boolean) {
+        if (!isActive.value) return
+        longPressJob.value?.cancel()
+        longPressJob.value = null
+        val target = cursorPosition.value
+        isActive.value = false
+        if (click && !longPressTriggered.value) {
+            clickPulseKey.value += 1
+            onPointerActionAtPosition(
+                target.x.roundToInt(),
+                target.y.roundToInt(),
+                vmSettings.value.continuousMode,
+                VirtualMousePointerAction.Click,
+            )
+        } else if (!longPressTriggered.value) {
+            onVirtualMouseEnd()
+        }
+        touchPosition.value = Offset.Unspecified
+        leftCancelEdge.value = false
+        longPressTriggered.value = false
+        longPressAnchor.value = Offset.Unspecified
+    }
+
+    if (isActive.value) {
+        VirtualMouseCursor(
+            position = cursorPosition.value,
+            modifier = modifier.fillMaxSize(),
+            settings = vmSettings.value,
+            clickPulseKey = clickPulseKey.value,
+        )
+    }
+
+    fun handleStart(action: Action, fingerPos: Offset, prevPos: Offset): Boolean {
+        if (isActive.value) return false
+        if (!onVirtualMouseStart()) return false
+        vmSettings.value = action.virtualMouseSettings(vmSettings.value)
+        onVirtualMouseSettingsUpdate(vmSettings.value)
+        cursorPosition.value = virtualMouseInitialPosition(vmSettings.value, prevPos)
+        touchPosition.value = fingerPos
+        leftCancelEdge.value = false
+        longPressTriggered.value = false
+        longPressAnchor.value = Offset.Unspecified
+        isActive.value = true
+        scheduleLongPress()
+        return true
+    }
+
+    fun handleOnDrag(dragAmount: Offset): Boolean {
+        touchPosition.value += dragAmount
+        if (!longPressTriggered.value) {
+            val still = isVirtualMouseWithinLongPressTolerance(
+                longPressAnchor.value, touchPosition.value, vmSettings.value
+            )
+            if (!still) scheduleLongPress()
+        }
+        val inCancelEdge = vmSettings.value.continuousMode &&
+            isVirtualMouseCancelGesture(touchPosition.value, vmSettings.value)
+        if (!inCancelEdge) {
+            leftCancelEdge.value = true
+        } else if (leftCancelEdge.value) {
+            finish(click = false)
+            return false
+        }
+        cursorPosition.value = moveVirtualMouseCursor(cursorPosition.value, dragAmount, vmSettings.value)
+        return true
+    }
+
+    return remember(coroutineScope) {
+        VirtualMouseHandle(
+            isActiveState = isActive,
+            start = ::handleStart,
+            onDrag = ::handleOnDrag,
+            onDragEnd = { finish(click = true) },
+            onDragCancel = { finish(click = false) },
+        )
     }
 }
