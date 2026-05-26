@@ -9,6 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import hunoia.sideleap.gesture.Position
+import hunoia.sideleap.settings.model.BubbleStyle
+import hunoia.sideleap.settings.model.CapsuleStyle
+import hunoia.sideleap.settings.model.LineStyle
 import hunoia.sideleap.settings.model.WaveStyle
 
 /**
@@ -38,5 +41,44 @@ fun WaveStyle.getIconInitialRotation(position: Position): Float {
         Position.Left -> 0f
         Position.Right -> 180f
         Position.Bottom -> 270f
+    }
+}
+
+@Composable
+fun CapsuleStyle.getIcon(): Painter {
+    return getWaveStyleIcon(iconType)
+}
+
+fun CapsuleStyle.getIconInitialRotation(position: Position): Float {
+    return when (position) {
+        Position.Left -> 0f
+        Position.Right -> 180f
+        Position.Bottom -> -90f
+    }
+}
+
+@Composable
+fun BubbleStyle.getIcon(): Painter {
+    return getWaveStyleIcon(iconType)
+}
+
+fun BubbleStyle.getIconInitialRotation(position: Position): Float {
+    return when (position) {
+        Position.Left -> 0f
+        Position.Right -> 180f
+        Position.Bottom -> -90f
+    }
+}
+
+@Composable
+fun LineStyle.getIcon(): Painter {
+    return getWaveStyleIcon(iconType)
+}
+
+fun LineStyle.getIconInitialRotation(position: Position): Float {
+    return when (position) {
+        Position.Left -> 0f
+        Position.Right -> 180f
+        Position.Bottom -> -90f
     }
 }

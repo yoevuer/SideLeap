@@ -14,8 +14,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,6 +60,9 @@ import hunoia.sideleap.gesture.bounds
 import hunoia.sideleap.gesture.styleBy
 import hunoia.sideleap.settings.model.ActionPanelStyles
 import hunoia.sideleap.settings.model.LongSlideActionPanelStyles
+import hunoia.sideleap.ui.screen.settings.gesture.ActionPanelStyleSelectContent
+import hunoia.sideleap.ui.screen.settings.gesture.ArcOrPieSettingsContent
+import hunoia.sideleap.ui.screen.settings.gesture.GridStyleSettingsContent
 import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonAngleContent
 import hunoia.sideleap.ui.theme.IconTextPadding
 import hunoia.sideleap.ui.theme.MarkColorSize
@@ -90,7 +91,9 @@ fun GestureButtonSettingsScreen(
     vm: GestureButtonSettingsVM = viewModel()
 ) {
     var showGestureAngles by remember { mutableStateOf(false) }
-    var pendingActionPanelStyleDirection by remember { mutableStateOf<TriggerDirection?>(null) }
+    var showStyleSelectFor by remember { mutableStateOf<TriggerDirection?>(null) }
+    var showStyleConfigFor by remember { mutableStateOf<TriggerDirection?>(null) }
+    var configStyleType by remember { mutableStateOf(0) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -249,11 +252,9 @@ fun GestureButtonSettingsScreen(
                                 )
                             }
                             fun styleTrailing(direction: TriggerDirection): @Composable () -> Unit = {
-                                StyleTrailingDropdown(
+                                StyleTrailingButton(
                                     currentStyle = gestureButton.longSlideActionPanelStyles.styleBy(direction),
-                                    onStyleSelected = { style ->
-                                        vm.updateLongSlideActionPanelStyle(direction, style)
-                                    }
+                                    onClick = { showStyleSelectFor = direction }
                                 )
                             }
                             MySideGestureSettings(
@@ -468,6 +469,83 @@ fun GestureButtonSettingsScreen(
                 }
             }
         }
+
+        showStyleSelectFor?.let { direction ->
+            val gestureButton = uiState.gestureButton ?: return@let
+            val currentStyle = gestureButton.longSlideActionPanelStyles.styleBy(direction)
+            OptimizedBottomSheet(
+                onDismissRequest = { showStyleSelectFor = null }
+            ) {
+                ActionPanelStyleSelectContent(
+                    currentStyle = currentStyle,
+                    onStyleSelected = { style ->
+                        vm.updateLongSlideActionPanelStyle(direction, style)
+                    },
+                    onConfigRequest = { style ->
+                        configStyleType = style.type
+                        showStyleConfigFor = direction
+                        showStyleSelectFor = null
+                    }
+                )
+            }
+        }
+
+        showStyleConfigFor?.let { direction ->
+            val gestureButton = uiState.gestureButton ?: return@let
+            val currentStyle = gestureButton.longSlideActionPanelStyles.styleBy(direction)
+            OptimizedBottomSheet(
+                onDismissRequest = { showStyleConfigFor = null }
+            ) {
+                when (configStyleType) {
+                    ActionPanelStyles.TYPE_GRID -> {
+                        val gridStyle = currentStyle.value as? hunoia.sideleap.settings.model.GridStyle
+                            ?: hunoia.sideleap.settings.model.GridStyle()
+                        GridStyleSettingsContent(
+                            gridStyle = gridStyle,
+                            onStyleChange = { newGrid ->
+                                val newStyles = currentStyle.copy(
+                                    json = hunoia.sideleap.core.serialization.JsonHelper.encodeToString(newGrid)
+                                )
+                                vm.updateLongSlideActionPanelStyle(direction, newStyles)
+                            }
+                        )
+                    }
+                    else -> {
+                        val arcStyle = currentStyle.value as? hunoia.sideleap.settings.model.ArcStyle
+                            ?: hunoia.sideleap.settings.model.ArcStyle()
+                        ArcOrPieSettingsContent(
+                            itemSize = arcStyle.itemSize,
+                            arcLength = arcStyle.arcLength,
+                            spacing = arcStyle.spreadSpacing,
+                            onItemSizeChange = { newSize ->
+                                val newStyles = currentStyle.copy(
+                                    json = hunoia.sideleap.core.serialization.JsonHelper.encodeToString(
+                                        arcStyle.copy(itemSize = newSize)
+                                    )
+                                )
+                                vm.updateLongSlideActionPanelStyle(direction, newStyles)
+                            },
+                            onArcLengthChange = { newLen ->
+                                val newStyles = currentStyle.copy(
+                                    json = hunoia.sideleap.core.serialization.JsonHelper.encodeToString(
+                                        arcStyle.copy(arcLength = newLen)
+                                    )
+                                )
+                                vm.updateLongSlideActionPanelStyle(direction, newStyles)
+                            },
+                            onSpacingChange = { newSpacing ->
+                                val newStyles = currentStyle.copy(
+                                    json = hunoia.sideleap.core.serialization.JsonHelper.encodeToString(
+                                        arcStyle.copy(spreadSpacing = newSpacing)
+                                    )
+                                )
+                                vm.updateLongSlideActionPanelStyle(direction, newStyles)
+                            }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -571,50 +649,21 @@ private fun MySideGestureSettings(
 }
 
 @Composable
-private fun StyleTrailingDropdown(
+private fun StyleTrailingButton(
     currentStyle: ActionPanelStyles,
-    onStyleSelected: (ActionPanelStyles) -> Unit
+    onClick: () -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    Box {
-        Surface(
-            onClick = { expanded = true },
-            shape = RoundedCornerShape(8.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant
-        ) {
-            Text(
-                text = actionPanelStyleText(currentStyle),
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                onClick = {
-                    onStyleSelected(ActionPanelStyles.arc())
-                    expanded = false
-                },
-                text = { Text(stringResource(R.string.action_panel_style_arc)) }
-            )
-            DropdownMenuItem(
-                onClick = {
-                    onStyleSelected(ActionPanelStyles.grid())
-                    expanded = false
-                },
-                text = { Text(stringResource(R.string.action_panel_style_grid)) }
-            )
-            DropdownMenuItem(
-                onClick = {
-                    onStyleSelected(ActionPanelStyles.pie())
-                    expanded = false
-                },
-                text = { Text(stringResource(R.string.action_panel_style_pie)) }
-            )
-        }
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Text(
+            text = actionPanelStyleText(currentStyle),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

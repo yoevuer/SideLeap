@@ -59,8 +59,19 @@ object ActionPanelStylesDefaults {
 
     const val Type = TYPE_ARC
     val ArcStyleItemSize = DensityProvider.dp2px(48f)
-    val GridStyleItemSize = DensityProvider.dp2px(48f)
-    val PieStyleItemSize = DensityProvider.dp2px(48f)
+    val ArcStyleArcLength = DensityProvider.dp2px(60f)
+    const val ArcStyleSpreadSpacing = 1.12f
+
+    val GridStyleItemSize = DensityProvider.dp2px(40f)
+    const val GridStyleColumns = 4
+    const val GridStyleRows = 3
+    const val GridStyleScrollSpeed = 12
+    val GridStyleScrollHotZoneHeight = DensityProvider.dp2px(28f)
+    val GridStyleCornerRadius = DensityProvider.dp2px(22f)
+
+    val PieStyleItemSize = DensityProvider.dp2px(40f)
+    val PieStyleArcLength = DensityProvider.dp2px(60f)
+    const val PieStyleSpacing = 1.12f
 }
 
 sealed interface ActionPanelStyle
@@ -68,19 +79,28 @@ sealed interface ActionPanelStyle
 @Serializable
 @Keep
 data class ArcStyle(
-    val itemSize: Int = ActionPanelStylesDefaults.ArcStyleItemSize
+    val itemSize: Int = ActionPanelStylesDefaults.ArcStyleItemSize,
+    val arcLength: Int = ActionPanelStylesDefaults.ArcStyleArcLength,
+    val spreadSpacing: Float = ActionPanelStylesDefaults.ArcStyleSpreadSpacing
 ) : ActionPanelStyle
 
 @Serializable
 @Keep
 data class GridStyle(
-    val itemSize: Int = ActionPanelStylesDefaults.GridStyleItemSize
+    val itemSize: Int = ActionPanelStylesDefaults.GridStyleItemSize,
+    val columns: Int = ActionPanelStylesDefaults.GridStyleColumns,
+    val rows: Int = ActionPanelStylesDefaults.GridStyleRows,
+    val scrollSpeed: Int = ActionPanelStylesDefaults.GridStyleScrollSpeed,
+    val scrollHotZoneHeight: Int = ActionPanelStylesDefaults.GridStyleScrollHotZoneHeight,
+    val cornerRadius: Int = ActionPanelStylesDefaults.GridStyleCornerRadius
 ) : ActionPanelStyle
 
 @Serializable
 @Keep
 data class PieStyle(
-    val itemSize: Int = ActionPanelStylesDefaults.PieStyleItemSize
+    val itemSize: Int = ActionPanelStylesDefaults.PieStyleItemSize,
+    val arcLength: Int = ActionPanelStylesDefaults.PieStyleArcLength,
+    val spacing: Float = ActionPanelStylesDefaults.PieStyleSpacing
 ) : ActionPanelStyle
 
 @Serializable

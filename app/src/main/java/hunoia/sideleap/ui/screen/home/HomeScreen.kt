@@ -99,7 +99,7 @@ import kotlin.math.roundToInt
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.getDayNightModeText
 import hunoia.sideleap.gesture.SubGestureDirection
 import hunoia.sideleap.settings.model.GestureSettings.VirtualMouseTrailStyle
-import hunoia.sideleap.ui.screen.settings.gesture.WaveStyleContent
+import hunoia.sideleap.ui.screen.home.AnimationStyleContent
 
 /**
  * @author aaronzzxup@gmail.com
@@ -226,7 +226,7 @@ fun HomeScreen(
                 OptimizedBottomSheet(
                     onDismissRequest = { showAnimationStyle = false }
                 ) {
-                    WaveStyleContent(onDismiss = { showAnimationStyle = false })
+                    AnimationStyleContent(onDismiss = { showAnimationStyle = false })
                 }
             }
             if (showFrozenManage) {

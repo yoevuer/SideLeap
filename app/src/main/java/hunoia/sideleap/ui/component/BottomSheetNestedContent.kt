@@ -31,14 +31,19 @@ fun BottomSheetNestedContent(
     scrollState: OptimizedScrollState = OptimizedScrollState.None,
     content: @Composable () -> Unit
 ) {
-    val connection = remember {
-        BottomSheetNestedScrollConnection {
-            val s = scrollState
-            s !is OptimizedScrollState.Scroll || s.state.value <= 0
+    if (scrollState is OptimizedScrollState.Scroll) {
+        val connection = remember(scrollState.state) {
+            BottomSheetNestedScrollConnection {
+                scrollState.state.value <= 0
+            }
         }
-    }
-    Column(Modifier.nestedScroll(connection)) {
-        content()
+        Column(Modifier.nestedScroll(connection)) {
+            content()
+        }
+    } else {
+        Column {
+            content()
+        }
     }
 }
 

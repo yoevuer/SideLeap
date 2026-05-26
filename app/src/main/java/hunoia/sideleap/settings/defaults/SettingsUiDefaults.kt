@@ -47,6 +47,45 @@ object SettingsUiDefaults {
     const val DimAlpha = 0.5f
     const val MaxBezierStrokeWidthValue = 8
 
+    val MinCapsuleThickness = DensityProvider.dp2px(20f)
+    val MaxCapsuleThickness = DensityProvider.dp2px(56f)
+    val MinCapsuleLength = DensityProvider.dp2px(40f)
+    val MaxCapsuleLength = DensityProvider.dp2px(120f)
+    val MinCapsuleCornerRadius = DensityProvider.dp2px(8f)
+    val MaxCapsuleCornerRadius = DensityProvider.dp2px(32f)
+
+    val MinBubbleDiameter = DensityProvider.dp2px(28f)
+    val MaxBubbleDiameter = DensityProvider.dp2px(72f)
+    val MinBubbleOffset = DensityProvider.dp2px(20f)
+    val MaxBubbleOffset = DensityProvider.dp2px(120f)
+
+    val MinLineWidth = DensityProvider.dp2px(2f)
+    val MaxLineWidth = DensityProvider.dp2px(16f)
+    val MinLineLength = DensityProvider.dp2px(20f)
+    val MaxLineLength = DensityProvider.dp2px(120f)
+    val MinLineOffset = DensityProvider.dp2px(10f)
+    val MaxLineOffset = DensityProvider.dp2px(100f)
+    val MinLineCornerRadius = 0
+    val MaxLineCornerRadius = DensityProvider.dp2px(32f)
+
+    val MinGridColumns = 2
+    val MaxGridColumns = 8
+    val MinGridRows = 1
+    val MaxGridRows = 6
+    val MinGridScrollSpeed = 1
+    val MaxGridScrollSpeed = 30
+    val MinGridScrollHotZoneHeight = DensityProvider.dp2px(10f)
+    val MaxGridScrollHotZoneHeight = DensityProvider.dp2px(60f)
+    val MinGridCornerRadius = DensityProvider.dp2px(4f)
+    val MaxGridCornerRadius = DensityProvider.dp2px(40f)
+
+    val MinArcLength = DensityProvider.dp2px(30f)
+    val MaxArcLength = DensityProvider.dp2px(120f)
+    const val MinSpacing = 0.8f
+    const val MaxSpacing = 2.0f
+    val MinItemSize = DensityProvider.dp2px(24f)
+    val MaxItemSize = DensityProvider.dp2px(72f)
+
     @Composable
     fun getPredefinedVibrationEffectText(effect: VibrationEffects): String {
         return when (effect) {
