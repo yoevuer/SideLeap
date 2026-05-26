@@ -417,7 +417,7 @@ fun WaveStyleContent(
                                     painter = getWaveStyleIcon(iconType),
                                     contentDescription = null,
                                     contentScale = ContentScale.Inside,
-                                    colorFilter = ColorFilter.tint(color = Color.White)
+                                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
                                 )
                             }
                         }

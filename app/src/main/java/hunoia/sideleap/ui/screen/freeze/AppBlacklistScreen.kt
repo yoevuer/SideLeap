@@ -62,6 +62,7 @@ import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.theme.TopBarPaddingExtra
 import hunoia.sideleap.ui.component.AppSearchBar
+import hunoia.sideleap.ui.component.EmptyState
 import hunoia.sideleap.ui.component.MyAlertDialog
 import hunoia.sideleap.ui.component.MySnackbarHost
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -164,12 +165,7 @@ fun AppBlacklistContent(
                         }
                         if (!hasAnyMatch && searchQuery.isNotBlank()) {
                             item {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
-                                    text = stringResource(R.string.no_matching_results),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                EmptyState(message = stringResource(R.string.no_matching_results))
                             }
                         }
                         listOf(selectedFiltered, unselectedFiltered).fastForEach { list ->

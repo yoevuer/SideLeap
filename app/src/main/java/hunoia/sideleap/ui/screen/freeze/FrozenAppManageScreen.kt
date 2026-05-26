@@ -1,6 +1,7 @@
 package hunoia.sideleap.ui.screen.freeze
 
 import hunoia.sideleap.ui.component.AppSearchBar
+import hunoia.sideleap.ui.component.EmptyState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -159,12 +160,7 @@ fun FrozenAppManageContent(
             ) {
                 if (!hasAnyMatch && searchQuery.isNotBlank()) {
                     item {
-                        Text(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
-                            text = stringResource(R.string.no_matching_results),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        EmptyState(message = stringResource(R.string.no_matching_results))
                     }
                 }
                 if (selectedFiltered.isNotEmpty()) {

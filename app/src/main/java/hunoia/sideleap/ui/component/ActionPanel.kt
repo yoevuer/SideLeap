@@ -209,7 +209,7 @@ fun ActionPanel(
                             color = Color.Black, offset = Offset(2.0f, 2.0f), blurRadius = 3f
                         )
                     ),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }

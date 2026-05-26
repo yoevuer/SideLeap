@@ -85,6 +85,7 @@ import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinMoveScreenRate
 import hunoia.sideleap.system.shizuku.ShizukuBinderExecutor
 import hunoia.sideleap.system.feedback.showToast
 import hunoia.sideleap.ui.component.AppSearchBar
+import hunoia.sideleap.ui.component.EmptyState
 import hunoia.sideleap.ui.component.LabeledSwitch
 import hunoia.sideleap.settings.SettingsProvider
 import hunoia.sideleap.settings.model.SavedFocusTarget
@@ -155,21 +156,9 @@ fun ActivitySettingsContent(
                 placeholder = stringResource(R.string.search_app_hint),
             )
             if (appQuery.isBlank()) {
-                Text(
-                    text = stringResource(R.string.no_matching_results),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
+                EmptyState(message = stringResource(R.string.no_matching_results))
             } else if (filteredApps.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.no_matching_results),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
+                EmptyState(message = stringResource(R.string.no_matching_results))
             } else {
                 Column(
                     modifier = Modifier
@@ -240,12 +229,7 @@ fun ActivitySettingsContent(
                 placeholder = stringResource(R.string.search_activity_hint),
             )
             if (filteredActivities.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.no_matching_results),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
+                EmptyState(message = stringResource(R.string.no_matching_results))
             } else {
                 Column(
                     modifier = Modifier
