@@ -5,6 +5,8 @@ import android.view.View
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -59,13 +61,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.query.AppSearch.key
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
 import hunoia.sideleap.ui.theme.AnimOverlayFade
 import hunoia.sideleap.ui.theme.AnimPanelShift
 import hunoia.sideleap.ui.theme.AnimPostHideDelay
+import hunoia.sideleap.ui.theme.ScrollBottomPadding
+import hunoia.sideleap.ui.theme.ShapeExtraLarge
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
 
@@ -100,8 +104,8 @@ internal fun QuickAppLauncherContent(
     val orientation = configuration.orientation
     val screenWidthPx = remember(orientation) { with(density) { configuration.screenWidthDp.dp.toPx().roundToInt() } }
     val panelWidthDp = with(density) { (screenWidthPx * state.launcherSettings.panelWidthFraction).toDp() }
-    val panelAlpha by animateFloatAsState(if (state.panelVisible) 1f else 0f, animationSpec = tween(AnimOverlayFade.toInt()), label = "panelAlpha")
-    val panelShiftY by animateFloatAsState(if (state.panelVisible) 0f else 18f, animationSpec = tween(AnimPanelShift.toInt()), label = "panelShiftY")
+    val panelAlpha by animateFloatAsState(if (state.panelVisible) 1f else 0f, animationSpec = spring(stiffness = Spring.StiffnessMedium), label = "panelAlpha")
+    val panelShiftY by animateFloatAsState(if (state.panelVisible) 0f else 18f, animationSpec = spring(stiffness = Spring.StiffnessMedium), label = "panelShiftY")
     var gridAtTop by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) { onRegisterCloseAnimated?.invoke(state.closeAnimated) }
     LaunchedEffect(Unit) { state.panelVisible = true }
@@ -165,7 +169,7 @@ internal fun QuickAppLauncherContent(
             ) {
                 Card(
                     modifier = Modifier.width(panelWidthDp),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(ShapeExtraLarge),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
@@ -178,7 +182,7 @@ internal fun QuickAppLauncherContent(
                         AnimatedContent(
                             targetState = state.keyboardExpanded,
                             transitionSpec = {
-                                fadeIn(animationSpec = tween(120)) togetherWith fadeOut(animationSpec = tween(90)) using SizeTransform(clip = false)
+                                fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(150)) using SizeTransform(clip = false)
                             },
                             label = "keyboardExpand"
                         ) { expanded ->
@@ -317,7 +321,7 @@ private fun AppGrid(
             columns = GridCells.Fixed(4),
             verticalArrangement = Arrangement.spacedBy(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
-            contentPadding = PaddingValues(bottom = 36.dp),
+            contentPadding = PaddingValues(bottom = ScrollBottomPadding),
             modifier = Modifier.fillMaxSize()
         ) {
             if (apps.isEmpty()) {
@@ -367,7 +371,7 @@ private fun AppGrid(
                         .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "⌨", fontSize = 18.sp)
+                Text(text = "⌨", style = MaterialTheme.typography.titleMedium)
             }
         }
     }

@@ -21,8 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+
 import com.aaron.compose.ktx.clipToBackground
+import hunoia.sideleap.ui.theme.ShapeLarge
 import hunoia.sideleap.system.feedback.ToastData
 import hunoia.sideleap.system.feedback.channel
 import kotlinx.coroutines.withTimeoutOrNull
@@ -64,7 +65,7 @@ fun ComposeToast(modifier: Modifier = Modifier) {
                     .widthIn(max = 300.dp)
                     .clipToBackground(
                         color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(ShapeLarge)
                     )
                     .padding(
                         vertical = 8.dp,
@@ -72,7 +73,7 @@ fun ComposeToast(modifier: Modifier = Modifier) {
                     )
                     .wrapContentSize(),
                 text = snackbarData.visuals.message,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )

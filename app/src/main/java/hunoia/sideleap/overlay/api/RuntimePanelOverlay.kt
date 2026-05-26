@@ -16,6 +16,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import hunoia.sideleap.core.DensityProvider
+import hunoia.sideleap.ui.theme.AnimOverlayFade
 import kotlin.math.roundToInt
 
 interface RuntimePanelOverlayHost : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
@@ -80,16 +81,28 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
         if (isHiding) return
         isShowing = false
         isHiding = true
-        triggerCloseAnimated?.invoke() ?: removeOverlayView(view)
+        if (triggerCloseAnimated != null) {
+            triggerCloseAnimated?.invoke()
+        } else {
+            animateOut(view)
+        }
     }
 
     fun closeImmediately() {
         removeOverlayView()
     }
 
+    private fun animateOut(view: View) {
+        view.animate()
+            .alpha(0f)
+            .setDuration(AnimOverlayFade)
+            .withEndAction { removeOverlayView(view) }
+    }
+
     private fun removeOverlayView(view: View? = overlayView) {
         val target = view ?: return
         target.animate().cancel()
+        target.alpha = 1f
         if (overlayView === target) overlayView = null
         isShowing = false
         isHiding = false

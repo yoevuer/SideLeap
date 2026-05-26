@@ -1,6 +1,8 @@
 package hunoia.sideleap.ui.screen.actionselect
 
 import android.content.Context
+import hunoia.sideleap.ui.component.AppSearchBar
+import hunoia.sideleap.ui.component.EmptyState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import androidx.compose.foundation.Image
@@ -197,22 +199,11 @@ internal fun ActionPage(
         contentPadding = contentPadding
     ) {
         item(key = "search") {
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = ContentPaddingHorizontal * 2, vertical = 8.dp),
-                placeholder = { Text(stringResource(R.string.search_hint_all)) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = {
-                    if (query.isNotEmpty()) {
-                        IconButton(onClick = { query = "" }) {
-                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.search_clear_cd))
-                        }
-                    }
-                },
-                singleLine = true
+            AppSearchBar(
+                query = query,
+                onQueryChange = { query = it },
+                modifier = Modifier.padding(horizontal = ContentPaddingHorizontal * 2, vertical = 8.dp),
+                placeholder = stringResource(R.string.search_hint_all),
             )
         }
         item(key = "category_chips") {
@@ -291,14 +282,7 @@ internal fun ActionPage(
         val hasAnyContent = grouped.isNotEmpty() || filteredApps.isNotEmpty() || filteredCreateShortcuts.isNotEmpty() || filteredLaunchShortcuts.isNotEmpty()
         if ((query.isNotEmpty() || selectedCategory != null || selectedType != null) && !hasAnyContent) {
             item {
-                Text(
-                    text = stringResource(R.string.no_matching_results),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 32.dp),
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                EmptyState(message = stringResource(R.string.no_matching_results))
             }
         } else {
             if (grouped.isNotEmpty()) {

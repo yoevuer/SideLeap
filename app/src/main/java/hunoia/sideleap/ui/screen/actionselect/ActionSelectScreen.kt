@@ -21,11 +21,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,7 +43,8 @@ import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.component.UiBaseEvent
 import hunoia.sideleap.R
 import hunoia.sideleap.action.Action
-import hunoia.sideleap.ui.component.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.OptimizedBottomSheet
+import hunoia.sideleap.ui.component.OptimizedScrollState
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.launcher.query.LauncherIconQuery
 import hunoia.sideleap.ui.navigation.ActionSelect
@@ -208,16 +207,13 @@ fun ActionSelectContent(
             }
 
             if (showIconResize) {
-                ModalBottomSheet(
-                    onDismissRequest = { showIconResize = false },
-                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                OptimizedBottomSheet(
+                    onDismissRequest = { showIconResize = false }
                 ) {
-                    BottomSheetNestedContent {
-                        IconResizeContent(
-                            onDismiss = { showIconResize = false },
-                            ids = iconResizeIds
-                        )
-                    }
+                    IconResizeContent(
+                        onDismiss = { showIconResize = false },
+                        ids = iconResizeIds
+                    )
                 }
             }
         }

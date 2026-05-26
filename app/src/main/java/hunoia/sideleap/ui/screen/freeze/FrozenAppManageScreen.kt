@@ -1,5 +1,7 @@
 package hunoia.sideleap.ui.screen.freeze
 
+import hunoia.sideleap.ui.component.AppSearchBar
+import hunoia.sideleap.ui.component.EmptyState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -145,13 +147,11 @@ fun FrozenAppManageContent(
                 }
             }
 
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { vm.onQueryChange(it); searchQuery = it },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = ContentPaddingHorizontal, vertical = 4.dp),
-                placeholder = { Text(stringResource(R.string.search_app_hint)) },
-                leadingIcon = { Icon(Icons.Default.ArrowDropDown, contentDescription = null) },
-                singleLine = true
+            AppSearchBar(
+                query = searchQuery,
+                onQueryChange = { vm.onQueryChange(it); searchQuery = it },
+                modifier = Modifier.padding(horizontal = ContentPaddingHorizontal, vertical = 4.dp),
+                placeholder = stringResource(R.string.search_app_hint),
             )
 
             LazyColumn(
@@ -160,12 +160,7 @@ fun FrozenAppManageContent(
             ) {
                 if (!hasAnyMatch && searchQuery.isNotBlank()) {
                     item {
-                        Text(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
-                            text = stringResource(R.string.no_matching_results),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        EmptyState(message = stringResource(R.string.no_matching_results))
                     }
                 }
                 if (selectedFiltered.isNotEmpty()) {

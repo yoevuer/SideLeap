@@ -81,6 +81,7 @@ import hunoia.sideleap.system.vibration.tryVibrateForActionPanel
 import hunoia.sideleap.ui.theme.AnimNormal
 import hunoia.sideleap.ui.theme.AnimPanelResize
 import hunoia.sideleap.ui.theme.RootPadding
+import hunoia.sideleap.ui.theme.ShapeSmall
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -157,7 +158,7 @@ fun ActionPanel(
                             }
                             .background(
                                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(ShapeSmall)
                             )
                     )
                 }
@@ -208,7 +209,7 @@ fun ActionPanel(
                             color = Color.Black, offset = Offset(2.0f, 2.0f), blurRadius = 3f
                         )
                     ),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -266,7 +267,7 @@ private fun AnimatedVisibilityScope.ArcActionPanel(
                     }
                     val panelOrigin = actionPanelOrigin(parentSize, actionPanelState.origin, actionPanelState.position, itemSizePx)
                     var isHovered by remember { mutableStateOf(false) }
-                    val scale by animateFloatAsState(if (isHovered) 1.15f else 1f, tween(AnimNormal.toInt()), label = "actionScale")
+                    val scale by animateFloatAsState(if (isHovered) 1.15f else 1f, spring(stiffness = Spring.StiffnessHigh), label = "actionScale")
 
                     LaunchedEffect(transition, actionPanelState, index, action, panelOrigin, targetAnimOffset) {
                         snapshotFlow { actionPanelState.finger }
@@ -571,7 +572,7 @@ private fun AnimatedVisibilityScope.PieActionPanel(
                     var isHovered by remember { mutableStateOf(false) }
                     val scale by animateFloatAsState(
                         if (isHovered) 1.15f else 1f,
-                        tween(AnimNormal.toInt()),
+                        spring(stiffness = Spring.StiffnessHigh),
                         label = "actionScale"
                     )
 
@@ -924,7 +925,7 @@ private fun AnimatedVisibilityScope.ActionPanelSelectableItem(
 ) {
     val transition = transition
     var isHovered by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(if (isHovered) 1.08f else 1f, tween(AnimNormal.toInt()), label = "actionScale")
+    val scale by animateFloatAsState(if (isHovered) 1.15f else 1f, spring(stiffness = Spring.StiffnessHigh), label = "actionScale")
     LaunchedEffect(transition, actionPanelState, index, action, panelOrigin, targetAnimOffset) {
         snapshotFlow { actionPanelState.finger }
             .filter { it.isSpecified && !transition.isRunning && transition.currentState == Visible }

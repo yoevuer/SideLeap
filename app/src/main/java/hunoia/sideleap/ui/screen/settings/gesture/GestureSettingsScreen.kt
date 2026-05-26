@@ -21,9 +21,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
@@ -67,7 +65,8 @@ import hunoia.sideleap.ui.component.SectionCard
 import hunoia.sideleap.ui.component.MyTextSlider
 import hunoia.sideleap.ui.component.LabeledSwitch
 import hunoia.sideleap.ui.component.TopBar
-import hunoia.sideleap.ui.component.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.OptimizedBottomSheet
+import hunoia.sideleap.ui.component.OptimizedScrollState
 import kotlinx.coroutines.launch
 
 /**
@@ -101,17 +100,16 @@ fun GestureSettingsScreen(
     ) { uiState ->
         var localVibrationMs by remember(uiState.vibrations.customVibrationMs) { mutableStateOf(uiState.vibrations.customVibrationMs.toFloat()) }
         if (showSlideSettings) {
-            ModalBottomSheet(
+            val scrollState = rememberScrollState()
+            OptimizedBottomSheet(
                 onDismissRequest = { showSlideSettings = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                scrollState = OptimizedScrollState.Scroll(scrollState)
             ) {
-                BottomSheetNestedContent {
-                    MyColumn(scrollState = rememberScrollState()) {
-                        SlideSettingsContent(
-                            uiState = uiState,
-                            vm = vm,
-                        )
-                    }
+                MyColumn(scrollState = scrollState) {
+                    SlideSettingsContent(
+                        uiState = uiState,
+                        vm = vm,
+                    )
                 }
             }
         }

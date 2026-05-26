@@ -1,21 +1,20 @@
 [versions]
-agp = "9.2.0"
+agp = "9.2.1"
 kotlin = "2.3.21"
-coreKtx = "1.15.0"
+coreKtx = "1.18.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.8.7"
+lifecycleRuntimeKtx = "2.10.0"
 fastCompose = "dev-SNAPSHOT"
-kotlinSerialization = "1.9.0"
-dataStore = "1.1.1"
-compose = "1.7.5"
-material3 = "1.4.0"
+kotlinSerialization = "1.11.0"
+dataStore = "1.2.1"
+compose-bom = "2026.05.01"
 colorpicker = "1.1.2"
 tinypinyin = "2.0.3.RELEASE"
 freereflection = "3.2.2"
 shizuku = "13.1.5"
-mockk = "1.13.13"
+mockk = "1.14.9"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,8 +26,9 @@ com-aaronzzx-fastcompose-compose = { group = "com.github.aaronzzx.fastcompose", 
 com-aaronzzx-fastcompose-compose-accessibility = { group = "com.github.aaronzzx.fastcompose", name = "composeaccessibility", version.ref = "fastCompose" }
 jetbrains-kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "dataStore" }
-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "compose" }
-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+material3 = { group = "androidx.compose.material3", name = "material3" }
 compose-colorpicker = { group = "com.github.skydoves", name = "colorpicker-compose", version.ref = "colorpicker" }
 tinypinyin = { group = "io.github.biezhi", name = "TinyPinyin", version.ref = "tinypinyin" }
 com-tiann-freereflection = { group = "com.github.tiann", name = "FreeReflection", version.ref = "freereflection" }

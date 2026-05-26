@@ -61,6 +61,8 @@ import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinInteractiveSize
 import hunoia.sideleap.ui.theme.ScrollBottomPadding
 import hunoia.sideleap.ui.theme.TopBarPaddingExtra
+import hunoia.sideleap.ui.component.AppSearchBar
+import hunoia.sideleap.ui.component.EmptyState
 import hunoia.sideleap.ui.component.MyAlertDialog
 import hunoia.sideleap.ui.component.MySnackbarHost
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -154,31 +156,16 @@ fun AppBlacklistContent(
                         }
 
                         item {
-                            OutlinedTextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
-                                modifier = Modifier.fillMaxWidth()
-                                    .padding(horizontal = ContentPaddingHorizontal, vertical = 4.dp),
-                                placeholder = { Text(stringResource(R.string.search_app_hint)) },
-                                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                                trailingIcon = {
-                                    if (searchQuery.isNotEmpty()) {
-                                        IconButton(onClick = { searchQuery = "" }) {
-                                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.search_clear_cd))
-                                        }
-                                    }
-                                },
-                                singleLine = true
+                            AppSearchBar(
+                                query = searchQuery,
+                                onQueryChange = { searchQuery = it },
+                                modifier = Modifier.padding(horizontal = ContentPaddingHorizontal, vertical = 4.dp),
+                                placeholder = stringResource(R.string.search_app_hint),
                             )
                         }
                         if (!hasAnyMatch && searchQuery.isNotBlank()) {
                             item {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
-                                    text = stringResource(R.string.no_matching_results),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                EmptyState(message = stringResource(R.string.no_matching_results))
                             }
                         }
                         listOf(selectedFiltered, unselectedFiltered).fastForEach { list ->

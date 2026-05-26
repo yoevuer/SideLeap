@@ -21,10 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,7 +48,8 @@ import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinGestureButtonPosi
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinGestureButtonWidth
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.gesture.GestureButton
-import hunoia.sideleap.ui.component.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.OptimizedBottomSheet
+import hunoia.sideleap.ui.component.OptimizedScrollState
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
 import hunoia.sideleap.gesture.TriggerDirection.Center
@@ -456,35 +455,29 @@ fun GestureButtonSettingsScreen(
         }
 
         if (showActionSelect && pendingActionSelect != null) {
-            ModalBottomSheet(
-                onDismissRequest = { showActionSelect = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            OptimizedBottomSheet(
+                onDismissRequest = { showActionSelect = false }
             ) {
-                BottomSheetNestedContent {
-                    ActionSelectContent(
-                        onDismiss = { showActionSelect = false },
-                        actionSelect = pendingActionSelect!!
-                    )
-                }
+                ActionSelectContent(
+                    onDismiss = { showActionSelect = false },
+                    actionSelect = pendingActionSelect!!
+                )
             }
         }
         if (showGestureAngles) {
             val currentGestureButton = uiState.gestureButton
             if (currentGestureButton != null) {
-                ModalBottomSheet(
-                    onDismissRequest = { showGestureAngles = false },
-                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                OptimizedBottomSheet(
+                    onDismissRequest = { showGestureAngles = false }
                 ) {
-                    BottomSheetNestedContent {
-                        GestureButtonAngleContent(
-                            gestureButton = currentGestureButton,
-                            onDismiss = { showGestureAngles = false },
-                            onSave = { angle ->
-                                vm.updateGestureButtonAngle(angle)
-                                showGestureAngles = false
-                            }
-                        )
-                    }
+                    GestureButtonAngleContent(
+                        gestureButton = currentGestureButton,
+                        onDismiss = { showGestureAngles = false },
+                        onSave = { angle ->
+                            vm.updateGestureButtonAngle(angle)
+                            showGestureAngles = false
+                        }
+                    )
                 }
             }
         }

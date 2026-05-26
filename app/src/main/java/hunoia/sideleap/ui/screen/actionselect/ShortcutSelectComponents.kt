@@ -211,7 +211,7 @@ internal fun LauncherInfoItem(
                     .size(MinInteractiveSize),
                 model = launcherInfo.icon,
                 contentDescription = null,
-                imageLoader = context.imageLoader
+                imageLoader = context.imageLoader,
             )
             Column(
                 modifier = Modifier

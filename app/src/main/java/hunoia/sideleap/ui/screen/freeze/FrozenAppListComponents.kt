@@ -36,32 +36,6 @@ import hunoia.sideleap.R
 import hunoia.sideleap.launcher.model.AppInfo
 import hunoia.sideleap.launcher.model.icon
 
-@Composable
-fun FrozenAppSearchField(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChange,
-        modifier = modifier.fillMaxWidth(),
-        placeholder = { Text(stringResource(id = R.string.search_app_hint)) },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-        trailingIcon = {
-            if (query.isNotEmpty()) {
-                IconButton(onClick = { onQueryChange("") }) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(id = R.string.search_clear_cd)
-                    )
-                }
-            }
-        },
-        singleLine = true
-    )
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FrozenAppSelectableItem(

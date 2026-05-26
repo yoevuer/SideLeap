@@ -1,7 +1,9 @@
 package hunoia.sideleap.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ScrollState
@@ -127,6 +129,7 @@ fun MyExpandableColumn(
 
                 val rotation by animateFloatAsState(
                     targetValue = if (expanded) 0f else -90f,
+                    animationSpec = spring(stiffness = Spring.StiffnessMedium),
                     label = "ArrowDropDownRotation"
                 )
                 Icon(

@@ -94,6 +94,7 @@ import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 import kotlin.math.max
 import androidx.compose.animation.core.animateFloatAsState
+import hunoia.sideleap.ui.theme.AnimOverlayFade
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -141,7 +142,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         if (triggerCloseAnimated != null) {
             triggerCloseAnimated?.invoke()
         } else {
-            removeOverlayView()
+            overlayView?.let { animateOut(it) }
         }
     }
 
@@ -156,10 +157,20 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         removeOverlayView()
     }
 
+    private fun animateOut(view: View) {
+        view.animate()
+            .alpha(0f)
+            .setDuration(AnimOverlayFade)
+            .withEndAction {
+                removeOverlayView()
+            }
+    }
+
     private fun removeOverlayView() {
         if (BuildConfig.DEBUG) Log.d("SideLeapLauncher","removeOverlayView: removing overlay")
         overlayView?.let {
             it.animate().cancel()
+            it.alpha = 1f
             val wm = host.context.windowManager()
             runCatching { wm.removeView(it) }
         }

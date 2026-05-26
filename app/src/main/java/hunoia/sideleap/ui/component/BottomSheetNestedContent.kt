@@ -1,6 +1,14 @@
 package hunoia.sideleap.ui.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -9,16 +17,59 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.foundation.ScrollState
+import androidx.compose.material3.ExperimentalMaterial3Api
+
+sealed class OptimizedScrollState {
+    data object None : OptimizedScrollState()
+
+    data class Scroll(val state: ScrollState) : OptimizedScrollState()
+}
 
 @Composable
-fun BottomSheetNestedContent(content: @Composable () -> Unit) {
-    val connection = remember { BottomSheetNestedScrollConnection() }
+fun BottomSheetNestedContent(
+    scrollState: OptimizedScrollState = OptimizedScrollState.None,
+    content: @Composable () -> Unit
+) {
+    val connection = remember {
+        BottomSheetNestedScrollConnection {
+            val s = scrollState
+            s !is OptimizedScrollState.Scroll || s.state.value <= 0
+        }
+    }
     Column(Modifier.nestedScroll(connection)) {
         content()
     }
 }
 
-private class BottomSheetNestedScrollConnection : NestedScrollConnection {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun OptimizedBottomSheet(
+    onDismissRequest: () -> Unit,
+    scrollState: OptimizedScrollState = OptimizedScrollState.None,
+    content: @Composable () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        BottomSheetNestedContent(scrollState = scrollState) {
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) +
+                        slideInVertically { it / 8 }
+            ) {
+                content()
+            }
+        }
+    }
+}
+
+private class BottomSheetNestedScrollConnection(
+    private val isAtTop: () -> Boolean
+) : NestedScrollConnection {
 
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         return Offset.Zero
@@ -29,6 +80,7 @@ private class BottomSheetNestedScrollConnection : NestedScrollConnection {
         available: Offset,
         source: NestedScrollSource
     ): Offset {
+        if (isAtTop()) return Offset.Zero
         return Offset(x = 0f, y = available.y)
     }
 
@@ -37,6 +89,7 @@ private class BottomSheetNestedScrollConnection : NestedScrollConnection {
     }
 
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+        if (isAtTop()) return Velocity.Zero
         return Velocity(x = 0f, y = available.y)
     }
 }

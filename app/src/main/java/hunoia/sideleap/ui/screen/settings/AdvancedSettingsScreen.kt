@@ -13,9 +13,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -39,7 +37,8 @@ import hunoia.sideleap.ui.theme.ItemPadding
 import hunoia.sideleap.ui.theme.MinItemHeightNoSecondary
 import hunoia.sideleap.ui.theme.SectionPadding
 import hunoia.sideleap.ui.screen.freeze.AppBlacklistContent
-import hunoia.sideleap.ui.component.BottomSheetNestedContent
+import hunoia.sideleap.ui.component.OptimizedBottomSheet
+import hunoia.sideleap.ui.component.OptimizedScrollState
 import hunoia.sideleap.ui.component.MyColumn
 import hunoia.sideleap.ui.component.MyAlertDialog
 import hunoia.sideleap.ui.component.SectionCard
@@ -147,13 +146,10 @@ fun AdvancedSettingsScreen(
         }
 
         if (showAppBlacklist) {
-            ModalBottomSheet(
-                onDismissRequest = { showAppBlacklist = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            OptimizedBottomSheet(
+                onDismissRequest = { showAppBlacklist = false }
             ) {
-                BottomSheetNestedContent {
-                    AppBlacklistContent(onDismiss = { showAppBlacklist = false })
-                }
+                AppBlacklistContent(onDismiss = { showAppBlacklist = false })
             }
         }
     }
