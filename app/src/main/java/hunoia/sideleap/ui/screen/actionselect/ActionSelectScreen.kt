@@ -10,11 +10,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
@@ -31,7 +28,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -44,6 +40,7 @@ import com.aaron.compose.component.UiBaseEvent
 import hunoia.sideleap.R
 import hunoia.sideleap.action.Action
 import hunoia.sideleap.ui.component.OptimizedBottomSheet
+import hunoia.sideleap.ui.component.TopBar
 import hunoia.sideleap.ui.component.OptimizedScrollState
 import hunoia.sideleap.launcher.model.LauncherInfo
 import hunoia.sideleap.launcher.query.LauncherIconQuery
@@ -118,18 +115,17 @@ fun ActionSelectContent(
 
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(uiState.title, style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.weight(1f))
-                    if (!uiState.selectSingle) {
-                        IconButton(onClick = { vm.done() }) {
-                            Icon(imageVector = Icons.Default.Done, contentDescription = null)
+                TopBar(
+                    onBack = onDismiss,
+                    title = uiState.title,
+                    actions = {
+                        if (!uiState.selectSingle) {
+                            IconButton(onClick = { vm.done() }) {
+                                Icon(imageVector = Icons.Default.Done, contentDescription = null)
+                            }
                         }
                     }
-                }
+                )
 
                 val permissionState = rememberGetInstalledAppsPermissionState { granted ->
                     if (granted) {

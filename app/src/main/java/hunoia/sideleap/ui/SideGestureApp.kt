@@ -24,16 +24,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 
+import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.ui.navigation.AdvancedSettings
 import hunoia.sideleap.ui.navigation.GestureButtonSettings
 import hunoia.sideleap.ui.navigation.GestureSettings
 import hunoia.sideleap.ui.navigation.Home
+import hunoia.sideleap.ui.navigation.SubGestureActionSelect
 import hunoia.sideleap.ui.navigation.SubGestureEditor
 import hunoia.sideleap.ui.navigation.Unlock
 import hunoia.sideleap.ui.screen.settings.AdvancedSettingsScreen
+import hunoia.sideleap.ui.screen.actionselect.ActionSelectContent
 
 import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonSettingsScreen
 import hunoia.sideleap.ui.screen.settings.gesture.GestureSettingsScreen
+import hunoia.sideleap.ui.screen.settings.gesture.SubGestureActionSelectContent
 import hunoia.sideleap.ui.screen.settings.gesture.SubGestureSettingsScreen
 import hunoia.sideleap.ui.screen.home.HomeScreen
 import hunoia.sideleap.ui.screen.unlock.UnlockScreen
@@ -94,11 +98,28 @@ fun SideGestureApp() {
                     GestureSettingsScreen(onBack = { navController.navigateUp() })
                 }
                 myComposable<GestureButtonSettings> {
-                    GestureButtonSettingsScreen(onBack = { navController.navigateUp() })
+                    GestureButtonSettingsScreen(
+                        onBack = { navController.navigateUp() },
+                        onNavToActionSelect = { navController.navigate(it) }
+                    )
+                }
+                myComposable<ActionSelect> {
+                    ActionSelectContent(
+                        onDismiss = { navController.popBackStack() },
+                        actionSelect = it.toRoute()
+                    )
                 }
                 myComposable<SubGestureEditor> {
                     SubGestureSettingsScreen(
-                        onBack = { navController.navigateUp() }
+                        onBack = { navController.navigateUp() },
+                        onNavToSubGestureActionSelect = { navController.navigate(it) }
+                    )
+                }
+                myComposable<SubGestureActionSelect> {
+                    SubGestureActionSelectContent(
+                        onDismiss = { navController.popBackStack() },
+                        subGestureId = it.toRoute<SubGestureActionSelect>().id,
+                        direction = it.toRoute<SubGestureActionSelect>().direction
                     )
                 }
             }

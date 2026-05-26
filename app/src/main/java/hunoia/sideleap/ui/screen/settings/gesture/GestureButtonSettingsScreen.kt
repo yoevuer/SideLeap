@@ -49,7 +49,6 @@ import hunoia.sideleap.settings.defaults.SettingsUiDefaults.MinGestureButtonWidt
 import hunoia.sideleap.ui.navigation.ActionSelect
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.ui.component.OptimizedBottomSheet
-import hunoia.sideleap.ui.component.OptimizedScrollState
 import hunoia.sideleap.gesture.Position
 import hunoia.sideleap.gesture.TriggerDirection
 import hunoia.sideleap.gesture.TriggerDirection.Center
@@ -63,7 +62,6 @@ import hunoia.sideleap.gesture.bounds
 import hunoia.sideleap.gesture.styleBy
 import hunoia.sideleap.settings.model.ActionPanelStyles
 import hunoia.sideleap.settings.model.LongSlideActionPanelStyles
-import hunoia.sideleap.ui.screen.actionselect.ActionSelectContent
 import hunoia.sideleap.ui.screen.settings.gesture.GestureButtonAngleContent
 import hunoia.sideleap.ui.theme.IconTextPadding
 import hunoia.sideleap.ui.theme.MarkColorSize
@@ -88,10 +86,9 @@ import hunoia.sideleap.ui.component.TopBar
 @Composable
 fun GestureButtonSettingsScreen(
     onBack: () -> Unit,
+    onNavToActionSelect: (ActionSelect) -> Unit = {},
     vm: GestureButtonSettingsVM = viewModel()
 ) {
-    var showActionSelect by remember { mutableStateOf(false) }
-    var pendingActionSelect by remember { mutableStateOf<ActionSelect?>(null) }
     var showGestureAngles by remember { mutableStateOf(false) }
     var pendingActionPanelStyleDirection by remember { mutableStateOf<TriggerDirection?>(null) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
@@ -179,15 +176,15 @@ fun GestureButtonSettingsScreen(
                     MyColumn {
                         SectionCard(title = stringResource(id = R.string.slide_action)) {
                             val navToActionSelect: (TriggerDirection) -> Unit = { direction ->
-                                val actionSelect = ActionSelect(
-                                    gestureButtonId = gestureButton.id,
-                                    position = gestureButton.position,
-                                    direction = direction,
-                                    isLongSlide = false,
-                                    isSideButton = uiState.gestureButtonSettings.isSideButton
+                                onNavToActionSelect(
+                                    ActionSelect(
+                                        gestureButtonId = gestureButton.id,
+                                        position = gestureButton.position,
+                                        direction = direction,
+                                        isLongSlide = false,
+                                        isSideButton = uiState.gestureButtonSettings.isSideButton
+                                    )
                                 )
-                                pendingActionSelect = actionSelect
-                                showActionSelect = true
                             }
                             MySideGestureSettings(
                                 onClick = {
@@ -241,15 +238,15 @@ fun GestureButtonSettingsScreen(
                             title = stringResource(id = R.string.long_slide_action)
                         ) {
                             val navToActionSelect: (TriggerDirection) -> Unit = { direction ->
-                                val actionSelect = ActionSelect(
-                                    gestureButtonId = gestureButton.id,
-                                    position = gestureButton.position,
-                                    direction = direction,
-                                    isLongSlide = true,
-                                    isSideButton = uiState.gestureButtonSettings.isSideButton
+                                onNavToActionSelect(
+                                    ActionSelect(
+                                        gestureButtonId = gestureButton.id,
+                                        position = gestureButton.position,
+                                        direction = direction,
+                                        isLongSlide = true,
+                                        isSideButton = uiState.gestureButtonSettings.isSideButton
+                                    )
                                 )
-                                pendingActionSelect = actionSelect
-                                showActionSelect = true
                             }
                             fun styleTrailing(direction: TriggerDirection): @Composable () -> Unit = {
                                 StyleTrailingDropdown(
@@ -306,16 +303,16 @@ fun GestureButtonSettingsScreen(
                             title = stringResource(id = R.string.tap_and_long_press_action)
                         ) {
                             val navToTapActionSelect: (TriggerDirection) -> Unit = { direction ->
-                                val actionSelect = ActionSelect(
-                                    gestureButtonId = gestureButton.id,
-                                    position = gestureButton.position,
-                                    direction = direction,
-                                    isLongSlide = false,
-                                    isSideButton = uiState.gestureButtonSettings.isSideButton,
-                                    isTap = true
+                                onNavToActionSelect(
+                                    ActionSelect(
+                                        gestureButtonId = gestureButton.id,
+                                        position = gestureButton.position,
+                                        direction = direction,
+                                        isLongSlide = false,
+                                        isSideButton = uiState.gestureButtonSettings.isSideButton,
+                                        isTap = true
+                                    )
                                 )
-                                pendingActionSelect = actionSelect
-                                showActionSelect = true
                             }
                             MySideGestureSettings(
                                 onClick = {
@@ -329,15 +326,15 @@ fun GestureButtonSettingsScreen(
                             )
                             MySideGestureSettings(
                                 onClick = {
-                                    val actionSelect = ActionSelect(
-                                        gestureButtonId = gestureButton.id,
-                                        position = gestureButton.position,
-                                        direction = Center2,
-                                        isLongSlide = false,
-                                        isSideButton = uiState.gestureButtonSettings.isSideButton
+                                    onNavToActionSelect(
+                                        ActionSelect(
+                                            gestureButtonId = gestureButton.id,
+                                            position = gestureButton.position,
+                                            direction = Center2,
+                                            isLongSlide = false,
+                                            isSideButton = uiState.gestureButtonSettings.isSideButton
+                                        )
                                     )
-                                    pendingActionSelect = actionSelect
-                                    showActionSelect = true
                                 },
                                 gestureButton = gestureButton,
                                 direction = Center2,
@@ -454,16 +451,6 @@ fun GestureButtonSettingsScreen(
             )
         }
 
-        if (showActionSelect && pendingActionSelect != null) {
-            OptimizedBottomSheet(
-                onDismissRequest = { showActionSelect = false }
-            ) {
-                ActionSelectContent(
-                    onDismiss = { showActionSelect = false },
-                    actionSelect = pendingActionSelect!!
-                )
-            }
-        }
         if (showGestureAngles) {
             val currentGestureButton = uiState.gestureButton
             if (currentGestureButton != null) {

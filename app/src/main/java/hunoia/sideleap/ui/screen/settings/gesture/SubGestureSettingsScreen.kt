@@ -36,8 +36,8 @@ import hunoia.sideleap.action.payload.SubGestureActionData
 import hunoia.sideleap.gesture.SubGestureDirection
 import hunoia.sideleap.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.sideleap.settings.model.SubGesture
+import hunoia.sideleap.ui.navigation.SubGestureActionSelect
 import hunoia.sideleap.ui.component.OptimizedBottomSheet
-import hunoia.sideleap.ui.component.OptimizedScrollState
 import hunoia.sideleap.ui.component.ColorPickerDialog
 import hunoia.sideleap.ui.component.MyAlertDialog
 import hunoia.sideleap.ui.component.MyColumn
@@ -53,12 +53,11 @@ import hunoia.sideleap.ui.theme.SectionPadding
 @Composable
 fun SubGestureSettingsScreen(
     onBack: () -> Unit,
+    onNavToSubGestureActionSelect: (SubGestureActionSelect) -> Unit = {},
     vm: SubGestureSettingsVM = viewModel()
 ) {
     var showEditNameDialog by remember { mutableStateOf(false) }
     var showGestureAngles by remember { mutableStateOf(false) }
-    var showActionSelect by remember { mutableStateOf(false) }
-    var pendingDirection by remember { mutableStateOf<SubGestureDirection?>(null) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -122,18 +121,6 @@ fun SubGestureSettingsScreen(
             }
         }
 
-        if (showActionSelect && pendingDirection != null) {
-            OptimizedBottomSheet(
-                onDismissRequest = { showActionSelect = false }
-            ) {
-                SubGestureActionSelectContent(
-                    subGestureId = gesture.id,
-                    direction = pendingDirection!!,
-                    onDismiss = { showActionSelect = false }
-                )
-            }
-        }
-
         if (uiState.colorPickerDialog.first) {
             ColorPickerDialog(
                 onDismissRequest = { vm.colorPickerDialog.show(false) },
@@ -191,8 +178,7 @@ fun SubGestureSettingsScreen(
                         val text = actionDisplayText(action, uiState.allSubGestures)
                         TextActionButton(
                             onClick = {
-                                pendingDirection = direction
-                                showActionSelect = true
+                                onNavToSubGestureActionSelect(SubGestureActionSelect(gesture.id, direction))
                             },
                             text = direction.displayName,
                             secondaryText = text.ifEmpty { stringResource(id = R.string.action_none) }
