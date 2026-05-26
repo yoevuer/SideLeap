@@ -23,8 +23,13 @@ inline fun <reified T> Context.dataStore(fileName: String, defValue: T): DataSto
             val bytes = try { input.readBytes() } catch (_: Exception) { ByteArray(0) }
             return try {
                 val string = bytes.decodeToString()
-                if (string.isBlank()) return defaultValue
-                JsonHelper.decodeFromString<T>(string)
+                if (string.isBlank()) {
+                    Log.i("DataStore", "read $fileName: blank, using default")
+                    return defaultValue
+                }
+                val result = JsonHelper.decodeFromString<T>(string)
+                Log.i("DataStore", "read $fileName: success size=${bytes.size}")
+                result
             } catch (e: Exception) {
                 Log.e("DataStore", "read $fileName failed: ${e::class.simpleName} ${e.message} size=${bytes.size}")
                 defaultValue

@@ -82,8 +82,6 @@ object GlobalActions {
     const val EXECUTE_SHELL_COMMAND = "58"
     /** 子手势 */
     const val SUB_GESTURE = "59"
-    /** 聚焦输入框 */
-    const val FOCUS_INPUT = "61"
 
     /** 启动应用 */
     const val EXTRA_LAUNCH_APP = "101"

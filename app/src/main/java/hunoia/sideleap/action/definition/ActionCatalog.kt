@@ -40,7 +40,6 @@ object ActionCatalog {
         ActionDefinition(GlobalActions.OPEN_PASSWORD_GENERATOR, ActionCategory.TOOL, ActionConfigKind.NONE, "open_password_generator", "open_password_generator"),
         ActionDefinition(GlobalActions.HIDE_GESTURE_BUTTON, ActionCategory.SYSTEM, ActionConfigKind.HIDE_GESTURE_BUTTON, "hide_gesture_button", "hide_gesture_button"),
         ActionDefinition(GlobalActions.VOLUME_SCRUB, ActionCategory.SYSTEM, ActionConfigKind.VOLUME_SCRUB, "volume_scrub", "volume_scrub"),
-        ActionDefinition(GlobalActions.FOCUS_INPUT, ActionCategory.TOOL, ActionConfigKind.FOCUS_INPUT, "focus_input", "focus_input"),
         ActionDefinition(GlobalActions.EXECUTE_SHELL_COMMAND, ActionCategory.TOOL, ActionConfigKind.SHELL_COMMAND, "shell_command", "shell_command"),
         ActionDefinition(GlobalActions.SUB_GESTURE, ActionCategory.SUB_GESTURE, ActionConfigKind.NONE, "sub_gesture", "sub_gesture", isDisplayed = false),
     )

@@ -12,7 +12,6 @@ import hunoia.sideleap.settings.model.GestureSettings
 import hunoia.sideleap.settings.model.SubGestureSettings
 import hunoia.sideleap.settings.model.InitialSettings
 import hunoia.sideleap.settings.model.QuickAppLauncherSettings
-import hunoia.sideleap.settings.model.SavedFocusTarget
 import hunoia.sideleap.gesture.GestureButton
 import hunoia.sideleap.settings.store.dataStore
 import kotlinx.coroutines.async
@@ -50,9 +49,6 @@ object SettingsProvider {
     private val _subGestureSettings: DataStore<SubGestureSettings> by lazy {
         App.getContext().dataStore(DataStoreFiles.SUB_GESTURE_SETTINGS, SubGestureSettings())
     }
-    private val _focusTargets: DataStore<Map<String, List<SavedFocusTarget>>> by lazy {
-        App.getContext().dataStore(DataStoreFiles.FOCUS_TARGETS, emptyMap())
-    }
 
     val initialSettings: Flow<InitialSettings> = _initialSettings.data
     val advancedSettings: Flow<AdvancedSettings> = _advancedSettings.data
@@ -63,7 +59,6 @@ object SettingsProvider {
     val quickAppLauncherSettings: Flow<QuickAppLauncherSettings> = _quickAppLauncherSettings.data
     val frozenAppSettings: Flow<FrozenAppSettings> = _frozenAppSettings.data
     val subGestureSettings: Flow<SubGestureSettings> = _subGestureSettings.data
-    val focusTargets: Flow<Map<String, List<SavedFocusTarget>>> = _focusTargets.data
 
     suspend fun getInitialSettings(): InitialSettings = _initialSettings.data.first()
     suspend fun getAdvancedSettings(): AdvancedSettings = _advancedSettings.data.first()
@@ -74,7 +69,6 @@ object SettingsProvider {
     suspend fun getQuickAppLauncherSettings(): QuickAppLauncherSettings = _quickAppLauncherSettings.data.first()
     suspend fun getFrozenAppSettings(): FrozenAppSettings = _frozenAppSettings.data.first()
     suspend fun getSubGestureSettings(): SubGestureSettings = _subGestureSettings.data.first()
-    suspend fun getFocusTargets(): Map<String, List<SavedFocusTarget>> = _focusTargets.data.first()
 
     suspend fun updateInitialSettings(transform: suspend (InitialSettings) -> InitialSettings) {
         _initialSettings.updateData(transform)
@@ -132,9 +126,6 @@ object SettingsProvider {
     }
     suspend fun updateSubGestureSettings(transform: suspend (SubGestureSettings) -> SubGestureSettings) {
         _subGestureSettings.updateData(transform)
-    }
-    suspend fun updateFocusTargets(transform: suspend (Map<String, List<SavedFocusTarget>>) -> Map<String, List<SavedFocusTarget>>) {
-        _focusTargets.updateData(transform)
     }
 
     suspend fun snapshotAll(): Backup = coroutineScope {

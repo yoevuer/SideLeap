@@ -75,7 +75,6 @@ import hunoia.sideleap.ui.dialog.UrlSettingsContent
 import hunoia.sideleap.ui.dialog.PreviousAppSettingsContent
 import hunoia.sideleap.ui.dialog.ShellCommandSettingsContent
 import hunoia.sideleap.ui.dialog.VirtualMouseActionSettingsContent
-import hunoia.sideleap.ui.dialog.FocusInputSettingsContent
 
 /**
  * @author aaronzzxup@gmail.com
@@ -414,10 +413,6 @@ fun ActionSettingsDialog(
 
                 GlobalActions.VOLUME_SCRUB -> {
                     VolumeScrubSettingsContent()
-                }
-
-                GlobalActions.FOCUS_INPUT -> {
-                    FocusInputSettingsContent()
                 }
             }
         },

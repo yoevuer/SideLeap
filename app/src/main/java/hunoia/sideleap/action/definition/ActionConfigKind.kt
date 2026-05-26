@@ -10,5 +10,4 @@ enum class ActionConfigKind {
     VIRTUAL_MOUSE,
     HIDE_GESTURE_BUTTON,
     VOLUME_SCRUB,
-    FOCUS_INPUT
 }
