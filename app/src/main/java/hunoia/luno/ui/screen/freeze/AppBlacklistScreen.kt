@@ -32,10 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -146,13 +143,8 @@ fun AppBlacklistContent(
                             }
                         }
 
-                        val stopFling = remember {
-                            object : NestedScrollConnection {
-                                override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity = available
-                            }
-                        }
                         LazyColumn(
-                            modifier = Modifier.fillMaxSize().nestedScroll(stopFling),
+                            modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(bottom = ScrollBottomPadding)
                         ) {
                             if (!hasAnyMatch && searchQuery.isNotBlank()) {

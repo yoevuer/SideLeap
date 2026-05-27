@@ -34,6 +34,8 @@
     <string name="gesture_button_list">触钮集合</string>
     <string name="side_gesture_button_list">侧边触钮</string>
     <string name="bottom_gesture_button_list">底部触钮</string>
+    <string name="side_gesture_button_list_short">侧边</string>
+    <string name="bottom_gesture_button_list_short">底部</string>
     <string name="app_management">应用管理</string>
     <string name="gesture_behavior">触钮行为</string>
     <string name="display">显示</string>

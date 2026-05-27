@@ -68,7 +68,7 @@ internal class SideGestureServiceProxyActionCoordinator(
 
     fun onAction(action: Action, sourceButton: GestureButton?) {
         val scope = scopeProvider()
-        scope.launch {
+        scope.launch(Dispatchers.Main.immediate) {
             ActionRegistry.execute(action, buildActionHandlerContext(sourceButton))
         }
     }

@@ -7,8 +7,10 @@ import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -89,7 +91,7 @@ import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.OptimizedScrollState
 import hunoia.luno.ui.component.MyAlertDialog
 import hunoia.luno.ui.component.MyColumn
-import hunoia.luno.ui.component.MyExpandableColumn
+import hunoia.luno.ui.component.ExpandChip
 import hunoia.luno.ui.component.SectionCard
 import hunoia.luno.ui.component.TextActionButton
 import hunoia.luno.ui.component.LabeledSwitch
@@ -350,143 +352,168 @@ fun HomeScreen(
                             .padding(top = SectionPadding),
                         title = stringResource(id = R.string.gesture_button_list)
                     ) {
-                        MyExpandableColumn(
-                            modifier = Modifier.fillMaxWidth(),
-                            backgroundColor = Color.Transparent,
-                            shape = RectangleShape,
-                            title = stringResource(id = R.string.bottom_gesture_button_list),
-                            expanded = uiState.isBottomGestureButtonListExpanded,
-                            onExpandedChange = { expanded ->
-                                if (expanded) {
-                                    vm.expandBottomGestureButtonList(true, gestureButtonListOffset)
-                                } else {
-                                    vm.expandBottomGestureButtonList(false)
-                                }
-                            }
+                        Row(
+                            modifier = Modifier.padding(
+                                horizontal = ContentPaddingHorizontal,
+                                vertical = ContentPaddingVerticalWithSection
+                            ),
+                            horizontalArrangement = Arrangement.spacedBy(Spacing6)
                         ) {
-                            uiState.bottomGestureButtons.fastForEach { button ->
-                                key(button) {
-                                    LabeledSwitch(
-                                        onTextClick = { onNavToGestureButtonSettings(button) },
-                                        onCheckedChange = { vm.onBottomGestureButtonEnabledChange(button, it) },
-                                        checked = button.enabled,
-                                        text = button.buttonTextCompose(),
-                                        secondaryText = run {
-                                            val expected = button.actionTextCompose()
-                                            if (expected.isNotEmpty()) {
-                                                return@run expected
-                                            }
-                                            stringResource(id = R.string.action_none)
-                                        },
-                                        secondaryTextColor = MaterialTheme.colorScheme.primary,
-                                        markColor = when (button.isDefault) {
-                                            true -> MaterialTheme.colorScheme.primary.copy(alpha = GestureButtonColorAlpha)
-                                            else -> Color(button.color).copy(alpha = GestureButtonColorAlpha)
-                                        }
-                                    )
-                                }
-                            }
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(min = MinItemHeightNoSecondary)
-                                    .onSingleClick {
-                                        vm.addBottomGestureButton()
+                            ExpandChip(
+                                modifier = Modifier.weight(1f),
+                                selected = uiState.isBottomGestureButtonListExpanded,
+                                label = stringResource(id = R.string.bottom_gesture_button_list_short),
+                                onClick = {
+                                    if (uiState.isBottomGestureButtonListExpanded) {
+                                        vm.expandBottomGestureButtonList(false)
+                                    } else {
+                                        vm.expandBottomGestureButtonList(true, gestureButtonListOffset)
                                     }
-                                    .wrapContentSize(),
-                                text = stringResource(id = R.string.add_gesture_button),
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.titleMedium
+                                }
+                            )
+                            ExpandChip(
+                                modifier = Modifier.weight(1f),
+                                selected = uiState.isSideGestureButtonListExpanded,
+                                label = stringResource(id = R.string.side_gesture_button_list_short),
+                                onClick = {
+                                    if (uiState.isSideGestureButtonListExpanded) {
+                                        vm.expandSideGestureButtonList(false)
+                                    } else {
+                                        vm.expandSideGestureButtonList(true, gestureButtonListOffset)
+                                    }
+                                }
+                            )
+                            ExpandChip(
+                                modifier = Modifier.weight(1f),
+                                selected = uiState.isSubGestureListExpanded,
+                                label = stringResource(id = R.string.sub_gesture_list),
+                                onClick = {
+                                    if (uiState.isSubGestureListExpanded) {
+                                        vm.expandSubGestureList(false)
+                                    } else {
+                                        vm.expandSubGestureList(true, gestureButtonListOffset)
+                                    }
+                                }
                             )
                         }
 
-                        MyExpandableColumn(
+                        AnimatedVisibility(
                             modifier = Modifier.fillMaxWidth(),
-                            backgroundColor = Color.Transparent,
-                            shape = RectangleShape,
-                            title = stringResource(id = R.string.side_gesture_button_list),
-                            expanded = uiState.isSideGestureButtonListExpanded,
-                            onExpandedChange = { expanded ->
-                                if (expanded) {
-                                    vm.expandSideGestureButtonList(true, gestureButtonListOffset)
-                                } else {
-                                    vm.expandSideGestureButtonList(false)
-                                }
-                            }
+                            visible = uiState.isBottomGestureButtonListExpanded,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
                         ) {
-                            uiState.sideGestureButtons.fastForEach { button ->
-                                key(button) {
-                                    LabeledSwitch(
-                                        onTextClick = { onNavToGestureButtonSettings(button) },
-                                        onCheckedChange = { vm.onSideGestureButtonEnabledChange(button, it) },
-                                        checked = button.enabled,
-                                        text = button.buttonTextCompose(),
-                                        secondaryText = run {
-                                            val expected = button.actionTextCompose()
-                                            if (expected.isNotEmpty()) {
-                                                return@run expected
+                            Column {
+                                uiState.bottomGestureButtons.fastForEach { button ->
+                                    key(button) {
+                                        LabeledSwitch(
+                                            onTextClick = { onNavToGestureButtonSettings(button) },
+                                            onCheckedChange = { vm.onBottomGestureButtonEnabledChange(button, it) },
+                                            checked = button.enabled,
+                                            text = button.buttonTextCompose(),
+                                            secondaryText = run {
+                                                val expected = button.actionTextCompose()
+                                                if (expected.isNotEmpty()) {
+                                                    return@run expected
+                                                }
+                                                stringResource(id = R.string.action_none)
+                                            },
+                                            secondaryTextColor = MaterialTheme.colorScheme.primary,
+                                            markColor = when (button.isDefault) {
+                                                true -> MaterialTheme.colorScheme.primary.copy(alpha = GestureButtonColorAlpha)
+                                                else -> Color(button.color).copy(alpha = GestureButtonColorAlpha)
                                             }
-                                            stringResource(id = R.string.action_none)
-                                        },
-                                        secondaryTextColor = MaterialTheme.colorScheme.primary,
-                                        markColor = when (button.isDefault) {
-                                            true -> MaterialTheme.colorScheme.primary.copy(alpha = GestureButtonColorAlpha)
-                                            else -> Color(button.color).copy(alpha = GestureButtonColorAlpha)
-                                        }
-                                    )
+                                        )
+                                    }
                                 }
-                            }
-                            androidx.compose.material3.TextButton(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(min = MinItemHeightNoSecondary),
-                                onClick = { vm.addSideGestureButton() }
-                            ) {
                                 Text(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = MinItemHeightNoSecondary)
+                                        .onSingleClick { vm.addBottomGestureButton() }
+                                        .wrapContentSize(),
                                     text = stringResource(id = R.string.add_gesture_button),
+                                    color = MaterialTheme.colorScheme.primary,
                                     style = MaterialTheme.typography.titleMedium
                                 )
                             }
                         }
 
-                        MyExpandableColumn(
+                        AnimatedVisibility(
                             modifier = Modifier.fillMaxWidth(),
-                            backgroundColor = Color.Transparent,
-                            shape = RectangleShape,
-                            title = stringResource(id = R.string.sub_gesture_list),
-                            expanded = uiState.isSubGestureListExpanded,
-                            onExpandedChange = { expanded ->
-                                if (expanded) {
-                                    vm.expandSubGestureList(true, gestureButtonListOffset)
-                                } else {
-                                    vm.expandSubGestureList(false)
-                                }
-                            }
+                            visible = uiState.isSideGestureButtonListExpanded,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
                         ) {
-                            uiState.subGestures.fastForEach { gesture ->
-                                key(gesture.id) {
-                                    LabeledSwitch(
-                                        onTextClick = { onNavToSubGestureEditor(gesture.id) },
-                                        onCheckedChange = { vm.onSubGestureEnabledChange(gesture, it) },
-                                        checked = gesture.enabled,
-                                        text = gesture.name,
-                                        markColor = Color(gesture.color).copy(alpha = GestureButtonColorAlpha)
+                            Column {
+                                uiState.sideGestureButtons.fastForEach { button ->
+                                    key(button) {
+                                        LabeledSwitch(
+                                            onTextClick = { onNavToGestureButtonSettings(button) },
+                                            onCheckedChange = { vm.onSideGestureButtonEnabledChange(button, it) },
+                                            checked = button.enabled,
+                                            text = button.buttonTextCompose(),
+                                            secondaryText = run {
+                                                val expected = button.actionTextCompose()
+                                                if (expected.isNotEmpty()) {
+                                                    return@run expected
+                                                }
+                                                stringResource(id = R.string.action_none)
+                                            },
+                                            secondaryTextColor = MaterialTheme.colorScheme.primary,
+                                            markColor = when (button.isDefault) {
+                                                true -> MaterialTheme.colorScheme.primary.copy(alpha = GestureButtonColorAlpha)
+                                                else -> Color(button.color).copy(alpha = GestureButtonColorAlpha)
+                                            }
+                                        )
+                                    }
+                                }
+                                androidx.compose.material3.TextButton(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = MinItemHeightNoSecondary),
+                                    onClick = { vm.addSideGestureButton() }
+                                ) {
+                                    Text(
+                                        text = stringResource(id = R.string.add_gesture_button),
+                                        style = MaterialTheme.typography.titleMedium
                                     )
                                 }
                             }
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(min = MinItemHeightNoSecondary)
-                                    .onSingleClick {
-                                    val id = java.util.UUID.randomUUID().toString()
-                                    vm.addSubGesture(id)
+                        }
+
+                        AnimatedVisibility(
+                            modifier = Modifier.fillMaxWidth(),
+                            visible = uiState.isSubGestureListExpanded,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
+                            Column {
+                                uiState.subGestures.fastForEach { gesture ->
+                                    key(gesture.id) {
+                                        LabeledSwitch(
+                                            onTextClick = { onNavToSubGestureEditor(gesture.id) },
+                                            onCheckedChange = { vm.onSubGestureEnabledChange(gesture, it) },
+                                            checked = gesture.enabled,
+                                            text = gesture.name,
+                                            markColor = Color(gesture.color).copy(alpha = GestureButtonColorAlpha)
+                                        )
+                                    }
                                 }
-                                    .wrapContentSize(),
-                                text = stringResource(id = R.string.add_sub_gesture),
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.titleMedium
-                            )
+                                Text(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = MinItemHeightNoSecondary)
+                                        .onSingleClick {
+                                            val id = java.util.UUID.randomUUID().toString()
+                                            vm.addSubGesture(id)
+                                        }
+                                        .wrapContentSize(),
+                                    text = stringResource(id = R.string.add_sub_gesture),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
                         }
                     }
                 }
