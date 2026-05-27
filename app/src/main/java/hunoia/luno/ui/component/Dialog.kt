@@ -56,7 +56,7 @@ import hunoia.luno.R
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.settings.defaults.SettingsUiDefaults.DimAlpha
 import hunoia.luno.action.Action
-import hunoia.luno.action.display.actionText
+import hunoia.luno.ui.action.actionText
 import hunoia.luno.core.event.Events
 import hunoia.luno.system.event.WallpaperChangedEvent
 import hunoia.luno.settings.model.ThemeColorKey

@@ -32,7 +32,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.luno.R
-import hunoia.luno.action.display.actionText
+import hunoia.luno.ui.action.actionText
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.gesture.SubGestureDirection
 import hunoia.luno.ui.ext.displayNameRes

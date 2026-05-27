@@ -3,7 +3,7 @@ package hunoia.luno.ui.gesture
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import hunoia.luno.R
-import hunoia.luno.action.display.actionTextCompose
+import hunoia.luno.ui.action.actionTextCompose
 import hunoia.luno.gesture.GestureButton
 import hunoia.luno.gesture.Position
 

@@ -57,7 +57,7 @@ import hunoia.luno.gesture.TriggerDirection.Down
 import hunoia.luno.gesture.TriggerDirection.Down2
 import hunoia.luno.gesture.TriggerDirection.Up
 import hunoia.luno.gesture.TriggerDirection.Up2
-import hunoia.luno.action.display.actionTextCompose
+import hunoia.luno.ui.action.actionTextCompose
 import hunoia.luno.gesture.bounds
 import hunoia.luno.gesture.styleBy
 import hunoia.luno.settings.model.ActionPanelStyles

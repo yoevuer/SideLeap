@@ -1,11 +1,7 @@
 package hunoia.luno.action.handlers
 
 import android.Manifest
-import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN
-import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_POWER_DIALOG
-import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT
-import android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN
-import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
 import hunoia.luno.R
@@ -14,9 +10,10 @@ import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.Action
+import hunoia.luno.system.accessibility.GlobalAction
+import hunoia.luno.system.flashlight.FlashlightController
 import hunoia.luno.system.intent.launchAssist
 import hunoia.luno.system.intent.gotoAppDetailSettings
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -35,7 +32,7 @@ object SystemActionHandler : ActionHandler {
 
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
-            GlobalActions.POWER_BUTTON -> context.accessibilityService.performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
+            GlobalActions.POWER_BUTTON -> GlobalAction.powerDialog(context.accessibilityService)
             GlobalActions.LOCK_SCREEN -> handleLockScreen(context)
             GlobalActions.FLASHLIGHT -> handleFlashlight(context)
             GlobalActions.SPLIT_SCREEN -> handleSplitScreen(context)
@@ -50,46 +47,31 @@ object SystemActionHandler : ActionHandler {
 
     private fun handleLockScreen(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            context.accessibilityService.performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+            GlobalAction.lockScreen(context.accessibilityService)
         } else {
             context.showVersionTooLowToast(R.string.action_lock_screen)
         }
     }
 
-    private var flashlightOn = false
-
-    private fun handleFlashlight(context: ActionHandlerContext) {
-        try {
-            val cameraManager = context.appContext.getSystemService(android.content.Context.CAMERA_SERVICE) as android.hardware.camera2.CameraManager
-            val cameraId = cameraManager.cameraIdList.firstOrNull()
-            if (cameraId != null) {
-                val block = {
-                    context.scope.launch(Dispatchers.Default) {
-                        flashlightOn = !flashlightOn
-                        cameraManager.setTorchMode(cameraId, flashlightOn)
-                    }
-                }
-                if (ContextCompat.checkSelfPermission(
-                        context.appContext, Manifest.permission.CAMERA
-                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-                ) {
-                    block()
-                } else {
-                    context.showToast(context.appContext.getString(R.string.grant_camera_permission))
-                    context.showToast(context.appContext.getString(R.string.goto_grant_camera_permission))
-                    context.appContext.gotoAppDetailSettings()
-                }
-            } else {
-                context.showToast(context.appContext.getString(R.string.flashlight_failed))
-            }
-        } catch (e: Exception) {
+    private suspend fun handleFlashlight(context: ActionHandlerContext) {
+        if (!FlashlightController.isSupported(context.appContext)) {
+            context.showToast(context.appContext.getString(R.string.flashlight_failed))
+            return
+        }
+        if (!FlashlightController.hasPermission(context.appContext)) {
+            context.showToast(context.appContext.getString(R.string.grant_camera_permission))
+            context.showToast(context.appContext.getString(R.string.goto_grant_camera_permission))
+            context.appContext.gotoAppDetailSettings()
+            return
+        }
+        if (!FlashlightController.toggle(context.appContext)) {
             context.showToast(context.appContext.getString(R.string.flashlight_failed))
         }
     }
 
     private fun handleSplitScreen(context: ActionHandlerContext) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            context.accessibilityService.performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN)
+            GlobalAction.toggleSplitScreen(context.accessibilityService)
         } else {
             context.showVersionTooLowToast(R.string.action_split_screen)
         }
@@ -99,7 +81,7 @@ object SystemActionHandler : ActionHandler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             context.scope.launch {
                 delay(200)
-                context.accessibilityService.performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
+                GlobalAction.takeScreenshot(context.accessibilityService)
             }
         } else {
             context.showVersionTooLowToast(R.string.action_screenshot)

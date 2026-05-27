@@ -1,4 +1,4 @@
-package hunoia.luno.action.display
+package hunoia.luno.ui.action
 
 import android.content.Context
 import androidx.compose.material.icons.Icons

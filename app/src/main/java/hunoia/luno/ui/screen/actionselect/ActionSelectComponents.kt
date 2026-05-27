@@ -74,8 +74,8 @@ import kotlin.math.roundToInt
 import hunoia.luno.settings.defaults.SettingsUiDefaults
 import hunoia.luno.action.Action
 import hunoia.luno.action.GlobalActions
-import hunoia.luno.action.display.actionIcon
-import hunoia.luno.action.display.actionText
+import hunoia.luno.ui.action.actionIcon
+import hunoia.luno.ui.action.actionText
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.action.definition.ActionCatalog
 import hunoia.luno.action.definition.ActionCategory

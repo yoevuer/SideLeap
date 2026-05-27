@@ -72,7 +72,7 @@ import hunoia.luno.action.Action
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.ShellCommandData
 import hunoia.luno.action.VirtualMouseActionData
-import hunoia.luno.action.display.actionText
+import hunoia.luno.ui.action.actionText
 import hunoia.luno.core.serialization.JsonHelper
 
 import hunoia.luno.launcher.LauncherFacade

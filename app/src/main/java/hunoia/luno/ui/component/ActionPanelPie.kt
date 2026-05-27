@@ -45,7 +45,7 @@ import com.aaron.compose.ktx.toPx
 import hunoia.luno.action.Action
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.appInfo
-import hunoia.luno.action.display.actionIcon
+import hunoia.luno.ui.action.actionIcon
 import hunoia.luno.action.shortcutInfo
 import hunoia.luno.gesture.Position
 import hunoia.luno.settings.model.PieStyle

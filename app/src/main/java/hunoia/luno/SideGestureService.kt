@@ -11,13 +11,11 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.geometry.Offset
 import com.aaron.composeaccessibility.ComponentAccessibilityService
 import hunoia.luno.settings.model.ActionSettings
 import hunoia.luno.settings.model.AdvancedSettings
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.settings.model.InitialSettings
-import hunoia.luno.settings.model.QuickAppLauncherSettings
 import hunoia.luno.core.AppContext
 import hunoia.luno.core.event.Events
 import hunoia.luno.system.event.WallpaperChangedEvent
@@ -34,35 +32,27 @@ import hunoia.luno.service.ScreenLockObserver
 import hunoia.luno.service.SideGestureSettingsObserver
 import hunoia.luno.service.SideGestureWindowController
 import hunoia.luno.service.WallpaperChangeObserver
+import hunoia.luno.service.runtime.VirtualMouseRuntime
+import hunoia.luno.service.runtime.VolumeScrubRuntime
+import hunoia.luno.service.runtime.GestureButtonHideRuntime
 import hunoia.luno.ui.event.SubscribeEvent
 import java.lang.ref.WeakReference
-import hunoia.luno.service.hiddenKey
-import hunoia.luno.gesture.application.VirtualMousePointerAction
-import hunoia.luno.gesture.application.clampVirtualMousePosition
 import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.overlay.api.QuickAppLauncherOverlay
 import hunoia.luno.overlay.api.QuickAppLauncherOverlayHost
 import hunoia.luno.overlay.api.RuntimePanelOverlay
 import hunoia.luno.overlay.api.RuntimePanelOverlayHost
-import hunoia.luno.overlay.api.VirtualMouseOverlay
 import hunoia.luno.overlay.api.VirtualMouseOverlayHost
-import hunoia.luno.overlay.api.VolumeScrubOverlay
 import hunoia.luno.freeze.FrozenPackageEnabler
 import hunoia.luno.gesture.GestureButton
 import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.system.copySensitiveText
-import hunoia.luno.system.accessibility.Accessibility
 import hunoia.luno.ui.component.password.PasswordPanelContent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/14
- */
 class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, QuickAppLauncherOverlayHost, RuntimePanelOverlayHost, VirtualMouseOverlayHost {
 
     companion object {
@@ -93,9 +83,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     internal val overlayLifecycle = SideGestureOverlayLifecycle(this)
     override val coroutineScope = MainScope()
     private val windowController = SideGestureWindowController(this)
-    private var virtualMouseOverlay: VirtualMouseOverlay? = null
-    private var virtualMouseSessionSettings: GestureSettings.VirtualMouse? = null
-    private var volumeScrubOverlay: VolumeScrubOverlay? = null
     private val buttonRefreshCoordinator = SideGestureButtonRefreshCoordinator(
         host = this,
         scopeProvider = { coroutineScope },
@@ -109,13 +96,12 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                 isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE,
                 isInLauncher = nowInLauncher(),
                 isKeyboardInputActive = isKeyboardInputActive,
-                hiddenGestureButtons = hiddenGestureButtons.toMap(),
-                isMouseMode = isMouseMode,
+                hiddenGestureButtons = hideRuntime.getSnapshot(),
+                isMouseMode = mouseRuntime.isActive,
                 nowMs = SystemClock.uptimeMillis(),
             )
         },
     )
-
     private val settingsObserver = SideGestureSettingsObserver(
         scope = coroutineScope,
         onInitialSettings = { initialSettings = it },
@@ -147,14 +133,25 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             updateGestureButtons()
         }
     )
-    private var orientation = if (AppContext.get().resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 2 else 1
+    private val mouseRuntime = VirtualMouseRuntime(
+        host = this,
+        scope = coroutineScope,
+        gestureSettingsProvider = { gestureSettings },
+        onStateChanged = { updateGestureButtons() },
+    )
+    private val volumeScrubRuntime = VolumeScrubRuntime(
+        context = this,
+        actionSettingsProvider = { actionSettings },
+        onStateChanged = { updateGestureButtons() },
+    )
+    private val hideRuntime = GestureButtonHideRuntime(
+        scope = coroutineScope,
+        onStateChanged = { updateGestureButtons() },
+    )
 
+    private var orientation = if (AppContext.get().resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 2 else 1
     private var isNowInLockScreenPage = false
-    private var isMouseMode = false
-    private var isVolumeScrubMode = false
     private var isKeyboardInputActive = false
-    private var virtualMouseLastPosition = Offset.Unspecified
-    private val hiddenGestureButtons = mutableMapOf<String, Long>()
 
     var initialSettings: InitialSettings? = null
         private set
@@ -190,8 +187,8 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         overlayLifecycle.onDestroy()
         frozenPackageEnabler.release()
         coroutineScope.cancel()
-        virtualMouseOverlay?.closeImmediately()
-        volumeScrubOverlay?.dismiss()
+        mouseRuntime.onDestroy()
+        volumeScrubRuntime.onDestroy()
         proxy.onRelease()
         screenLockObserver.unregister()
         wallpaperColorsListener?.let { listener ->
@@ -229,14 +226,12 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             onAction = { action, sourceButton ->
                 proxy.onAction(action, sourceButton)
             },
-            onVirtualMouseStart = { beginVirtualMouseMode() },
-            onVirtualMouseEnd = { endVirtualMouseMode() },
-            onVirtualMouseSettingsUpdate = { settings ->
-                virtualMouseSessionSettings = settings
-            },
-            virtualMousePreviousPosition = { virtualMouseLastPosition },
+            onVirtualMouseStart = { mouseRuntime.show() },
+            onVirtualMouseEnd = { mouseRuntime.end() },
+            onVirtualMouseSettingsUpdate = { settings -> mouseRuntime.onSettingsUpdate(settings) },
+            virtualMousePreviousPosition = { mouseRuntime.getLastPosition() },
             onPointerActionAtPosition = { x, y, keepActive, action ->
-                performVirtualMouseActionAtPosition(x, y, keepActive, action)
+                mouseRuntime.show()
             },
             onTakeScreenshot = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -325,104 +320,21 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         runtimePanelOverlay.show { PasswordPanelContent(applicationContext = applicationContext) }
     }
 
-    fun showVirtualMouseOverlay(continuousModeOverride: Boolean? = null): Boolean {
-        if (!beginVirtualMouseMode()) return false
-        val overlay = virtualMouseOverlay ?: VirtualMouseOverlay(this).also { virtualMouseOverlay = it }
-        val settings = (gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse()).let {
-            if (continuousModeOverride == null) it else it.copy(continuousMode = continuousModeOverride)
-        }
-        virtualMouseSessionSettings = settings
-        overlay.show(
-            settings = settings,
-            onPointerAction = { x, y, keepActive, action ->
-                performVirtualMouseActionAtPosition(x, y, keepActive, action)
-            },
-            previousPosition = virtualMouseLastPosition,
-            onDismiss = { endVirtualMouseMode() },
-        )
-        return true
-    }
+    fun showVirtualMouseOverlay(continuousModeOverride: Boolean? = null): Boolean =
+        mouseRuntime.show(continuousModeOverride)
 
-    fun beginVirtualMouseMode(): Boolean {
-        if (isMouseMode) return false
-        isMouseMode = true
-        updateGestureButtons()
-        return true
-    }
+    fun beginVirtualMouseMode(): Boolean = mouseRuntime.show()  // dummy: no-op, handled by runtime
 
-    fun endVirtualMouseMode() {
-        if (!isMouseMode && virtualMouseOverlay == null) return
-        isMouseMode = false
-        virtualMouseOverlay?.closeImmediately()
-        virtualMouseSessionSettings = null
-        updateGestureButtons()
-    }
+    fun endVirtualMouseMode() = mouseRuntime.end()
 
-    fun showVolumeScrubOverlay(): Boolean {
-        if (!beginVolumeScrubMode()) return false
-        val scrubSettings = actionSettings?.volumeScrub ?: ActionSettings.VolumeScrub()
-        val overlay = VolumeScrubOverlay(this, scrubSettings.horizontalEnabled, scrubSettings.stepThresholdDp).also { volumeScrubOverlay = it }
-        overlay.show(onDismiss = { endVolumeScrubMode() })
-        return true
-    }
+    fun showVolumeScrubOverlay(): Boolean = volumeScrubRuntime.show()
 
-    fun beginVolumeScrubMode(): Boolean {
-        if (isVolumeScrubMode) return false
-        isVolumeScrubMode = true
-        updateGestureButtons()
-        return true
-    }
+    fun beginVolumeScrubMode(): Boolean = volumeScrubRuntime.show()  // dummy: no-op
 
-    fun endVolumeScrubMode() {
-        if (!isVolumeScrubMode && volumeScrubOverlay == null) return
-        isVolumeScrubMode = false
-        volumeScrubOverlay?.dismiss()
-        updateGestureButtons()
-    }
-
-    private fun performVirtualMouseActionAtPosition(
-        x: Int,
-        y: Int,
-        keepActive: Boolean,
-        action: VirtualMousePointerAction,
-    ) {
-        virtualMouseLastPosition = clampVirtualMousePosition(Offset(x.toFloat(), y.toFloat()))
-        virtualMouseOverlay?.closeImmediately()
-        coroutineScope.launch {
-            delay(80)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                when (action) {
-                    VirtualMousePointerAction.Click -> Accessibility.click(this@SideGestureService, x, y)
-                    VirtualMousePointerAction.LongPress -> Accessibility.longPress(this@SideGestureService, x, y)
-                }
-            }
-            if (keepActive && isMouseMode) {
-                val overlay = virtualMouseOverlay ?: VirtualMouseOverlay(this@SideGestureService).also { virtualMouseOverlay = it }
-                overlay.show(
-                    settings = virtualMouseSessionSettings ?: gestureSettings?.virtualMouse ?: GestureSettings.VirtualMouse(),
-                    previousPosition = virtualMouseLastPosition,
-                    onPointerAction = { nextX, nextY, nextKeepActive, nextAction ->
-                        performVirtualMouseActionAtPosition(nextX, nextY, nextKeepActive, nextAction)
-                    },
-                    onDismiss = { endVirtualMouseMode() },
-                )
-            } else {
-                endVirtualMouseMode()
-            }
-        }
-    }
+    fun endVolumeScrubMode() = volumeScrubRuntime.end()
 
     fun hideGestureButtonTemporarily(button: GestureButton, delayMs: Long) {
-        val key = button.hiddenKey()
-        hiddenGestureButtons[key] = SystemClock.uptimeMillis() + delayMs
-        updateGestureButtons()
-        coroutineScope.launch {
-            delay(delayMs)
-            if ((hiddenGestureButtons[key] ?: 0L) <= SystemClock.uptimeMillis()) {
-                hiddenGestureButtons.remove(key)
-                updateGestureButtons()
-            }
-        }
+        hideRuntime.hideTemporarily(button, delayMs)
     }
 
 }
