@@ -10,43 +10,21 @@ import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aaron.composeaccessibility.ComponentAccessibilityService
 import hunoia.luno.settings.model.ActionSettings
 import hunoia.luno.settings.model.AdvancedSettings
 import hunoia.luno.settings.model.GestureSettings
-import hunoia.luno.settings.model.SubGestureSettings
 import hunoia.luno.settings.model.InitialSettings
 import hunoia.luno.settings.model.QuickAppLauncherSettings
 import hunoia.luno.core.AppContext
 import hunoia.luno.core.event.Events
-import hunoia.luno.core.event.WallpaperChangedEvent
+import hunoia.luno.system.event.WallpaperChangedEvent
 import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.query.LauncherEnvironment
 import hunoia.luno.service.SideGestureServiceProxy
+import hunoia.luno.service.GestureOverlayView
 import hunoia.luno.service.takeScreenshot
 import hunoia.luno.service.SideGestureButtonRefreshCoordinator
 import hunoia.luno.service.SideGestureOverlayLifecycle
@@ -58,13 +36,9 @@ import hunoia.luno.service.SideGestureWindowController
 import hunoia.luno.service.WallpaperChangeObserver
 import hunoia.luno.ui.event.SubscribeEvent
 import java.lang.ref.WeakReference
-import hunoia.luno.ui.theme.SideGestureTheme
-import hunoia.luno.ui.theme.AnimOverlayFade
-import hunoia.luno.ui.theme.AnimPanelShift
-import hunoia.luno.ui.theme.AnimPostHideDelay
+import hunoia.luno.service.hiddenKey
 import hunoia.luno.gesture.application.VirtualMousePointerAction
 import hunoia.luno.gesture.application.clampVirtualMousePosition
-import hunoia.luno.ui.component.SideGestureContainer
 import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.overlay.api.QuickAppLauncherOverlay
 import hunoia.luno.overlay.api.QuickAppLauncherOverlayHost
@@ -76,14 +50,9 @@ import hunoia.luno.overlay.api.VolumeScrubOverlay
 import hunoia.luno.freeze.FrozenPackageEnabler
 import hunoia.luno.gesture.GestureButton
 import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.service.hiddenKey
-import hunoia.luno.ui.component.quickapplaunch.QuickAppLauncherAdjustPanel
-import hunoia.luno.ui.component.quickapplaunch.QuickAppLauncherContent
 import hunoia.luno.system.copySensitiveText
 import hunoia.luno.system.accessibility.Accessibility
-import hunoia.luno.ui.component.password.PasswordGeneratorPanel
 import hunoia.luno.ui.component.password.PasswordPanelContent
-import hunoia.luno.core.DensityProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -251,74 +220,31 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     @Composable
     private fun renderMainOverlay() {
         val screenshotService = this
-        var lastWallpaperChangeMs by remember { mutableStateOf(0L) }
-        SubscribeEvent(eventClass = WallpaperChangedEvent::class) {
-            val now = System.currentTimeMillis()
-            if (now - lastWallpaperChangeMs < 500L) return@SubscribeEvent
-            lastWallpaperChangeMs = now
-        }
-        val advancedSettingsForTheme by SettingsProvider
-            .advancedSettings
-            .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
-        val themeKey = remember(lastWallpaperChangeMs, advancedSettingsForTheme.animationStyles.json) {
-            lastWallpaperChangeMs.toString() + "_" + advancedSettingsForTheme.animationStyles.json
-        }
-        SideGestureTheme(wallpaperChangeTrigger = themeKey) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                    val sideButtons by SettingsProvider
-                        .sideGestureButtons
-                        .collectAsStateWithLifecycle(initialValue = emptyList())
-                    val bottomButtons by SettingsProvider
-                        .bottomGestureButtons
-                        .collectAsStateWithLifecycle(initialValue = emptyList())
-                    val advancedSettings by SettingsProvider
-                        .advancedSettings
-                        .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
-                    val gestureSettings by SettingsProvider
-                        .gestureSettings
-                        .collectAsStateWithLifecycle(initialValue = GestureSettings())
-                    val actionSettings by SettingsProvider
-                        .actionSettings
-                        .collectAsStateWithLifecycle(initialValue = ActionSettings())
-                    val subGestureSettings by SettingsProvider
-                        .subGestureSettings
-                        .collectAsStateWithLifecycle(initialValue = SubGestureSettings())
-                    SideGestureContainer(
-                        modifier = Modifier.matchParentSize(),
-                        buttons = sideButtons + bottomButtons,
-                        wallpaperChangeTrigger = lastWallpaperChangeMs,
-                        onSubGestureModeChanged = { inSubGesture ->
-                            if (inSubGesture) windowController.attachSubGestureOverlay()
-                            else windowController.detachSubGestureOverlay()
-                        },
-                        animationStyle = when (advancedSettings.animationStyles.isAnimationEnabled) {
-                            true -> advancedSettings.animationStyles.value
-                            else -> null
-                        },
-                        onAction = { action, sourceButton ->
-                            proxy.onAction(action, sourceButton)
-                        },
-                        onVirtualMouseStart = { beginVirtualMouseMode() },
-                        onVirtualMouseEnd = { endVirtualMouseMode() },
-                        onVirtualMouseSettingsUpdate = { settings ->
-                            virtualMouseSessionSettings = settings
-                        },
-                        virtualMousePreviousPosition = { virtualMouseLastPosition },
-                        onPointerActionAtPosition = { x, y, keepActive, action ->
-                            performVirtualMouseActionAtPosition(x, y, keepActive, action)
-                        },
-                        onTakeScreenshot = {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                screenshotService.takeScreenshot()
-                            } else null
-                        },
-                        actionSettings = actionSettings,
-                        advancedSettings = advancedSettings,
-                        gestureSettings = gestureSettings,
-                        subGestureSettings = subGestureSettings,
-                    )
-                }
-            }
+        GestureOverlayView(
+            screenshotService = screenshotService,
+            onSubGestureModeChanged = { inSubGesture ->
+                if (inSubGesture) windowController.attachSubGestureOverlay()
+                else windowController.detachSubGestureOverlay()
+            },
+            onAction = { action, sourceButton ->
+                proxy.onAction(action, sourceButton)
+            },
+            onVirtualMouseStart = { beginVirtualMouseMode() },
+            onVirtualMouseEnd = { endVirtualMouseMode() },
+            onVirtualMouseSettingsUpdate = { settings ->
+                virtualMouseSessionSettings = settings
+            },
+            virtualMousePreviousPosition = { virtualMouseLastPosition },
+            onPointerActionAtPosition = { x, y, keepActive, action ->
+                performVirtualMouseActionAtPosition(x, y, keepActive, action)
+            },
+            onTakeScreenshot = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    screenshotService.takeScreenshot()
+                } else null
+            },
+            windowController = windowController,
+        )
     }
 
     private fun registerScreenLockObserver() {

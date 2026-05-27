@@ -80,7 +80,7 @@ class SubGestureActionSelectVM(
             SettingsProvider.updateSubGestureSettings { settings ->
                 settings.copy(
                     subGestures = settings.subGestures.map { gesture ->
-                        if (gesture.id == subGestureId) gesture.withAction(direction, action)
+                        if (gesture.id == subGestureId) gesture.withAction(direction, action?.value)
                         else gesture
                     }
                 )
@@ -146,7 +146,7 @@ class SubGestureActionSelectVM(
                 )
             }
 
-            val selectedList = if (currentAction != null && currentAction.value != GlobalActions.NONE) {
+            val selectedList = if (currentAction != null && currentAction != GlobalActions.NONE) {
                 listOf(currentAction as Any)
             } else emptyList()
 

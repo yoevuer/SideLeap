@@ -2,7 +2,6 @@ package hunoia.luno.settings.model
 
 import android.graphics.Color
 import androidx.annotation.Keep
-import hunoia.luno.action.Action
 import hunoia.luno.core.DensityProvider
 import hunoia.luno.gesture.SubGestureDirection
 import hunoia.luno.system.vibration.VibrationEffects
@@ -14,14 +13,14 @@ data class SubGesture(
     val id: String,
     val name: String = "",
     val angle: SubGestureAngle = SubGestureAngle(),
-    val upAction: Action? = null,
-    val downAction: Action? = null,
-    val leftAction: Action? = null,
-    val rightAction: Action? = null,
-    val upRightAction: Action? = null,
-    val downRightAction: Action? = null,
-    val downLeftAction: Action? = null,
-    val upLeftAction: Action? = null,
+    val upActionId: String? = null,
+    val downActionId: String? = null,
+    val leftActionId: String? = null,
+    val rightActionId: String? = null,
+    val upRightActionId: String? = null,
+    val downRightActionId: String? = null,
+    val downLeftActionId: String? = null,
+    val upLeftActionId: String? = null,
     val enabled: Boolean = true,
     val color: Int = Color.TRANSPARENT,
     val vibrate: Boolean = true,
@@ -30,25 +29,25 @@ data class SubGesture(
     val customVibrationMs: Long = 50L,
     val triggerDistance: Int = DensityProvider.dp2px(30f),
 ) {
-    fun actionFor(direction: SubGestureDirection): Action? = when (direction) {
-        SubGestureDirection.Up -> upAction
-        SubGestureDirection.Down -> downAction
-        SubGestureDirection.Left -> leftAction
-        SubGestureDirection.Right -> rightAction
-        SubGestureDirection.UpRight -> upRightAction
-        SubGestureDirection.DownRight -> downRightAction
-        SubGestureDirection.DownLeft -> downLeftAction
-        SubGestureDirection.UpLeft -> upLeftAction
+    fun actionFor(direction: SubGestureDirection): String? = when (direction) {
+        SubGestureDirection.Up -> upActionId
+        SubGestureDirection.Down -> downActionId
+        SubGestureDirection.Left -> leftActionId
+        SubGestureDirection.Right -> rightActionId
+        SubGestureDirection.UpRight -> upRightActionId
+        SubGestureDirection.DownRight -> downRightActionId
+        SubGestureDirection.DownLeft -> downLeftActionId
+        SubGestureDirection.UpLeft -> upLeftActionId
     }
 
-    fun withAction(direction: SubGestureDirection, action: Action?): SubGesture = when (direction) {
-        SubGestureDirection.Up -> copy(upAction = action)
-        SubGestureDirection.Down -> copy(downAction = action)
-        SubGestureDirection.Left -> copy(leftAction = action)
-        SubGestureDirection.Right -> copy(rightAction = action)
-        SubGestureDirection.UpRight -> copy(upRightAction = action)
-        SubGestureDirection.DownRight -> copy(downRightAction = action)
-        SubGestureDirection.DownLeft -> copy(downLeftAction = action)
-        SubGestureDirection.UpLeft -> copy(upLeftAction = action)
+    fun withAction(direction: SubGestureDirection, actionId: String?): SubGesture = when (direction) {
+        SubGestureDirection.Up -> copy(upActionId = actionId)
+        SubGestureDirection.Down -> copy(downActionId = actionId)
+        SubGestureDirection.Left -> copy(leftActionId = actionId)
+        SubGestureDirection.Right -> copy(rightActionId = actionId)
+        SubGestureDirection.UpRight -> copy(upRightActionId = actionId)
+        SubGestureDirection.DownRight -> copy(downRightActionId = actionId)
+        SubGestureDirection.DownLeft -> copy(downLeftActionId = actionId)
+        SubGestureDirection.UpLeft -> copy(upLeftActionId = actionId)
     }
 }

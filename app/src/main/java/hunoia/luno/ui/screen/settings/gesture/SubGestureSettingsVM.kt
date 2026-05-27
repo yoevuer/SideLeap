@@ -73,12 +73,12 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
                     R.string.mirror_sub_gesture_name,
                     original.name.ifEmpty { AppContext.get().getString(R.string.sub_gesture) }
                 ),
-                leftAction = original.rightAction,
-                rightAction = original.leftAction,
-                upRightAction = original.upLeftAction,
-                upLeftAction = original.upRightAction,
-                downRightAction = original.downLeftAction,
-                downLeftAction = original.downRightAction,
+                leftActionId = original.rightActionId,
+                rightActionId = original.leftActionId,
+                upRightActionId = original.upLeftActionId,
+                upLeftActionId = original.upRightActionId,
+                downRightActionId = original.downLeftActionId,
+                downLeftActionId = original.downRightActionId,
                 angle = original.angle.copy(
                     boundaries = original.angle.boundaries.let { b ->
                         listOf(3, 2, 1, 0, 7, 6, 5, 4).map { i -> ((0.5f - b[i]) + 1f) % 1f }
@@ -159,15 +159,16 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
         SettingsProvider.updateBottomGestureButtons { cleanActions(it) }
         SettingsProvider.updateSubGestureSettings { settings ->
             val cleanedSubGestures = settings.subGestures.map { gesture ->
+                fun clean(id: String?) = if (id == deletedId || id == GlobalActions.SUB_GESTURE) null else id
                 gesture.copy(
-                    upAction = cleanIfSubGesture(gesture.upAction),
-                    downAction = cleanIfSubGesture(gesture.downAction),
-                    leftAction = cleanIfSubGesture(gesture.leftAction),
-                    rightAction = cleanIfSubGesture(gesture.rightAction),
-                    upRightAction = cleanIfSubGesture(gesture.upRightAction),
-                    downRightAction = cleanIfSubGesture(gesture.downRightAction),
-                    downLeftAction = cleanIfSubGesture(gesture.downLeftAction),
-                    upLeftAction = cleanIfSubGesture(gesture.upLeftAction),
+                    upActionId = clean(gesture.upActionId),
+                    downActionId = clean(gesture.downActionId),
+                    leftActionId = clean(gesture.leftActionId),
+                    rightActionId = clean(gesture.rightActionId),
+                    upRightActionId = clean(gesture.upRightActionId),
+                    downRightActionId = clean(gesture.downRightActionId),
+                    downLeftActionId = clean(gesture.downLeftActionId),
+                    upLeftActionId = clean(gesture.upLeftActionId),
                 )
             }
             settings.copy(subGestures = cleanedSubGestures)

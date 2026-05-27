@@ -289,18 +289,12 @@ fun SubGestureSettingsScreen(
 }
 
 @Composable
-private fun actionDisplayText(action: hunoia.luno.action.Action?, allSubGestures: List<SubGesture>?): String {
-    if (action == null) return ""
-    if (action.value != hunoia.luno.action.GlobalActions.SUB_GESTURE) {
-        return actionText(action)
+private fun actionDisplayText(actionId: String?, allSubGestures: List<SubGesture>?): String {
+    if (actionId == null || actionId.isEmpty()) return ""
+    if (actionId != hunoia.luno.action.GlobalActions.SUB_GESTURE) {
+        return actionText(hunoia.luno.action.Action(actionId))
     }
-    val data = remember(action.data) {
-        try {
-            kotlinx.serialization.json.Json.decodeFromString<SubGestureActionData>(action.data)
-        } catch (_: Exception) { null }
-    } ?: return stringResource(id = R.string.action_sub_gesture)
-    val name = allSubGestures?.find { it.id == data.id }?.name
-    return name ?: stringResource(id = R.string.action_sub_gesture)
+    return stringResource(id = R.string.action_sub_gesture)
 }
 
 @Composable

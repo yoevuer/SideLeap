@@ -240,12 +240,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         val subSettings = SettingsProvider.getSubGestureSettings()
         fun cleanIfSubGesture(action: hunoia.luno.action.Action?): hunoia.luno.action.Action? {
             if (action == null) return null
-            if (action.value == hunoia.luno.action.GlobalActions.SUB_GESTURE) {
-                val data = try {
-                    kotlinx.serialization.json.Json.decodeFromString<hunoia.luno.action.payload.SubGestureActionData>(action.data)
-                } catch (_: Exception) { null }
-                if (data?.id == deletedId) return null
-            }
+            if (action.value == hunoia.luno.action.GlobalActions.SUB_GESTURE) return null
             val cleanedLongPress = cleanIfSubGesture(action.longPressAction)
             return if (cleanedLongPress != action.longPressAction) {
                 action.copy(longPressAction = cleanedLongPress)
@@ -286,16 +281,17 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         SettingsProvider.updateSideGestureButtons { cleanActions(it) }
         SettingsProvider.updateBottomGestureButtons { cleanActions(it) }
         SettingsProvider.updateSubGestureSettings { settings ->
+            fun clean(id: String?) = if (id == deletedId || id == hunoia.luno.action.GlobalActions.SUB_GESTURE) null else id
             val cleanedSubGestures = settings.subGestures.map { gesture ->
                 gesture.copy(
-                    upAction = cleanIfSubGesture(gesture.upAction),
-                    downAction = cleanIfSubGesture(gesture.downAction),
-                    leftAction = cleanIfSubGesture(gesture.leftAction),
-                    rightAction = cleanIfSubGesture(gesture.rightAction),
-                    upRightAction = cleanIfSubGesture(gesture.upRightAction),
-                    downRightAction = cleanIfSubGesture(gesture.downRightAction),
-                    downLeftAction = cleanIfSubGesture(gesture.downLeftAction),
-                    upLeftAction = cleanIfSubGesture(gesture.upLeftAction),
+                    upActionId = clean(gesture.upActionId),
+                    downActionId = clean(gesture.downActionId),
+                    leftActionId = clean(gesture.leftActionId),
+                    rightActionId = clean(gesture.rightActionId),
+                    upRightActionId = clean(gesture.upRightActionId),
+                    downRightActionId = clean(gesture.downRightActionId),
+                    downLeftActionId = clean(gesture.downLeftActionId),
+                    upLeftActionId = clean(gesture.upLeftActionId),
                 )
             }
             settings.copy(subGestures = cleanedSubGestures)

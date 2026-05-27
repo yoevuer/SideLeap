@@ -1,8 +1,7 @@
 package hunoia.luno.action.handlers
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import hunoia.luno.R
+import hunoia.luno.system.copySensitiveText
 import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
@@ -48,12 +47,9 @@ object RandomNameActionHandler : ActionHandler {
             GlobalActions.RANDOM_NAME -> {
                 val name = generateRandomName()
                 if (name != null) {
-                    try {
-                        val clipboard = context.appContext
-                            .getSystemService(ClipboardManager::class.java)
-                        clipboard?.setPrimaryClip(ClipData.newPlainText(null, name))
+                    if (copySensitiveText(context.appContext, "", name)) {
                         context.showToast(name)
-                    } catch (_: Exception) {
+                    } else {
                         context.showToast(context.appContext.getString(R.string.random_name_copy_failed))
                     }
                 } else {

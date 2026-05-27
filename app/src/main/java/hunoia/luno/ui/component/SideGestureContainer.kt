@@ -179,11 +179,11 @@ fun SideGestureContainer(
                 val sg = activeSubGesture!!
                 if (hypot(subGestureAccum.x, subGestureAccum.y) >= sg.triggerDistance) {
                     val direction = sg.angle.directionOf(subGestureAccum)
-                    val action = sg.actionFor(direction)
+                    val actionId = sg.actionFor(direction)
                     subGestureAccum = Offset.Zero
                     sg.tryVibrate()
-                    if (action != null && action != Action.NONE) {
-                        when (action.value) {
+                    if (actionId != null && actionId != GlobalActions.NONE) {
+                        when (actionId) {
                             GlobalActions.VOLUME_SCRUB -> {
                                 isVolumeScrubMode = true
                                 volumeScrubAccumulator = 0f
@@ -192,7 +192,7 @@ fun SideGestureContainer(
                                 clearSubGestureMode(notifyService = false)
                             }
                             GlobalActions.VIRTUAL_MOUSE -> {
-                                vmHandle.start(action, sideGestureState.finger, virtualMousePreviousPosition())
+                                vmHandle.start(Action(actionId), sideGestureState.finger, virtualMousePreviousPosition())
                                 sideGestureState.cancel()
                                 clearSubGestureMode(notifyService = false)
                             }
@@ -208,8 +208,8 @@ fun SideGestureContainer(
                                 }
                             }
                             else -> {
-                                handleResolvedAction(action, sideGestureState.button, sideGestureState.finger)
-                                if (action.value != GlobalActions.SUB_GESTURE) clearSubGestureMode()
+                                handleResolvedAction(Action(actionId), sideGestureState.button, sideGestureState.finger)
+                                if (actionId != GlobalActions.SUB_GESTURE) clearSubGestureMode()
                             }
                         }
                     } else {
