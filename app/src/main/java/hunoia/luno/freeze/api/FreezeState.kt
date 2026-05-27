@@ -56,12 +56,7 @@ object FreezeState {
 
         val pm = context.packageManager
         val allApps = try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                pm.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0))
-            } else {
-                @Suppress("DEPRECATION")
-                pm.getInstalledApplications(0)
-            }
+            pm.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0))
         } catch (e: Exception) {
             return emptyList()
         }
@@ -78,11 +73,7 @@ object FreezeState {
                 continue
             }
 
-            val suspended = if (Build.VERSION.SDK_INT >= 24) {
-                runCatching { pm.isPackageSuspended(pkgName) }.getOrDefault(false)
-            } else {
-                false
-            }
+            val suspended = runCatching { pm.isPackageSuspended(pkgName) }.getOrDefault(false)
 
             if (enabledSetting != PackageManager.COMPONENT_ENABLED_STATE_DISABLED &&
                 enabledSetting != PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER &&

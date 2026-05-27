@@ -83,13 +83,6 @@ class App : Application(), ImageLoaderFactory {
     }
 
     private fun currentProcessName(context: Context): String? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            return getProcessName()
-        }
-        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-        val pid = Process.myPid()
-        return activityManager?.runningAppProcesses
-            ?.firstOrNull { it.pid == pid }
-            ?.processName
+        return getProcessName()
     }
 }

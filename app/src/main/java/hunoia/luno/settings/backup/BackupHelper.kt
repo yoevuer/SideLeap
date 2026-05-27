@@ -168,12 +168,7 @@ object BackupHelper {
     private fun queryInstalledPackageNames(context: Context): Set<String> {
         val pm = context.packageManager
         return try {
-            val apps = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                pm.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0))
-            } else {
-                @Suppress("DEPRECATION")
-                pm.getInstalledApplications(0)
-            }
+            val apps = pm.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0))
             apps.map { it.packageName }.filter { it.isNotBlank() }.toSet()
         } catch (_: Exception) {
             emptySet()

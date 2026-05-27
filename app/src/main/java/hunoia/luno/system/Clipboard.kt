@@ -14,14 +14,8 @@ fun copySensitiveText(
     return runCatching {
         val clipboard = context.getSystemService(ClipboardManager::class.java) ?: return false
         val clip = ClipData.newPlainText(label, text)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            clip.description.extras = PersistableBundle().apply {
-                putBoolean(ClipDescriptionExtras.IS_SENSITIVE, true)
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            clip.description.extras = PersistableBundle().apply {
-                putBoolean("android.content.extra.IS_SENSITIVE", true)
-            }
+        clip.description.extras = PersistableBundle().apply {
+            putBoolean(ClipDescriptionExtras.IS_SENSITIVE, true)
         }
         clipboard.setPrimaryClip(clip)
         true

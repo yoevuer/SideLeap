@@ -35,9 +35,5 @@ object PackageChangeReceiver {
 }
 
 fun PackageManager.queryIntentActivitiesCompat(intent: Intent, flags: Int): List<ResolveInfo> {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        this.queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(flags.toLong()))
-    } else {
-        this.queryIntentActivities(intent, flags)
-    }
+    return this.queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(flags.toLong()))
 }

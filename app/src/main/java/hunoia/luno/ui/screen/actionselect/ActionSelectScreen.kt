@@ -145,10 +145,10 @@ fun ActionSelectContent(
                     coroutineScope.launch {
                         val launcherInfo = currentLauncherInfo
                         if (result.resultCode == Activity.RESULT_OK && launcherInfo != null) {
-                            val bitmap = result.data?.shortcutParcelableExtraCompat(shortcutIconExtraKey(), Bitmap::class.java)
-                            val shortcutIconRes = result.data?.shortcutParcelableExtraCompat(shortcutIconResourceExtraKey(), ShortcutIconResource::class.java)
-                            val intent = result.data?.shortcutParcelableExtraCompat(shortcutIntentExtraKey(), Intent::class.java)?.toUri(Intent.URI_INTENT_SCHEME)
-                            val label = result.data?.shortcutStringExtraCompat(shortcutNameExtraKey()).orEmpty()
+                            val bitmap = result.data?.getParcelableExtra(shortcutIconExtraKey(), Bitmap::class.java)
+                            val shortcutIconRes = result.data?.getParcelableExtra(shortcutIconResourceExtraKey(), ShortcutIconResource::class.java)
+                            val intent = result.data?.getParcelableExtra(shortcutIntentExtraKey(), Intent::class.java)?.toUri(Intent.URI_INTENT_SCHEME)
+                            val label = result.data?.getStringExtra(shortcutNameExtraKey()).orEmpty()
                             val iconRes = if (shortcutIconRes != null) {
                                 withContext(Dispatchers.IO) {
                                     LauncherFacade.resolveShortcutIconResourceId(context, shortcutIconRes)
@@ -216,23 +216,6 @@ fun ActionSelectContent(
     }
 }
 
-private fun <T : android.os.Parcelable> Intent.shortcutParcelableExtraCompat(
-    key: String,
-    clazz: Class<T>
-): T? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        @Suppress("DEPRECATION")
-        getParcelableExtra(key, clazz)
-    } else {
-        @Suppress("DEPRECATION")
-        getParcelableExtra(key)
-    }
-}
-
-private fun Intent.shortcutStringExtraCompat(key: String): String? {
-    @Suppress("DEPRECATION")
-    return getStringExtra(key)
-}
 
 @Suppress("DEPRECATION")
 private fun shortcutIconExtraKey(): String = Intent.EXTRA_SHORTCUT_ICON

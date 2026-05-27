@@ -339,9 +339,9 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         val gestureButtonSettings = gestureButtonSettings
         loadDataJob = viewModelScope.launch {
             updateUiState {
-                val canShowExcludeSystemGestureRects = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                        gestureButtonSettings.isSideButton &&
-                        gestureButtonSettings.buttonId == GestureButton.ID_DEFAULT
+                val canShowExcludeSystemGestureRects =
+                    gestureButtonSettings.isSideButton &&
+                    gestureButtonSettings.buttonId == GestureButton.ID_DEFAULT
                 it.copy(
                     canShowExcludeSystemGestureRects = canShowExcludeSystemGestureRects
                 )

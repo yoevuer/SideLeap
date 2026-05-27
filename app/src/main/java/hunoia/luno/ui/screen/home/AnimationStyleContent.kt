@@ -77,6 +77,7 @@ import hunoia.luno.settings.model.BubbleStyle
 import hunoia.luno.settings.model.CapsuleStyle
 import hunoia.luno.settings.model.ColorSource
 import hunoia.luno.settings.model.LineStyle
+import hunoia.luno.settings.model.SnapBackType
 import hunoia.luno.settings.model.ThemeColorKey
 import hunoia.luno.ui.ext.resolveColor
 import hunoia.luno.settings.model.WaveStyle
@@ -149,6 +150,49 @@ fun AnimationStyleContent(
         var localLineMaxLength by remember(lineStyle.maxLength) { mutableStateOf(lineStyle.maxLength.toFloat()) }
         var localLineMaxOffset by remember(lineStyle.maxOffset) { mutableStateOf(lineStyle.maxOffset.toFloat()) }
         var localLineCornerRadius by remember(lineStyle.cornerRadius) { mutableStateOf(lineStyle.cornerRadius.toFloat()) }
+
+        val currentSnapType = when (type) {
+            AnimationStyles.TYPE_WAVE -> waveStyle.snapBackType
+            AnimationStyles.TYPE_CAPSULE -> capsuleStyle.snapBackType
+            AnimationStyles.TYPE_BUBBLE -> bubbleStyle.snapBackType
+            else -> lineStyle.snapBackType
+        }
+        val currentSnapStiffness = when (type) {
+            AnimationStyles.TYPE_WAVE -> waveStyle.snapBackSpringStiffness
+            AnimationStyles.TYPE_CAPSULE -> capsuleStyle.snapBackSpringStiffness
+            AnimationStyles.TYPE_BUBBLE -> bubbleStyle.snapBackSpringStiffness
+            else -> lineStyle.snapBackSpringStiffness
+        }
+        val currentSnapDamping = when (type) {
+            AnimationStyles.TYPE_WAVE -> waveStyle.snapBackSpringDamping
+            AnimationStyles.TYPE_CAPSULE -> capsuleStyle.snapBackSpringDamping
+            AnimationStyles.TYPE_BUBBLE -> bubbleStyle.snapBackSpringDamping
+            else -> lineStyle.snapBackSpringDamping
+        }
+        val currentSnapDuration = when (type) {
+            AnimationStyles.TYPE_WAVE -> waveStyle.snapBackEaseOutDurationMs
+            AnimationStyles.TYPE_CAPSULE -> capsuleStyle.snapBackEaseOutDurationMs
+            AnimationStyles.TYPE_BUBBLE -> bubbleStyle.snapBackEaseOutDurationMs
+            else -> lineStyle.snapBackEaseOutDurationMs
+        }
+        val currentSnapElastic = when (type) {
+            AnimationStyles.TYPE_WAVE -> waveStyle.snapBackElasticCoefficient
+            AnimationStyles.TYPE_CAPSULE -> capsuleStyle.snapBackElasticCoefficient
+            AnimationStyles.TYPE_BUBBLE -> bubbleStyle.snapBackElasticCoefficient
+            else -> lineStyle.snapBackElasticCoefficient
+        }
+        val currentSnapFling = when (type) {
+            AnimationStyles.TYPE_WAVE -> waveStyle.snapBackFlingDecay
+            AnimationStyles.TYPE_CAPSULE -> capsuleStyle.snapBackFlingDecay
+            AnimationStyles.TYPE_BUBBLE -> bubbleStyle.snapBackFlingDecay
+            else -> lineStyle.snapBackFlingDecay
+        }
+
+        var localSnapStiffness by remember(currentSnapStiffness) { mutableStateOf(currentSnapStiffness) }
+        var localSnapDamping by remember(currentSnapDamping) { mutableStateOf(currentSnapDamping) }
+        var localSnapDuration by remember(currentSnapDuration) { mutableStateOf(currentSnapDuration.toFloat()) }
+        var localSnapElastic by remember(currentSnapElastic) { mutableStateOf(currentSnapElastic) }
+        var localSnapFling by remember(currentSnapFling) { mutableStateOf(currentSnapFling) }
 
         MyColumn(scrollState = scrollState) {
             SectionCard(title = stringResource(id = R.string.color_outline)) {
@@ -467,6 +511,29 @@ fun AnimationStyleContent(
                     }
                 }
             }
+
+            SnapBackSection(
+                currentType = currentSnapType,
+                springStiffness = localSnapStiffness,
+                springDamping = localSnapDamping,
+                easeOutDurationMs = localSnapDuration.toInt(),
+                elasticCoefficient = localSnapElastic,
+                flingDecay = localSnapFling,
+                onTypeChange = { newType ->
+                    when (type) {
+                        AnimationStyles.TYPE_WAVE -> vm.onWaveStyleChange { it.copy(snapBackType = newType) }
+                        AnimationStyles.TYPE_CAPSULE -> vm.onCapsuleStyleChange { it.copy(snapBackType = newType) }
+                        AnimationStyles.TYPE_BUBBLE -> vm.onBubbleStyleChange { it.copy(snapBackType = newType) }
+                        AnimationStyles.TYPE_LINE -> vm.onLineStyleChange { it.copy(snapBackType = newType) }
+                    }
+                    vm.saveCurrentStyle(type)
+                },
+                onSpringStiffnessChange = { localSnapStiffness = it },
+                onSpringDampingChange = { localSnapDamping = it },
+                onEaseOutDurationChange = { localSnapDuration = it.toFloat() },
+                onElasticCoefficientChange = { localSnapElastic = it },
+                onFlingDecayChange = { localSnapFling = it },
+            )
 
             IconSection(
                 iconColor = when (type) {

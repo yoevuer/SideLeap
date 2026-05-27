@@ -148,11 +148,7 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
         return overlayLayoutParams().apply {
             width = panelWidth
             height = panelHeight
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-            }
+            layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
             gravity = Gravity.START or Gravity.TOP
             x = ((screenWidth - panelWidth) / 2).coerceAtLeast(0)
             y = (screenHeight - panelHeight - BottomMarginPx).coerceAtLeast(0)

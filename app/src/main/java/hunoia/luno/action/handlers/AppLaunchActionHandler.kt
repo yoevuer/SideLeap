@@ -1,8 +1,8 @@
 package hunoia.luno.action.handlers
 
 import android.content.Intent
+import android.content.ActivityNotFoundException
 import android.content.pm.PackageManager
-import android.os.Build
 import hunoia.luno.R
 import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
@@ -42,35 +42,31 @@ object AppLaunchActionHandler : ActionHandler {
     }
 
     private fun handlePopupScreen(context: ActionHandlerContext) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val pkgName = context.accessibilityService
-                .rootInActiveWindow?.packageName?.toString()
-                ?: context.currentPackageName()
-            if (context.nowInLauncher() || pkgName.isNullOrEmpty()) {
-                return
-            }
-            val intent = Intent().apply {
-                setPackage(pkgName)
-                setAction(Intent.ACTION_MAIN)
-                addCategory(Intent.CATEGORY_LAUNCHER)
-            }
-            val resolveInfo = context.appContext.packageManager
-                .queryIntentActivitiesCompat(intent, PackageManager.MATCH_ALL)
-                .firstOrNull()
-            val className = resolveInfo?.activityInfo?.name
-            if (!className.isNullOrEmpty()) {
-                Launcher.launchAppInPopup(
-                    context.appContext,
-                    pkgName,
-                    className,
-                    context.advancedSettings.miniWindowHorizontalBias,
-                    context.advancedSettings.miniWindowVerticalBias,
-                    context.advancedSettings.miniWindowVerticalEdgeMarginFraction,
-                    context.advancedSettings.miniWindowVerticalOffsetFraction,
-                )
-            }
-        } else {
-            context.showVersionTooLowToast(R.string.action_popup_screen)
+        val pkgName = context.accessibilityService
+            .rootInActiveWindow?.packageName?.toString()
+            ?: context.currentPackageName()
+        if (context.nowInLauncher() || pkgName.isNullOrEmpty()) {
+            return
+        }
+        val intent = Intent().apply {
+            setPackage(pkgName)
+            setAction(Intent.ACTION_MAIN)
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+        val resolveInfo = context.appContext.packageManager
+            .queryIntentActivitiesCompat(intent, PackageManager.MATCH_ALL)
+            .firstOrNull()
+        val className = resolveInfo?.activityInfo?.name
+        if (!className.isNullOrEmpty()) {
+            Launcher.launchAppInPopup(
+                context.appContext,
+                pkgName,
+                className,
+                context.advancedSettings.miniWindowHorizontalBias,
+                context.advancedSettings.miniWindowVerticalBias,
+                context.advancedSettings.miniWindowVerticalEdgeMarginFraction,
+                context.advancedSettings.miniWindowVerticalOffsetFraction,
+            )
         }
     }
 
@@ -111,7 +107,7 @@ object AppLaunchActionHandler : ActionHandler {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 context.appContext.startActivity(intent)
-            } catch (_: Exception) { }
+            } catch (_: ActivityNotFoundException) { }
         }
     }
 

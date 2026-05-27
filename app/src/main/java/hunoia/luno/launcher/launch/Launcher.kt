@@ -29,7 +29,7 @@ object Launcher {
         miniWindowVerticalEdgeMarginFraction: Float = DefaultMiniWindowVerticalEdgeMarginFraction,
         miniWindowVerticalOffsetFraction: Float = DefaultMiniWindowVerticalOffsetFraction,
     ): Boolean {
-        if (miniWindow && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (miniWindow) {
             return launchAppInPopup(
                 context,
                 packageName,

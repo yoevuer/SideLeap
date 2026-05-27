@@ -1,8 +1,6 @@
 package hunoia.luno.action.handlers
 
-import android.os.Build
 import hunoia.luno.core.DensityProvider
-import hunoia.luno.R
 import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
@@ -36,10 +34,6 @@ object MoveScreenActionHandler : ActionHandler {
     }
 
     private fun handleMoveScreen(action: Action, context: ActionHandlerContext) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            context.showVersionTooLowToast(R.string.action_move_screen)
-            return
-        }
         val data = JsonHelper.decodeFromString<MoveScreenData>(action.data)
         if (data.x in 0..DensityProvider.screenWidthPx &&
             data.y in 0..DensityProvider.screenHeightPx
@@ -60,24 +54,15 @@ object MoveScreenActionHandler : ActionHandler {
     }
 
     private fun handleBackToTop(context: ActionHandlerContext) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Accessibility.fastVerticalScroll(context.accessibilityService, true)
-        } else {
-            context.showVersionTooLowToast(R.string.action_back_to_top)
-        }
+        Accessibility.fastVerticalScroll(context.accessibilityService, true)
     }
 
     private fun handleGotoBottom(context: ActionHandlerContext) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val strength = context.actionSettings.gotoBottom.strength
-            Accessibility.fastVerticalScroll(context.accessibilityService, false, strength)
-        } else {
-            context.showVersionTooLowToast(R.string.action_goto_bottom)
-        }
+        val strength = context.actionSettings.gotoBottom.strength
+        Accessibility.fastVerticalScroll(context.accessibilityService, false, strength)
     }
 
     private suspend fun handleClickCurrentPosition(action: Action, context: ActionHandlerContext) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return
         val (x, y) = action.runtimeTouchPosition() ?: return
         if (x in 0..DensityProvider.screenWidthPx && y in 0..DensityProvider.screenHeightPx) {
             context.hideGestureButton(250L)

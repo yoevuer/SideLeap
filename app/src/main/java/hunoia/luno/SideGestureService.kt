@@ -193,9 +193,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         proxy.onRelease()
         screenLockObserver.unregister()
         wallpaperColorsListener?.let { listener ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                WallpaperManager.getInstance(this).removeOnColorsChangedListener(listener)
-            }
+            WallpaperManager.getInstance(this).removeOnColorsChangedListener(listener)
         }
         wallpaperChangeObserver.unregister()
     }
@@ -232,11 +230,9 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             onPointerSettingsUpdate = { settings -> pointerRuntime.onSettingsUpdate(settings) },
             pointerPreviousPosition = { pointerRuntime.getLastPosition() },
             onPointerActionAtPosition = { x, y, keepActive, action ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    when (action) {
-                        PointerAction.Click -> Accessibility.click(this, x, y)
-                        PointerAction.LongPress -> Accessibility.longPress(this, x, y)
-                    }
+                when (action) {
+                    PointerAction.Click -> Accessibility.click(this, x, y)
+                    PointerAction.LongPress -> Accessibility.longPress(this, x, y)
                 }
                 if (!keepActive) pointerRuntime.end()
             },
@@ -255,13 +251,11 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     private fun registerWallpaperChangeObserver() {
         wallpaperChangeObserver.register()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val listener = WallpaperManager.OnColorsChangedListener { _, _ ->
-                Events.post(WallpaperChangedEvent())
-            }
-            wallpaperColorsListener = listener
-            WallpaperManager.getInstance(this).addOnColorsChangedListener(listener, Handler(Looper.getMainLooper()))
+        val listener = WallpaperManager.OnColorsChangedListener { _, _ ->
+            Events.post(WallpaperChangedEvent())
         }
+        wallpaperColorsListener = listener
+        WallpaperManager.getInstance(this).addOnColorsChangedListener(listener, Handler(Looper.getMainLooper()))
     }
 
     private fun updateMainLayout() {

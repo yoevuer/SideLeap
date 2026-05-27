@@ -48,15 +48,10 @@ object OpenAppOrUrlQuery {
         if (packageName.isBlank()) return emptyList()
         val packageManager = context.packageManager
         val exportedActivities = try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                packageManager.getPackageInfo(
-                    packageName,
-                    PackageManager.PackageInfoFlags.of(PackageManager.GET_ACTIVITIES.toLong())
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
-            }
+            packageManager.getPackageInfo(
+                packageName,
+                PackageManager.PackageInfoFlags.of(PackageManager.GET_ACTIVITIES.toLong())
+            )
         } catch (_: Exception) {
             null
         }?.activities

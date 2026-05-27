@@ -46,11 +46,7 @@ object SystemActionHandler : ActionHandler {
     }
 
     private fun handleLockScreen(context: ActionHandlerContext) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            GlobalAction.lockScreen(context.accessibilityService)
-        } else {
-            context.showVersionTooLowToast(R.string.action_lock_screen)
-        }
+        GlobalAction.lockScreen(context.accessibilityService)
     }
 
     private suspend fun handleFlashlight(context: ActionHandlerContext) {
@@ -70,21 +66,13 @@ object SystemActionHandler : ActionHandler {
     }
 
     private fun handleSplitScreen(context: ActionHandlerContext) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            GlobalAction.toggleSplitScreen(context.accessibilityService)
-        } else {
-            context.showVersionTooLowToast(R.string.action_split_screen)
-        }
+        GlobalAction.toggleSplitScreen(context.accessibilityService)
     }
 
     private fun handleScreenshot(context: ActionHandlerContext) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            context.scope.launch {
-                delay(200)
-                GlobalAction.takeScreenshot(context.accessibilityService)
-            }
-        } else {
-            context.showVersionTooLowToast(R.string.action_screenshot)
+        context.scope.launch {
+            delay(200)
+            GlobalAction.takeScreenshot(context.accessibilityService)
         }
     }
 

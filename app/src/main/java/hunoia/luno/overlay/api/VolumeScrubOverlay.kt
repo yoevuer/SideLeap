@@ -96,10 +96,8 @@ class VolumeScrubOverlay(
 
     fun dismiss() {
         overlayView?.let { view ->
-            try {
-                context.windowManager().removeViewImmediate(view)
-            } catch (_: Exception) {}
             overlayView = null
+            context.windowManager().removeViewImmediate(view)
         }
         lastY = 0f
         lastX = 0f

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.content.ActivityNotFoundException
 
 import hunoia.luno.R
 
@@ -23,7 +24,7 @@ fun Context.launchAssist(): Boolean {
         }
         startActivity(intent)
         true
-    } catch (ignored: Exception) {
+    } catch (ignored: ActivityNotFoundException) {
         showToast(R.string.launch_assist_failed)
         false
     }
@@ -37,7 +38,7 @@ fun Context.gotoIgnoreBatteryOptimizations(): Boolean {
         }
         startActivity(intent)
         true
-    } catch (ignored: Exception) {
+    } catch (ignored: ActivityNotFoundException) {
         showToast(R.string.please_enable_ignoring_battery_optimizations_by_yourself)
         false
     }
@@ -47,7 +48,7 @@ fun Context.gotoAccessibilitySettings() {
     val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
     try {
         startActivity(intent)
-    } catch (ignored: Exception) {
+    } catch (ignored: ActivityNotFoundException) {
         intent.action = Settings.ACTION_SETTINGS
         startActivity(intent)
     }
@@ -59,7 +60,7 @@ fun Context.gotoOverlaySettings() {
     }
     try {
         startActivity(intent)
-    } catch (ignored: Exception) {
+    } catch (ignored: ActivityNotFoundException) {
         intent.action = Settings.ACTION_SETTINGS
         startActivity(intent)
     }
@@ -93,7 +94,7 @@ fun Context.launchUrl(url: String): Boolean {
         }
         startActivity(intent)
         true
-    } catch (e: Exception) {
+    } catch (e: ActivityNotFoundException) {
         showToast(R.string.launch_failed)
         false
     }

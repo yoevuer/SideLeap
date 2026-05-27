@@ -25,10 +25,8 @@ object FlashlightController {
     }
 
     fun hasPermission(context: Context): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED
-        } else true
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED
     }
 
     suspend fun toggle(context: Context): Boolean = withContext(Dispatchers.Default) {

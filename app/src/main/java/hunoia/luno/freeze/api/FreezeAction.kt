@@ -135,12 +135,7 @@ object FreezeAction {
 
         rawTargets.forEach { pkg ->
             val ai = runCatching {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    pm.getApplicationInfo(pkg, PackageManager.ApplicationInfoFlags.of(0))
-                } else {
-                    @Suppress("DEPRECATION")
-                    pm.getApplicationInfo(pkg, 0)
-                }
+                pm.getApplicationInfo(pkg, PackageManager.ApplicationInfoFlags.of(0))
             }.getOrNull()
             if (ai == null) return@forEach
             installedTargets.add(pkg)

@@ -21,11 +21,7 @@ fun WindowManager.LayoutParams.setBasic(touchEnabled: Boolean) {
     type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
     format = PixelFormat.RGBA_8888
     setFlags(touchEnabled)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-    }
+    layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
     @SuppressLint("RtlHardcoded")
     gravity = Gravity.LEFT or Gravity.TOP
 }

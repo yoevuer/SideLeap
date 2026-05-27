@@ -2,6 +2,8 @@ package hunoia.luno.settings.model
 
 import androidx.annotation.Keep
 import hunoia.luno.core.DensityProvider
+import hunoia.luno.settings.model.SnapBackDefaults
+import hunoia.luno.settings.model.SnapBackType
 import hunoia.luno.core.serialization.JsonHelper
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -76,6 +78,12 @@ data class LineStyle(
     val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultBackgroundThemeKey,
     val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultStrokeThemeKey,
     val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultIconThemeKey,
+    val snapBackType: SnapBackType = SnapBackType.SPRING,
+    val snapBackSpringStiffness: Float = SnapBackDefaults.SpringStiffness,
+    val snapBackSpringDamping: Float = SnapBackDefaults.SpringDamping,
+    val snapBackEaseOutDurationMs: Int = SnapBackDefaults.EaseOutDurationMs,
+    val snapBackElasticCoefficient: Float = SnapBackDefaults.ElasticCoefficient,
+    val snapBackFlingDecay: Float = SnapBackDefaults.FlingDecay,
 ) : AnimationStyle {
     companion object {
         const val ICON_TYPE_ARROW = 1
@@ -176,8 +184,13 @@ data class WaveStyle(
     val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultBackgroundThemeKey,
     val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultStrokeThemeKey,
     val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultIconThemeKey,
+    val snapBackType: SnapBackType = SnapBackType.SPRING,
+    val snapBackSpringStiffness: Float = SnapBackDefaults.SpringStiffness,
+    val snapBackSpringDamping: Float = SnapBackDefaults.SpringDamping,
+    val snapBackEaseOutDurationMs: Int = SnapBackDefaults.EaseOutDurationMs,
+    val snapBackElasticCoefficient: Float = SnapBackDefaults.ElasticCoefficient,
+    val snapBackFlingDecay: Float = SnapBackDefaults.FlingDecay,
 ) : AnimationStyle {
-
     companion object {
         const val ICON_TYPE_ARROW = 1
         const val ICON_TYPE_TRIANGLE = 2
@@ -207,6 +220,12 @@ data class CapsuleStyle(
     val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultBackgroundThemeKey,
     val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultStrokeThemeKey,
     val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultIconThemeKey,
+    val snapBackType: SnapBackType = SnapBackType.SPRING,
+    val snapBackSpringStiffness: Float = SnapBackDefaults.SpringStiffness,
+    val snapBackSpringDamping: Float = SnapBackDefaults.SpringDamping,
+    val snapBackEaseOutDurationMs: Int = SnapBackDefaults.EaseOutDurationMs,
+    val snapBackElasticCoefficient: Float = SnapBackDefaults.ElasticCoefficient,
+    val snapBackFlingDecay: Float = SnapBackDefaults.FlingDecay,
 ) : AnimationStyle {
     companion object {
         const val ICON_TYPE_ARROW = 1
@@ -230,6 +249,12 @@ data class BubbleStyle(
     val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultBackgroundThemeKey,
     val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultStrokeThemeKey,
     val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultIconThemeKey,
+    val snapBackType: SnapBackType = SnapBackType.SPRING,
+    val snapBackSpringStiffness: Float = SnapBackDefaults.SpringStiffness,
+    val snapBackSpringDamping: Float = SnapBackDefaults.SpringDamping,
+    val snapBackEaseOutDurationMs: Int = SnapBackDefaults.EaseOutDurationMs,
+    val snapBackElasticCoefficient: Float = SnapBackDefaults.ElasticCoefficient,
+    val snapBackFlingDecay: Float = SnapBackDefaults.FlingDecay,
 ) : AnimationStyle {
     companion object {
         const val ICON_TYPE_ARROW = 1

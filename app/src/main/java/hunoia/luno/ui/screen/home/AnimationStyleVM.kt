@@ -7,6 +7,7 @@ import hunoia.luno.settings.model.BubbleStyle
 import hunoia.luno.settings.model.CapsuleStyle
 import hunoia.luno.settings.model.ColorSource
 import hunoia.luno.settings.model.LineStyle
+import hunoia.luno.settings.model.SnapBackType
 import hunoia.luno.settings.model.ThemeColorKey
 import hunoia.luno.settings.model.WaveStyle
 import hunoia.luno.settings.SettingsProvider
@@ -114,6 +115,15 @@ class AnimationStyleVM : BaseComposeVM<AnimationStyleVM.UiState, AnimationStyleV
         }
     }
 
+    fun saveCurrentStyle(type: Int) {
+        when (type) {
+            AnimationStyles.TYPE_WAVE -> saveWaveSettings()
+            AnimationStyles.TYPE_CAPSULE -> saveCapsuleSettings()
+            AnimationStyles.TYPE_BUBBLE -> saveBubbleSettings()
+            AnimationStyles.TYPE_LINE -> saveLineSettings()
+        }
+    }
+
     fun saveLineSettings() {
         viewModelScope.launch {
             SettingsProvider.updateAdvancedSettings { advanced ->
@@ -125,7 +135,7 @@ class AnimationStyleVM : BaseComposeVM<AnimationStyleVM.UiState, AnimationStyleV
         }
     }
 
-    private fun loadData() {
+        private fun loadData() {
         viewModelScope.launch {
             SettingsProvider
                 .advancedSettings
