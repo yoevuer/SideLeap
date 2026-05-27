@@ -41,6 +41,7 @@
     <string name="exclude_app">应用黑名单</string>
     <string name="exclude_app_hint">选择不识别手势的应用</string>
     <string name="animation_style">动画风格</string>
+    <string name="animation_style_hint">手势动画样式和颜色</string>
     <string name="animation_style_capsule">胶囊</string>
     <string name="animation_style_bubble">气泡</string>
     <string name="thickness">厚度</string>

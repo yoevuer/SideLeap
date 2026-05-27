@@ -104,9 +104,7 @@ import kotlin.math.roundToInt
 import hunoia.luno.gesture.SubGestureDirection
 import hunoia.luno.settings.model.GestureSettings.VirtualMouseTrailStyle
 import hunoia.luno.ui.screen.freeze.AppBlacklistContent
-import hunoia.luno.ui.screen.home.AnimationStyleContent
 import hunoia.luno.ui.screen.home.sheet.AnimationStyleSheet
-import hunoia.luno.ui.screen.home.sheet.DisplaySettingsSheet
 import hunoia.luno.ui.screen.home.sheet.FrozenAppManageSheet
 import hunoia.luno.ui.screen.home.sheet.MiniWindowSettingsSheet
 import hunoia.luno.ui.screen.home.sheet.VirtualMouseSettingsSheet
@@ -126,7 +124,6 @@ fun HomeScreen(
         val scrollState = rememberScrollState()
         var showVirtualMouseSettings by remember { mutableStateOf(false) }
         var showFrozenManage by remember { mutableStateOf(false) }
-        var showDisplaySettings by remember { mutableStateOf(false) }
         var showAnimationStyle by remember { mutableStateOf(false) }
         var showMiniWindowSettings by remember { mutableStateOf(false) }
         var showAppBlacklist by remember { mutableStateOf(false) }
@@ -205,14 +202,6 @@ fun HomeScreen(
                     onDismiss = { showVirtualMouseSettings = false },
                     virtualMouse = uiState.virtualMouse,
                     vm = vm
-                )
-                DisplaySettingsSheet(
-                    show = showDisplaySettings,
-                    onDismiss = { showDisplaySettings = false },
-                    uiState = uiState,
-                    vm = vm,
-                    onShowAnimationStyle = { showAnimationStyle = true },
-                    onShowMiniWindowSettings = { showMiniWindowSettings = true }
                 )
                 AnimationStyleSheet(
                     show = showAnimationStyle,
@@ -312,10 +301,12 @@ fun HomeScreen(
                             text = stringResource(id = R.string.gesture_switch),
                             secondaryText = stringResource(id = R.string.gesture_switch_hint)
                         )
-                        TextActionButton(
-                            onClick = { showDisplaySettings = true },
-                            text = stringResource(id = R.string.display),
-                            secondaryText = stringResource(id = R.string.display_hint)
+                        LabeledSwitch(
+                            onTextClick = { showAnimationStyle = true },
+                            onCheckedChange = { vm.onShowAnimation(it) },
+                            checked = uiState.showAnimation,
+                            text = stringResource(id = R.string.animation_style),
+                            secondaryText = stringResource(id = R.string.animation_style_hint)
                         )
                         TextActionButton(
                             onClick = { showAppBlacklist = true },
@@ -337,6 +328,11 @@ fun HomeScreen(
                             onClick = { showFrozenManage = true },
                             text = stringResource(id = R.string.frozen_app_manage),
                             secondaryText = stringResource(id = R.string.frozen_app_manage_hint)
+                        )
+                        TextActionButton(
+                            onClick = { showMiniWindowSettings = true },
+                            text = stringResource(id = R.string.mini_window_position),
+                            secondaryText = stringResource(id = R.string.mini_window_position_hint)
                         )
                     }
 
@@ -723,28 +719,6 @@ internal fun virtualMouseTrailStyleText(style: VirtualMouseTrailStyle): String {
         VirtualMouseTrailStyle.None -> stringResource(id = R.string.virtual_mouse_trail_style_close)
         VirtualMouseTrailStyle.Dots -> stringResource(id = R.string.virtual_mouse_trail_style_dot)
         VirtualMouseTrailStyle.LightBand -> stringResource(id = R.string.virtual_mouse_trail_style_band)
-    }
-}
-
-@Composable
-internal fun DisplaySettingsContent(
-    uiState: HomeVM.UiState,
-    vm: HomeVM,
-    showAnimationStyle: () -> Unit,
-    showMiniWindowSettings: () -> Unit,
-) {
-    Column {
-        LabeledSwitch(
-            onTextClick = showAnimationStyle,
-            onCheckedChange = { vm.onShowAnimation(it) },
-            checked = uiState.showAnimation,
-            text = stringResource(id = R.string.animation_style)
-        )
-        TextActionButton(
-            onClick = { showMiniWindowSettings() },
-            text = stringResource(id = R.string.mini_window_position),
-            secondaryText = stringResource(id = R.string.mini_window_position_hint)
-        )
     }
 }
 
