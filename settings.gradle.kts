@@ -20,6 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Side Gesture"
+rootProject.name = "Luno"
 include(":app")
  

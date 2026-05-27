@@ -26,11 +26,6 @@ data class ActionSelect(
 @Serializable
 data class IconResize(val ids: List<String>)
 
-@Keep
-@Serializable
-data object AdvancedSettings
-
-
 @Serializable
 @Keep
 data class GestureButtonSettings(
@@ -40,10 +35,6 @@ data class GestureButtonSettings(
     val isSideButton: Boolean
         get() = position == Position.Left || position == Position.Right
 }
-
-@Keep
-@Serializable
-data object GestureSettings
 
 @Keep
 @Serializable

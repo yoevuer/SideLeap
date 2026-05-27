@@ -90,14 +90,14 @@ fun MyTextSlider(
                 Text(
                     modifier = Modifier.align(Alignment.CenterStart),
                     text = sliderValueHint.first,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 1
                 )
                 Text(
                     modifier = Modifier.align(Alignment.CenterEnd),
                     text = sliderValueHint.second,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 1
                 )
@@ -152,14 +152,14 @@ fun MyTextRangeSlider(
                 Text(
                     modifier = Modifier.align(Alignment.CenterStart),
                     text = sliderValueHint.first,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 1
                 )
                 Text(
                     modifier = Modifier.align(Alignment.CenterEnd),
                     text = sliderValueHint.second,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 1
                 )

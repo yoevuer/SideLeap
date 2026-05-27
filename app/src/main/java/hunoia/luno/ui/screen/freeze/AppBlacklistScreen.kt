@@ -64,7 +64,6 @@ import hunoia.luno.ui.theme.TopBarPaddingExtra
 import hunoia.luno.ui.component.AppSearchBar
 import hunoia.luno.ui.component.EmptyState
 import hunoia.luno.ui.component.MyAlertDialog
-import hunoia.luno.ui.component.MySnackbarHost
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.launch
@@ -256,7 +255,7 @@ private fun AppBlacklistItem(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = appInfo.packageName,
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.labelMedium

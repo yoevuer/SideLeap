@@ -35,7 +35,7 @@ import hunoia.luno.gesture.GestureButton
 import hunoia.luno.gesture.Position
 import hunoia.luno.gesture.TriggerDirection
 import hunoia.luno.gesture.styleBy
-import hunoia.luno.system.vibration.tryVibrateForSubGesture
+import hunoia.luno.system.vibration.tryVibrate
 import hunoia.luno.ui.component.DragGestureHandler
 import hunoia.luno.system.volumeDown
 import hunoia.luno.system.volumeUp
@@ -111,7 +111,6 @@ fun SideGestureContainer(
     var subGestureDepth by remember { mutableIntStateOf(0) }
     var subGestureTouchCount by remember { mutableIntStateOf(0) }
     var subGestureTimeoutJob by remember { mutableStateOf<Job?>(null) }
-    val subGestureThresholdPx = remember(gestureSettings.subGestureTriggerDistance) { gestureSettings.subGestureTriggerDistance.toFloat() }
 
     fun clearSubGestureMode(notifyService: Boolean = true) {
         activeSubGesture = null
@@ -177,11 +176,12 @@ fun SideGestureContainer(
         onDrag = onDrag@{ dragAmount ->
             if (activeSubGesture != null) {
                 subGestureAccum += dragAmount
-                if (hypot(subGestureAccum.x, subGestureAccum.y) >= subGestureThresholdPx) {
-                    val direction = activeSubGesture!!.angle.directionOf(subGestureAccum)
-                    val action = activeSubGesture!!.actionFor(direction)
+                val sg = activeSubGesture!!
+                if (hypot(subGestureAccum.x, subGestureAccum.y) >= sg.triggerDistance) {
+                    val direction = sg.angle.directionOf(subGestureAccum)
+                    val action = sg.actionFor(direction)
                     subGestureAccum = Offset.Zero
-                    gestureSettings.vibrations.tryVibrateForSubGesture()
+                    sg.tryVibrate()
                     if (action != null && action != Action.NONE) {
                         when (action.value) {
                             GlobalActions.VOLUME_SCRUB -> {
@@ -366,7 +366,7 @@ fun SideGestureContainer(
             actionPanelState = actionPanelState,
             modifier = Modifier.matchParentSize(),
             longPressLaunchPopup = advancedSettings.actionPanelAppLongPressLaunchPopup,
-            vibrations = gestureSettings.vibrations
+            gestureSettings = gestureSettings
         )
 
         if (!moveScreenState.visible && animationStyle != null) {

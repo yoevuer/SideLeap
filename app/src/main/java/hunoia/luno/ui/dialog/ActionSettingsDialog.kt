@@ -561,16 +561,16 @@ fun PreviousAppSettingsContent(vm: ActionSettingsVM = viewModel()) {
                         Text(
                             text = stringResource(R.string.exclude_app),
                             maxLines = 1,
-                            color = MaterialTheme.colorScheme.secondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     placeholder = {
                         Text(
                             modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                             text = stringResource(R.string.typing_package_name_and_click_done),
-                            fontSize = 14.sp,
+                            style = MaterialTheme.typography.bodyMedium,
                             maxLines = 1,
-                            color = MaterialTheme.colorScheme.secondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     keyboardActions = KeyboardActions(
@@ -597,8 +597,8 @@ fun PreviousAppSettingsContent(vm: ActionSettingsVM = viewModel()) {
                             Text(
                                 modifier = Modifier.weight(1f),
                                 text = item,
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.primary
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Image(
                                 modifier = Modifier
@@ -668,7 +668,7 @@ fun HideGestureButtonSettingsContent(vm: ActionSettingsVM = viewModel()) {
                 val delayMs = uiState.actionSettings.hideGestureButton.delayMs
                 Text(
                     text = stringResource(id = R.string.current_value_ms, delayMs),
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 var localHideDelay by remember(delayMs) { mutableStateOf(delayMs.toFloat()) }

@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.toArgb
 import hunoia.luno.core.DensityProvider
 import hunoia.luno.action.GestureActions
 import hunoia.luno.settings.model.LongSlideActionPanelStyles
+import hunoia.luno.system.vibration.VibrationEffects
 import kotlin.random.Random
 import kotlinx.serialization.Serializable
 
@@ -28,6 +29,17 @@ object GestureButtonDefaults {
     const val AlignRegion = true
     const val ExcludeSystemGestureRects = false
     const val LimitMaxExcludeSystemGestureLength = true
+    val SlideTriggerDistance = DensityProvider.dp2px(30f)
+    val LongSlideTriggerDistance = DensityProvider.dp2px(100f)
+    const val LongPressTriggerDelayMs = 250L
+    const val LongSlideTriggerImmediately = true
+    const val LongSlideTriggerDelayMs = 100L
+    const val SlideVibrate = true
+    const val LongSlideVibrate = true
+    const val TapVibrate = true
+    const val LongPressVibrate = true
+    const val VibrateImmediately = false
+    const val CustomVibrationMs = 50L
     val SideDefaults = listOf(
         GestureButton(
             id = ID_DEFAULT,
@@ -77,7 +89,19 @@ data class GestureButton(
     val color: Int = GestureButtonDefaults.Color,
     val alignRegion: Boolean = GestureButtonDefaults.AlignRegion,
     val excludeSystemGestureRects: Boolean = GestureButtonDefaults.ExcludeSystemGestureRects,
-    val limitMaxExcludeSystemGestureLength: Boolean = GestureButtonDefaults.LimitMaxExcludeSystemGestureLength
+    val limitMaxExcludeSystemGestureLength: Boolean = GestureButtonDefaults.LimitMaxExcludeSystemGestureLength,
+    val slideVibrate: Boolean = GestureButtonDefaults.SlideVibrate,
+    val longSlideVibrate: Boolean = GestureButtonDefaults.LongSlideVibrate,
+    val tapVibrate: Boolean = GestureButtonDefaults.TapVibrate,
+    val longPressVibrate: Boolean = GestureButtonDefaults.LongPressVibrate,
+    val vibrateImmediately: Boolean = GestureButtonDefaults.VibrateImmediately,
+    val vibrationEffect: VibrationEffects = VibrationEffects.Click,
+    val customVibrationMs: Long = GestureButtonDefaults.CustomVibrationMs,
+    val slideTriggerDistance: Int = GestureButtonDefaults.SlideTriggerDistance,
+    val longSlideTriggerDistance: Int = GestureButtonDefaults.LongSlideTriggerDistance,
+    val longPressTriggerDelayMs: Long = GestureButtonDefaults.LongPressTriggerDelayMs,
+    val longSlideTriggerImmediately: Boolean = GestureButtonDefaults.LongSlideTriggerImmediately,
+    val longSlideTriggerDelayMs: Long = GestureButtonDefaults.LongSlideTriggerDelayMs,
 ) : Comparable<GestureButton> {
 
     companion object {

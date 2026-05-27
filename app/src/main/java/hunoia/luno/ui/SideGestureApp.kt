@@ -8,10 +8,9 @@ import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -26,17 +25,17 @@ import androidx.navigation.toRoute
 import hunoia.luno.ui.theme.NavExitOffsetDivisor
 
 import hunoia.luno.ui.navigation.ActionSelect
-import hunoia.luno.ui.navigation.AdvancedSettings
+
 import hunoia.luno.ui.navigation.GestureButtonSettings
-import hunoia.luno.ui.navigation.GestureSettings
+
 import hunoia.luno.ui.navigation.Home
 import hunoia.luno.ui.navigation.SubGestureActionSelect
 import hunoia.luno.ui.navigation.SubGestureEditor
-import hunoia.luno.ui.screen.settings.AdvancedSettingsScreen
+
 import hunoia.luno.ui.screen.actionselect.ActionSelectContent
 
 import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsScreen
-import hunoia.luno.ui.screen.settings.gesture.GestureSettingsScreen
+
 import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectContent
 import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsScreen
 import hunoia.luno.ui.screen.home.HomeScreen
@@ -76,8 +75,7 @@ fun SideGestureApp() {
             ) {
                 myComposable<Home> {
                     HomeScreen(
-                        onNavToAdvancedSettings = { navController.navigate(AdvancedSettings) },
-                        onNavToGestureSettings = { navController.navigate(GestureSettings) },
+
                         onNavToGestureButtonSettings = { button ->
                             navController.navigate(GestureButtonSettings(button.id, button.position))
                         },
@@ -85,12 +83,6 @@ fun SideGestureApp() {
                             navController.navigate(SubGestureEditor(subGestureId))
                         }
                     )
-                }
-                myComposable<AdvancedSettings> {
-                    AdvancedSettingsScreen(onBack = { navController.navigateUp() })
-                }
-                myComposable<GestureSettings> {
-                    GestureSettingsScreen(onBack = { navController.navigateUp() })
                 }
                 myComposable<GestureButtonSettings> {
                     GestureButtonSettingsScreen(
@@ -156,7 +148,7 @@ private inline fun <reified T : Any> NavGraphBuilder.myComposable(
         popExitTransition = popExitTransition,
         sizeTransform = sizeTransform
     ) { navBackStackEntry ->
-        Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surface)) {
+        Surface(color = MaterialTheme.colorScheme.surface) {
             content(navBackStackEntry)
         }
     }

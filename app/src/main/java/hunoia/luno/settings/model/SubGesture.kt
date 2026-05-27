@@ -3,7 +3,9 @@ package hunoia.luno.settings.model
 import android.graphics.Color
 import androidx.annotation.Keep
 import hunoia.luno.action.Action
+import hunoia.luno.core.DensityProvider
 import hunoia.luno.gesture.SubGestureDirection
+import hunoia.luno.system.vibration.VibrationEffects
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -22,6 +24,11 @@ data class SubGesture(
     val upLeftAction: Action? = null,
     val enabled: Boolean = true,
     val color: Int = Color.TRANSPARENT,
+    val vibrate: Boolean = true,
+    val vibrateImmediately: Boolean = false,
+    val vibrationEffect: VibrationEffects = VibrationEffects.Click,
+    val customVibrationMs: Long = 50L,
+    val triggerDistance: Int = DensityProvider.dp2px(30f),
 ) {
     fun actionFor(direction: SubGestureDirection): Action? = when (direction) {
         SubGestureDirection.Up -> upAction

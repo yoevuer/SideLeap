@@ -59,7 +59,7 @@ import hunoia.luno.settings.model.ActionSettings.MoveScreen.Action.DoubleTap
 import hunoia.luno.settings.model.ActionSettings.MoveScreen.Action.LongPress
 import hunoia.luno.settings.model.ActionSettings.MoveScreen.Action.Tap
 import hunoia.luno.settings.model.GestureSettings
-import hunoia.luno.system.vibration.tryVibrateForMoveScreen
+import hunoia.luno.system.vibration.vibrateForMoveScreen
 import hunoia.luno.action.MoveScreenData
 import hunoia.luno.core.serialization.JsonHelper
 import hunoia.luno.core.DensityProvider
@@ -215,7 +215,7 @@ fun MoveScreen(
                                     if (originBounds.contains(finger)) {
                                         if (state.pendingAction != action) {
                                             state.pendingAction = action
-                                            state.gestureSettings.vibrations.tryVibrateForMoveScreen()
+                                            vibrateForMoveScreen(state.gestureSettings)
                                         }
                                     } else {
                                         if (state.pendingAction == action) {

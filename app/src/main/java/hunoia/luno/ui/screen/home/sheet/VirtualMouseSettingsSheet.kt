@@ -23,7 +23,7 @@ fun VirtualMouseSettingsSheet(
         scrollState = OptimizedScrollState.Scroll(scrollState)
     ) {
         BottomSheetNestedContent(scrollState = OptimizedScrollState.Scroll(scrollState)) {
-            VirtualMouseSettingsContent(virtualMouse = virtualMouse, vm = vm)
+            VirtualMouseSettingsContent(virtualMouse = virtualMouse, vm = vm, scrollState = scrollState)
         }
     }
 }

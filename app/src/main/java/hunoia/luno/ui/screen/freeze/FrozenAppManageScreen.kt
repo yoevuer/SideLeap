@@ -183,7 +183,7 @@ fun FrozenAppManageContent(
                             Text(
                                 text = stringResource(id = R.string.one_key_list),
                                 style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.secondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -209,7 +209,7 @@ fun FrozenAppManageContent(
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             text = stringResource(id = R.string.other_apps),
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.secondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     items(unselectedFiltered, key = { it.packageName }) { app ->
@@ -275,7 +275,7 @@ private fun FrozenAppItem(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = app.packageName,
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.labelMedium

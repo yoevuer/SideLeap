@@ -111,7 +111,7 @@ internal fun ShortcutPage(
                                     .padding(vertical = ContentPaddingVertical)
                                     .padding(horizontal = ContentPaddingHorizontal * 2),
                                 text = stringResource(R.string.create_shortcut),
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleMedium
                             )
                         }
@@ -145,7 +145,7 @@ internal fun ShortcutPage(
                                     .padding(vertical = ContentPaddingVertical)
                                     .padding(horizontal = ContentPaddingHorizontal * 2),
                                 text = stringResource(R.string.launch_shortcut),
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleMedium
                             )
                         }
@@ -227,7 +227,7 @@ internal fun LauncherInfoItem(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = launcherInfo.packageName,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.labelMedium

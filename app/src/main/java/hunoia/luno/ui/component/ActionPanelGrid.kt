@@ -24,7 +24,7 @@ import com.aaron.compose.ktx.toPx
 import hunoia.luno.action.Action
 import hunoia.luno.gesture.Position
 import hunoia.luno.settings.model.GridStyle
-import hunoia.luno.system.vibration.Vibrations
+import hunoia.luno.settings.model.GestureSettings
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.min
@@ -34,7 +34,7 @@ internal fun AnimatedVisibilityScope.GridActionPanel(
     actionPanelStyle: GridStyle,
     actionPanelState: ActionPanelState,
     modifier: Modifier = Modifier,
-    vibrations: Vibrations? = null
+    gestureSettings: GestureSettings? = null
 ) {
     val itemSize = actionPanelStyle.itemSize.toDp()
     val itemSizePx = itemSize.toPx()
@@ -76,7 +76,7 @@ internal fun AnimatedVisibilityScope.GridActionPanel(
                         targetAnimOffset = offset,
                         panelOrigin = panelOrigin,
                         itemSizePx = itemSizePx,
-                        vibrations = vibrations,
+                            gestureSettings = gestureSettings,
                         modifier = Modifier.size(itemSize),
                         shape = RoundedCornerShape(actionPanelStyle.cornerRadius.toDp())
                     ) {

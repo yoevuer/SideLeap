@@ -48,8 +48,8 @@ import hunoia.luno.action.display.actionIcon
 import hunoia.luno.action.shortcutInfo
 import hunoia.luno.gesture.Position
 import hunoia.luno.settings.model.ArcStyle
-import hunoia.luno.system.vibration.Vibrations
-import hunoia.luno.system.vibration.tryVibrateForActionPanel
+import hunoia.luno.settings.model.GestureSettings
+import hunoia.luno.system.vibration.vibrateForActionPanel
 import kotlinx.coroutines.flow.filter
 import kotlin.math.ceil
 import kotlin.math.cos
@@ -61,7 +61,7 @@ internal fun AnimatedVisibilityScope.ArcActionPanel(
     actionPanelStyle: ArcStyle,
     actionPanelState: ActionPanelState,
     modifier: Modifier = Modifier,
-    vibrations: Vibrations? = null
+    gestureSettings: GestureSettings? = null
 ) {
     val itemSize = actionPanelStyle.itemSize.toDp()
     val actionCount = actionPanelState.actions.size
@@ -122,7 +122,7 @@ internal fun AnimatedVisibilityScope.ArcActionPanel(
                                     if (!actionPanelState.isSelected(action)) {
                                         isHovered = true
                                         actionPanelState.select(index, action)
-                                        vibrations?.tryVibrateForActionPanel()
+                                        gestureSettings?.let { vibrateForActionPanel(it) }
                                     }
                                 } else {
                                     if (actionPanelState.isSelected(action)) {

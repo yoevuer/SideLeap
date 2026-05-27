@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -64,8 +65,12 @@ import hunoia.luno.ui.screen.settings.gesture.ActionPanelStyleSelectContent
 import hunoia.luno.ui.screen.settings.gesture.ArcOrPieSettingsContent
 import hunoia.luno.ui.screen.settings.gesture.GridStyleSettingsContent
 import hunoia.luno.ui.screen.settings.gesture.GestureButtonAngleContent
+import hunoia.luno.ui.theme.ContentPaddingHorizontal
+import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.luno.ui.theme.IconTextPadding
+import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.MarkColorSize
+import hunoia.luno.ui.theme.MinItemHeightNoSecondary
 import hunoia.luno.ui.theme.SectionPadding
 import hunoia.luno.ui.theme.SectionPaddingNoTitle
 import hunoia.luno.ui.component.ColorPickerDialog
@@ -77,6 +82,31 @@ import hunoia.luno.ui.component.MyTextRangeSlider
 import hunoia.luno.ui.component.MyTextSlider
 import hunoia.luno.ui.component.LabeledSwitch
 import hunoia.luno.ui.component.TopBar
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.key
+import androidx.compose.ui.Alignment
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import com.aaron.compose.ktx.onSingleClick
+import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxLongPressTriggerDelayMs
+import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxLongSlideTriggerDelayMs
+import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxLongSlideTriggerDistance
+import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxSlideTriggerDistance
+import hunoia.luno.settings.defaults.SettingsUiDefaults.MinLongPressTriggerDelayMs
+import hunoia.luno.settings.defaults.SettingsUiDefaults.MinLongSlideTriggerDelayMs
+import hunoia.luno.settings.defaults.SettingsUiDefaults.MinLongSlideTriggerDistance
+import hunoia.luno.settings.defaults.SettingsUiDefaults.MinSlideTriggerDistance
+import hunoia.luno.settings.defaults.SettingsUiDefaults.getPredefinedVibrationEffectText
+import hunoia.luno.system.vibration.MaxCustomVibrationMs
+import hunoia.luno.system.vibration.MinCustomVibrationMs
+import hunoia.luno.system.vibration.VibrationEffects
 
 /**
  * @author aaronzzxup@gmail.com
@@ -91,6 +121,8 @@ fun GestureButtonSettingsScreen(
     vm: GestureButtonSettingsVM = viewModel()
 ) {
     var showGestureAngles by remember { mutableStateOf(false) }
+    var showVibrationSettings by remember { mutableStateOf(false) }
+    var showTriggerDistanceSettings by remember { mutableStateOf(false) }
     var showStyleSelectFor by remember { mutableStateOf<TriggerDirection?>(null) }
     var showStyleConfigFor by remember { mutableStateOf<TriggerDirection?>(null) }
     var configStyleType by remember { mutableStateOf(0) }
@@ -351,6 +383,15 @@ fun GestureButtonSettingsScreen(
                                 text = stringResource(id = R.string.gesture_angles),
                                 secondaryText = stringResource(id = R.string.gesture_button_angles_hint)
                             )
+                            TextActionButton(
+                                onClick = { showVibrationSettings = true },
+                                text = stringResource(id = R.string.gesture_button_vibration),
+                                secondaryText = stringResource(id = R.string.vibration_hint)
+                            )
+                            TextActionButton(
+                                onClick = { showTriggerDistanceSettings = true },
+                                text = stringResource(id = R.string.gesture_button_trigger_distance)
+                            )
                             var localBtnWidth by remember(gestureButton.width) { mutableStateOf(gestureButton.width.toFloat()) }
                             MyTextSlider(
                                 value = localBtnWidth,
@@ -467,6 +508,30 @@ fun GestureButtonSettingsScreen(
                         }
                     )
                 }
+            }
+        }
+
+        if (showVibrationSettings) {
+            val button = uiState.gestureButton ?: return@UDFComponent
+            OptimizedBottomSheet(
+                onDismissRequest = { showVibrationSettings = false }
+            ) {
+                GestureButtonVibrationContent(
+                    button = button,
+                    vm = vm
+                )
+            }
+        }
+
+        if (showTriggerDistanceSettings) {
+            val button = uiState.gestureButton ?: return@UDFComponent
+            OptimizedBottomSheet(
+                onDismissRequest = { showTriggerDistanceSettings = false }
+            ) {
+                GestureButtonTriggerDistanceContent(
+                    button = button,
+                    vm = vm
+                )
             }
         }
 
@@ -675,5 +740,159 @@ private fun actionPanelStyleText(style: ActionPanelStyles): String {
         ActionPanelStyles.TYPE_GRID -> stringResource(R.string.action_panel_style_grid)
         ActionPanelStyles.TYPE_PIE -> stringResource(R.string.action_panel_style_pie)
         else -> stringResource(R.string.action_panel_style_arc)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GestureButtonVibrationContent(
+    button: GestureButton,
+    vm: GestureButtonSettingsVM
+) {
+    val scrollState = rememberScrollState()
+    MyColumn(scrollState = scrollState) {
+        LabeledSwitch(
+            onCheckedChange = { vm.onSlideVibrateChange(it) },
+            checked = button.slideVibrate,
+            text = stringResource(R.string.vibration_slide)
+        )
+        LabeledSwitch(
+            onCheckedChange = { vm.onLongSlideVibrateChange(it) },
+            checked = button.longSlideVibrate,
+            text = stringResource(R.string.vibration_long_slide)
+        )
+        LabeledSwitch(
+            onCheckedChange = { vm.onTapVibrateChange(it) },
+            checked = button.tapVibrate,
+            text = stringResource(R.string.vibration_tap)
+        )
+        LabeledSwitch(
+            onCheckedChange = { vm.onLongPressVibrateChange(it) },
+            checked = button.longPressVibrate,
+            text = stringResource(R.string.vibration_long_press)
+        )
+        LabeledSwitch(
+            onCheckedChange = { vm.onVibrateImmediatelyChange(it) },
+            checked = button.vibrateImmediately,
+            text = stringResource(R.string.vibrate_immediately),
+            secondaryText = stringResource(R.string.vibrate_immediately_hint)
+        )
+        VibrationEffectSelector(
+            effect = button.vibrationEffect,
+            onEffectChange = { vm.onVibrationEffectChange(it) }
+        )
+        MyTextSlider(
+            enabled = button.vibrationEffect == VibrationEffects.None,
+            value = button.customVibrationMs.toFloat(),
+            onValueChange = { vm.onCustomVibrationMsChange(it) },
+            text = stringResource(R.string.vibration_strength),
+            valueDisplay = "${button.customVibrationMs}ms",
+            valueRange = MinCustomVibrationMs.toFloat()..MaxCustomVibrationMs.toFloat()
+        )
+    }
+}
+
+@Composable
+private fun VibrationEffectSelector(
+    effect: VibrationEffects,
+    onEffectChange: (VibrationEffects) -> Unit
+) {
+    var showDropdown by remember { mutableStateOf(false) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = MinItemHeightNoSecondary)
+            .onSingleClick { showDropdown = true }
+            .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+    ) {
+        Text(
+            modifier = Modifier.weight(1f),
+            text = stringResource(R.string.predefined_style),
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 1
+        )
+        Box {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = getPredefinedVibrationEffectText(effect),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1
+                )
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = stringResource(R.string.vibration_style)
+                )
+            }
+            DropdownMenu(
+                containerColor = MaterialTheme.colorScheme.surface,
+                shape = MaterialTheme.shapes.medium,
+                expanded = showDropdown,
+                onDismissRequest = { showDropdown = false }
+            ) {
+                listOf(
+                    VibrationEffects.Tick,
+                    VibrationEffects.Click,
+                    VibrationEffects.HeavyClick,
+                    VibrationEffects.None
+                ).fastForEach { effectValue ->
+                    key(effectValue) {
+                        DropdownMenuItem(
+                            onClick = {
+                                onEffectChange(effectValue)
+                                showDropdown = false
+                            },
+                            text = { Text(text = getPredefinedVibrationEffectText(effectValue)) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GestureButtonTriggerDistanceContent(
+    button: GestureButton,
+    vm: GestureButtonSettingsVM
+) {
+    val scrollState = rememberScrollState()
+    MyColumn(scrollState = scrollState) {
+        MyTextSlider(
+            value = button.slideTriggerDistance.toFloat(),
+            onValueChange = { vm.onSlideTriggerDistanceChange(it) },
+            text = stringResource(R.string.trigger_slide_distance),
+            valueDisplay = "${button.slideTriggerDistance}px",
+            valueRange = MinSlideTriggerDistance.toFloat()..MaxSlideTriggerDistance.toFloat()
+        )
+        MyTextSlider(
+            value = button.longPressTriggerDelayMs.toFloat(),
+            onValueChange = { vm.onLongPressTriggerDelayMsChange(it) },
+            text = stringResource(R.string.trigger_long_press_delay),
+            valueDisplay = "${button.longPressTriggerDelayMs}ms",
+            valueRange = MinLongPressTriggerDelayMs.toFloat()..MaxLongPressTriggerDelayMs.toFloat()
+        )
+        MyTextSlider(
+            value = button.longSlideTriggerDistance.toFloat(),
+            onValueChange = { vm.onLongSlideTriggerDistanceChange(it) },
+            text = stringResource(R.string.trigger_long_slide_distance),
+            valueDisplay = "${button.longSlideTriggerDistance}px",
+            valueRange = MinLongSlideTriggerDistance.toFloat()..MaxLongSlideTriggerDistance.toFloat()
+        )
+        LabeledSwitch(
+            onCheckedChange = { vm.onLongSlideTriggerImmediatelyChange(it) },
+            checked = button.longSlideTriggerImmediately,
+            text = stringResource(R.string.long_slide_trigger_immediately),
+            secondaryText = stringResource(R.string.long_slide_trigger_immediately_hint)
+        )
+        MyTextSlider(
+            value = button.longSlideTriggerDelayMs.toFloat(),
+            onValueChange = { vm.onLongSlideTriggerDelayMsChange(it) },
+            text = stringResource(R.string.trigger_long_slide_delay),
+            valueDisplay = "${button.longSlideTriggerDelayMs}ms",
+            valueRange = MinLongSlideTriggerDelayMs.toFloat()..MaxLongSlideTriggerDelayMs.toFloat()
+        )
     }
 }

@@ -194,7 +194,7 @@ internal fun AppItem(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = appInfo.packageName,
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.labelMedium

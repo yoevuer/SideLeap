@@ -40,10 +40,6 @@ object MoveScreenActionHandler : ActionHandler {
             context.showVersionTooLowToast(R.string.action_move_screen)
             return
         }
-        if (!context.gestureSettings.longSlideTriggerImmediately) {
-            context.showToast(context.appContext.getString(R.string.move_screen_disabled_cause_long_slide_trigger_immediately))
-            return
-        }
         val data = JsonHelper.decodeFromString<MoveScreenData>(action.data)
         if (data.x in 0..DensityProvider.screenWidthPx &&
             data.y in 0..DensityProvider.screenHeightPx

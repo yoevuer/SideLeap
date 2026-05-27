@@ -5,7 +5,6 @@ package hunoia.luno.settings.defaults
 import hunoia.luno.core.DensityProvider
 import hunoia.luno.settings.model.ActionPanelStyles
 import hunoia.luno.settings.model.AnimationStyles
-import hunoia.luno.system.vibration.Vibrations as VibrationModel
 
 object AdvancedSettingsDefaults {
 
@@ -31,14 +30,7 @@ object AdvancedSettingsDefaults {
 
 object GestureSettingsDefaults {
 
-    val SlideTriggerDistance = DensityProvider.dp2px(30f)
-    val LongSlideTriggerDistance = DensityProvider.dp2px(100f)
-    const val LongPressTriggerDelayMs = 250L
-    const val LongSlideTriggerImmediately = true
-    const val LongSlideTriggerDelayMs = 100L
-    const val IsCustomVibration = false
     const val SubGestureTimeoutMs = 5000L
-    val SubGestureTriggerDistance = DensityProvider.dp2px(30f)
     const val IsPreciseSlideType = true
     const val VirtualMouseSensitivityX = 1.6f
     const val VirtualMouseSensitivityY = 1.6f
@@ -56,7 +48,6 @@ object GestureSettingsDefaults {
     const val VirtualMouseLongPressMoveToleranceDp = 6
     const val VirtualMouseTrailStrength = 1.2f
     const val VirtualMouseTrailAlpha = 0.7f
-    val Vibrations = VibrationModel()
 }
 
 object InitialSettingsDefaults {

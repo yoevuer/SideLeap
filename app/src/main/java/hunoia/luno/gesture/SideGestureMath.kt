@@ -51,7 +51,6 @@ fun canDistanceTriggered(
     origin: Offset,
     finger: Offset,
     triggerDirection: TriggerDirection,
-    gestureSettings: GestureSettings,
     isLongSlide: Boolean,
     stickySlideValue: Float,
     judgeAction: Boolean = true
@@ -95,8 +94,8 @@ fun canDistanceTriggered(
         else -> return false
     }
 
-    val triggerThreshold = if (isLongSlide) gestureSettings.longSlideTriggerDistance
-    else gestureSettings.slideTriggerDistance
+    val triggerThreshold = if (isLongSlide) button.longSlideTriggerDistance
+    else button.slideTriggerDistance
     val canTrigger = effectiveDistance >= triggerThreshold
 
     if (!judgeAction) return canTrigger

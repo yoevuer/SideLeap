@@ -15,6 +15,7 @@ import hunoia.luno.gesture.TriggerDirection
 import hunoia.luno.ui.navigation.GestureButtonSettings
 import hunoia.luno.gesture.fraction
 import hunoia.luno.settings.model.ActionPanelStyles
+import hunoia.luno.system.vibration.VibrationEffects
 import hunoia.luno.system.window.rootSize
 import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsVM.UiState
@@ -195,6 +196,33 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         }
         saveSettings()
     }
+
+    private fun updateButton(fieldUpdate: GestureButton.() -> GestureButton) {
+        updateUiState {
+            val l = it.gestureButtons.toMutableList().also { list ->
+                list.forEachIndexed { index, b ->
+                    if (b.id == gestureButtonSettings.buttonId && b.position == gestureButtonSettings.position) {
+                        list[index] = b.fieldUpdate()
+                    }
+                }
+            }
+            it.copy(gestureButtons = l)
+        }
+        saveSettings()
+    }
+
+    fun onSlideVibrateChange(value: Boolean) = updateButton { copy(slideVibrate = value) }
+    fun onLongSlideVibrateChange(value: Boolean) = updateButton { copy(longSlideVibrate = value) }
+    fun onTapVibrateChange(value: Boolean) = updateButton { copy(tapVibrate = value) }
+    fun onLongPressVibrateChange(value: Boolean) = updateButton { copy(longPressVibrate = value) }
+    fun onVibrateImmediatelyChange(value: Boolean) = updateButton { copy(vibrateImmediately = value) }
+    fun onVibrationEffectChange(value: VibrationEffects) = updateButton { copy(vibrationEffect = value) }
+    fun onCustomVibrationMsChange(value: Float) = updateButton { copy(customVibrationMs = value.toLong()) }
+    fun onSlideTriggerDistanceChange(value: Float) = updateButton { copy(slideTriggerDistance = value.toInt()) }
+    fun onLongSlideTriggerDistanceChange(value: Float) = updateButton { copy(longSlideTriggerDistance = value.toInt()) }
+    fun onLongPressTriggerDelayMsChange(value: Float) = updateButton { copy(longPressTriggerDelayMs = value.toLong()) }
+    fun onLongSlideTriggerImmediatelyChange(value: Boolean) = updateButton { copy(longSlideTriggerImmediately = value) }
+    fun onLongSlideTriggerDelayMsChange(value: Float) = updateButton { copy(longSlideTriggerDelayMs = value.toLong()) }
 
     fun onGestureButtonAlignChange(value: Boolean) {
         updateUiState {

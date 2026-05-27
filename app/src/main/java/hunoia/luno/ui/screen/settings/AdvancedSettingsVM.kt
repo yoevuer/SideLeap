@@ -51,6 +51,13 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
+    fun onPreciseSlideTypeChange(value: Boolean) {
+        updateUiState {
+            it.copy(isPreciseSlideTypeEnabled = value)
+        }
+        saveSettings()
+    }
+
     fun onHideLandscapeChange(value: Boolean) {
         updateUiState {
             it.copy(hideLandscape = value)
@@ -88,38 +95,57 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
     fun saveSettings() {
         viewModelScope.launch {
             val s = uiState
-            SettingsProvider.updateAdvancedSettings {
-                it.copy(
-                    fitSoftKeyboard = s.fitSoftKeyboard,
-                    actionPanelAppLongPressLaunchPopup = s.actionPanelAppLongPressLaunchPopup,
-                    quickLauncherAppLongPressLaunchPopup = s.quickLauncherAppLongPressLaunchPopup,
-                    hideLandscape = s.hideLandscape,
-                    hideScreenLock = s.hideScreenLock,
-                    hideHomeScreen = s.hideHomeScreen,
-                    excludeFromRecents = s.excludeFromRecents,
-                )
+            launch {
+                SettingsProvider.updateAdvancedSettings {
+                    it.copy(
+                        fitSoftKeyboard = s.fitSoftKeyboard,
+                        actionPanelAppLongPressLaunchPopup = s.actionPanelAppLongPressLaunchPopup,
+                        quickLauncherAppLongPressLaunchPopup = s.quickLauncherAppLongPressLaunchPopup,
+                        hideLandscape = s.hideLandscape,
+                        hideScreenLock = s.hideScreenLock,
+                        hideHomeScreen = s.hideHomeScreen,
+                        excludeFromRecents = s.excludeFromRecents,
+                    )
+                }
+            }
+            launch {
+                SettingsProvider.updateGestureSettings {
+                    it.copy(isPreciseSlideType = s.isPreciseSlideTypeEnabled)
+                }
             }
         }
     }
 
     private fun loadData() {
         viewModelScope.launch {
-            SettingsProvider
-                .advancedSettings
-                .take(1)
-                .collectLatest { item ->
-                    updateUiState {
-                        it.copy(
-                            fitSoftKeyboard = item.fitSoftKeyboard,
-                            actionPanelAppLongPressLaunchPopup = item.actionPanelAppLongPressLaunchPopup,
-                            quickLauncherAppLongPressLaunchPopup = item.quickLauncherAppLongPressLaunchPopup,
-                            hideLandscape = item.hideLandscape,
-                            hideScreenLock = item.hideScreenLock,
-                            hideHomeScreen = item.hideHomeScreen,
-                            excludeFromRecents = item.excludeFromRecents,
-                        )
+            launch {
+                SettingsProvider
+                    .advancedSettings
+                    .take(1)
+                    .collectLatest { item ->
+                        updateUiState {
+                            it.copy(
+                                fitSoftKeyboard = item.fitSoftKeyboard,
+                                actionPanelAppLongPressLaunchPopup = item.actionPanelAppLongPressLaunchPopup,
+                                quickLauncherAppLongPressLaunchPopup = item.quickLauncherAppLongPressLaunchPopup,
+                                hideLandscape = item.hideLandscape,
+                                hideScreenLock = item.hideScreenLock,
+                                hideHomeScreen = item.hideHomeScreen,
+                                excludeFromRecents = item.excludeFromRecents,
+                            )
+                        }
                     }
-                }
+            }
+            launch {
+                SettingsProvider
+                    .gestureSettings
+                    .take(1)
+                    .collectLatest { item ->
+                        updateUiState {
+                            it.copy(isPreciseSlideTypeEnabled = item.isPreciseSlideType)
+                        }
+                    }
+            }
         }
     }
 
@@ -131,6 +157,7 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         val hideScreenLock: Boolean = false,
         val hideHomeScreen: Boolean = false,
         val excludeFromRecents: Boolean = false,
+        val isPreciseSlideTypeEnabled: Boolean = false,
     )
 
     sealed interface UiEvent

@@ -29,7 +29,6 @@ val MinInteractiveSize = 48.dp
 val SubMinInteractiveSize = 36.dp
 val MinIconSize = 24.dp
 val DialogTitlePadding = RootPadding * 2
-val DialogTitleFontSize = 24.sp
 val DialogHexTextWidth = 120.dp
 
 // Gesture / interaction thresholds

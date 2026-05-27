@@ -50,7 +50,7 @@ fun TextActionButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     secondaryText: String = "",
-    secondaryTextColor: Color = MaterialTheme.colorScheme.secondary,
+    secondaryTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     prefix: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
     contentPadding: PaddingValues = PaddingValues(
@@ -126,7 +126,7 @@ fun LabeledSwitch(
     enabled: Boolean = true,
     onTextClick: (() -> Unit)? = null,
     secondaryText: String = "",
-    secondaryTextColor: Color = MaterialTheme.colorScheme.secondary,
+    secondaryTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     markColor: Color = Color.Unspecified,
     mainSecondaryTextPadding: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(

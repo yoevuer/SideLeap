@@ -151,7 +151,6 @@ fun GestureButtonAngleContent(
                             Text(
                                 text = "${arcDegrees[index].roundToInt()}°",
                                 color = color,
-                                fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.titleSmall
                             )

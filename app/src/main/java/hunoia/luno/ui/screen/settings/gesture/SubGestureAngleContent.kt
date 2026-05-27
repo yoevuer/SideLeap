@@ -135,7 +135,6 @@ fun SubGestureAngleContent(
                             Text(
                                 text = "${draftAngle.sectorWidth(index).roundToInt()}°",
                                 color = color,
-                                fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.titleSmall
                             )

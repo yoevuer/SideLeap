@@ -242,8 +242,7 @@ internal fun ActionPage(
                         Text(
                             text = label,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
@@ -292,7 +291,7 @@ internal fun ActionPage(
                         Text(
                             text = stringResource(id = category.displayNameRes),
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = ContentPaddingHorizontal * 2, vertical = 8.dp)
@@ -331,7 +330,7 @@ internal fun ActionPage(
             }
             if (filteredCreateShortcuts.isNotEmpty()) {
                 stickyHeader(key = "create_shortcuts") {
-                    Text(stringResource(R.string.create_shortcut), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary,
+                    Text(stringResource(R.string.create_shortcut), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = ContentPaddingHorizontal * 2, vertical = 8.dp))
                 }
                 items(items = filteredCreateShortcuts, key = { "cs_${it.qualifiedName}" }) { item ->
@@ -346,7 +345,7 @@ internal fun ActionPage(
             }
             if (filteredLaunchShortcuts.isNotEmpty()) {
                 stickyHeader(key = "launch_shortcuts") {
-                    Text(stringResource(R.string.launch_shortcut), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary,
+                    Text(stringResource(R.string.launch_shortcut), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = ContentPaddingHorizontal * 2, vertical = 8.dp))
                 }
                 items(items = filteredLaunchShortcuts, key = { "ls_${it.qualifiedName}" }) { item ->

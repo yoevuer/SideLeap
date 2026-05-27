@@ -2,62 +2,63 @@ package hunoia.luno.system.vibration
 
 import android.Manifest.permission.VIBRATE
 import androidx.annotation.RequiresPermission
-import hunoia.luno.system.vibration.Vibrations
+import hunoia.luno.gesture.GestureButton
+import hunoia.luno.settings.model.GestureSettings
+import hunoia.luno.settings.model.SubGesture
 import hunoia.luno.system.vibration.appContext
-import hunoia.luno.system.vibration.vibrate
 
 @RequiresPermission(VIBRATE)
-fun Vibrations.tryVibrateForSlide() {
+fun GestureButton.tryVibrateForSlide() {
     val ctx = appContext ?: return
-    if (slideEnabled) {
-        vibrate(ctx, this)
+    if (slideVibrate) {
+        vibrate(ctx, vibrationEffect, customVibrationMs)
     }
 }
 
 @RequiresPermission(VIBRATE)
-fun Vibrations.tryVibrateForLongSlide() {
+fun GestureButton.tryVibrateForLongSlide() {
     val ctx = appContext ?: return
-    if (longSlideEnabled) {
-        vibrate(ctx, this)
+    if (longSlideVibrate) {
+        vibrate(ctx, vibrationEffect, customVibrationMs)
     }
 }
 
 @RequiresPermission(VIBRATE)
-fun Vibrations.tryVibrateForActionPanel() {
+fun GestureButton.tryVibrateForTap() {
     val ctx = appContext ?: return
-    if (actionPanelEnabled) {
-        vibrate(ctx, this)
+    if (tapVibrate) {
+        vibrate(ctx, vibrationEffect, customVibrationMs)
     }
 }
 
 @RequiresPermission(VIBRATE)
-fun Vibrations.tryVibrateForMoveScreen() {
+fun GestureButton.tryVibrateForLongPress() {
     val ctx = appContext ?: return
-    if (moveScreenEnabled) {
-        vibrate(ctx, this)
+    if (longPressVibrate) {
+        vibrate(ctx, vibrationEffect, customVibrationMs)
     }
 }
 
 @RequiresPermission(VIBRATE)
-fun Vibrations.tryVibrateForTap() {
+fun SubGesture.tryVibrate() {
     val ctx = appContext ?: return
-    if (tapEnabled) {
-        vibrate(ctx, this)
+    if (vibrate) {
+        vibrate(ctx, vibrationEffect, customVibrationMs)
     }
 }
 
 @RequiresPermission(VIBRATE)
-fun Vibrations.tryVibrateForLongPress() {
+fun vibrateForActionPanel(gestureSettings: GestureSettings) {
     val ctx = appContext ?: return
-    if (longPressEnabled) {
-        vibrate(ctx, this)
+    if (gestureSettings.actionPanelVibrate) {
+        vibrate(ctx, DEFAULT_VIBRATION_EFFECT, DEFAULT_VIBRATION_MS)
     }
 }
 
 @RequiresPermission(VIBRATE)
-fun Vibrations.tryVibrateForSubGesture() {
+fun vibrateForMoveScreen(gestureSettings: GestureSettings) {
     val ctx = appContext ?: return
-    if (subGestureEnabled) {
-        vibrate(ctx, this)
+    if (gestureSettings.moveScreenVibrate) {
+        vibrate(ctx, DEFAULT_VIBRATION_EFFECT, DEFAULT_VIBRATION_MS)
     }
 }

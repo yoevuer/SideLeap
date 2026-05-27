@@ -18,6 +18,7 @@ import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.settings.model.SubGesture
 import hunoia.luno.settings.model.SubGestureAngle
 import hunoia.luno.settings.model.SubGestureSettings
+import hunoia.luno.system.vibration.VibrationEffects
 import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsVM.UiState
 import kotlinx.coroutines.flow.collectLatest
@@ -198,6 +199,25 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
             }
         }
     }
+
+    private fun updateSubGesture(fieldUpdate: SubGesture.() -> SubGesture) {
+        viewModelScope.launch {
+            SettingsProvider.updateSubGestureSettings { settings ->
+                settings.copy(
+                    subGestures = settings.subGestures.map { gesture ->
+                        if (gesture.id == subGestureEditor.subGestureId) gesture.fieldUpdate()
+                        else gesture
+                    }
+                )
+            }
+        }
+    }
+
+    fun onSubVibrateChange(value: Boolean) = updateSubGesture { copy(vibrate = value) }
+    fun onSubVibrateImmediatelyChange(value: Boolean) = updateSubGesture { copy(vibrateImmediately = value) }
+    fun onSubVibrationEffectChange(value: VibrationEffects) = updateSubGesture { copy(vibrationEffect = value) }
+    fun onSubCustomVibrationMsChange(value: Float) = updateSubGesture { copy(customVibrationMs = value.toLong()) }
+    fun onSubTriggerDistanceChange(value: Float) = updateSubGesture { copy(triggerDistance = value.toInt()) }
 
     inner class ColorPickerDialog {
 

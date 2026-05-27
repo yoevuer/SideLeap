@@ -72,12 +72,12 @@ import hunoia.luno.settings.model.ArcStyle
 import hunoia.luno.settings.model.GridStyle
 import hunoia.luno.settings.model.PieStyle
 import hunoia.luno.gesture.Position
-import hunoia.luno.system.vibration.Vibrations
 import hunoia.luno.action.display.actionIcon
 import hunoia.luno.action.display.actionText
 import hunoia.luno.action.appInfo
 import hunoia.luno.action.shortcutInfo
-import hunoia.luno.system.vibration.tryVibrateForActionPanel
+import hunoia.luno.settings.model.GestureSettings
+import hunoia.luno.system.vibration.vibrateForActionPanel
 import hunoia.luno.ui.theme.AnimNormal
 import hunoia.luno.ui.theme.AnimPanelResize
 import hunoia.luno.ui.theme.MiniWindowWidth
@@ -108,7 +108,7 @@ fun ActionPanel(
     actionPanelState: ActionPanelState,
     modifier: Modifier = Modifier,
     longPressLaunchPopup: Boolean = false,
-    vibrations: Vibrations? = null
+    gestureSettings: GestureSettings? = null
 ) {
     AnimatedVisibility(
         modifier = modifier,
@@ -171,7 +171,7 @@ fun ActionPanel(
                         modifier = Modifier.fillMaxSize(),
                         actionPanelStyle = style,
                         actionPanelState = actionPanelState,
-                        vibrations = vibrations
+                        gestureSettings = gestureSettings
                     )
                 }
 
@@ -180,7 +180,7 @@ fun ActionPanel(
                         modifier = Modifier.fillMaxSize(),
                         actionPanelStyle = style,
                         actionPanelState = actionPanelState,
-                        vibrations = vibrations
+                        gestureSettings = gestureSettings
                     )
                 }
 
@@ -189,7 +189,7 @@ fun ActionPanel(
                         modifier = Modifier.fillMaxSize(),
                         actionPanelStyle = style as? ArcStyle ?: ArcStyle(),
                         actionPanelState = actionPanelState,
-                        vibrations = vibrations
+                        gestureSettings = gestureSettings
                     )
                 }
             }
@@ -286,7 +286,7 @@ internal fun AnimatedVisibilityScope.ActionPanelSelectableItem(
     targetAnimOffset: Offset,
     panelOrigin: Offset,
     itemSizePx: Float,
-    vibrations: Vibrations?,
+    gestureSettings: GestureSettings?,
     modifier: Modifier,
     shape: androidx.compose.ui.graphics.Shape,
     content: @Composable () -> Unit
@@ -302,7 +302,7 @@ internal fun AnimatedVisibilityScope.ActionPanelSelectableItem(
                     if (!actionPanelState.isSelected(action)) {
                         isHovered = true
                         actionPanelState.select(index, action)
-                        vibrations?.tryVibrateForActionPanel()
+                        gestureSettings?.let { vibrateForActionPanel(it) }
                     }
                 } else if (actionPanelState.isSelected(action)) {
                     isHovered = false

@@ -1,15 +1,8 @@
 package hunoia.luno.settings.model
 
 import androidx.annotation.Keep
-import hunoia.luno.settings.defaults.GestureSettingsDefaults.IsCustomVibration
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.IsPreciseSlideType
-import hunoia.luno.settings.defaults.GestureSettingsDefaults.LongPressTriggerDelayMs
-import hunoia.luno.settings.defaults.GestureSettingsDefaults.LongSlideTriggerDelayMs
-import hunoia.luno.settings.defaults.GestureSettingsDefaults.LongSlideTriggerDistance
-import hunoia.luno.settings.defaults.GestureSettingsDefaults.LongSlideTriggerImmediately
-import hunoia.luno.settings.defaults.GestureSettingsDefaults.SlideTriggerDistance
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.SubGestureTimeoutMs
-import hunoia.luno.settings.defaults.GestureSettingsDefaults.SubGestureTriggerDistance
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.VirtualMouseAcceleration
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.VirtualMouseClickAnimationEnabled
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.VirtualMouseContinuousMode
@@ -26,23 +19,15 @@ import hunoia.luno.settings.defaults.GestureSettingsDefaults.VirtualMouseSensiti
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.VirtualMouseSensitivityY
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.VirtualMouseTrailAlpha
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.VirtualMouseTrailStrength
-import hunoia.luno.settings.defaults.GestureSettingsDefaults.Vibrations as DefaultVibrations
-import hunoia.luno.system.vibration.Vibrations
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Keep
 data class GestureSettings(
-    val slideTriggerDistance: Int = SlideTriggerDistance,
-    val longPressTriggerDelayMs: Long = LongPressTriggerDelayMs,
-    val longSlideTriggerDistance: Int = LongSlideTriggerDistance,
-    val longSlideTriggerImmediately: Boolean = LongSlideTriggerImmediately,
-    val longSlideTriggerDelayMs: Long = LongSlideTriggerDelayMs,
-    val isCustomVibration: Boolean = IsCustomVibration,
-    val vibrations: Vibrations = DefaultVibrations,
     val isPreciseSlideType: Boolean = IsPreciseSlideType,
     val subGestureTimeoutMs: Long = SubGestureTimeoutMs,
-    val subGestureTriggerDistance: Int = SubGestureTriggerDistance,
+    val actionPanelVibrate: Boolean = true,
+    val moveScreenVibrate: Boolean = true,
     val virtualMouse: VirtualMouse = VirtualMouse()
 ) {
     @Serializable

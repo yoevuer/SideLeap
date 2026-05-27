@@ -496,17 +496,16 @@ class ActionSelectVM(
                 .take(1)
                 .collectLatest { (gestureSettings, gestureButtons) ->
                     val subGestures = SettingsProvider.getSubGestureSettings().subGestures
+                    val button = gestureButtons.find {
+                        it.id == actionSelect.gestureButtonId && it.position == actionSelect.position
+                    }
                     updateUiState {
-                        val selectSingle = !actionSelect.isLongSlide || !gestureSettings.longSlideTriggerImmediately
+                        val selectSingle = !actionSelect.isLongSlide || (button != null && !button.longSlideTriggerImmediately)
                         it.copy(
                             selectSingle = selectSingle,
                             maxSelectCount = if (selectSingle) 1 else LONG_SLIDE_SOFT_MAX_SELECT_COUNT,
                             subGestures = subGestures
                         )
-                    }
-
-                    val button = gestureButtons.find {
-                        it.id == actionSelect.gestureButtonId && it.position == actionSelect.position
                     }
                     if (button != null) {
                         val actionSelect = actionSelect

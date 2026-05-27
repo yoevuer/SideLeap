@@ -756,7 +756,7 @@ private fun StyleChip(
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = label, style = MaterialTheme.typography.labelSmall,
-            color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface, maxLines = 1)
+            color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
     }
 }
 

@@ -73,7 +73,7 @@ fun SectionCard(
                     .padding(bottom = SectionTitlePadding)
                     .padding(horizontal = ContentPaddingHorizontal),
                 text = title,
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelMedium,
                 maxLines = 1
             )

@@ -42,10 +42,34 @@ import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.ColorPickerDialog
 import hunoia.luno.ui.component.MyAlertDialog
 import hunoia.luno.ui.component.MyColumn
+import hunoia.luno.ui.component.MyTextSlider
+import hunoia.luno.ui.component.LabeledSwitch
 import hunoia.luno.ui.component.SectionCard
 import hunoia.luno.ui.component.TextActionButton
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsVM.UiEvent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.key
+import androidx.compose.ui.Alignment
+import com.aaron.compose.ktx.onSingleClick
+import hunoia.luno.settings.defaults.SettingsUiDefaults.getPredefinedVibrationEffectText
+import hunoia.luno.settings.defaults.SettingsUiDefaults.MinSubGestureTriggerDistance
+import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxSubGestureTriggerDistance
+import hunoia.luno.system.vibration.MaxCustomVibrationMs
+import hunoia.luno.system.vibration.MinCustomVibrationMs
+import hunoia.luno.system.vibration.VibrationEffects
+import hunoia.luno.ui.theme.ContentPaddingHorizontal
+import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
+import hunoia.luno.ui.theme.IconTextPadding
+import hunoia.luno.ui.theme.ItemPadding
+import hunoia.luno.ui.theme.MinItemHeightNoSecondary
+import hunoia.luno.ui.theme.SectionPaddingNoTitle
 import hunoia.luno.ui.theme.IconTextPadding
 import hunoia.luno.ui.theme.MarkColorSize
 import hunoia.luno.ui.theme.SectionPadding
@@ -59,6 +83,8 @@ fun SubGestureSettingsScreen(
 ) {
     var showEditNameDialog by remember { mutableStateOf(false) }
     var showGestureAngles by remember { mutableStateOf(false) }
+    var showSubVibrationSettings by remember { mutableStateOf(false) }
+    var showSubTriggerDistanceSettings by remember { mutableStateOf(false) }
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
@@ -119,6 +145,28 @@ fun SubGestureSettingsScreen(
                         showGestureAngles = false
                     },
                     color = Color(gesture.color)
+                )
+            }
+        }
+
+        if (showSubVibrationSettings) {
+            OptimizedBottomSheet(
+                onDismissRequest = { showSubVibrationSettings = false }
+            ) {
+                SubGestureVibrationContent(
+                    gesture = gesture,
+                    vm = vm
+                )
+            }
+        }
+
+        if (showSubTriggerDistanceSettings) {
+            OptimizedBottomSheet(
+                onDismissRequest = { showSubTriggerDistanceSettings = false }
+            ) {
+                SubGestureTriggerDistanceContent(
+                    gesture = gesture,
+                    vm = vm
                 )
             }
         }
@@ -200,6 +248,21 @@ fun SubGestureSettingsScreen(
 
                 SectionCard(modifier = Modifier.padding(top = SectionPadding)) {
                     TextActionButton(
+                        onClick = { showSubVibrationSettings = true },
+                        text = stringResource(id = R.string.gesture_button_vibration),
+                        secondaryText = stringResource(id = R.string.vibration_hint)
+                    )
+                }
+
+                SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
+                    TextActionButton(
+                        onClick = { showSubTriggerDistanceSettings = true },
+                        text = stringResource(id = R.string.gesture_button_trigger_distance)
+                    )
+                }
+
+                SectionCard(modifier = Modifier.padding(top = SectionPadding)) {
+                    TextActionButton(
                         onClick = { vm.colorPickerDialog.show(true) },
                         text = stringResource(id = R.string.gesture_button_color),
                         prefix = {
@@ -237,4 +300,113 @@ private fun actionDisplayText(action: hunoia.luno.action.Action?, allSubGestures
     } ?: return stringResource(id = R.string.action_sub_gesture)
     val name = allSubGestures?.find { it.id == data.id }?.name
     return name ?: stringResource(id = R.string.action_sub_gesture)
+}
+
+@Composable
+private fun SubGestureVibrationContent(
+    gesture: SubGesture,
+    vm: SubGestureSettingsVM
+) {
+    MyColumn {
+        LabeledSwitch(
+            onCheckedChange = { vm.onSubVibrateChange(it) },
+            checked = gesture.vibrate,
+            text = stringResource(R.string.sub_gesture_vibration)
+        )
+        LabeledSwitch(
+            onCheckedChange = { vm.onSubVibrateImmediatelyChange(it) },
+            checked = gesture.vibrateImmediately,
+            text = stringResource(R.string.vibrate_immediately),
+            secondaryText = stringResource(R.string.vibrate_immediately_hint)
+        )
+        SubVibrationEffectSelector(
+            effect = gesture.vibrationEffect,
+            onEffectChange = { vm.onSubVibrationEffectChange(it) }
+        )
+        MyTextSlider(
+            enabled = gesture.vibrationEffect == VibrationEffects.None,
+            value = gesture.customVibrationMs.toFloat(),
+            onValueChange = { vm.onSubCustomVibrationMsChange(it) },
+            text = stringResource(R.string.vibration_strength),
+            valueDisplay = "${gesture.customVibrationMs}ms",
+            valueRange = MinCustomVibrationMs.toFloat()..MaxCustomVibrationMs.toFloat()
+        )
+    }
+}
+
+@Composable
+private fun SubVibrationEffectSelector(
+    effect: VibrationEffects,
+    onEffectChange: (VibrationEffects) -> Unit
+) {
+    var showDropdown by remember { mutableStateOf(false) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = MinItemHeightNoSecondary)
+            .onSingleClick { showDropdown = true }
+            .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+    ) {
+        Text(
+            modifier = Modifier.weight(1f),
+            text = stringResource(R.string.predefined_style),
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 1
+        )
+        Box {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = getPredefinedVibrationEffectText(effect),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1
+                )
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = stringResource(R.string.vibration_style)
+                )
+            }
+            DropdownMenu(
+                containerColor = MaterialTheme.colorScheme.surface,
+                shape = MaterialTheme.shapes.medium,
+                expanded = showDropdown,
+                onDismissRequest = { showDropdown = false }
+            ) {
+                listOf(
+                    VibrationEffects.Tick,
+                    VibrationEffects.Click,
+                    VibrationEffects.HeavyClick,
+                    VibrationEffects.None
+                ).fastForEach { effectValue ->
+                    key(effectValue) {
+                        DropdownMenuItem(
+                            onClick = {
+                                onEffectChange(effectValue)
+                                showDropdown = false
+                            },
+                            text = { Text(text = getPredefinedVibrationEffectText(effectValue)) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SubGestureTriggerDistanceContent(
+    gesture: SubGesture,
+    vm: SubGestureSettingsVM
+) {
+    MyColumn {
+        MyTextSlider(
+            value = gesture.triggerDistance.toFloat(),
+            onValueChange = { vm.onSubTriggerDistanceChange(it) },
+            text = stringResource(R.string.trigger_sub_gesture_distance),
+            valueDisplay = "${gesture.triggerDistance}px",
+            valueRange = MinSubGestureTriggerDistance.toFloat()..MaxSubGestureTriggerDistance.toFloat()
+        )
+    }
 }
