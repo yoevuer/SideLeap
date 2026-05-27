@@ -28,7 +28,6 @@ class QuickAppLauncherState(
     private val quickLauncherAppLongPressLaunchPopup: Boolean,
     private val requestEnableFrozenPackage: (String, (Boolean) -> Unit) -> Unit,
     private val onCloseAnimatedRaw: () -> Unit,
-    private val onToggleAdjust: () -> Unit,
     private val onLaunch: (AppInfo, Boolean) -> Boolean,
     private val onRegisterCloseAnimated: ((() -> Unit) -> Unit)?,
 ) {

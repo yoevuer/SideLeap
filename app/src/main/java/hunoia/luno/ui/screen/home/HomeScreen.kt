@@ -96,14 +96,12 @@ import hunoia.luno.ui.component.TextActionButton
 import hunoia.luno.ui.component.LabeledSwitch
 import hunoia.luno.ui.component.MyTextSlider
 import hunoia.luno.ui.component.TopBar
-import hunoia.luno.settings.model.DayNightMode
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.system.intent.KeepAliveHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
-import hunoia.luno.settings.defaults.SettingsUiDefaults.getDayNightModeText
 import hunoia.luno.gesture.SubGestureDirection
 import hunoia.luno.settings.model.GestureSettings.VirtualMouseTrailStyle
 import hunoia.luno.ui.screen.freeze.AppBlacklistContent
@@ -754,53 +752,11 @@ internal fun DisplaySettingsContent(
             checked = uiState.showAnimation,
             text = stringResource(id = R.string.animation_style)
         )
-        if (uiState.showDynamicColorOption) {
-            LabeledSwitch(
-                onCheckedChange = { vm.onDynamicColorChange(it) },
-                checked = uiState.dynamicColor,
-                text = stringResource(id = R.string.dynamic_color),
-                secondaryText = stringResource(id = R.string.dynamic_color_hint)
-            )
-        }
         TextActionButton(
             onClick = { showMiniWindowSettings() },
             text = stringResource(id = R.string.mini_window_position),
             secondaryText = stringResource(id = R.string.mini_window_position_hint)
         )
-        Row(Modifier.fillMaxWidth()) {
-            TextActionButton(
-                onClick = { vm.showDayNightModeDropdownMenu(true) },
-                text = stringResource(id = R.string.day_night_mode),
-                secondaryText = getDayNightModeText(uiState.dayNightMode),
-                secondaryTextColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-            Box(Modifier.size(Spacing1)) {
-                DropdownMenu(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    offset = DpOffset(x = 0.dp, y = 0.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    expanded = uiState.showDayNightModeDropdownMenu,
-                    onDismissRequest = { vm.showDayNightModeDropdownMenu(false) }
-                ) {
-                    listOf(
-                        DayNightMode.Auto to getDayNightModeText(DayNightMode.Auto),
-                        DayNightMode.Day to getDayNightModeText(DayNightMode.Day),
-                        DayNightMode.Night to getDayNightModeText(DayNightMode.Night),
-                    ).fastForEach { (effectValue, text) ->
-                        key(effectValue) {
-                            DropdownMenuItem(
-                                onClick = {
-                                    vm.onDayNightModeChange(effectValue)
-                                    vm.showDayNightModeDropdownMenu(false)
-                                },
-                                text = { Text(text = text) }
-                            )
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 

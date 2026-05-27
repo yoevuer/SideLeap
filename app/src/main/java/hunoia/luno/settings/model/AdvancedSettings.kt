@@ -6,10 +6,8 @@ import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.ActionPanelStyles
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.AnimationStyles
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.ClipApps
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.ClipShortcuts
-import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.DayNightMode
-import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.DynamicColor
+
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.ExcludeApps
-import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.ExcludeFromRecents
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.FitSoftKeyboard
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.HideHomeScreen
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.HideLandscape
@@ -37,9 +35,6 @@ data class AdvancedSettings(
     val hideLandscape: Boolean = HideLandscape,
     val hideScreenLock: Boolean = HideScreenLock,
     val hideHomeScreen: Boolean = HideHomeScreen,
-    val excludeFromRecents: Boolean = ExcludeFromRecents,
-    val dynamicColor: Boolean = DynamicColor,
-    val dayNightMode: DayNightMode = DayNightMode,
     val clipApps: Map<String, Float> = ClipApps,
     val clipShortcuts: Map<String, Float> = ClipShortcuts
 )

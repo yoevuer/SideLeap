@@ -44,13 +44,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
-    fun onExcludeFromRecentsChange(value: Boolean) {
-        updateUiState {
-            it.copy(excludeFromRecents = value)
-        }
-        saveSettings()
-    }
-
     fun onPreciseSlideTypeChange(value: Boolean) {
         updateUiState {
             it.copy(isPreciseSlideTypeEnabled = value)
@@ -104,7 +97,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                         hideLandscape = s.hideLandscape,
                         hideScreenLock = s.hideScreenLock,
                         hideHomeScreen = s.hideHomeScreen,
-                        excludeFromRecents = s.excludeFromRecents,
                     )
                 }
             }
@@ -131,7 +123,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                                 hideLandscape = item.hideLandscape,
                                 hideScreenLock = item.hideScreenLock,
                                 hideHomeScreen = item.hideHomeScreen,
-                                excludeFromRecents = item.excludeFromRecents,
                             )
                         }
                     }
@@ -156,7 +147,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         val hideLandscape: Boolean = false,
         val hideScreenLock: Boolean = false,
         val hideHomeScreen: Boolean = false,
-        val excludeFromRecents: Boolean = false,
         val isPreciseSlideTypeEnabled: Boolean = false,
     )
 

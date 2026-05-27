@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import hunoia.luno.core.DensityProvider
 import hunoia.luno.R
-import hunoia.luno.settings.model.DayNightMode
 import hunoia.luno.system.vibration.VibrationEffects
 
 object SettingsUiDefaults {
@@ -92,12 +91,4 @@ object SettingsUiDefaults {
         }
     }
 
-    @Composable
-    fun getDayNightModeText(dayNightMode: DayNightMode): String {
-        return when (dayNightMode) {
-            DayNightMode.Auto -> stringResource(id = R.string.day_night_mode_auto)
-            DayNightMode.Day -> stringResource(id = R.string.day_night_mode_day)
-            DayNightMode.Night -> stringResource(id = R.string.day_night_mode_night)
-        }
-    }
 }

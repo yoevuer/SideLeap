@@ -32,10 +32,16 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,6 +69,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+import hunoia.luno.core.DensityProvider
 import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.launcher.query.AppSearch.key
 import hunoia.luno.settings.model.QuickAppLauncherSettings
@@ -74,13 +81,15 @@ import hunoia.luno.ui.theme.ShapeExtraLarge
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
 
+private enum class Page { App, Settings }
+
 @Composable
 internal fun QuickAppLauncherContent(
     initialSettings: QuickAppLauncherSettings,
     quickLauncherAppLongPressLaunchPopup: Boolean,
     requestEnableFrozenPackage: (String, (Boolean) -> Unit) -> Unit,
     onCloseAnimated: () -> Unit,
-    onToggleAdjust: () -> Unit,
+    onUpdateLayout: ((QuickAppLauncherSettings) -> Unit)? = null,
     onLaunch: (AppInfo, Boolean) -> Boolean,
     onRegisterCloseAnimated: ((() -> Unit) -> Unit)? = null,
 ) {
@@ -95,7 +104,6 @@ internal fun QuickAppLauncherContent(
             quickLauncherAppLongPressLaunchPopup = quickLauncherAppLongPressLaunchPopup,
             requestEnableFrozenPackage = requestEnableFrozenPackage,
             onCloseAnimatedRaw = onCloseAnimated,
-            onToggleAdjust = onToggleAdjust,
             onLaunch = onLaunch,
             onRegisterCloseAnimated = onRegisterCloseAnimated,
         )
@@ -111,6 +119,7 @@ internal fun QuickAppLauncherContent(
     LaunchedEffect(Unit) { onRegisterCloseAnimated?.invoke(state.closeAnimated) }
     LaunchedEffect(Unit) { state.panelVisible = true }
     val gridState = rememberLazyGridState()
+    var currentPage by remember { mutableStateOf(Page.App) }
     LaunchedEffect(gridState) {
         snapshotFlow { gridState.firstVisibleItemIndex to gridState.firstVisibleItemScrollOffset }
             .collectLatest { (index, offset) -> gridAtTop = index == 0 && offset == 0 }
@@ -154,8 +163,11 @@ internal fun QuickAppLauncherContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .nestedScroll(expandFromTopConnection)
-                    .pointerInput(key1 = state.keyboardExpanded, key2 = gridAtTop) {
+                    .then(
+                        if (currentPage == Page.App) Modifier.nestedScroll(expandFromTopConnection) else Modifier
+                    )
+                    .pointerInput(currentPage, state.keyboardExpanded, gridAtTop) {
+                        if (currentPage == Page.Settings) return@pointerInput
                         var totalDrag = 0f
                         detectVerticalDragGestures(
                             onDragStart = { totalDrag = 0f },
@@ -177,67 +189,141 @@ internal fun QuickAppLauncherContent(
                         val contentHeightFraction = state.launcherSettings.contentHeightFraction
                         val candidateRows = state.launcherSettings.candidateRows.coerceIn(1, 3)
                         val chunkedApps = remember(state.filteredApps, candidateRows) { state.filteredApps.chunked(candidateRows) }
-                        val candidateHeight = candidateHeightFor(contentHeightFraction, candidateRows)
-                        val keyboardHeight = keyHeightFor(contentHeightFraction) * 3 + Spacing20
+                        val density = LocalDensity.current
+                        val screenHeightPx = DensityProvider.screenHeightPx
+                        val panelHeightDp = with(density) { (screenHeightPx * contentHeightFraction).toDp() }
+                        val contentDp = (panelHeightDp - Spacing10 * 2).coerceAtLeast(80.dp)
+                        val rowUnit = ((contentDp - Spacing20) / (candidateRows + 2.25f)).coerceIn(24.dp, 80.dp)
+                        val candidateHeight = rowUnit * candidateRows
+                        val keyHeight = rowUnit * 0.75f
+                        val keyboardHeight = keyHeight * 3 + Spacing20
                         val contentHeight = candidateHeight + keyboardHeight
                         AnimatedContent(
-                            targetState = state.keyboardExpanded,
+                            targetState = currentPage,
                             transitionSpec = {
-                                fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(150)) using SizeTransform(clip = false)
+                                fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(150))
                             },
-                            label = "keyboardExpand"
-                        ) { expanded ->
-                            if (expanded) {
-                                Column {
-                                    CandidateAppRows(
-                                        chunkedApps = chunkedApps,
-                                        frozenPkgs = state.appListState.frozenPkgs,
-                                        candidateHeight = candidateHeight,
-                                        onClick = { app, isFrozen ->
-                                            state.launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
+                            label = "pageSwitch"
+                        ) { page ->
+                            when (page) {
+                                Page.App -> {
+                                    AnimatedContent(
+                                        targetState = state.keyboardExpanded,
+                                        transitionSpec = {
+                                            fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(150)) using SizeTransform(clip = false)
                                         },
-                                        onLongPress = { app, isFrozen ->
-                                            state.launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress")
+                                        label = "keyboardExpand"
+                                    ) { expanded ->
+                                        if (expanded) {
+                                            Column {
+                                                CandidateAppRows(
+                                                    chunkedApps = chunkedApps,
+                                                    frozenPkgs = state.appListState.frozenPkgs,
+                                                    candidateHeight = candidateHeight,
+                                                    rows = candidateRows,
+                                                    onClick = { app, isFrozen ->
+                                                        state.launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
+                                                    },
+                                                    onLongPress = { app, isFrozen ->
+                                                        state.launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress")
+                                                    }
+                                                )
+                                                Spacer(modifier = Modifier.height(8.dp))
+                                                KeyboardRow(
+                                                    view,
+                                                    listOf("QW" to "qw", "ER" to "er", "TY" to "ty", "UI" to "ui", "OP" to "op"),
+                                                    keyHeight = keyHeight
+                                                ) { token -> state.addToken(token) }
+                                                Spacer(modifier = Modifier.height(Spacing6))
+                                                KeyboardRow(
+                                                    view,
+                                                    listOf("AS" to "as", "DF" to "df", "GH" to "gh", "JK" to "jk", "L" to "l"),
+                                                    keyHeight = keyHeight
+                                                ) { token -> state.addToken(token) }
+                                                Spacer(modifier = Modifier.height(Spacing6))
+                                                KeyboardRow(
+                                                    view,
+                                                    listOf("调整" to null, "ZX" to "zx", "CV" to "cv", "BN" to "bn", "M" to "m", "删除" to null),
+                                                    onDelete = { state.deleteToken() },
+                                                    onClear = { state.clearTokens() },
+                                                    onAdjust = { currentPage = Page.Settings },
+                                                    keyHeight = keyHeight
+                                                ) { token -> state.addToken(token) }
+                                            }
+                                        } else {
+                                    AppGrid(
+                                        apps = state.filteredApps,
+                                        frozenPkgs = state.appListState.frozenPkgs,
+                                        gridState = gridState,
+                                        gridAtTop = gridAtTop,
+                                        keyboardExpanded = state.keyboardExpanded,
+                                        gridHeight = contentHeight,
+                                        gridColumns = state.launcherSettings.gridColumns,
+                                                onExpandKeyboard = { state.expandKeyboard() },
+                                                onClick = { app, isFrozen ->
+                                                    state.launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
+                                                },
+                                                onLongPress = { app, isFrozen ->
+                                                    state.launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress_grid")
+                                                }
+                                            )
                                         }
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    KeyboardRow(
-                                        view,
-                                        listOf("QW" to "qw", "ER" to "er", "TY" to "ty", "UI" to "ui", "OP" to "op"),
-                                        keyHeight = keyHeightFor(contentHeightFraction)
-                                    ) { token -> state.addToken(token) }
-                                    Spacer(modifier = Modifier.height(Spacing6))
-                                    KeyboardRow(
-                                        view,
-                                        listOf("AS" to "as", "DF" to "df", "GH" to "gh", "JK" to "jk", "L" to "l"),
-                                        keyHeight = keyHeightFor(contentHeightFraction)
-                                    ) { token -> state.addToken(token) }
-                                    Spacer(modifier = Modifier.height(Spacing6))
-                                    KeyboardRow(
-                                        view,
-                                        listOf("调整" to null, "ZX" to "zx", "CV" to "cv", "BN" to "bn", "M" to "m", "删除" to null),
-                                        onDelete = { state.deleteToken() },
-                                        onClear = { state.clearTokens() },
-                                        onAdjust = onToggleAdjust,
-                                        keyHeight = keyHeightFor(contentHeightFraction)
-                                    ) { token -> state.addToken(token) }
-                                }
-                            } else {
-                                AppGrid(
-                                    apps = state.filteredApps,
-                                    frozenPkgs = state.appListState.frozenPkgs,
-                                    gridState = gridState,
-                                    gridAtTop = gridAtTop,
-                                    keyboardExpanded = state.keyboardExpanded,
-                                    gridHeight = contentHeight,
-                                    onExpandKeyboard = { state.expandKeyboard() },
-                                    onClick = { app, isFrozen ->
-                                        state.launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
-                                    },
-                                    onLongPress = { app, isFrozen ->
-                                        state.launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress_grid")
                                     }
-                                )
+                                }
+                                Page.Settings -> {
+                                    Column(
+                                        modifier = Modifier
+                                            .height(contentHeight)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .verticalScroll(rememberScrollState())
+                                        ) {
+                                            QuickAppLauncherAdjustPanel(
+                                                onSettingsChanged = { onUpdateLayout?.invoke(it) },
+                                            )
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .pointerInput(Unit) {
+                                                    var drag = 0f
+                                                    detectVerticalDragGestures(
+                                                        onDragStart = { drag = 0f },
+                                                        onVerticalDrag = { change, amount ->
+                                                            change.consume()
+                                                            drag += amount
+                                                            if (drag > 32f) currentPage = Page.App
+                                                        }
+                                                    )
+                                                },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                modifier = Modifier
+                                                    .padding(vertical = Spacing6)
+                                                    .clickable { currentPage = Page.App }
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .width(44.dp)
+                                                        .height(Spacing5)
+                                                        .clip(RoundedCornerShape(99.dp))
+                                                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
+                                                )
+                                                Spacer(modifier = Modifier.height(Spacing4))
+                                                Icon(
+                                                    imageVector = Icons.Outlined.Tune,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    modifier = Modifier.width(20.dp).height(20.dp),
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -252,9 +338,11 @@ private fun CandidateAppRows(
     chunkedApps: List<List<AppInfo>>,
     frozenPkgs: Set<String>,
     candidateHeight: Dp,
+    rows: Int = 1,
     onClick: (AppInfo, Boolean) -> Unit,
     onLongPress: (AppInfo, Boolean) -> Unit
 ) {
+    val iconHeight = (candidateHeight - Spacing2 * (rows - 1)) / rows - Spacing4 * 2
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -274,6 +362,7 @@ private fun CandidateAppRows(
                             val isFrozen = app.packageName in frozenPkgs
                             AppItem(
                                 app = app,
+                                iconHeight = iconHeight,
                                 onClick = { onClick(app, isFrozen) },
                                 onLongPress = { onLongPress(app, isFrozen) }
                             )
@@ -293,6 +382,7 @@ private fun AppGrid(
     gridAtTop: Boolean,
     keyboardExpanded: Boolean,
     gridHeight: Dp,
+    gridColumns: Int = 4,
     onExpandKeyboard: () -> Unit,
     onClick: (AppInfo, Boolean) -> Unit,
     onLongPress: (AppInfo, Boolean) -> Unit
@@ -319,7 +409,7 @@ private fun AppGrid(
     ) {
         LazyVerticalGrid(
             state = gridState,
-            columns = GridCells.Fixed(4),
+            columns = GridCells.Fixed(gridColumns),
             verticalArrangement = Arrangement.spacedBy(Spacing4),
             horizontalArrangement = Arrangement.spacedBy(Spacing4),
             contentPadding = PaddingValues(bottom = ScrollBottomPadding),
@@ -378,16 +468,4 @@ private fun AppGrid(
     }
 }
 
-private fun heightFractionLerp(f: Float): Float {
-    return ((f.coerceIn(0.35f, 0.75f) - 0.35f) / 0.4f).coerceIn(0f, 1f)
-}
 
-private fun keyHeightFor(f: Float): Dp {
-    val t = heightFractionLerp(f)
-    return (34 + 6 * t).dp
-}
-
-private fun candidateHeightFor(f: Float, rows: Int): Dp {
-    val t = heightFractionLerp(f)
-    return ((48 + 8 * t) * rows.coerceIn(1, 3)).dp
-}

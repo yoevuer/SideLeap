@@ -13,4 +13,5 @@ data class QuickAppLauncherSettings(
     val candidateRows: Int = 1,
     val panelWidthFraction: Float = 1.0f,
     val panelHorizontalBias: Float = 0.5f,
+    val gridColumns: Int = 4,
 )

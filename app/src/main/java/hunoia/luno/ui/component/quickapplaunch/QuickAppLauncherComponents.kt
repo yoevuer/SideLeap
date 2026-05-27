@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,8 +40,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import hunoia.luno.R
 import androidx.compose.ui.unit.dp
+import hunoia.luno.R
 import coil.compose.AsyncImage
 import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.AppInfo
@@ -124,30 +125,31 @@ internal fun rememberAppIconAsync(context: Context, packageName: String): Drawab
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun AppItem(app: AppInfo, onClick: () -> Unit, onLongPress: () -> Unit) {
+internal fun AppItem(app: AppInfo, iconHeight: Dp? = null, onClick: () -> Unit, onLongPress: () -> Unit) {
     val context = LocalContext.current
     Column(
         modifier = Modifier
-            .width(64.dp)
+            .fillMaxWidth()
             .combinedClickable(onClick = { onClick() }, onLongClick = { onLongPress() })
             .padding(Spacing4),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val iconMod = if (iconHeight != null) {
+            Modifier.height(iconHeight).fillMaxWidth()
+        } else {
+            Modifier.fillMaxWidth().aspectRatio(1f)
+        }.clip(RoundedCornerShape(Spacing10))
         val icon = rememberAppIconAsync(context, app.packageName)
         if (icon != null) {
             AsyncImage(
                 model = icon,
                 contentDescription = app.label,
-                modifier = Modifier.height(Spacing40).fillMaxWidth().clip(RoundedCornerShape(Spacing10)),
+                modifier = iconMod,
                 contentScale = ContentScale.Fit
             )
         } else {
             Box(
-                modifier = Modifier
-                    .height(Spacing40)
-                    .fillMaxWidth()
-                        .clip(RoundedCornerShape(ShapeSmall))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                modifier = iconMod.background(MaterialTheme.colorScheme.surfaceVariant)
             )
         }
     }

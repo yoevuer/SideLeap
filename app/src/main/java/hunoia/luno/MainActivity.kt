@@ -10,12 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.lifecycle.lifecycleScope
-import hunoia.luno.settings.model.DayNightMode
 import hunoia.luno.ui.SideGestureApp
-import hunoia.luno.settings.SettingsProvider
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -27,30 +22,15 @@ class MainActivity : ComponentActivity() {
             SideGestureApp()
         }
 
-        lifecycleScope.launch {
-            val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            SettingsProvider.advancedSettings.collectLatest { item ->
-                am.appTasks.firstOrNull()?.setExcludeFromRecents(item.excludeFromRecents)
-                myEnableEdgeToEdge(item.dayNightMode)
-            }
-        }
+        val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        am.appTasks.firstOrNull()?.setExcludeFromRecents(true)
     }
 }
 
-private fun ComponentActivity.myEnableEdgeToEdge(dayNightMode: DayNightMode = DayNightMode.Auto) {
-    val block: (Resources) -> Boolean = block@{ resources ->
-        if (dayNightMode != DayNightMode.Auto) {
-            return@block when (dayNightMode) {
-                DayNightMode.Night -> true
-                else -> false
-            }
-        }
-        val flags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        flags == Configuration.UI_MODE_NIGHT_YES
-    }
+private fun ComponentActivity.myEnableEdgeToEdge() {
     enableEdgeToEdge(
-        statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT, block),
-        navigationBarStyle = SystemBarStyle.auto(DefaultLightScrim, DefaultDarkScrim, block)
+        statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+        navigationBarStyle = SystemBarStyle.auto(DefaultLightScrim, DefaultDarkScrim),
     )
 }
 

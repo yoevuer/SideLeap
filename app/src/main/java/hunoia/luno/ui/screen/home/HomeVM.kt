@@ -19,7 +19,6 @@ import hunoia.luno.settings.model.AdvancedSettings
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.settings.model.InitialSettings
 import hunoia.luno.settings.model.GestureSettings.VirtualMouseTrailStyle
-import hunoia.luno.settings.model.DayNightMode
 import hunoia.luno.system.permission.isAccessibilitySettingsOn
 import hunoia.luno.system.permission.isIgnoringBatteryOptimizations
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -344,20 +343,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         saveDisplaySettings()
     }
 
-    fun showDayNightModeDropdownMenu(show: Boolean) {
-        updateUiState { it.copy(showDayNightModeDropdownMenu = show) }
-    }
-
-    fun onDynamicColorChange(value: Boolean) {
-        updateUiState { it.copy(dynamicColor = value) }
-        saveDisplaySettings()
-    }
-
-    fun onDayNightModeChange(dayNightMode: DayNightMode) {
-        updateUiState { it.copy(dayNightMode = dayNightMode) }
-        saveDisplaySettings()
-    }
-
     fun onMiniWindowHorizontalBiasChange(value: Float) {
         updateUiState { it.copy(miniWindowHorizontalBias = value.coerceIn(0f, 1f)) }
     }
@@ -379,8 +364,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             SettingsProvider.updateAdvancedSettings {
                 it.copy(
                     animationStyles = it.animationStyles.copy(isAnimationEnabled = uiState.showAnimation),
-                    dynamicColor = uiState.dynamicColor,
-                    dayNightMode = uiState.dayNightMode,
                     miniWindowHorizontalBias = uiState.miniWindowHorizontalBias,
                     miniWindowVerticalBias = uiState.miniWindowVerticalBias,
                     miniWindowVerticalEdgeMarginFraction = uiState.miniWindowVerticalEdgeMarginFraction,
@@ -461,8 +444,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                     subGestures = subGestureSettings.subGestures,
                     virtualMouse = gestureSettings.virtualMouse,
                     showAnimation = advancedSettings.animationStyles.isAnimationEnabled,
-                    dynamicColor = advancedSettings.dynamicColor,
-                    dayNightMode = advancedSettings.dayNightMode,
                     miniWindowHorizontalBias = advancedSettings.miniWindowHorizontalBias,
                     miniWindowVerticalBias = advancedSettings.miniWindowVerticalBias,
                     miniWindowVerticalEdgeMarginFraction = advancedSettings.miniWindowVerticalEdgeMarginFraction,
@@ -489,10 +470,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         val showBackupRestoreDialog: Boolean = false,
         val virtualMouse: GestureSettings.VirtualMouse = GestureSettings.VirtualMouse(),
         val showAnimation: Boolean = false,
-        val dynamicColor: Boolean = false,
-        val dayNightMode: DayNightMode = DayNightMode.Auto,
-        val showDynamicColorOption: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
-        val showDayNightModeDropdownMenu: Boolean = false,
         val miniWindowHorizontalBias: Float = 0.5f,
         val miniWindowVerticalBias: Float = 0.7f,
         val miniWindowVerticalEdgeMarginFraction: Float = 0.05f,

@@ -98,7 +98,8 @@ object SettingsProvider {
                 contentHeightFraction = layout.contentHeightFraction,
                 candidateRows = layout.candidateRows,
                 panelWidthFraction = layout.panelWidthFraction,
-                panelHorizontalBias = layout.panelHorizontalBias
+                panelHorizontalBias = layout.panelHorizontalBias,
+                gridColumns = layout.gridColumns,
             )
         }
     }
@@ -109,7 +110,8 @@ object SettingsProvider {
                 contentHeightFraction = QuickAppLauncherSettings().contentHeightFraction,
                 candidateRows = QuickAppLauncherSettings().candidateRows,
                 panelWidthFraction = QuickAppLauncherSettings().panelWidthFraction,
-                panelHorizontalBias = QuickAppLauncherSettings().panelHorizontalBias
+                panelHorizontalBias = QuickAppLauncherSettings().panelHorizontalBias,
+                gridColumns = QuickAppLauncherSettings().gridColumns,
             )
         }
     }

@@ -59,8 +59,6 @@
     <string name="spacing">间距</string>
     <string name="fit_soft_keyboard">输入时隐藏触钮</string>
     <string name="fit_soft_keyboard_hint">输入框获得焦点时隐藏所有触钮，避免遮挡输入区域</string>
-    <string name="exclude_from_recents">在最近任务列表中隐藏</string>
-    <string name="exclude_from_recents_hint">隐藏后部分机型可能会被清理后台，可尝试将后台卡片上锁后再开启</string>
     <string name="action_panel_launch_app">手势动作启动应用方式</string>
     <string name="action_panel_launch_app_hint">调换手势动作中启动应用的短按与长按方式：默认短按小窗、长按全屏</string>
     <string name="quick_launcher_launch_app">启动器应用项启动方式</string>
@@ -94,12 +92,6 @@
     <string name="clear_quick_app_stats_hint">清除快速启动器的启动次数和最近使用记录</string>
     <string name="lock_screen">锁屏界面</string>
     <string name="launcher">系统桌面</string>
-    <string name="dynamic_color">动态配色</string>
-    <string name="dynamic_color_hint">从桌面壁纸中派生颜色</string>
-    <string name="day_night_mode">深色模式</string>
-    <string name="day_night_mode_auto">跟随系统</string>
-    <string name="day_night_mode_day">日间模式</string>
-    <string name="day_night_mode_night">夜间模式</string>
     <string name="slide_action">短距离滑动</string>
     <string name="gesture_angles">手势角度</string>
     <string name="gesture_button_angles_hint">调整此触钮各滑动方向的判定范围</string>
@@ -263,13 +255,14 @@
     <string name="virtual_mouse_trail_style_band">光带</string>
 
     <!-- Quick app launcher labels -->
-    <string name="quick_app_launcher_panel_height">位置高度</string>
-    <string name="quick_app_launcher_content_height">内部高度</string>
+    <string name="quick_app_launcher_panel_height">竖直位置</string>
+    <string name="quick_app_launcher_content_height">高度</string>
     <string name="quick_app_launcher_panel_width">宽度</string>
     <string name="quick_app_launcher_horizontal_bias">水平位置</string>
     <string name="quick_app_launcher_candidate_rows">候选应用行数</string>
     <string name="quick_app_launcher_adjust">调整面板</string>
     <string name="quick_app_launcher_delete_input">删除输入</string>
+    <string name="quick_app_launcher_grid_columns">搜索列数</string>
 
     <!-- Gesture settings -->
     <string name="sub_gesture_timeout_label">子手势超时</string>

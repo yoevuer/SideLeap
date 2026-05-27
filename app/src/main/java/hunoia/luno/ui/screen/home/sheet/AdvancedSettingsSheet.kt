@@ -37,12 +37,6 @@ fun AdvancedSettingsSheet(
                 MyColumn {
                     SectionCard(title = stringResource(R.string.app_management)) {
                         LabeledSwitch(
-                            onCheckedChange = { vm.onExcludeFromRecentsChange(it) },
-                            checked = uiState.excludeFromRecents,
-                            text = stringResource(R.string.exclude_from_recents),
-                            secondaryText = stringResource(R.string.exclude_from_recents_hint)
-                        )
-                        LabeledSwitch(
                             onCheckedChange = { vm.onActionPanelAppLongPressLaunchPopupChanged(it) },
                             checked = uiState.actionPanelAppLongPressLaunchPopup,
                             text = stringResource(R.string.action_panel_launch_app),

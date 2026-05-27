@@ -77,7 +77,6 @@ import hunoia.luno.core.DensityProvider
 import hunoia.luno.settings.model.QuickAppLauncherSettings
 import hunoia.luno.settings.model.AdvancedSettings
 import hunoia.luno.ui.theme.SideGestureTheme
-import hunoia.luno.ui.component.quickapplaunch.QuickAppLauncherAdjustPanel
 import hunoia.luno.ui.component.quickapplaunch.QuickAppLauncherContent
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
@@ -113,12 +112,10 @@ interface QuickAppLauncherOverlayHost : LifecycleOwner, ViewModelStoreOwner, Sav
 class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     private var overlayView: View? = null
     private var overlayParams: WindowManager.LayoutParams? = null
-    private var adjustView: View? = null
     private var isShowing = false
     private var isHiding = false
     private var triggerCloseAnimated: (() -> Unit)? = null
     private var lastCloseMs: Long = 0L
-    private var lastAdjustCloseMs: Long = 0L
     var onAppLaunchRequested: ((AppInfo) -> Unit)? = null
 
     fun toggle() {
@@ -178,7 +175,6 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         overlayParams = null
         isHiding = false
         triggerCloseAnimated = null
-        closeAdjustPanel()
     }
 
     fun show() {
@@ -237,7 +233,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
                             if (BuildConfig.DEBUG) Log.d("LunoLauncher","closeAnimated: triggered")
                             removeOverlayView()
                         },
-                        onToggleAdjust = { toggleAdjustPanel() },
+                        onUpdateLayout = { settings -> updateLayout(settings) },
                         onLaunch = { appInfo, miniWindow ->
                             val now = System.currentTimeMillis()
                             val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
@@ -266,90 +262,6 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
         isShowing = false
     }
 
-
-    private fun toggleAdjustPanel() {
-        if (adjustView != null) {
-            closeAdjustPanel()
-        } else if (System.currentTimeMillis() - lastAdjustCloseMs > 100L) {
-            showAdjustPanel()
-        }
-    }
-
-    private fun closeAdjustPanel() {
-        adjustView?.let {
-            val wm = host.context.windowManager()
-            runCatching { wm.removeView(it) }
-        }
-        adjustView = null
-        lastAdjustCloseMs = System.currentTimeMillis()
-    }
-
-    private fun showAdjustPanel() {
-        closeAdjustPanel()
-        val wm = host.context.windowManager()
-        val density = host.context.resources.displayMetrics.density
-        val screenWidth = DensityProvider.screenWidthPx
-        val screenHeight = DensityProvider.screenHeightPx
-        val initialWidth = (screenWidth * 0.92f).roundToInt()
-        val initialHeight = 480.dpToPx(density)
-        val lp = WindowManager.LayoutParams().apply {
-            type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
-            format = PixelFormat.RGBA_8888
-            width = initialWidth
-            height = initialHeight
-            flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-            @Suppress("DEPRECATION")
-            gravity = Gravity.START or Gravity.TOP
-            x = ((screenWidth - initialWidth) / 2).coerceAtLeast(0)
-            y = ((screenHeight - initialHeight) / 2).coerceAtLeast(0)
-        }
-        val composeView = ComposeView(host.context).apply {
-            setBackgroundColor(Color.TRANSPARENT)
-            applyOverlayViewTreeOwners(host)
-            setOnTouchListener(createDismissOnOutsideTouch(onOutsideTouch = {
-                closeAdjustPanel()
-            }, logTag = "adjustTouch"))
-            setContent {
-                SideGestureTheme {
-                    Box(Modifier.onSizeChanged { size ->
-                        updateAdjustPanelLayout(
-                            wm = wm, view = this@apply,
-                            lp = lp, contentWidth = size.width, contentHeight = size.height
-                        )
-                    }) {
-                        QuickAppLauncherAdjustPanel(
-                            onSettingsChanged = { settings -> updateLayout(settings) },
-                        )
-                    }
-                }
-            }
-        }
-        wm.addView(composeView, lp)
-        adjustView = composeView
-    }
-
-    private fun updateAdjustPanelLayout(
-        wm: WindowManager, view: View, lp: WindowManager.LayoutParams,
-        contentWidth: Int, contentHeight: Int
-    ) {
-        if (contentWidth <= 0 || contentHeight <= 0) return
-        val screenWidth = DensityProvider.screenWidthPx
-        val screenHeight = DensityProvider.screenHeightPx
-        val nextWidth = contentWidth.coerceIn(1, screenWidth)
-        val nextHeight = contentHeight.coerceIn(1, screenHeight)
-        if (lp.width == nextWidth && lp.height == nextHeight) return
-        val nextX = ((screenWidth - nextWidth) / 2).coerceAtLeast(0)
-        val nextY = ((screenHeight - nextHeight) / 2).coerceAtLeast(0)
-        lp.width = nextWidth
-        lp.height = nextHeight
-        lp.x = nextX
-        lp.y = nextY
-        runCatching { wm.updateViewLayout(view, lp) }
-    }
 
     private fun createLayoutParams(settings: QuickAppLauncherSettings) = WindowManager.LayoutParams().apply {
         type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
@@ -381,13 +293,7 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
     }
 
     private fun estimatePanelHeightPx(settings: QuickAppLauncherSettings): Int {
-        val density = host.context.resources.displayMetrics.density
-        val content = settings.contentHeightFraction.coerceIn(0.35f, 0.9f)
-        val rows = settings.candidateRows.coerceIn(1, 3)
-        val t = ((content.coerceIn(0.35f, 0.75f) - 0.35f) / 0.4f).coerceIn(0f, 1f)
-        val candidateRow = (48 + 8 * t).roundToInt()
-        val keyHeight = (34 + 6 * t).roundToInt()
-        return ((candidateRow * rows) + (keyHeight * 3) + 52).dpToPx(density)
+        return (DensityProvider.screenHeightPx * settings.contentHeightFraction.coerceIn(0.35f, 0.85f)).roundToInt()
     }
 
     private fun updateLayout(settings: QuickAppLauncherSettings) {

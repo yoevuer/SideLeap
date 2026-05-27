@@ -21,9 +21,6 @@ object AdvancedSettingsDefaults {
     const val HideLandscape = false
     const val HideScreenLock = false
     const val HideHomeScreen = false
-    const val ExcludeFromRecents = false
-    const val DynamicColor = false
-    val DayNightMode = hunoia.luno.settings.model.DayNightMode.Auto
     val ClipApps = emptyMap<String, Float>()
     val ClipShortcuts = emptyMap<String, Float>()
 }

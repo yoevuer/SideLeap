@@ -2,29 +2,17 @@ package hunoia.luno.ui.component.quickapplaunch
 import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import hunoia.luno.R
 import hunoia.luno.settings.model.QuickAppLauncherSettings
 import hunoia.luno.settings.SettingsProvider
+import hunoia.luno.ui.component.MyTextSlider
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -34,64 +22,53 @@ internal fun QuickAppLauncherAdjustPanel(
 ) {
     val settings by SettingsProvider.quickAppLauncherSettings.collectAsState(initial = QuickAppLauncherSettings())
     val coroutineScope = rememberCoroutineScope()
-    var activeLabel by remember { mutableStateOf<String?>(null) }
     fun updateLayout(next: QuickAppLauncherSettings) {
         onSettingsChanged(next)
         coroutineScope.launch { SettingsProvider.updateQuickAppLauncherLayout(next) }
     }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f))
-    ) {
-        Column(modifier = Modifier.padding(Spacing16)) {
-            AdjustSlider(stringResource(R.string.quick_app_launcher_panel_height), settings.panelHeightFraction, 0.05f, 0.9f, activeLabel, { activeLabel = it }) { value ->
-                updateLayout(settings.copy(panelHeightFraction = value))
-            }
-            Spacer(modifier = Modifier.height(Spacing12))
-            AdjustSlider(stringResource(R.string.quick_app_launcher_content_height), settings.contentHeightFraction, 0.35f, 0.9f, activeLabel, { activeLabel = it }) { value ->
-                updateLayout(settings.copy(contentHeightFraction = value))
-            }
-            Spacer(modifier = Modifier.height(Spacing12))
-            AdjustSlider(stringResource(R.string.quick_app_launcher_panel_width), settings.panelWidthFraction, 0.65f, 1.0f, activeLabel, { activeLabel = it }) { value ->
-                updateLayout(settings.copy(panelWidthFraction = value))
-            }
-            Spacer(modifier = Modifier.height(Spacing12))
-            AdjustSlider(stringResource(R.string.quick_app_launcher_horizontal_bias), settings.panelHorizontalBias, 0.0f, 1.0f, activeLabel, { activeLabel = it }) { value ->
-                updateLayout(settings.copy(panelHorizontalBias = value))
-            }
-            Spacer(modifier = Modifier.height(Spacing12))
-            AdjustSlider(stringResource(R.string.quick_app_launcher_candidate_rows), settings.candidateRows.toFloat(), 1f, 3f, activeLabel, { activeLabel = it }, valueFormatter = { it.roundToInt().toString() }) { value ->
-                updateLayout(settings.copy(candidateRows = value.roundToInt().coerceIn(1, 3)))
-            }
-        }
-    }
-}
-
-@Composable
-internal fun AdjustSlider(
-    label: String,
-    value: Float,
-    min: Float,
-    max: Float,
-    activeLabel: String?,
-    onActiveLabelChange: (String?) -> Unit,
-    valueFormatter: (Float) -> String = { "%.2f".format(it) },
-    onChange: (Float) -> Unit,
-) {
-    val active = activeLabel == null || activeLabel == label
-    if (activeLabel != null && activeLabel != label) return
-    Column {
-        Text(text = "$label ${valueFormatter(value)}", color = MaterialTheme.colorScheme.onSurface)
-        Slider(
-            value = value.coerceIn(min, max),
-            onValueChange = { nextValue ->
-                onActiveLabelChange(label)
-                onChange(nextValue.coerceIn(min, max))
-            },
-            onValueChangeFinished = { onActiveLabelChange(null) },
-            valueRange = min..max
+    Column(modifier = Modifier.fillMaxWidth()) {
+        MyTextSlider(
+            value = settings.contentHeightFraction,
+            onValueChange = { updateLayout(settings.copy(contentHeightFraction = it)) },
+            text = stringResource(R.string.quick_app_launcher_content_height),
+            valueDisplay = "${(settings.contentHeightFraction * 100).roundToInt()}%",
+            valueRange = 0.35f..(0.55f + 0.10f * settings.candidateRows).coerceAtMost(0.85f),
+        )
+        MyTextSlider(
+            value = settings.panelWidthFraction,
+            onValueChange = { updateLayout(settings.copy(panelWidthFraction = it)) },
+            text = stringResource(R.string.quick_app_launcher_panel_width),
+            valueDisplay = "${(settings.panelWidthFraction * 100).roundToInt()}%",
+            valueRange = 0.65f..1.0f,
+        )
+        MyTextSlider(
+            value = settings.panelHeightFraction,
+            onValueChange = { updateLayout(settings.copy(panelHeightFraction = it)) },
+            text = stringResource(R.string.quick_app_launcher_panel_height),
+            valueDisplay = "${(settings.panelHeightFraction * 100).roundToInt()}%",
+            valueRange = 0.05f..0.9f,
+        )
+        MyTextSlider(
+            value = settings.panelHorizontalBias,
+            onValueChange = { updateLayout(settings.copy(panelHorizontalBias = it)) },
+            text = stringResource(R.string.quick_app_launcher_horizontal_bias),
+            valueDisplay = "${(settings.panelHorizontalBias * 100).roundToInt()}%",
+            valueRange = 0.0f..1.0f,
+        )
+        MyTextSlider(
+            value = settings.candidateRows.toFloat(),
+            onValueChange = { updateLayout(settings.copy(candidateRows = it.roundToInt().coerceIn(1, 3))) },
+            text = stringResource(R.string.quick_app_launcher_candidate_rows),
+            valueDisplay = settings.candidateRows.toString(),
+            valueRange = 1f..3f,
+        )
+        MyTextSlider(
+            value = settings.gridColumns.toFloat(),
+            onValueChange = { updateLayout(settings.copy(gridColumns = it.roundToInt().coerceIn(3, 5))) },
+            text = stringResource(R.string.quick_app_launcher_grid_columns),
+            valueDisplay = settings.gridColumns.toString(),
+            valueRange = 3f..5f,
         )
     }
 }
