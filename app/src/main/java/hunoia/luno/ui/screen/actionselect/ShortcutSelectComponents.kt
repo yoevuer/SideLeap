@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.actionselect
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -80,7 +81,7 @@ internal fun ShortcutPage(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 32.dp),
+                                .padding(vertical = Spacing32),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(

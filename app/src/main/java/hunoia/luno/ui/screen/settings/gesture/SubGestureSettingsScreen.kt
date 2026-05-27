@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.settings.gesture
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,7 +32,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.luno.R
-import hunoia.luno.action.display.actionText
+import hunoia.luno.ui.action.actionText
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.gesture.SubGestureDirection
 import hunoia.luno.ui.ext.displayNameRes
@@ -274,7 +275,7 @@ fun SubGestureSettingsScreen(
                                         shape = CircleShape
                                     )
                                     .border(
-                                        width = 1.dp,
+                                        width = Spacing1,
                                         color = MaterialTheme.colorScheme.outlineVariant,
                                         shape = CircleShape
                                     )
@@ -288,18 +289,12 @@ fun SubGestureSettingsScreen(
 }
 
 @Composable
-private fun actionDisplayText(action: hunoia.luno.action.Action?, allSubGestures: List<SubGesture>?): String {
-    if (action == null) return ""
-    if (action.value != hunoia.luno.action.GlobalActions.SUB_GESTURE) {
-        return actionText(action)
+private fun actionDisplayText(actionId: String?, allSubGestures: List<SubGesture>?): String {
+    if (actionId == null || actionId.isEmpty()) return ""
+    if (actionId != hunoia.luno.action.GlobalActions.SUB_GESTURE) {
+        return actionText(hunoia.luno.action.Action(actionId))
     }
-    val data = remember(action.data) {
-        try {
-            kotlinx.serialization.json.Json.decodeFromString<SubGestureActionData>(action.data)
-        } catch (_: Exception) { null }
-    } ?: return stringResource(id = R.string.action_sub_gesture)
-    val name = allSubGestures?.find { it.id == data.id }?.name
-    return name ?: stringResource(id = R.string.action_sub_gesture)
+    return stringResource(id = R.string.action_sub_gesture)
 }
 
 @Composable

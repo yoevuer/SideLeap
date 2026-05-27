@@ -1,4 +1,4 @@
-package hunoia.luno.core.event
+package hunoia.luno.system.event
 
 /**
  * @author aaronzzxup@gmail.com

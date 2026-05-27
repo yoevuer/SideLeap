@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.settings.gesture
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -134,7 +135,7 @@ fun IconResizeContent(
         Box(modifier = Modifier.fillMaxSize()) {
             Column {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing4, vertical = Spacing4),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(stringResource(R.string.icon_resize), style = MaterialTheme.typography.titleMedium)
@@ -180,7 +181,7 @@ fun IconResizeContent(
                                     exit = fadeOut() + scaleOut()
                                 ) {
                                     Badge(
-                                        modifier = Modifier.requiredSize(16.dp),
+                                        modifier = Modifier.requiredSize(Spacing16),
                                         containerColor = MaterialTheme.colorScheme.primary
                                     ) {
                                         Icon(

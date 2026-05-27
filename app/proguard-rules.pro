@@ -24,6 +24,8 @@
 -keep class hunoia.luno.freeze.ShizukuBridgeService { *; }
 -keep class hunoia.luno.IShizukuCommandService { *; }
 
+
+
 # Keep serialization entry points while allowing model obfuscation/shrinking.
 -keepclassmembers class **$$serializer { *; }
 -keepclassmembers class * {

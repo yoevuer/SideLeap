@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component.quickapplaunch
+import hunoia.luno.ui.theme.*
 
 import android.view.HapticFeedbackConstants
 import android.view.View
@@ -172,12 +173,12 @@ internal fun QuickAppLauncherContent(
                     shape = RoundedCornerShape(ShapeExtraLarge),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
-                    Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+                    Column(modifier = Modifier.padding(horizontal = Spacing12, vertical = Spacing10)) {
                         val contentHeightFraction = state.launcherSettings.contentHeightFraction
                         val candidateRows = state.launcherSettings.candidateRows.coerceIn(1, 3)
                         val chunkedApps = remember(state.filteredApps, candidateRows) { state.filteredApps.chunked(candidateRows) }
                         val candidateHeight = candidateHeightFor(contentHeightFraction, candidateRows)
-                        val keyboardHeight = keyHeightFor(contentHeightFraction) * 3 + 20.dp
+                        val keyboardHeight = keyHeightFor(contentHeightFraction) * 3 + Spacing20
                         val contentHeight = candidateHeight + keyboardHeight
                         AnimatedContent(
                             targetState = state.keyboardExpanded,
@@ -205,13 +206,13 @@ internal fun QuickAppLauncherContent(
                                         listOf("QW" to "qw", "ER" to "er", "TY" to "ty", "UI" to "ui", "OP" to "op"),
                                         keyHeight = keyHeightFor(contentHeightFraction)
                                     ) { token -> state.addToken(token) }
-                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Spacer(modifier = Modifier.height(Spacing6))
                                     KeyboardRow(
                                         view,
                                         listOf("AS" to "as", "DF" to "df", "GH" to "gh", "JK" to "jk", "L" to "l"),
                                         keyHeight = keyHeightFor(contentHeightFraction)
                                     ) { token -> state.addToken(token) }
-                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Spacer(modifier = Modifier.height(Spacing6))
                                     KeyboardRow(
                                         view,
                                         listOf("调整" to null, "ZX" to "zx", "CV" to "cv", "BN" to "bn", "M" to "m", "删除" to null),
@@ -260,12 +261,12 @@ private fun CandidateAppRows(
             .height(candidateHeight)
     ) {
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing2),
             modifier = Modifier.fillMaxSize()
         ) {
             items(chunkedApps, key = { chunk -> chunk.firstOrNull()?.key() ?: "empty" }) { columnApps ->
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    verticalArrangement = Arrangement.spacedBy(Spacing2),
                     modifier = Modifier.width(64.dp)
                 ) {
                     columnApps.forEach { app ->
@@ -319,8 +320,8 @@ private fun AppGrid(
         LazyVerticalGrid(
             state = gridState,
             columns = GridCells.Fixed(4),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(Spacing4),
+            horizontalArrangement = Arrangement.spacedBy(Spacing4),
             contentPadding = PaddingValues(bottom = ScrollBottomPadding),
             modifier = Modifier.fillMaxSize()
         ) {
@@ -357,7 +358,7 @@ private fun AppGrid(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .padding(vertical = 6.dp)
+                    .padding(vertical = Spacing6)
                     .clickable {
                         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                         onExpandKeyboard()
@@ -366,11 +367,11 @@ private fun AppGrid(
                 Box(
                     modifier = Modifier
                         .width(44.dp)
-                        .height(5.dp)
+                        .height(Spacing5)
                         .clip(RoundedCornerShape(99.dp))
                         .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Spacing4))
                 Text(text = "⌨", style = MaterialTheme.typography.titleMedium)
             }
         }

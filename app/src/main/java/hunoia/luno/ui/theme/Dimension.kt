@@ -35,11 +35,25 @@ val DialogHexTextWidth = 120.dp
 val MiniWindowWidth = 200.dp
 const val NavExitOffsetDivisor = 3
 
+// Spacing / gap
+val Spacing1 = 1.dp
+val Spacing2 = 2.dp
+val Spacing4 = 4.dp
+val Spacing5 = 5.dp
+val Spacing6 = 6.dp
+val Spacing10 = 10.dp
+val Spacing12 = 12.dp
+val Spacing16 = 16.dp
+val Spacing20 = 20.dp
+val Spacing24 = 24.dp
+val Spacing32 = 32.dp
+val Spacing40 = 40.dp
+
 // Shape corner radii
 val ShapeSmall = 8.dp
-val ShapeMedium = 12.dp
-val ShapeLarge = 16.dp
-val ShapeExtraLarge = 20.dp
+val ShapeMedium = Spacing12
+val ShapeLarge = Spacing16
+val ShapeExtraLarge = Spacing20
 
 // Animation durations (ms)
 const val AnimRipple = 400L

@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component
+import hunoia.luno.ui.theme.*
 
 import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
@@ -138,9 +139,9 @@ fun MoveScreen(
                         x = center.x,
                         y = magnifierSize.toPx() / 2f
                     )
-                    val lineLength = 16.dp.toPx()
+                    val lineLength = Spacing16.toPx()
                     val lineColor = Color.LightGray
-                    val strokeWidth = 2.dp.toPx()
+                    val strokeWidth = Spacing2.toPx()
                     drawLine(
                         color = lineColor,
                         strokeWidth = strokeWidth,
@@ -197,7 +198,7 @@ fun MoveScreen(
                     .width(parentWidth)
                     .height(parentHeight)
                     .shadow(
-                        elevation = 4.dp,
+                        elevation = Spacing4,
                         shape = MaterialTheme.shapes.small
                     )
                     .background(

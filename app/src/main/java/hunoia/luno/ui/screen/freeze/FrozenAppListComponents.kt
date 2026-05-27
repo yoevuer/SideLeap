@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.freeze
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
@@ -53,7 +54,7 @@ fun FrozenAppSelectableItem(
                 onClick = onClick,
                 onLongClick = if (longClickEnabled) onLongClick else null,
             )
-            .padding(2.dp)
+            .padding(Spacing2)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -61,12 +62,12 @@ fun FrozenAppSelectableItem(
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(Spacing40)
                     .then(
                         if (isPending) Modifier.border(
-                            2.dp,
+                            Spacing2,
                             MaterialTheme.colorScheme.primary,
-                            RoundedCornerShape(12.dp)
+                            RoundedCornerShape(Spacing12)
                         ) else Modifier
                     )
             ) {
@@ -81,7 +82,7 @@ fun FrozenAppSelectableItem(
                     } else null,
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(Spacing12))
                 )
             }
             Text(
@@ -93,7 +94,7 @@ fun FrozenAppSelectableItem(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 4.dp)
+                    .padding(top = Spacing4)
             )
         }
     }

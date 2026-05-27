@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.settings.gesture
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -59,6 +60,7 @@ import hunoia.luno.settings.defaults.SettingsUiDefaults.MinBezierWidth
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MinIconScale
 import hunoia.luno.settings.model.ColorSource
 import hunoia.luno.settings.model.ThemeColorKey
+import hunoia.luno.ui.ext.resolveColor
 import hunoia.luno.settings.model.WaveStyle
 import hunoia.luno.settings.model.WaveStyle.Companion.ICON_TYPE_ANGLE
 import hunoia.luno.settings.model.WaveStyle.Companion.ICON_TYPE_ARROW
@@ -91,23 +93,7 @@ import kotlin.math.roundToInt
 @Composable
 private fun resolvePreviewColor(source: ColorSource, themeKey: ThemeColorKey, customColor: Int): Color = when (source) {
     ColorSource.Custom -> Color(customColor)
-    ColorSource.Theme -> when (themeKey) {
-        ThemeColorKey.Primary -> MaterialTheme.colorScheme.primary
-        ThemeColorKey.PrimaryContainer -> MaterialTheme.colorScheme.primaryContainer
-        ThemeColorKey.Secondary -> MaterialTheme.colorScheme.secondary
-        ThemeColorKey.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
-        ThemeColorKey.Tertiary -> MaterialTheme.colorScheme.tertiary
-        ThemeColorKey.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
-        ThemeColorKey.Surface -> MaterialTheme.colorScheme.surface
-        ThemeColorKey.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
-        ThemeColorKey.OnSurface -> MaterialTheme.colorScheme.onSurface
-        ThemeColorKey.OnSurfaceVariant -> MaterialTheme.colorScheme.onSurfaceVariant
-        ThemeColorKey.Outline -> MaterialTheme.colorScheme.outline
-        ThemeColorKey.OutlineVariant -> MaterialTheme.colorScheme.outlineVariant
-        ThemeColorKey.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
-        ThemeColorKey.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
-        ThemeColorKey.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
-    }
+    ColorSource.Theme -> themeKey.resolveColor()
 }
 
 @Composable
@@ -128,7 +114,7 @@ private fun ShapePreview(shapeType: Int, modifier: Modifier, color: Color) {
                 path.lineTo(cx, h - 2f)
             }
         }
-        drawPath(path, color = color, style = Stroke(2.dp.toPx()))
+        drawPath(path, color = color, style = Stroke(Spacing2.toPx()))
     }
 }
 
@@ -255,7 +241,7 @@ fun WaveStyleContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                            .padding(horizontal = Spacing16, vertical = Spacing4),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         listOf(
@@ -271,7 +257,7 @@ fun WaveStyleContent(
                                             true -> MaterialTheme.colorScheme.primary
                                             else -> MaterialTheme.colorScheme.surfaceVariant
                                         },
-                                        shape = RoundedCornerShape(12.dp)
+                                        shape = RoundedCornerShape(Spacing12)
                                     )
                                     .onSingleClick { vm.onShapeTypeChange(type) }
                                     .padding(vertical = 8.dp),
@@ -279,8 +265,8 @@ fun WaveStyleContent(
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(RoundedCornerShape(6.dp))
+                                        .size(Spacing32)
+                                        .clip(RoundedCornerShape(Spacing6))
                                         .background(
                                             if (selected) MaterialTheme.colorScheme.primaryContainer
                                             else MaterialTheme.colorScheme.surfaceContainerHigh
@@ -289,12 +275,12 @@ fun WaveStyleContent(
                                 ) {
                                     ShapePreview(
                                         shapeType = type,
-                                        modifier = Modifier.size(24.dp),
+                                        modifier = Modifier.size(Spacing24),
                                         color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
                                                 else MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(Spacing4))
                                 Text(
                                     text = label,
                                     style = MaterialTheme.typography.labelSmall,

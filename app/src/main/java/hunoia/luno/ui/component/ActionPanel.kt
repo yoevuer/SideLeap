@@ -72,8 +72,8 @@ import hunoia.luno.settings.model.ArcStyle
 import hunoia.luno.settings.model.GridStyle
 import hunoia.luno.settings.model.PieStyle
 import hunoia.luno.gesture.Position
-import hunoia.luno.action.display.actionIcon
-import hunoia.luno.action.display.actionText
+import hunoia.luno.ui.action.actionIcon
+import hunoia.luno.ui.action.actionText
 import hunoia.luno.action.appInfo
 import hunoia.luno.action.shortcutInfo
 import hunoia.luno.settings.model.GestureSettings

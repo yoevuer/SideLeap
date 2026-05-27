@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.settings.gesture
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -105,11 +106,11 @@ fun SubGestureAngleContent(
                     shape = MaterialTheme.shapes.extraLarge
                 )
                 .border(
-                    width = 1.dp,
+                    width = Spacing1,
                     color = MaterialTheme.colorScheme.outlineVariant,
                     shape = MaterialTheme.shapes.extraLarge
                 )
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .padding(horizontal = Spacing24, vertical = Spacing16)
         ) {
             Column {
                 SubGestureAngleDial(
@@ -120,7 +121,7 @@ fun SubGestureAngleContent(
                     onAngleChange = { draftAngle = it },
                     color = color
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(Spacing12))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -173,7 +174,7 @@ private fun SubGestureAngleDial(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary
 ) {
-    val dragHandleRadius = 10.dp
+    val dragHandleRadius = Spacing10
     val dragHitRadius = 26.dp
     var circleRadius by remember { mutableStateOf(0f) }
     var circleCenter by remember { mutableStateOf(Offset.Zero) }
@@ -241,14 +242,14 @@ private fun SubGestureAngleDial(
             radius = dialRadius,
             center = myCenter,
             alpha = 0.25f,
-            style = Stroke(width = 2.dp.toPx())
+            style = Stroke(width = Spacing2.toPx())
         )
         drawCircle(
             color = color,
             radius = lineRadius,
             center = myCenter,
             alpha = 0.18f,
-            style = Stroke(width = 1.dp.toPx())
+            style = Stroke(width = Spacing1.toPx())
         )
 
         angle.boundaries.forEachIndexed { index, bound ->
@@ -258,7 +259,7 @@ private fun SubGestureAngleDial(
                 y = myCenter.y - lineRadius * sin(angleRad)
             )
             drawLine(color = color, start = myCenter, end = offset, strokeWidth = lineWidthPx)
-            drawCircle(color = Color.White, radius = pointRadiusPx + 2.dp.toPx(), center = offset)
+            drawCircle(color = Color.White, radius = pointRadiusPx + Spacing2.toPx(), center = offset)
             drawCircle(color = color, radius = pointRadiusPx, center = offset)
         }
 

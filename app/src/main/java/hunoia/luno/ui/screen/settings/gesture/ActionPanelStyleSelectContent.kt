@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.settings.gesture
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -58,7 +59,7 @@ fun ActionPanelStyleSelectContent(
     )
 
     Column {
-        MyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        MyColumn(verticalArrangement = Arrangement.spacedBy(Spacing12)) {
             items.fastForEachIndexed { _, (type, nameRes, descRes) ->
                 val selected = type == currentStyle.type
                 ActionPanelStyleCard(
@@ -150,7 +151,7 @@ private fun ActionPanelStyleCard(
                     else MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    modifier = Modifier.padding(top = 2.dp),
+                    modifier = Modifier.padding(top = Spacing2),
                     text = stringResource(id = descRes),
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
@@ -164,7 +165,7 @@ private fun ActionPanelStyleCard(
                     modifier = Modifier
                         .size(36.dp)
                         .clipToBorder(
-                            width = 1.dp,
+                            width = Spacing1,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                             shape = CircleShape
                         )
@@ -172,7 +173,7 @@ private fun ActionPanelStyleCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(Spacing20),
                         imageVector = Icons.Default.Settings,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
@@ -196,9 +197,9 @@ internal fun PreviewStage(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(4.dp)
+                .padding(Spacing4)
                 .clipToBorder(
-                    width = 1.dp,
+                    width = Spacing1,
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.9f),
                     shape = MaterialTheme.shapes.small
                 )
@@ -218,14 +219,14 @@ internal fun GridStylePreview(modifier: Modifier = Modifier) {
                 .size(width = 58.dp, height = 44.dp)
                 .clip(RoundedCornerShape(14.dp))
                 .background(colorScheme.primary.copy(alpha = 0.16f))
-                .padding(horizontal = 8.dp, vertical = 6.dp)
+                .padding(horizontal = 8.dp, vertical = Spacing6)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(Spacing4)
             ) {
                 repeat(2) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(Spacing4)) {
                         repeat(3) {
                             Box(
                                 modifier = Modifier
@@ -247,7 +248,7 @@ internal fun ArcStylePreview(modifier: Modifier = Modifier) {
         val colorScheme = MaterialTheme.colorScheme
         Canvas(modifier = Modifier.fillMaxSize()) {
             val anchor = Offset(x = -size.width * 0.08f, y = size.height * 0.5f)
-            val itemRadius = 4.dp.toPx()
+            val itemRadius = Spacing4.toPx()
             val innerArcRadius = size.minDimension * 0.37f
             val outerArcRadius = size.minDimension * 0.56f
 
@@ -277,7 +278,7 @@ internal fun PieStylePreview(modifier: Modifier = Modifier) {
             val cx = size.width / 2f
             val cy = size.height / 2f
             val radius = size.minDimension * 0.45f
-            val itemRadius = 4.dp.toPx()
+            val itemRadius = Spacing4.toPx()
 
             listOf(0f, 60f, 120f, 180f, 240f, 300f).forEach { angleDeg ->
                 val rad = Math.toRadians(angleDeg.toDouble())

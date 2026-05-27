@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.freeze
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -158,7 +159,7 @@ fun AppBlacklistContent(
                             AppSearchBar(
                                 query = searchQuery,
                                 onQueryChange = { searchQuery = it },
-                                modifier = Modifier.padding(horizontal = ContentPaddingHorizontal, vertical = 4.dp),
+                                modifier = Modifier.padding(horizontal = ContentPaddingHorizontal, vertical = Spacing4),
                                 placeholder = stringResource(R.string.search_app_hint),
                             )
                         }

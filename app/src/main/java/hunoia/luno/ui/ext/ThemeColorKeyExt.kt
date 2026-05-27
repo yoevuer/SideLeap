@@ -1,6 +1,9 @@
 package hunoia.luno.ui.ext
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.MaterialTheme
 import hunoia.luno.R
 import hunoia.luno.settings.model.ThemeColorKey
 
@@ -23,3 +26,22 @@ val ThemeColorKey.displayNameRes: Int
         ThemeColorKey.SurfaceContainer -> R.string.theme_color_surface_container
         ThemeColorKey.SurfaceContainerHigh -> R.string.theme_color_surface_container_high
     }
+
+@androidx.compose.runtime.Composable
+fun ThemeColorKey.resolveColor(): Color = when (this) {
+    ThemeColorKey.Primary -> MaterialTheme.colorScheme.primary
+    ThemeColorKey.PrimaryContainer -> MaterialTheme.colorScheme.primaryContainer
+    ThemeColorKey.Secondary -> MaterialTheme.colorScheme.secondary
+    ThemeColorKey.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
+    ThemeColorKey.Tertiary -> MaterialTheme.colorScheme.tertiary
+    ThemeColorKey.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
+    ThemeColorKey.Surface -> MaterialTheme.colorScheme.surface
+    ThemeColorKey.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
+    ThemeColorKey.OnSurface -> MaterialTheme.colorScheme.onSurface
+    ThemeColorKey.OnSurfaceVariant -> MaterialTheme.colorScheme.onSurfaceVariant
+    ThemeColorKey.Outline -> MaterialTheme.colorScheme.outline
+    ThemeColorKey.OutlineVariant -> MaterialTheme.colorScheme.outlineVariant
+    ThemeColorKey.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
+    ThemeColorKey.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
+    ThemeColorKey.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
+}

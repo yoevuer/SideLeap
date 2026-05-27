@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,14 +29,14 @@ fun EmptyState(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp, horizontal = 16.dp),
+            .padding(vertical = Spacing24, horizontal = Spacing16),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(ShapeLarge),
         color = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
         Column(
-            modifier = Modifier.padding(vertical = 32.dp, horizontal = 24.dp),
+            modifier = Modifier.padding(vertical = Spacing32, horizontal = Spacing24),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(Spacing12)
         ) {
             Icon(
                 imageVector = icon,

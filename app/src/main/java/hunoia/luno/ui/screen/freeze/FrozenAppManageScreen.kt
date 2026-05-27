@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.freeze
+import hunoia.luno.ui.theme.*
 
 import hunoia.luno.ui.component.AppSearchBar
 import hunoia.luno.ui.component.EmptyState
@@ -106,7 +107,7 @@ fun FrozenAppManageContent(
 
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(start = Spacing16, end = Spacing4, top = Spacing4),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -150,7 +151,7 @@ fun FrozenAppManageContent(
             AppSearchBar(
                 query = searchQuery,
                 onQueryChange = { vm.onQueryChange(it); searchQuery = it },
-                modifier = Modifier.padding(horizontal = ContentPaddingHorizontal, vertical = 4.dp),
+                modifier = Modifier.padding(horizontal = ContentPaddingHorizontal, vertical = Spacing4),
                 placeholder = stringResource(R.string.search_app_hint),
             )
 
@@ -169,7 +170,7 @@ fun FrozenAppManageContent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { selectedExpanded = !selectedExpanded }
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                                .padding(horizontal = Spacing16, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -179,7 +180,7 @@ fun FrozenAppManageContent(
                                     rotationX = if (selectedExpanded) 0f else 180f
                                 }
                             )
-                            Spacer(Modifier.padding(4.dp))
+                            Spacer(Modifier.padding(Spacing4))
                             Text(
                                 text = stringResource(id = R.string.one_key_list),
                                 style = MaterialTheme.typography.labelLarge,
@@ -206,7 +207,7 @@ fun FrozenAppManageContent(
                         Text(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                                .padding(horizontal = Spacing16, vertical = 8.dp),
                             text = stringResource(id = R.string.other_apps),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -253,7 +254,7 @@ private fun FrozenAppItem(
             modifier = Modifier
                 .padding(start = ContentPaddingHorizontal * 2)
                 .size(MinInteractiveSize)
-                .clip(RoundedCornerShape(12.dp)),
+                .clip(RoundedCornerShape(Spacing12)),
             model = app.icon,
             contentDescription = null,
             imageLoader = context.imageLoader,
@@ -283,7 +284,7 @@ private fun FrozenAppItem(
         }
         if (isFrozen) {
             Icon(
-                modifier = Modifier.padding(end = 4.dp),
+                modifier = Modifier.padding(end = Spacing4),
                 imageVector = Icons.Default.AcUnit,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant

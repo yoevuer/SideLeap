@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,7 +30,7 @@ fun MyColorDisplay(
                 shape = CircleShape
             )
             .border(
-                width = 1.dp,
+                width = Spacing1,
                 color = MaterialTheme.colorScheme.outlineVariant,
                 shape = CircleShape
             )

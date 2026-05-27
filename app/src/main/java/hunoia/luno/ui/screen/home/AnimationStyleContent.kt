@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.home
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -77,6 +78,7 @@ import hunoia.luno.settings.model.CapsuleStyle
 import hunoia.luno.settings.model.ColorSource
 import hunoia.luno.settings.model.LineStyle
 import hunoia.luno.settings.model.ThemeColorKey
+import hunoia.luno.ui.ext.resolveColor
 import hunoia.luno.settings.model.WaveStyle
 import hunoia.luno.ui.screen.settings.gesture.getWaveStyleIcon
 import hunoia.luno.ui.theme.MinInteractiveSize
@@ -312,13 +314,13 @@ fun AnimationStyleContent(
                 title = stringResource(id = R.string.shape_style)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing16, vertical = Spacing4),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     StyleChip(
                         modifier = Modifier.weight(1f),
                         selected = type == AnimationStyles.TYPE_WAVE,
-                        icon = { ShapePreview(WaveStyle.SHAPE_WAVE, Modifier.size(24.dp),
+                        icon = { ShapePreview(WaveStyle.SHAPE_WAVE, Modifier.size(Spacing24),
                             if (type == AnimationStyles.TYPE_WAVE) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant) },
                         label = stringResource(R.string.shape_wave),
                         onClick = { vm.onTabSelected(AnimationStyles.TYPE_WAVE) }
@@ -326,7 +328,7 @@ fun AnimationStyleContent(
                     StyleChip(
                         modifier = Modifier.weight(1f),
                         selected = type == AnimationStyles.TYPE_LINE,
-                        icon = { LinePreview(Modifier.size(24.dp),
+                        icon = { LinePreview(Modifier.size(Spacing24),
                             if (type == AnimationStyles.TYPE_LINE) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant) },
                         label = stringResource(R.string.shape_line),
                         onClick = { vm.onTabSelected(AnimationStyles.TYPE_LINE) }
@@ -334,7 +336,7 @@ fun AnimationStyleContent(
                     StyleChip(
                         modifier = Modifier.weight(1f),
                         selected = type == AnimationStyles.TYPE_CAPSULE,
-                        icon = { CapsulePreview(Modifier.size(24.dp),
+                        icon = { CapsulePreview(Modifier.size(Spacing24),
                             if (type == AnimationStyles.TYPE_CAPSULE) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant) },
                         label = stringResource(R.string.animation_style_capsule),
                         onClick = { vm.onTabSelected(AnimationStyles.TYPE_CAPSULE) }
@@ -342,7 +344,7 @@ fun AnimationStyleContent(
                     StyleChip(
                         modifier = Modifier.weight(1f),
                         selected = type == AnimationStyles.TYPE_BUBBLE,
-                        icon = { BubblePreview(Modifier.size(24.dp),
+                        icon = { BubblePreview(Modifier.size(Spacing24),
                             if (type == AnimationStyles.TYPE_BUBBLE) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant) },
                         label = stringResource(R.string.animation_style_bubble),
                         onClick = { vm.onTabSelected(AnimationStyles.TYPE_BUBBLE) }
@@ -635,23 +637,7 @@ private fun dispatchColorSource(vm: AnimationStyleVM, type: Int, target: String,
 @Composable
 private fun resolvePreviewColor(source: ColorSource, themeKey: ThemeColorKey, customColor: Int): Color = when (source) {
     ColorSource.Custom -> Color(customColor)
-    ColorSource.Theme -> when (themeKey) {
-        ThemeColorKey.Primary -> MaterialTheme.colorScheme.primary
-        ThemeColorKey.PrimaryContainer -> MaterialTheme.colorScheme.primaryContainer
-        ThemeColorKey.Secondary -> MaterialTheme.colorScheme.secondary
-        ThemeColorKey.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
-        ThemeColorKey.Tertiary -> MaterialTheme.colorScheme.tertiary
-        ThemeColorKey.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
-        ThemeColorKey.Surface -> MaterialTheme.colorScheme.surface
-        ThemeColorKey.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
-        ThemeColorKey.OnSurface -> MaterialTheme.colorScheme.onSurface
-        ThemeColorKey.OnSurfaceVariant -> MaterialTheme.colorScheme.onSurfaceVariant
-        ThemeColorKey.Outline -> MaterialTheme.colorScheme.outline
-        ThemeColorKey.OutlineVariant -> MaterialTheme.colorScheme.outlineVariant
-        ThemeColorKey.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
-        ThemeColorKey.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
-        ThemeColorKey.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
-    }
+    ColorSource.Theme -> themeKey.resolveColor()
 }
 
 @Composable
@@ -748,13 +734,13 @@ private fun StyleChip(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = Modifier.size(32.dp).clip(MaterialTheme.shapes.small)
+            modifier = Modifier.size(Spacing32).clip(MaterialTheme.shapes.small)
                 .background(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh),
             contentAlignment = Alignment.Center
         ) {
             icon()
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(Spacing4))
         Text(text = label, style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
     }

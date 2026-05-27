@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -102,20 +103,20 @@ fun VirtualMouseCursor(
                 color = baseColor.copy(alpha = pulse * 0.26f),
                 radius = radius * (1.25f + (1f - pulse) * 1.1f),
                 center = position,
-                style = Stroke(width = 2.dp.toPx()),
+                style = Stroke(width = Spacing2.toPx()),
             )
         }
         drawCircle(
             color = Color.Black.copy(alpha = 0.75f * settings.cursorAlpha),
             radius = ringRadius,
             center = position,
-            style = Stroke(width = 4.dp.toPx()),
+            style = Stroke(width = Spacing4.toPx()),
         )
         drawCircle(
             color = Color.White.copy(alpha = 0.9f * settings.cursorAlpha),
             radius = ringRadius,
             center = position,
-            style = Stroke(width = 2.dp.toPx()),
+            style = Stroke(width = Spacing2.toPx()),
         )
         drawCircle(
             color = baseColor,
@@ -131,7 +132,7 @@ fun VirtualMouseCursor(
                 color = baseColor.copy(alpha = (1f - rippleAnim.value) * 0.4f),
                 radius = radius * (1f + rippleAnim.value * 3f),
                 center = position,
-                style = Stroke(width = 2.dp.toPx()),
+                style = Stroke(width = Spacing2.toPx()),
             )
         }
     }

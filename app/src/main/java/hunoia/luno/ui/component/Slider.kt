@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -167,7 +168,7 @@ fun MyTextRangeSlider(
         }
         MyRangeSlider(
             modifier = Modifier
-                .padding(horizontal = ContentPaddingHorizontal - 6.dp)
+                .padding(horizontal = ContentPaddingHorizontal - Spacing6)
                 .height(30.dp),
             enabled = enabled,
             value = value,
@@ -224,7 +225,7 @@ fun MySlider(
         thumb = {
             SliderDefaults.Thumb(
                 modifier = Modifier
-                    .requiredSize(20.dp)
+                    .requiredSize(Spacing20)
                     .drawWithContent {
                         drawContent()
                         if (enabled) {
@@ -268,7 +269,7 @@ fun MyRangeSlider(
     val thumb: @Composable (MutableInteractionSource) -> Unit = { interactionSource ->
         SliderDefaults.Thumb(
             modifier = Modifier
-                .requiredSize(20.dp)
+                .requiredSize(Spacing20)
                 .drawWithContent {
                     drawContent()
                     if (enabled) {

@@ -4,12 +4,13 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.R
 import hunoia.luno.core.AppContext
+import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.AppInfo
+import hunoia.luno.freeze.FreezeFacade
 import hunoia.luno.ui.screen.freeze.AppBlacklistVM.UiEvent
 import hunoia.luno.ui.screen.freeze.AppBlacklistVM.UiState
-import hunoia.luno.launcher.query.AppQuery
+import hunoia.luno.settings.model.FrozenAppSettings
 import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.freeze.api.FreezeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
@@ -79,8 +80,8 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
                 try {
-                    AppQuery
-                        .queryLauncherActivities(AppContext.get())
+                    LauncherFacade
+                        .queryApps(AppContext.get())
                         .filter {
                             it.packageName != AppContext.get().packageName
                         }
@@ -89,7 +90,7 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
                 }
             }
             val frozenApps = withContext(Dispatchers.IO) {
-                FreezeState.queryFrozenApplicationsOnIo(AppContext.get())
+                FreezeFacade.queryFrozenAppsOnIo(AppContext.get())
             }
             val normalPackageNames = appInfos.map { it.packageName }.toSet()
             val filteredFrozenApps = frozenApps.filter {
