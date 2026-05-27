@@ -40,6 +40,11 @@ object GestureButtonDefaults {
     const val LongPressVibrate = true
     const val VibrateImmediately = false
     const val CustomVibrationMs = 50L
+    const val FitSoftKeyboard = true
+    const val IsPreciseSlideType = true
+    const val HideLandscape = false
+    const val HideScreenLock = false
+    const val HideHomeScreen = false
     val SideDefaults = listOf(
         GestureButton(
             id = ID_DEFAULT,
@@ -102,6 +107,11 @@ data class GestureButton(
     val longPressTriggerDelayMs: Long = GestureButtonDefaults.LongPressTriggerDelayMs,
     val longSlideTriggerImmediately: Boolean = GestureButtonDefaults.LongSlideTriggerImmediately,
     val longSlideTriggerDelayMs: Long = GestureButtonDefaults.LongSlideTriggerDelayMs,
+    val fitSoftKeyboard: Boolean = GestureButtonDefaults.FitSoftKeyboard,
+    val isPreciseSlideType: Boolean = GestureButtonDefaults.IsPreciseSlideType,
+    val hideLandscape: Boolean = GestureButtonDefaults.HideLandscape,
+    val hideScreenLock: Boolean = GestureButtonDefaults.HideScreenLock,
+    val hideHomeScreen: Boolean = GestureButtonDefaults.HideHomeScreen,
 ) : Comparable<GestureButton> {
 
     companion object {

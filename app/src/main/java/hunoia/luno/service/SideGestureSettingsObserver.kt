@@ -31,7 +31,6 @@ class SideGestureSettingsObserver(
             observeLatestSettings()
             observeGestureButtonChanges()
             observeGestureVisibilityChanges()
-            observeKeyboardInputSettingChanges()
         }
     }
 
@@ -60,12 +59,4 @@ class SideGestureSettingsObserver(
         }
     }
 
-    private fun CoroutineScope.observeKeyboardInputSettingChanges() {
-        launch {
-            SettingsProvider
-                .advancedSettings
-                .distinctUntilChangedBy { it.fitSoftKeyboard }
-                .collectLatest { onRefreshGestureButtons() }
-        }
-    }
 }

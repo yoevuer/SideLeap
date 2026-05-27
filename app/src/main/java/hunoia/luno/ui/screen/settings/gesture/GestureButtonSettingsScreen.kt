@@ -437,7 +437,7 @@ fun GestureButtonSettingsScreen(
                                 )
                             }
                         }
-                        if (!gestureButton.isDefault) {
+                            if (!gestureButton.isDefault) {
                             SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
                                 TextActionButton(
                                     onClick = { vm.colorPickerDialog.show(true) },
@@ -459,6 +459,37 @@ fun GestureButtonSettingsScreen(
                                     }
                                 )
                             }
+                        }
+                        SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
+                            LabeledSwitch(
+                                onCheckedChange = { vm.onFitSoftKeyboardChange(it) },
+                                checked = gestureButton.fitSoftKeyboard,
+                                text = stringResource(R.string.fit_soft_keyboard),
+                                secondaryText = stringResource(R.string.fit_soft_keyboard_hint)
+                            )
+                            LabeledSwitch(
+                                onCheckedChange = { vm.onPreciseSlideTypeChange(it) },
+                                checked = gestureButton.isPreciseSlideType,
+                                text = stringResource(R.string.precise_slide_type),
+                                secondaryText = stringResource(R.string.precise_slide_type_hint)
+                            )
+                        }
+                        SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
+                            LabeledSwitch(
+                                onCheckedChange = { vm.onHideLandscapeChange(it) },
+                                checked = gestureButton.hideLandscape,
+                                text = stringResource(R.string.landscape)
+                            )
+                            LabeledSwitch(
+                                onCheckedChange = { vm.onHideScreenLockChange(it) },
+                                checked = gestureButton.hideScreenLock,
+                                text = stringResource(R.string.lock_screen)
+                            )
+                            LabeledSwitch(
+                                onCheckedChange = { vm.onHideHomeScreenChange(it) },
+                                checked = gestureButton.hideHomeScreen,
+                                text = stringResource(R.string.launcher)
+                            )
                         }
                     }
                 }

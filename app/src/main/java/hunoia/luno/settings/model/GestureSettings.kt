@@ -1,7 +1,6 @@
 package hunoia.luno.settings.model
 
 import androidx.annotation.Keep
-import hunoia.luno.settings.defaults.GestureSettingsDefaults.IsPreciseSlideType
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.SubGestureTimeoutMs
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.VirtualMouseAcceleration
 import hunoia.luno.settings.defaults.GestureSettingsDefaults.VirtualMouseClickAnimationEnabled
@@ -24,7 +23,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Keep
 data class GestureSettings(
-    val isPreciseSlideType: Boolean = IsPreciseSlideType,
     val subGestureTimeoutMs: Long = SubGestureTimeoutMs,
     val actionPanelVibrate: Boolean = true,
     val moveScreenVibrate: Boolean = true,

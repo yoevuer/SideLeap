@@ -271,10 +271,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     }
 
     private fun updateKeyboardInputState(event: AccessibilityEvent) {
-        if (advancedSettings?.fitSoftKeyboard != true) {
-            setKeyboardInputActive(false)
-            return
-        }
         val active = when (event.eventType) {
             AccessibilityEvent.TYPE_VIEW_FOCUSED,
             AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED,

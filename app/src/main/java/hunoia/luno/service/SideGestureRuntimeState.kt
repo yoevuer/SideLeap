@@ -24,10 +24,10 @@ internal data class GestureButtonRefreshState(
         return initialSettings.gestureEnabled &&
             (runtimeState.hiddenGestureButtons[button.hiddenKey()] ?: 0L) <= runtimeState.nowMs &&
             !runtimeState.isMouseMode &&
-            !(advancedSettings.fitSoftKeyboard && runtimeState.isKeyboardInputActive) &&
-            !(advancedSettings.hideLandscape && runtimeState.isLandscape) &&
-            !(advancedSettings.hideHomeScreen && runtimeState.isInLauncher) &&
-            !(advancedSettings.hideScreenLock && runtimeState.isNowInLockScreenPage) &&
+            !(button.fitSoftKeyboard && runtimeState.isKeyboardInputActive) &&
+            !(button.hideLandscape && runtimeState.isLandscape) &&
+            !(button.hideHomeScreen && runtimeState.isInLauncher) &&
+            !(button.hideScreenLock && runtimeState.isNowInLockScreenPage) &&
             runtimeState.currentPackageName !in advancedSettings.excludeApps &&
             button.enabled
     }

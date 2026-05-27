@@ -61,7 +61,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.Dialog
-import hunoia.luno.ui.screen.home.sheet.AdvancedSettingsSheet
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -109,7 +108,6 @@ import hunoia.luno.ui.screen.home.AnimationStyleContent
 import hunoia.luno.ui.screen.home.sheet.AnimationStyleSheet
 import hunoia.luno.ui.screen.home.sheet.DisplaySettingsSheet
 import hunoia.luno.ui.screen.home.sheet.FrozenAppManageSheet
-import hunoia.luno.ui.screen.home.sheet.AdvancedSettingsSheet
 import hunoia.luno.ui.screen.home.sheet.MiniWindowSettingsSheet
 import hunoia.luno.ui.screen.home.sheet.VirtualMouseSettingsSheet
 
@@ -131,7 +129,6 @@ fun HomeScreen(
         var showDisplaySettings by remember { mutableStateOf(false) }
         var showAnimationStyle by remember { mutableStateOf(false) }
         var showMiniWindowSettings by remember { mutableStateOf(false) }
-        var showAdvancedSettings by remember { mutableStateOf(false) }
         var showAppBlacklist by remember { mutableStateOf(false) }
     val context = LocalContext.current
     UDFComponent(
@@ -231,10 +228,6 @@ fun HomeScreen(
                     uiState = uiState,
                     vm = vm
                 )
-                AdvancedSettingsSheet(
-                    show = showAdvancedSettings,
-                    onDismiss = { showAdvancedSettings = false }
-                )
                 if (showAppBlacklist) {
                     OptimizedBottomSheet(
                         onDismissRequest = { showAppBlacklist = false }
@@ -318,11 +311,6 @@ fun HomeScreen(
                             checked = uiState.isGestureEnabled,
                             text = stringResource(id = R.string.gesture_switch),
                             secondaryText = stringResource(id = R.string.gesture_switch_hint)
-                        )
-                        TextActionButton(
-                            onClick = { showAdvancedSettings = true },
-                            text = stringResource(id = R.string.advanced_settings),
-                            secondaryText = stringResource(id = R.string.advanced_settings_hint)
                         )
                         TextActionButton(
                             onClick = { showDisplaySettings = true },

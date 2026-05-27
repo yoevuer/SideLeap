@@ -11,14 +11,10 @@ object AdvancedSettingsDefaults {
     val ExcludeApps = emptyList<String>()
     val AnimationStyles = AnimationStyles()
     val ActionPanelStyles = ActionPanelStyles()
-    const val FitSoftKeyboard = true
     const val MiniWindowHorizontalBias = 0.5f
     const val MiniWindowVerticalBias = 0.7f
     const val MiniWindowVerticalEdgeMarginFraction = 0.05f
     const val MiniWindowVerticalOffsetFraction = 0f
-    const val HideLandscape = false
-    const val HideScreenLock = false
-    const val HideHomeScreen = false
     val ClipApps = emptyMap<String, Float>()
     val ClipShortcuts = emptyMap<String, Float>()
 }
@@ -26,7 +22,6 @@ object AdvancedSettingsDefaults {
 object GestureSettingsDefaults {
 
     const val SubGestureTimeoutMs = 5000L
-    const val IsPreciseSlideType = true
     const val VirtualMouseSensitivityX = 1.6f
     const val VirtualMouseSensitivityY = 1.6f
     const val VirtualMouseAcceleration = 0.8f

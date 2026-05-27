@@ -128,8 +128,7 @@ class SideGestureState(
         val newDirection = calcDirection(button, origin, finger, buttonBounds, gestureSettings) ?: return null
         triggerDirection = newDirection
 
-        val gestureSettings = gestureSettings
-        if (gestureSettings.isPreciseSlideType) {
+        if (button.isPreciseSlideType) {
             if (newDirection == Center) {
                 if (!isOhoGestureEverCanTriggered) {
                     isOhoGestureEverCanTriggered = canDistanceTriggered(button, origin, finger, newDirection, false, curStickySlideValue, judgeAction = false)
