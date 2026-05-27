@@ -21,18 +21,18 @@ import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.ui.component.SideGestureContainer
 import hunoia.luno.ui.event.SubscribeEvent
 import hunoia.luno.ui.theme.SideGestureTheme
-import hunoia.luno.gesture.application.VirtualMousePointerAction
+import hunoia.luno.gesture.application.PointerAction
 
 @Composable
 fun GestureOverlayView(
     screenshotService: hunoia.luno.SideGestureService,
     onSubGestureModeChanged: (Boolean) -> Unit,
     onAction: (hunoia.luno.action.Action, hunoia.luno.gesture.GestureButton?) -> Unit,
-    onVirtualMouseStart: () -> Boolean,
-    onVirtualMouseEnd: () -> Unit,
-    onVirtualMouseSettingsUpdate: (GestureSettings.VirtualMouse) -> Unit,
-    virtualMousePreviousPosition: () -> Offset,
-    onPointerActionAtPosition: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit,
+    onPointerStart: () -> Boolean,
+    onPointerEnd: () -> Unit,
+    onPointerSettingsUpdate: (GestureSettings.Pointer) -> Unit,
+    pointerPreviousPosition: () -> Offset,
+    onPointerActionAtPosition: (Int, Int, Boolean, PointerAction) -> Unit,
     onTakeScreenshot: suspend () -> android.graphics.Bitmap?,
     windowController: SideGestureWindowController,
 ) {
@@ -78,10 +78,10 @@ fun GestureOverlayView(
                     else -> null
                 },
                 onAction = onAction,
-                onVirtualMouseStart = onVirtualMouseStart,
-                onVirtualMouseEnd = onVirtualMouseEnd,
-                onVirtualMouseSettingsUpdate = onVirtualMouseSettingsUpdate,
-                virtualMousePreviousPosition = virtualMousePreviousPosition,
+                onPointerStart = onPointerStart,
+                onPointerEnd = onPointerEnd,
+                onPointerSettingsUpdate = onPointerSettingsUpdate,
+                pointerPreviousPosition = pointerPreviousPosition,
                 onPointerActionAtPosition = onPointerActionAtPosition,
                 onTakeScreenshot = onTakeScreenshot,
                 actionSettings = actionSettings,

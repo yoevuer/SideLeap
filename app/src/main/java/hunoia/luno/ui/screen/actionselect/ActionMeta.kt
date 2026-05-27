@@ -28,7 +28,7 @@ val actionTitleResMap: Map<String, Int> = mapOf(
     "move_screen" to R.string.action_move_screen,
     "back_to_top" to R.string.action_back_to_top,
     "goto_bottom" to R.string.action_goto_bottom,
-    "virtual_mouse" to R.string.action_virtual_mouse,
+    "pointer" to R.string.action_pointer,
     "volume_scrub" to R.string.action_volume_scrub,
     "shell_command" to R.string.action_shell_command,
     "open_activity" to R.string.action_open_activity,
@@ -52,7 +52,7 @@ val actionDescResMap: Map<String, Int> = mapOf(
     "open_activity" to R.string.action_desc_open_activity,
     "open_url" to R.string.action_desc_open_url,
     "quick_app_launcher" to R.string.action_desc_quick_launcher,
-    "virtual_mouse" to R.string.action_desc_virtual_mouse,
+    "pointer" to R.string.action_desc_pointer,
     "volume_scrub" to R.string.action_desc_volume_scrub,
     "shell_command" to R.string.action_desc_shell_command,
     "sub_gesture" to R.string.action_desc_sub_gesture,
@@ -64,7 +64,7 @@ val actionSettingHintResMap: Map<ActionConfigKind, Int> = mapOf(
     ActionConfigKind.GOTO_BOTTOM to R.string.action_setting_hint_goto_bottom,
     ActionConfigKind.OPEN_APP_OR_URL to R.string.action_setting_hint_open_activity,
     ActionConfigKind.SHELL_COMMAND to R.string.action_setting_hint_shell_command,
-    ActionConfigKind.VIRTUAL_MOUSE to R.string.action_setting_hint_virtual_mouse,
+    ActionConfigKind.POINTER to R.string.action_setting_hint_pointer,
     ActionConfigKind.VOLUME_SCRUB to R.string.action_setting_hint_volume_scrub,
 )
 

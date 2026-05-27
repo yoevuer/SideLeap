@@ -5,13 +5,13 @@ import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
-import hunoia.luno.action.virtualMouseContinuousModeOverride
+import hunoia.luno.action.pointerContinuousModeOverride
 
-object VirtualMouseActionHandler : ActionHandler {
-    override val supportedActions = setOf(GlobalActions.VIRTUAL_MOUSE)
+object PointerActionHandler : ActionHandler {
+    override val supportedActions = setOf(GlobalActions.POINTER)
 
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
-        return if (context.showVirtualMouse(action.virtualMouseContinuousModeOverride())) {
+        return if (context.showPointer(action.pointerContinuousModeOverride())) {
             ActionExecutionResult.Success
         } else {
             ActionExecutionResult.Ignored

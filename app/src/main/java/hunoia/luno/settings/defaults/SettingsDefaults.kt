@@ -22,22 +22,22 @@ object AdvancedSettingsDefaults {
 object GestureSettingsDefaults {
 
     const val SubGestureTimeoutMs = 5000L
-    const val VirtualMouseSensitivityX = 1.6f
-    const val VirtualMouseSensitivityY = 1.6f
-    const val VirtualMouseAcceleration = 0.8f
-    const val VirtualMouseInitialYRatio = 0.35f
-    const val VirtualMouseEdgeCancelThresholdDp = 24
-    const val VirtualMouseContinuousMode = false
-    const val VirtualMouseContinuousModeTimeoutMs = 5000L
-    const val VirtualMouseCursorSizeDp = 28
-    const val VirtualMouseCursorAlpha = 0.9f
-    const val VirtualMouseClickAnimationEnabled = true
-    const val VirtualMouseMovementDeadZoneDp = 3
-    const val VirtualMouseLongPressEnabled = false
-    const val VirtualMouseLongPressDelayMs = 800L
-    const val VirtualMouseLongPressMoveToleranceDp = 6
-    const val VirtualMouseTrailStrength = 1.2f
-    const val VirtualMouseTrailAlpha = 0.7f
+    const val PointerSensitivityX = 1.6f
+    const val PointerSensitivityY = 1.6f
+    const val PointerAcceleration = 0.8f
+    const val PointerInitialYRatio = 0.35f
+    const val PointerEdgeCancelThresholdDp = 24
+    const val PointerContinuousMode = false
+    const val PointerContinuousModeTimeoutMs = 5000L
+    const val PointerCursorSizeDp = 28
+    const val PointerCursorAlpha = 0.9f
+    const val PointerClickAnimationEnabled = true
+    const val PointerMovementDeadZoneDp = 3
+    const val PointerLongPressEnabled = false
+    const val PointerLongPressDelayMs = 800L
+    const val PointerLongPressMoveToleranceDp = 6
+    const val PointerTrailStrength = 1.2f
+    const val PointerTrailAlpha = 0.7f
 }
 
 object InitialSettingsDefaults {

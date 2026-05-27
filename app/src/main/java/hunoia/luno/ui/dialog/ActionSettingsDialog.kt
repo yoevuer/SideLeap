@@ -71,7 +71,7 @@ import hunoia.luno.R
 import hunoia.luno.action.Action
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.ShellCommandData
-import hunoia.luno.action.VirtualMouseActionData
+import hunoia.luno.action.PointerActionData
 import hunoia.luno.ui.action.actionText
 import hunoia.luno.core.serialization.JsonHelper
 
@@ -327,14 +327,14 @@ fun UrlSettingsContent(
 }
 
 @Composable
-fun VirtualMouseActionSettingsContent(
+fun PointerActionSettingsContent(
     action: hunoia.luno.action.Action,
     onConfirm: (String) -> Unit
 ) {
     val existingData = remember(action.data) {
-        runCatching { JsonHelper.decodeFromString<VirtualMouseActionData>(action.data) }.getOrNull()
+        runCatching { JsonHelper.decodeFromString<PointerActionData>(action.data) }.getOrNull()
     }
-    var mode by remember(action.data) { mutableStateOf(existingData?.mode ?: VirtualMouseActionData.Mode.Default) }
+    var mode by remember(action.data) { mutableStateOf(existingData?.mode ?: PointerActionData.Mode.Default) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -342,26 +342,26 @@ fun VirtualMouseActionSettingsContent(
         verticalArrangement = Arrangement.spacedBy(ItemPadding)
     ) {
         Text(
-            text = stringResource(R.string.virtual_mouse_action_mode),
+            text = stringResource(R.string.pointer_action_mode),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
         listOf(
-            VirtualMouseActionData.Mode.Default to R.string.virtual_mouse_action_mode_default,
-            VirtualMouseActionData.Mode.Continuous to R.string.virtual_mouse_action_mode_continuous,
-            VirtualMouseActionData.Mode.Single to R.string.virtual_mouse_action_mode_single,
+            PointerActionData.Mode.Default to R.string.pointer_action_mode_default,
+            PointerActionData.Mode.Continuous to R.string.pointer_action_mode_continuous,
+            PointerActionData.Mode.Single to R.string.pointer_action_mode_single,
         ).forEach { (option, labelRes) ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .onSingleClick { onConfirm(JsonHelper.encodeToString(VirtualMouseActionData(option))) }
+                    .onSingleClick { onConfirm(JsonHelper.encodeToString(PointerActionData(option))) }
                     .padding(vertical = Spacing2),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(ItemPadding)
             ) {
                 RadioButton(
                     selected = mode == option,
-                    onClick = { onConfirm(JsonHelper.encodeToString(VirtualMouseActionData(option))) }
+                    onClick = { onConfirm(JsonHelper.encodeToString(PointerActionData(option))) }
                 )
                 Text(
                     text = stringResource(labelRes),

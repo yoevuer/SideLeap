@@ -21,7 +21,7 @@ data class ActionHandlerContext(
     val requestEnableFrozenPackage: (String, (Boolean) -> Unit) -> Unit = { _, onResult -> onResult(false) },
     val toggleQuickAppLauncher: () -> Unit = {},
     val openPasswordGenerator: () -> Unit = {},
-    val showVirtualMouse: (Boolean?) -> Boolean = { false },
+    val showPointer: (Boolean?) -> Boolean = { false },
     val showVolumeScrub: () -> Boolean = { false },
     val toggleKeepScreenOn: () -> Unit = {},
     val hideGestureButton: (Long) -> Unit = {},

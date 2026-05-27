@@ -90,7 +90,7 @@ internal class SideGestureServiceProxyActionCoordinator(
             },
             toggleQuickAppLauncher = { host.quickAppLauncherOverlay.toggle() },
             openPasswordGenerator = { host.openPasswordGeneratorPanel() },
-            showVirtualMouse = { continuousModeOverride -> host.showVirtualMouseOverlay(continuousModeOverride) },
+            showPointer = { continuousModeOverride -> host.showPointerOverlay(continuousModeOverride) },
             showVolumeScrub = { host.showVolumeScrubOverlay() },
             hideGestureButton = { delayMs ->
                 if (sourceButton != null) {

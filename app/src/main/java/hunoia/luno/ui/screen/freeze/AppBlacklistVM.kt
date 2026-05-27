@@ -2,14 +2,12 @@ package hunoia.luno.ui.screen.freeze
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.luno.R
 import hunoia.luno.core.AppContext
 import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.freeze.FreezeFacade
 import hunoia.luno.ui.screen.freeze.AppBlacklistVM.UiEvent
 import hunoia.luno.ui.screen.freeze.AppBlacklistVM.UiState
-import hunoia.luno.settings.model.FrozenAppSettings
 import hunoia.luno.settings.SettingsProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -29,12 +27,6 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
         loadData()
     }
 
-    fun showResetWarningDialog(show: Boolean) {
-        updateUiState {
-            it.copy(showResetWarningDialog = show)
-        }
-    }
-
     fun selectApp(appInfo: AppInfo, selected: Boolean) {
         updateUiState {
             val mutableList = it.excludeApps.toMutableList()
@@ -45,46 +37,25 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
             }
             it.copy(excludeApps = mutableList)
         }
-    }
-
-    fun done() {
-        viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings {
-                it.copy(excludeApps = uiState.excludeApps)
-            }
-        }.invokeOnCompletion {
-            if (it == null) {
-                toast(R.string.save_success)
-                finish()
-            } else {
-                toast(R.string.save_failure)
-            }
-        }
+        save()
     }
 
     fun reset() {
-        viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings {
-                it.copy(excludeApps = emptyList())
-            }
-        }.invokeOnCompletion {
-            if (it == null) {
-                toast(R.string.reset_success)
-            } else {
-                toast(R.string.reset_failure)
-            }
+        updateUiState {
+            it.copy(excludeApps = emptyList())
         }
+        save()
+        reloadApps()
     }
 
-    fun updateAppInfos() {
+    fun reloadApps() {
         viewModelScope.launchWithLoading {
+            save()
             val appInfos = withContext(Dispatchers.IO) {
                 try {
                     LauncherFacade
                         .queryApps(AppContext.get())
-                        .filter {
-                            it.packageName != AppContext.get().packageName
-                        }
+                        .filter { it.packageName != AppContext.get().packageName }
                 } catch (_: Exception) {
                     emptyList()
                 }
@@ -100,6 +71,14 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
             mergedApps.addAll(appInfos)
             mergedApps.addAll(filteredFrozenApps)
             arrangeAppInfos(mergedApps)
+        }
+    }
+
+    private fun save() {
+        viewModelScope.launch {
+            SettingsProvider.updateAdvancedSettings {
+                it.copy(excludeApps = uiState.excludeApps)
+            }
         }
     }
 
@@ -146,7 +125,6 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
         val selectedAppInfos: List<AppInfo> = emptyList(),
         val unselectedAppInfos: List<AppInfo> = emptyList(),
         val excludeApps: List<String> = emptyList(),
-        val showResetWarningDialog: Boolean = false
     )
 
     sealed interface UiEvent

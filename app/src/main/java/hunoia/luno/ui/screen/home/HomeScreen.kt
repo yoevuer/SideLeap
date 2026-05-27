@@ -102,12 +102,12 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 import hunoia.luno.gesture.SubGestureDirection
-import hunoia.luno.settings.model.GestureSettings.VirtualMouseTrailStyle
+import hunoia.luno.settings.model.GestureSettings.PointerTrailStyle
 import hunoia.luno.ui.screen.freeze.AppBlacklistContent
 import hunoia.luno.ui.screen.home.sheet.AnimationStyleSheet
 import hunoia.luno.ui.screen.home.sheet.FrozenAppManageSheet
 import hunoia.luno.ui.screen.home.sheet.MiniWindowSettingsSheet
-import hunoia.luno.ui.screen.home.sheet.VirtualMouseSettingsSheet
+import hunoia.luno.ui.screen.home.sheet.PointerSettingsSheet
 
 /**
  * @author aaronzzxup@gmail.com
@@ -122,7 +122,7 @@ fun HomeScreen(
     vm: HomeVM = viewModel()
 ) {
         val scrollState = rememberScrollState()
-        var showVirtualMouseSettings by remember { mutableStateOf(false) }
+        var showPointerSettings by remember { mutableStateOf(false) }
         var showFrozenManage by remember { mutableStateOf(false) }
         var showAnimationStyle by remember { mutableStateOf(false) }
         var showMiniWindowSettings by remember { mutableStateOf(false) }
@@ -197,10 +197,10 @@ fun HomeScreen(
         }
 
             Box {
-                VirtualMouseSettingsSheet(
-                    show = showVirtualMouseSettings,
-                    onDismiss = { showVirtualMouseSettings = false },
-                    virtualMouse = uiState.virtualMouse,
+                PointerSettingsSheet(
+                    show = showPointerSettings,
+                    onDismiss = { showPointerSettings = false },
+                    pointer = uiState.pointer,
                     vm = vm
                 )
                 AnimationStyleSheet(
@@ -320,9 +320,9 @@ fun HomeScreen(
                         title = stringResource(id = R.string.action_settings)
                     ) {
                         TextActionButton(
-                            onClick = { showVirtualMouseSettings = true },
-                            text = stringResource(id = R.string.virtual_mouse),
-                            secondaryText = stringResource(id = R.string.virtual_mouse_hint)
+                            onClick = { showPointerSettings = true },
+                            text = stringResource(id = R.string.pointer),
+                            secondaryText = stringResource(id = R.string.pointer_hint)
                         )
                         TextActionButton(
                             onClick = { showFrozenManage = true },
@@ -536,77 +536,77 @@ fun HomeScreen(
     }
 }
 
-private val VirtualMouseTrailStyleOptions = listOf(
-    VirtualMouseTrailStyle.None,
-    VirtualMouseTrailStyle.Dots,
-    VirtualMouseTrailStyle.LightBand,
+private val PointerTrailStyleOptions = listOf(
+    PointerTrailStyle.None,
+    PointerTrailStyle.Dots,
+    PointerTrailStyle.LightBand,
 )
 
 @Composable
-internal fun VirtualMouseSettingsContent(
-    virtualMouse: GestureSettings.VirtualMouse,
+internal fun PointerSettingsContent(
+    pointer: GestureSettings.Pointer,
     vm: HomeVM,
     scrollState: androidx.compose.foundation.ScrollState? = null,
 ) {
     var showTrailStyleDropdown by remember { mutableStateOf(false) }
     MyColumn(scrollState = scrollState ?: rememberScrollState()) {
         LabeledSwitch(
-            onCheckedChange = { vm.onVirtualMouseContinuousModeChange(it) },
-            checked = virtualMouse.continuousMode,
-            text = stringResource(id = R.string.virtual_mouse_continuous_mode),
-            secondaryText = stringResource(id = R.string.virtual_mouse_continuous_mode_hint)
+            onCheckedChange = { vm.onPointerContinuousModeChange(it) },
+            checked = pointer.continuousMode,
+            text = stringResource(id = R.string.pointer_continuous_mode),
+            secondaryText = stringResource(id = R.string.pointer_continuous_mode_hint)
         )
-        val currentVirtualMouse by rememberUpdatedState(virtualMouse)
+        val currentPointer by rememberUpdatedState(pointer)
         MyTextSlider(
-            value = virtualMouse.continuousModeTimeoutMs / 1000f,
-            onValueChange = { vm.onVirtualMouseContinuousModeTimeoutChange((it * 1000).toLong()) },
-            onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_continuous_timeout_plain),
-            valueDisplay = stringResource(id = R.string.virtual_mouse_continuous_timeout, virtualMouse.continuousModeTimeoutMs / 1000),
+            value = pointer.continuousModeTimeoutMs / 1000f,
+            onValueChange = { vm.onPointerContinuousModeTimeoutChange((it * 1000).toLong()) },
+            onValueChangeFinished = { vm.savePointerSettings() },
+            text = stringResource(id = R.string.pointer_continuous_timeout_plain),
+            valueDisplay = stringResource(id = R.string.pointer_continuous_timeout, pointer.continuousModeTimeoutMs / 1000),
             valueRange = 1f..10f,
         )
         MyTextSlider(
-            value = virtualMouse.sensitivityX,
-            onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(sensitivityX = it)) },
-            onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_sensitivity_x_plain),
-            valueDisplay = stringResource(id = R.string.virtual_mouse_sensitivity_x, virtualMouse.sensitivityX),
+            value = pointer.sensitivityX,
+            onValueChange = { vm.onPointerChange(pointer.copy(sensitivityX = it)) },
+            onValueChangeFinished = { vm.savePointerSettings() },
+            text = stringResource(id = R.string.pointer_sensitivity_x_plain),
+            valueDisplay = stringResource(id = R.string.pointer_sensitivity_x, pointer.sensitivityX),
             valueRange = 0.5f..4f,
         )
         MyTextSlider(
-            value = virtualMouse.sensitivityY,
-            onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(sensitivityY = it)) },
-            onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_sensitivity_y_plain),
-            valueDisplay = stringResource(id = R.string.virtual_mouse_sensitivity_y, virtualMouse.sensitivityY),
+            value = pointer.sensitivityY,
+            onValueChange = { vm.onPointerChange(pointer.copy(sensitivityY = it)) },
+            onValueChangeFinished = { vm.savePointerSettings() },
+            text = stringResource(id = R.string.pointer_sensitivity_y_plain),
+            valueDisplay = stringResource(id = R.string.pointer_sensitivity_y, pointer.sensitivityY),
             valueRange = 0.5f..4f,
         )
         MyTextSlider(
-            value = virtualMouse.acceleration,
-            onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(acceleration = it)) },
-            onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_acceleration_plain),
-            valueDisplay = stringResource(id = R.string.virtual_mouse_acceleration, virtualMouse.acceleration),
+            value = pointer.acceleration,
+            onValueChange = { vm.onPointerChange(pointer.copy(acceleration = it)) },
+            onValueChangeFinished = { vm.savePointerSettings() },
+            text = stringResource(id = R.string.pointer_acceleration_plain),
+            valueDisplay = stringResource(id = R.string.pointer_acceleration, pointer.acceleration),
             valueRange = 0f..2f,
         )
-        var localCursorSize by remember(virtualMouse.cursorSizeDp) { mutableStateOf(virtualMouse.cursorSizeDp.toFloat()) }
+        var localCursorSize by remember(pointer.cursorSizeDp) { mutableStateOf(pointer.cursorSizeDp.toFloat()) }
         MyTextSlider(
             value = localCursorSize,
             onValueChange = { localCursorSize = it },
             onValueChangeFinished = {
-                vm.onVirtualMouseChange(currentVirtualMouse.copy(cursorSizeDp = localCursorSize.toInt()))
-                vm.saveVirtualMouseSettings()
+                vm.onPointerChange(currentPointer.copy(cursorSizeDp = localCursorSize.toInt()))
+                vm.savePointerSettings()
             },
-            text = stringResource(id = R.string.virtual_mouse_cursor_size_plain),
-            valueDisplay = stringResource(id = R.string.virtual_mouse_cursor_size, localCursorSize.toInt()),
+            text = stringResource(id = R.string.pointer_cursor_size_plain),
+            valueDisplay = stringResource(id = R.string.pointer_cursor_size, localCursorSize.toInt()),
             valueRange = 12f..64f,
         )
         MyTextSlider(
-            value = virtualMouse.cursorAlpha,
-            onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(cursorAlpha = it)) },
-            onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_cursor_alpha_plain),
-            valueDisplay = stringResource(id = R.string.virtual_mouse_cursor_alpha, (virtualMouse.cursorAlpha * 100).toInt()),
+            value = pointer.cursorAlpha,
+            onValueChange = { vm.onPointerChange(pointer.copy(cursorAlpha = it)) },
+            onValueChangeFinished = { vm.savePointerSettings() },
+            text = stringResource(id = R.string.pointer_cursor_alpha_plain),
+            valueDisplay = stringResource(id = R.string.pointer_cursor_alpha, (pointer.cursorAlpha * 100).toInt()),
             valueRange = 0.2f..1f,
         )
         Row(
@@ -620,14 +620,14 @@ internal fun VirtualMouseSettingsContent(
         ) {
             Text(
                 modifier = Modifier.weight(1f),
-                text = stringResource(id = R.string.virtual_mouse_trail),
+                text = stringResource(id = R.string.pointer_trail),
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1
             )
             Box {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = virtualMouseTrailStyleText(virtualMouse.trailStyle),
+                        text = pointerTrailStyleText(pointer.trailStyle),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 1
@@ -643,70 +643,70 @@ internal fun VirtualMouseSettingsContent(
                     expanded = showTrailStyleDropdown,
                     onDismissRequest = { showTrailStyleDropdown = false }
                 ) {
-                    VirtualMouseTrailStyleOptions.fastForEach { style ->
+                    PointerTrailStyleOptions.fastForEach { style ->
                         DropdownMenuItem(
                             onClick = {
-                                vm.onVirtualMouseTrailStyleChange(style)
+                                vm.onPointerTrailStyleChange(style)
                                 showTrailStyleDropdown = false
                             },
-                            text = { Text(virtualMouseTrailStyleText(style)) }
+                            text = { Text(pointerTrailStyleText(style)) }
                         )
                     }
                 }
             }
         }
-        if (virtualMouse.trailStyle != VirtualMouseTrailStyle.None) {
+        if (pointer.trailStyle != PointerTrailStyle.None) {
             MyTextSlider(
-                value = virtualMouse.trailStrength,
-                onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(trailStrength = it)) },
-                onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_trail_strength_plain),
-            valueDisplay = stringResource(id = R.string.virtual_mouse_trail_strength, virtualMouse.trailStrength),
+                value = pointer.trailStrength,
+                onValueChange = { vm.onPointerChange(pointer.copy(trailStrength = it)) },
+                onValueChangeFinished = { vm.savePointerSettings() },
+            text = stringResource(id = R.string.pointer_trail_strength_plain),
+            valueDisplay = stringResource(id = R.string.pointer_trail_strength, pointer.trailStrength),
                 valueRange = 0.5f..2f,
             )
             MyTextSlider(
-                value = virtualMouse.trailAlpha,
-                onValueChange = { vm.onVirtualMouseChange(virtualMouse.copy(trailAlpha = it)) },
-                onValueChangeFinished = { vm.saveVirtualMouseSettings() },
-            text = stringResource(id = R.string.virtual_mouse_trail_alpha_plain),
-            valueDisplay = stringResource(id = R.string.virtual_mouse_trail_alpha, (virtualMouse.trailAlpha * 100).toInt()),
+                value = pointer.trailAlpha,
+                onValueChange = { vm.onPointerChange(pointer.copy(trailAlpha = it)) },
+                onValueChangeFinished = { vm.savePointerSettings() },
+            text = stringResource(id = R.string.pointer_trail_alpha_plain),
+            valueDisplay = stringResource(id = R.string.pointer_trail_alpha, (pointer.trailAlpha * 100).toInt()),
                 valueRange = 0.2f..1f,
             )
         }
         LabeledSwitch(
-            onCheckedChange = { vm.onVirtualMouseClickAnimationChange(it) },
-            checked = virtualMouse.clickAnimationEnabled,
-            text = stringResource(id = R.string.virtual_mouse_click_animation)
+            onCheckedChange = { vm.onPointerClickAnimationChange(it) },
+            checked = pointer.clickAnimationEnabled,
+            text = stringResource(id = R.string.pointer_click_animation)
         )
         LabeledSwitch(
-            onCheckedChange = { vm.onVirtualMouseLongPressEnabledChange(it) },
-            checked = virtualMouse.longPressEnabled,
-            text = stringResource(id = R.string.virtual_mouse_long_press),
-            secondaryText = stringResource(id = R.string.virtual_mouse_long_press_hint)
+            onCheckedChange = { vm.onPointerLongPressEnabledChange(it) },
+            checked = pointer.longPressEnabled,
+            text = stringResource(id = R.string.pointer_long_press),
+            secondaryText = stringResource(id = R.string.pointer_long_press_hint)
         )
-        if (virtualMouse.longPressEnabled) {
-            var localLongPressDelay by remember(virtualMouse.longPressDelayMs) { mutableStateOf(virtualMouse.longPressDelayMs.toFloat()) }
+        if (pointer.longPressEnabled) {
+            var localLongPressDelay by remember(pointer.longPressDelayMs) { mutableStateOf(pointer.longPressDelayMs.toFloat()) }
             MyTextSlider(
                 value = localLongPressDelay,
                 onValueChange = { localLongPressDelay = it },
                 onValueChangeFinished = {
-                    vm.onVirtualMouseChange(currentVirtualMouse.copy(longPressDelayMs = localLongPressDelay.toLong()))
-                    vm.saveVirtualMouseSettings()
+                    vm.onPointerChange(currentPointer.copy(longPressDelayMs = localLongPressDelay.toLong()))
+                    vm.savePointerSettings()
                 },
-            text = stringResource(id = R.string.virtual_mouse_long_press_delay_plain),
-            valueDisplay = stringResource(id = R.string.virtual_mouse_long_press_delay, localLongPressDelay.toLong()),
+            text = stringResource(id = R.string.pointer_long_press_delay_plain),
+            valueDisplay = stringResource(id = R.string.pointer_long_press_delay, localLongPressDelay.toLong()),
                 valueRange = 400f..2000f,
             )
-            var localTolerance by remember(virtualMouse.longPressMoveToleranceDp) { mutableStateOf(virtualMouse.longPressMoveToleranceDp.toFloat()) }
+            var localTolerance by remember(pointer.longPressMoveToleranceDp) { mutableStateOf(pointer.longPressMoveToleranceDp.toFloat()) }
             MyTextSlider(
                 value = localTolerance,
                 onValueChange = { localTolerance = it },
                 onValueChangeFinished = {
-                    vm.onVirtualMouseChange(currentVirtualMouse.copy(longPressMoveToleranceDp = localTolerance.toInt()))
-                    vm.saveVirtualMouseSettings()
+                    vm.onPointerChange(currentPointer.copy(longPressMoveToleranceDp = localTolerance.toInt()))
+                    vm.savePointerSettings()
                 },
-            text = stringResource(id = R.string.virtual_mouse_long_press_tolerance_plain),
-            valueDisplay = stringResource(id = R.string.virtual_mouse_long_press_tolerance, localTolerance.toInt()),
+            text = stringResource(id = R.string.pointer_long_press_tolerance_plain),
+            valueDisplay = stringResource(id = R.string.pointer_long_press_tolerance, localTolerance.toInt()),
                 valueRange = 2f..16f,
             )
         }
@@ -714,11 +714,11 @@ internal fun VirtualMouseSettingsContent(
 }
 
 @Composable
-internal fun virtualMouseTrailStyleText(style: VirtualMouseTrailStyle): String {
+internal fun pointerTrailStyleText(style: PointerTrailStyle): String {
     return when (style) {
-        VirtualMouseTrailStyle.None -> stringResource(id = R.string.virtual_mouse_trail_style_close)
-        VirtualMouseTrailStyle.Dots -> stringResource(id = R.string.virtual_mouse_trail_style_dot)
-        VirtualMouseTrailStyle.LightBand -> stringResource(id = R.string.virtual_mouse_trail_style_band)
+        PointerTrailStyle.None -> stringResource(id = R.string.pointer_trail_style_close)
+        PointerTrailStyle.Dots -> stringResource(id = R.string.pointer_trail_style_dot)
+        PointerTrailStyle.LightBand -> stringResource(id = R.string.pointer_trail_style_band)
     }
 }
 

@@ -42,6 +42,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -107,21 +110,16 @@ fun FrozenAppManageContent(
 
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(start = Spacing16, end = Spacing4, top = Spacing4),
+                modifier = Modifier.fillMaxWidth().padding(start = ContentPaddingHorizontal, end = Spacing4, top = Spacing4),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stringResource(
-                        id = R.string.frozen_app_count_info,
-                        uiState.selectedCount,
-                        uiState.frozenCount
-                    ),
-                    style = MaterialTheme.typography.titleSmall
+                AppSearchBar(
+                    query = searchQuery,
+                    onQueryChange = { vm.onQueryChange(it); searchQuery = it },
+                    modifier = Modifier.weight(1f).padding(end = Spacing4),
+                    placeholder = stringResource(R.string.search_app_hint),
                 )
-                Spacer(Modifier.weight(1f))
-                IconButton(onClick = {
-                    vm.clearSelections()
-                }) {
+                IconButton(onClick = { vm.clearSelections() }) {
                     Icon(Icons.Default.Restore, contentDescription = stringResource(R.string.reset))
                 }
                 IconButton(onClick = { vm.reloadApps() }) {
@@ -148,15 +146,13 @@ fun FrozenAppManageContent(
                 }
             }
 
-            AppSearchBar(
-                query = searchQuery,
-                onQueryChange = { vm.onQueryChange(it); searchQuery = it },
-                modifier = Modifier.padding(horizontal = ContentPaddingHorizontal, vertical = Spacing4),
-                placeholder = stringResource(R.string.search_app_hint),
-            )
-
+            val stopFling = remember {
+                object : NestedScrollConnection {
+                    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity = available
+                }
+            }
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().nestedScroll(stopFling),
                 contentPadding = PaddingValues(bottom = ScrollBottomPadding)
             ) {
                 if (!hasAnyMatch && searchQuery.isNotBlank()) {
@@ -182,7 +178,13 @@ fun FrozenAppManageContent(
                             )
                             Spacer(Modifier.padding(Spacing4))
                             Text(
-                                text = stringResource(id = R.string.one_key_list),
+                                text = "已选",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.weight(1f))
+                            Text(
+                                text = "${uiState.oneKeyPackageNames.size}",
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -208,7 +210,7 @@ fun FrozenAppManageContent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = Spacing16, vertical = 8.dp),
-                            text = stringResource(id = R.string.other_apps),
+                            text = "未选",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

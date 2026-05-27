@@ -17,22 +17,22 @@ import androidx.compose.ui.platform.ComposeView
 import hunoia.luno.core.DensityProvider
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.ui.theme.SideGestureTheme
-import hunoia.luno.gesture.application.VirtualMousePointerAction
+import hunoia.luno.gesture.application.PointerAction
 import hunoia.luno.system.window.applyOverlayViewTreeOwners
 import hunoia.luno.system.window.windowManager
-import hunoia.luno.gesture.application.isVirtualMouseCancelGesture
-import hunoia.luno.gesture.application.isVirtualMouseWithinLongPressTolerance
-import hunoia.luno.gesture.application.moveVirtualMouseCursor
-import hunoia.luno.gesture.application.virtualMouseInitialPosition
-import hunoia.luno.ui.component.VirtualMouseCursor
+import hunoia.luno.gesture.application.isPointerCancelGesture
+import hunoia.luno.gesture.application.isPointerWithinLongPressTolerance
+import hunoia.luno.gesture.application.movePointerCursor
+import hunoia.luno.gesture.application.pointerInitialPosition
+import hunoia.luno.ui.component.PointerCursor
 
-interface VirtualMouseOverlayHost : androidx.lifecycle.LifecycleOwner,
+interface PointerOverlayHost : androidx.lifecycle.LifecycleOwner,
     androidx.lifecycle.ViewModelStoreOwner,
     androidx.savedstate.SavedStateRegistryOwner {
     val context: Context
 }
 
-class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
+class PointerOverlay(private val host: PointerOverlayHost) {
     private var overlayView: View? = null
     private var lastTouch = Offset.Unspecified
     private var clickPulseKey = 0
@@ -41,14 +41,14 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
     private var longPressRunnable: Runnable? = null
 
     fun show(
-        settings: GestureSettings.VirtualMouse,
+        settings: GestureSettings.Pointer,
         previousPosition: Offset = Offset.Unspecified,
-        onPointerAction: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit,
+        onPointerAction: (Int, Int, Boolean, PointerAction) -> Unit,
         onDismiss: () -> Unit,
     ) {
         closeImmediately()
         val wm = host.context.windowManager()
-        val cursorPosition = mutableStateOf(virtualMouseInitialPosition(settings, previousPosition))
+        val cursorPosition = mutableStateOf(pointerInitialPosition(settings, previousPosition))
         val clickPulse = mutableStateOf(clickPulseKey)
         var leftCancelEdge = false
         var longPressTriggered = false
@@ -68,7 +68,7 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
             if (!settings.longPressEnabled || settings.longPressDelayMs <= 0L || longPressTriggered) return
             longPressAnchor = anchor
             longPressRunnable = Runnable {
-                if (!isVirtualMouseWithinLongPressTolerance(longPressAnchor, lastTouch, settings)) return@Runnable
+                if (!isPointerWithinLongPressTolerance(longPressAnchor, lastTouch, settings)) return@Runnable
                 longPressTriggered = true
                 val target = cursorPosition.value
                 clickPulseKey += 1
@@ -77,7 +77,7 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                     target.x.toInt(),
                     target.y.toInt(),
                     settings.continuousMode,
-                    VirtualMousePointerAction.LongPress,
+                    PointerAction.LongPress,
                 )
             }.also { timeoutHandler.postDelayed(it, settings.longPressDelayMs) }
         }
@@ -98,11 +98,11 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                         val previous = lastTouch
                         if (previous != Offset.Unspecified) {
                             val dragAmount = current - previous
-                            if (!isVirtualMouseWithinLongPressTolerance(longPressAnchor, current, settings) && !longPressTriggered) {
+                            if (!isPointerWithinLongPressTolerance(longPressAnchor, current, settings) && !longPressTriggered) {
                                 resetLongPress(current)
                             }
                             val inCancelEdge = settings.continuousMode &&
-                                isVirtualMouseCancelGesture(current, settings)
+                                isPointerCancelGesture(current, settings)
                             if (!inCancelEdge) {
                                 leftCancelEdge = true
                             } else if (leftCancelEdge) {
@@ -110,7 +110,7 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                                 onDismiss()
                                 return@setOnTouchListener true
                             }
-                            cursorPosition.value = moveVirtualMouseCursor(cursorPosition.value, dragAmount, settings)
+                            cursorPosition.value = movePointerCursor(cursorPosition.value, dragAmount, settings)
                         }
                         lastTouch = current
                         true
@@ -129,7 +129,7 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
                                 target.x.toInt(),
                                 target.y.toInt(),
                                 settings.continuousMode,
-                                VirtualMousePointerAction.Click,
+                                PointerAction.Click,
                             )
                         } else {
                             onDismiss()
@@ -146,7 +146,7 @@ class VirtualMouseOverlay(private val host: VirtualMouseOverlayHost) {
             }
             setContent {
                 SideGestureTheme {
-                    VirtualMouseCursor(
+                    PointerCursor(
                         position = cursorPosition.value,
                         modifier = Modifier,
                         settings = settings,

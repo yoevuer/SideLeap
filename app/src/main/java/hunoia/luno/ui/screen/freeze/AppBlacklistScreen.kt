@@ -1,10 +1,12 @@
 package hunoia.luno.ui.screen.freeze
 import hunoia.luno.ui.theme.*
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,17 +14,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,15 +28,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -64,7 +64,6 @@ import hunoia.luno.ui.theme.ScrollBottomPadding
 import hunoia.luno.ui.theme.TopBarPaddingExtra
 import hunoia.luno.ui.component.AppSearchBar
 import hunoia.luno.ui.component.EmptyState
-import hunoia.luno.ui.component.MyAlertDialog
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.launch
@@ -92,30 +91,16 @@ fun AppBlacklistContent(
             }
         }
     ) { uiState ->
-        if (uiState.showResetWarningDialog) {
-            MyAlertDialog(
-                onDismissRequest = {
-                    vm.showResetWarningDialog(false)
-                },
-                title = stringResource(id = R.string.reset_default_settings_warning),
-                text = stringResource(id = R.string.reset_exclude_apps_warning_desc),
-                onConfirmClick = { vm.reset() }
-            )
-        }
-
         val permissionState = rememberGetInstalledAppsPermissionState { granted ->
-            if (granted) {
-                vm.updateAppInfos()
-            }
+            if (granted) vm.reloadApps()
         }
         LaunchedEffect(vm, permissionState) {
             if (!permissionState.status.isGranted) {
                 permissionState.launchPermissionRequest()
             } else {
-                vm.updateAppInfos()
+                vm.reloadApps()
             }
         }
-        val snackbarHostState = remember { SnackbarHostState() }
         Box(modifier = Modifier.fillMaxSize()) {
             if (permissionState.status.isGranted) {
                 LoadingComponent(
@@ -138,82 +123,129 @@ fun AppBlacklistContent(
                         }
                     }
                     val hasAnyMatch = selectedFiltered.isNotEmpty() || unselectedFiltered.isNotEmpty()
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = ScrollBottomPadding)
-                    ) {
-                        item(key = "actions") {
-                            Box(modifier = Modifier.fillMaxWidth()) {
-                                Row(modifier = Modifier.align(Alignment.CenterEnd)) {
-                                    IconButton(onClick = { vm.showResetWarningDialog(true) }) {
-                                        Icon(Icons.Default.Restore, contentDescription = "Reset")
-                                    }
-                                    IconButton(onClick = { vm.done() }) {
-                                        Icon(Icons.Default.Done, contentDescription = "Done")
-                                    }
-                                }
-                            }
-                        }
+                    var selectedExpanded by remember { mutableStateOf(false) }
 
-                        item {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = ContentPaddingHorizontal, end = Spacing4, top = Spacing4),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             AppSearchBar(
                                 query = searchQuery,
                                 onQueryChange = { searchQuery = it },
-                                modifier = Modifier.padding(horizontal = ContentPaddingHorizontal, vertical = Spacing4),
+                                modifier = Modifier.weight(1f).padding(end = Spacing4),
                                 placeholder = stringResource(R.string.search_app_hint),
                             )
-                        }
-                        if (!hasAnyMatch && searchQuery.isNotBlank()) {
-                            item {
-                                EmptyState(message = stringResource(R.string.no_matching_results))
+                            IconButton(onClick = { vm.reset() }) {
+                                Icon(Icons.Default.Restore, contentDescription = stringResource(R.string.reset))
+                            }
+                            IconButton(onClick = { vm.reloadApps() }) {
+                                Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.refresh))
                             }
                         }
-                        listOf(selectedFiltered, unselectedFiltered).fastForEach { list ->
-                            items(
-                                items = list,
-                                key = { it.qualifiedName }
-                            ) { item ->
-                                AppBlacklistItem(
-                                    appInfo = item,
-                                    selected = item.packageName in uiState.excludeApps,
-                                    onSelect = { selected ->
-                                        vm.selectApp(item, selected)
+
+                        val stopFling = remember {
+                            object : NestedScrollConnection {
+                                override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity = available
+                            }
+                        }
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize().nestedScroll(stopFling),
+                            contentPadding = PaddingValues(bottom = ScrollBottomPadding)
+                        ) {
+                            if (!hasAnyMatch && searchQuery.isNotBlank()) {
+                                item {
+                                    EmptyState(message = stringResource(R.string.no_matching_results))
+                                }
+                            }
+                            if (selectedFiltered.isNotEmpty()) {
+                                item(key = "selected_header") {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { selectedExpanded = !selectedExpanded }
+                                            .padding(horizontal = Spacing16, vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.ArrowDropDown,
+                                            contentDescription = null,
+                                            modifier = Modifier.graphicsLayer {
+                                                rotationX = if (selectedExpanded) 0f else 180f
+                                            }
+                                        )
+                                        Spacer(Modifier.padding(Spacing4))
+                                        Text(
+                                            text = "已选",
+                                            style = MaterialTheme.typography.labelLarge,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Spacer(Modifier.weight(1f))
+                                        Text(
+                                            text = "${uiState.excludeApps.size}",
+                                            style = MaterialTheme.typography.labelLarge,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                     }
-                                )
+                                }
+                                if (selectedExpanded) {
+                                    items(selectedFiltered, key = { it.qualifiedName }) { item ->
+                                        AppBlacklistItem(
+                                            appInfo = item,
+                                            selected = item.packageName in uiState.excludeApps,
+                                            onSelect = { selected ->
+                                                vm.selectApp(item, selected)
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                            if (unselectedFiltered.isNotEmpty()) {
+                                item(key = "unselected_header") {
+                                    Text(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = Spacing16, vertical = 8.dp),
+                                        text = "未选",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                items(unselectedFiltered, key = { it.qualifiedName }) { item ->
+                                    AppBlacklistItem(
+                                        appInfo = item,
+                                        selected = item.packageName in uiState.excludeApps,
+                                        onSelect = { selected ->
+                                            vm.selectApp(item, selected)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
                 }
             } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                            ) {
-                                val context = LocalContext.current
-                                val coroutineScope = rememberCoroutineScope()
-                                TextButton(
-                                    onClick = {
-                                        if (permissionState.status.deniedForever) {
-                                            coroutineScope.launch {
-                                                val result = snackbarHostState.showSnackbar(
-                                                    message = context.getString(R.string.goto_grant_get_apps_permission),
-                                                    actionLabel = context.getString(R.string.goto_enable_settings),
-                                                    withDismissAction = true
-                                                )
-                                                if (result == SnackbarResult.ActionPerformed) {
-                                                    context.gotoAppDetailSettings()
-                                                }
-                                            }
-                                        } else {
-                                            permissionState.launchPermissionRequest()
-                                        }
-                                    }
-                                ) {
-                                    Text(text = stringResource(id = R.string.request_get_apps_permission))
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val context = LocalContext.current
+                    TextButton(
+                        onClick = {
+                            if (permissionState.status.deniedForever) {
+                                context.gotoAppDetailSettings()
+                            } else {
+                                permissionState.launchPermissionRequest()
                             }
                         }
+                    ) {
+                        Text(text = stringResource(id = R.string.request_get_apps_permission))
                     }
+                }
             }
+        }
     }
 }
 
@@ -226,9 +258,7 @@ private fun AppBlacklistItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .onClick {
-                onSelect(!selected)
-            }
+            .onClick { onSelect(!selected) }
             .padding(vertical = ContentPaddingVertical),
         verticalAlignment = Alignment.CenterVertically
     ) {

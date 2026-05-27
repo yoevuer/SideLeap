@@ -18,7 +18,7 @@ import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.settings.model.AdvancedSettings
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.settings.model.InitialSettings
-import hunoia.luno.settings.model.GestureSettings.VirtualMouseTrailStyle
+import hunoia.luno.settings.model.GestureSettings.PointerTrailStyle
 import hunoia.luno.system.permission.isAccessibilitySettingsOn
 import hunoia.luno.system.permission.isIgnoringBatteryOptimizations
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -297,45 +297,45 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
-    fun onVirtualMouseChange(value: GestureSettings.VirtualMouse) {
-        updateUiState { it.copy(virtualMouse = value) }
+    fun onPointerChange(value: GestureSettings.Pointer) {
+        updateUiState { it.copy(pointer = value) }
     }
 
-    fun saveVirtualMouseSettings() {
+    fun savePointerSettings() {
         viewModelScope.launch {
             SettingsProvider.updateGestureSettings {
-                it.copy(virtualMouse = uiState.virtualMouse)
+                it.copy(pointer = uiState.pointer)
             }
         }
     }
 
-    fun onVirtualMouseContinuousModeChange(value: Boolean) {
-        onVirtualMouseChange(uiState.virtualMouse.copy(continuousMode = value))
-        saveVirtualMouseSettings()
+    fun onPointerContinuousModeChange(value: Boolean) {
+        onPointerChange(uiState.pointer.copy(continuousMode = value))
+        savePointerSettings()
     }
 
-    fun onVirtualMouseContinuousModeTimeoutChange(value: Long) {
-        onVirtualMouseChange(uiState.virtualMouse.copy(continuousModeTimeoutMs = value))
+    fun onPointerContinuousModeTimeoutChange(value: Long) {
+        onPointerChange(uiState.pointer.copy(continuousModeTimeoutMs = value))
     }
 
-    fun onVirtualMouseClickAnimationChange(value: Boolean) {
-        onVirtualMouseChange(uiState.virtualMouse.copy(clickAnimationEnabled = value))
-        saveVirtualMouseSettings()
+    fun onPointerClickAnimationChange(value: Boolean) {
+        onPointerChange(uiState.pointer.copy(clickAnimationEnabled = value))
+        savePointerSettings()
     }
 
-    fun onVirtualMouseTrailStyleChange(value: VirtualMouseTrailStyle) {
-        onVirtualMouseChange(uiState.virtualMouse.copy(trailStyle = value))
-        saveVirtualMouseSettings()
+    fun onPointerTrailStyleChange(value: PointerTrailStyle) {
+        onPointerChange(uiState.pointer.copy(trailStyle = value))
+        savePointerSettings()
     }
 
-    fun onVirtualMouseLongPressEnabledChange(value: Boolean) {
-        onVirtualMouseChange(uiState.virtualMouse.copy(longPressEnabled = value))
-        saveVirtualMouseSettings()
+    fun onPointerLongPressEnabledChange(value: Boolean) {
+        onPointerChange(uiState.pointer.copy(longPressEnabled = value))
+        savePointerSettings()
     }
 
-    fun onVirtualMouseLongPressDelayChange(value: Long) {
-        onVirtualMouseChange(uiState.virtualMouse.copy(longPressDelayMs = value))
-        saveVirtualMouseSettings()
+    fun onPointerLongPressDelayChange(value: Long) {
+        onPointerChange(uiState.pointer.copy(longPressDelayMs = value))
+        savePointerSettings()
     }
 
     fun onShowAnimation(showAnimation: Boolean) {
@@ -442,7 +442,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                     sideGestureButtons = sideButtons.sortedBy { it.id },
                     bottomGestureButtons = bottomButtons.sortedBy { it.id },
                     subGestures = subGestureSettings.subGestures,
-                    virtualMouse = gestureSettings.virtualMouse,
+                    pointer = gestureSettings.pointer,
                     showAnimation = advancedSettings.animationStyles.isAnimationEnabled,
                     miniWindowHorizontalBias = advancedSettings.miniWindowHorizontalBias,
                     miniWindowVerticalBias = advancedSettings.miniWindowVerticalBias,
@@ -468,7 +468,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         val showMoreMenu: Boolean = false,
         val showResetWarningDialog: Boolean = false,
         val showBackupRestoreDialog: Boolean = false,
-        val virtualMouse: GestureSettings.VirtualMouse = GestureSettings.VirtualMouse(),
+        val pointer: GestureSettings.Pointer = GestureSettings.Pointer(),
         val showAnimation: Boolean = false,
         val miniWindowHorizontalBias: Float = 0.5f,
         val miniWindowVerticalBias: Float = 0.7f,

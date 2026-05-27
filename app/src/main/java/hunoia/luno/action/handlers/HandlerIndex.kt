@@ -12,7 +12,7 @@ internal val allHandlers: List<ActionHandler> = listOf(
     AppLaunchActionHandler,
     ShortcutActionHandler,
     FreezeAppsActionHandler,
-    VirtualMouseActionHandler,
+    PointerActionHandler,
     VolumeScrubActionHandler,
     ShellCommandActionHandler,
 )

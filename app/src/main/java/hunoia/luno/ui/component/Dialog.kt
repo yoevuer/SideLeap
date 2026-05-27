@@ -77,7 +77,7 @@ import hunoia.luno.ui.dialog.ActivitySettingsContent
 import hunoia.luno.ui.dialog.UrlSettingsContent
 import hunoia.luno.ui.dialog.PreviousAppSettingsContent
 import hunoia.luno.ui.dialog.ShellCommandSettingsContent
-import hunoia.luno.ui.dialog.VirtualMouseActionSettingsContent
+import hunoia.luno.ui.dialog.PointerActionSettingsContent
 
 /**
  * @author aaronzzxup@gmail.com
@@ -351,8 +351,8 @@ fun ActionSettingsDialog(
                     )
                 }
 
-                GlobalActions.VIRTUAL_MOUSE -> {
-                    VirtualMouseActionSettingsContent(
+                GlobalActions.POINTER -> {
+                    PointerActionSettingsContent(
                         action = action,
                         onConfirm = {
                             onActionDataChanged(it)

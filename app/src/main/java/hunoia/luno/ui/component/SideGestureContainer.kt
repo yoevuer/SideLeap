@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import hunoia.luno.R
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.Action
-import hunoia.luno.gesture.application.VirtualMousePointerAction
+import hunoia.luno.gesture.application.PointerAction
 import hunoia.luno.action.withRuntimeTouchPosition
 import hunoia.luno.settings.model.ActionPanelStyle
 import hunoia.luno.settings.model.ActionPanelStyles
@@ -69,11 +69,11 @@ fun SideGestureContainer(
     advancedSettings: AdvancedSettings = AdvancedSettings(),
     gestureSettings: GestureSettings = GestureSettings(),
     onTakeScreenshot: (suspend () -> Bitmap?)? = null,
-    onVirtualMouseStart: () -> Boolean = { false },
-    onVirtualMouseEnd: () -> Unit = {},
-    onVirtualMouseSettingsUpdate: (GestureSettings.VirtualMouse) -> Unit = {},
-    virtualMousePreviousPosition: () -> Offset = { Offset.Unspecified },
-    onPointerActionAtPosition: (Int, Int, Boolean, VirtualMousePointerAction) -> Unit = { _, _, _, _ -> },
+    onPointerStart: () -> Boolean = { false },
+    onPointerEnd: () -> Unit = {},
+    onPointerSettingsUpdate: (GestureSettings.Pointer) -> Unit = {},
+    pointerPreviousPosition: () -> Offset = { Offset.Unspecified },
+    onPointerActionAtPosition: (Int, Int, Boolean, PointerAction) -> Unit = { _, _, _, _ -> },
     subGestureSettings: SubGestureSettings = SubGestureSettings(),
     onSubGestureModeChanged: (Boolean) -> Unit = {},
 
@@ -81,21 +81,21 @@ fun SideGestureContainer(
 ) {
     val context = LocalContext.current
     val curOnAction by rememberUpdatedState(newValue = onAction)
-    val curOnVirtualMouseStart by rememberUpdatedState(newValue = onVirtualMouseStart)
-    val curOnVirtualMouseEnd by rememberUpdatedState(newValue = onVirtualMouseEnd)
-    val curOnVirtualMouseSettingsUpdate by rememberUpdatedState(newValue = onVirtualMouseSettingsUpdate)
+    val curOnPointerStart by rememberUpdatedState(newValue = onPointerStart)
+    val curOnPointerEnd by rememberUpdatedState(newValue = onPointerEnd)
+    val curOnPointerSettingsUpdate by rememberUpdatedState(newValue = onPointerSettingsUpdate)
     val curOnPointerActionAtPosition by rememberUpdatedState(newValue = onPointerActionAtPosition)
     val curOnSubGestureModeChanged by rememberUpdatedState(newValue = onSubGestureModeChanged)
     val coroutineScope = rememberCoroutineScope()
     val sideGestureState = rememberSideGestureState(buttons, advancedSettings, gestureSettings)
     val actionPanelState = rememberActionPanelState()
     val moveScreenState = rememberMoveScreenState(gestureSettings, actionSettings.moveScreen)
-    val vmHandle = rememberVirtualMouseHandle(
+    val pointerHandle = rememberPointerHandle(
         gestureSettings = gestureSettings,
-        onVirtualMouseStart = { curOnVirtualMouseStart() },
-        onVirtualMouseEnd = { curOnVirtualMouseEnd() },
-        onVirtualMouseSettingsUpdate = { settings -> curOnVirtualMouseSettingsUpdate(settings) },
-        virtualMousePreviousPosition = { virtualMousePreviousPosition() },
+        onPointerStart = { curOnPointerStart() },
+        onPointerEnd = { curOnPointerEnd() },
+        onPointerSettingsUpdate = { settings -> curOnPointerSettingsUpdate(settings) },
+        pointerPreviousPosition = { pointerPreviousPosition() },
         onPointerActionAtPosition = { x, y, keepActive, action ->
             curOnPointerActionAtPosition(x, y, keepActive, action)
         },
@@ -191,8 +191,8 @@ fun SideGestureContainer(
                                 sideGestureState.cancel()
                                 clearSubGestureMode(notifyService = false)
                             }
-                            GlobalActions.VIRTUAL_MOUSE -> {
-                                vmHandle.start(Action(actionId), sideGestureState.finger, virtualMousePreviousPosition())
+                            GlobalActions.POINTER -> {
+                                pointerHandle.start(Action(actionId), sideGestureState.finger, pointerPreviousPosition())
                                 sideGestureState.cancel()
                                 clearSubGestureMode(notifyService = false)
                             }
@@ -218,8 +218,8 @@ fun SideGestureContainer(
                 }
                 return@onDrag
             }
-            if (vmHandle.isActive) {
-                if (!vmHandle.onDrag(dragAmount)) return@onDrag
+            if (pointerHandle.isActive) {
+                if (!pointerHandle.onDrag(dragAmount)) return@onDrag
                 return@onDrag
             }
             if (isVolumeScrubMode) {
@@ -272,8 +272,8 @@ fun SideGestureContainer(
                             volumeScrubAccumulator = 0f
                             volumeScrubAccumulatorX = 0f
                             sideGestureState.cancel()
-                        } else if (action.value == GlobalActions.VIRTUAL_MOUSE) {
-                            vmHandle.start(action, sideGestureState.finger, virtualMousePreviousPosition())
+                        } else if (action.value == GlobalActions.POINTER) {
+                            pointerHandle.start(action, sideGestureState.finger, pointerPreviousPosition())
                             sideGestureState.cancel()
                         } else if (action.value == GlobalActions.MOVE_SCREEN) {
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -300,9 +300,9 @@ fun SideGestureContainer(
                 if (subGestureTouchCount >= 5) clearSubGestureMode()
                 return@onDragEnd
             }
-            if (vmHandle.isActive) {
+            if (pointerHandle.isActive) {
                 curOnSubGestureModeChanged(false)
-                vmHandle.onDragEnd()
+                pointerHandle.onDragEnd()
                 return@onDragEnd
             }
             if (isVolumeScrubMode) {
@@ -339,9 +339,9 @@ fun SideGestureContainer(
                 clearSubGestureMode()
                 return@onDragCancel
             }
-            if (vmHandle.isActive) {
+            if (pointerHandle.isActive) {
                 curOnSubGestureModeChanged(false)
-                vmHandle.onDragCancel()
+                pointerHandle.onDragCancel()
                 return@onDragCancel
             }
             if (isVolumeScrubMode) {

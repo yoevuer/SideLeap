@@ -75,7 +75,7 @@ object GlobalActions {
     /** 模拟点击当前位置 */
     const val CLICK_CURRENT_POSITION = "55"
     /** 虚拟鼠标 */
-    const val VIRTUAL_MOUSE = "56"
+    const val POINTER = "56"
     /** 滑动调节音量 */
     const val VOLUME_SCRUB = "57"
     /** 执行 Shell 命令 */

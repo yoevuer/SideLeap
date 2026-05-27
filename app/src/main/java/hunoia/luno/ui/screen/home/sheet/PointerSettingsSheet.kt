@@ -7,13 +7,13 @@ import hunoia.luno.ui.component.BottomSheetNestedContent
 import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.OptimizedScrollState
 import hunoia.luno.ui.screen.home.HomeVM
-import hunoia.luno.ui.screen.home.VirtualMouseSettingsContent
+import hunoia.luno.ui.screen.home.PointerSettingsContent
 
 @Composable
-fun VirtualMouseSettingsSheet(
+fun PointerSettingsSheet(
     show: Boolean,
     onDismiss: () -> Unit,
-    virtualMouse: GestureSettings.VirtualMouse,
+    pointer: GestureSettings.Pointer,
     vm: HomeVM
 ) {
     if (!show) return
@@ -23,7 +23,7 @@ fun VirtualMouseSettingsSheet(
         scrollState = OptimizedScrollState.Scroll(scrollState)
     ) {
         BottomSheetNestedContent(scrollState = OptimizedScrollState.Scroll(scrollState)) {
-            VirtualMouseSettingsContent(virtualMouse = virtualMouse, vm = vm, scrollState = scrollState)
+            PointerSettingsContent(pointer = pointer, vm = vm, scrollState = scrollState)
         }
     }
 }

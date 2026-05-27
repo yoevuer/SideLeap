@@ -32,7 +32,7 @@ import hunoia.luno.service.ScreenLockObserver
 import hunoia.luno.service.SideGestureSettingsObserver
 import hunoia.luno.service.SideGestureWindowController
 import hunoia.luno.service.WallpaperChangeObserver
-import hunoia.luno.service.runtime.VirtualMouseRuntime
+import hunoia.luno.service.runtime.PointerRuntime
 import hunoia.luno.service.runtime.VolumeScrubRuntime
 import hunoia.luno.service.runtime.GestureButtonHideRuntime
 import hunoia.luno.ui.event.SubscribeEvent
@@ -42,10 +42,12 @@ import hunoia.luno.overlay.api.QuickAppLauncherOverlay
 import hunoia.luno.overlay.api.QuickAppLauncherOverlayHost
 import hunoia.luno.overlay.api.RuntimePanelOverlay
 import hunoia.luno.overlay.api.RuntimePanelOverlayHost
-import hunoia.luno.overlay.api.VirtualMouseOverlayHost
+import hunoia.luno.overlay.api.PointerOverlayHost
 import hunoia.luno.freeze.FrozenPackageEnabler
 import hunoia.luno.gesture.GestureButton
 import hunoia.luno.launcher.model.AppInfo
+import hunoia.luno.gesture.application.PointerAction
+import hunoia.luno.system.accessibility.Accessibility
 import hunoia.luno.system.copySensitiveText
 import hunoia.luno.ui.component.password.PasswordPanelContent
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +55,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, QuickAppLauncherOverlayHost, RuntimePanelOverlayHost, VirtualMouseOverlayHost {
+class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, QuickAppLauncherOverlayHost, RuntimePanelOverlayHost, PointerOverlayHost {
 
     companion object {
         private var currentRef: WeakReference<SideGestureService>? = null
@@ -97,7 +99,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                 isInLauncher = nowInLauncher(),
                 isKeyboardInputActive = isKeyboardInputActive,
                 hiddenGestureButtons = hideRuntime.getSnapshot(),
-                isMouseMode = mouseRuntime.isActive,
+                isMouseMode = pointerRuntime.isActive,
                 nowMs = SystemClock.uptimeMillis(),
             )
         },
@@ -133,7 +135,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             updateGestureButtons()
         }
     )
-    private val mouseRuntime = VirtualMouseRuntime(
+    private val pointerRuntime = PointerRuntime(
         host = this,
         scope = coroutineScope,
         gestureSettingsProvider = { gestureSettings },
@@ -187,7 +189,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         overlayLifecycle.onDestroy()
         frozenPackageEnabler.release()
         coroutineScope.cancel()
-        mouseRuntime.onDestroy()
+        pointerRuntime.onDestroy()
         volumeScrubRuntime.onDestroy()
         proxy.onRelease()
         screenLockObserver.unregister()
@@ -226,12 +228,18 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             onAction = { action, sourceButton ->
                 proxy.onAction(action, sourceButton)
             },
-            onVirtualMouseStart = { mouseRuntime.show() },
-            onVirtualMouseEnd = { mouseRuntime.end() },
-            onVirtualMouseSettingsUpdate = { settings -> mouseRuntime.onSettingsUpdate(settings) },
-            virtualMousePreviousPosition = { mouseRuntime.getLastPosition() },
+            onPointerStart = { pointerRuntime.show() },
+            onPointerEnd = { pointerRuntime.end() },
+            onPointerSettingsUpdate = { settings -> pointerRuntime.onSettingsUpdate(settings) },
+            pointerPreviousPosition = { pointerRuntime.getLastPosition() },
             onPointerActionAtPosition = { x, y, keepActive, action ->
-                mouseRuntime.show()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    when (action) {
+                        PointerAction.Click -> Accessibility.click(this, x, y)
+                        PointerAction.LongPress -> Accessibility.longPress(this, x, y)
+                    }
+                }
+                if (!keepActive) pointerRuntime.end()
             },
             onTakeScreenshot = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -316,12 +324,12 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         runtimePanelOverlay.show { PasswordPanelContent(applicationContext = applicationContext) }
     }
 
-    fun showVirtualMouseOverlay(continuousModeOverride: Boolean? = null): Boolean =
-        mouseRuntime.show(continuousModeOverride)
+    fun showPointerOverlay(continuousModeOverride: Boolean? = null): Boolean =
+        pointerRuntime.show(continuousModeOverride)
 
-    fun beginVirtualMouseMode(): Boolean = mouseRuntime.show()  // dummy: no-op, handled by runtime
+    fun beginPointerMode(): Boolean = pointerRuntime.show()  // dummy: no-op, handled by runtime
 
-    fun endVirtualMouseMode() = mouseRuntime.end()
+    fun endPointerMode() = pointerRuntime.end()
 
     fun showVolumeScrubOverlay(): Boolean = volumeScrubRuntime.show()
 
