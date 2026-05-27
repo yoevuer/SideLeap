@@ -8,7 +8,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import hunoia.luno.R
 import hunoia.luno.settings.model.QuickAppLauncherSettings
 import hunoia.luno.settings.SettingsProvider
@@ -27,13 +29,17 @@ internal fun QuickAppLauncherAdjustPanel(
         coroutineScope.launch { SettingsProvider.updateQuickAppLauncherLayout(next) }
     }
 
+    val screenH = LocalConfiguration.current.screenHeightDp
+    val maxPanel = 80.dp * (settings.candidateRows + 2.25f) + Spacing20 + Spacing10 * 2
+    val heightMax = (maxPanel / screenH.dp).coerceIn(0.35f, 0.85f)
+
     Column(modifier = Modifier.fillMaxWidth()) {
         MyTextSlider(
             value = settings.contentHeightFraction,
             onValueChange = { updateLayout(settings.copy(contentHeightFraction = it)) },
             text = stringResource(R.string.quick_app_launcher_content_height),
             valueDisplay = "${(settings.contentHeightFraction * 100).roundToInt()}%",
-            valueRange = 0.35f..(0.55f + 0.10f * settings.candidateRows).coerceAtMost(0.85f),
+            valueRange = 0.35f..heightMax,
         )
         MyTextSlider(
             value = settings.panelWidthFraction,
