@@ -36,18 +36,6 @@ fun AdvancedSettingsSheet(
             UDFComponent(component = vm.udfComponent, onEvent = {}) { uiState ->
                 MyColumn {
                     SectionCard(title = stringResource(R.string.app_management)) {
-                        LabeledSwitch(
-                            onCheckedChange = { vm.onActionPanelAppLongPressLaunchPopupChanged(it) },
-                            checked = uiState.actionPanelAppLongPressLaunchPopup,
-                            text = stringResource(R.string.action_panel_launch_app),
-                            secondaryText = stringResource(R.string.action_panel_launch_app_hint)
-                        )
-                        LabeledSwitch(
-                            onCheckedChange = { vm.onQuickLauncherAppLongPressLaunchPopupChanged(it) },
-                            checked = uiState.quickLauncherAppLongPressLaunchPopup,
-                            text = stringResource(R.string.quick_launcher_launch_app),
-                            secondaryText = stringResource(R.string.quick_launcher_launch_app_hint)
-                        )
                     }
                     SectionCard(
                         modifier = Modifier.padding(top = SectionPadding),

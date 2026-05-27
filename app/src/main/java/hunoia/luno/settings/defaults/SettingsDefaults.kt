@@ -12,8 +12,6 @@ object AdvancedSettingsDefaults {
     val AnimationStyles = AnimationStyles()
     val ActionPanelStyles = ActionPanelStyles()
     const val FitSoftKeyboard = true
-    const val ActionPanelAppLongPressLaunchPopup = false
-    const val QuickLauncherAppLongPressLaunchPopup = false
     const val MiniWindowHorizontalBias = 0.5f
     const val MiniWindowVerticalBias = 0.7f
     const val MiniWindowVerticalEdgeMarginFraction = 0.05f

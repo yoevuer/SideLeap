@@ -30,20 +30,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
-    fun onActionPanelAppLongPressLaunchPopupChanged(value: Boolean) {
-        updateUiState {
-            it.copy(actionPanelAppLongPressLaunchPopup = value)
-        }
-        saveSettings()
-    }
-
-    fun onQuickLauncherAppLongPressLaunchPopupChanged(value: Boolean) {
-        updateUiState {
-            it.copy(quickLauncherAppLongPressLaunchPopup = value)
-        }
-        saveSettings()
-    }
-
     fun onPreciseSlideTypeChange(value: Boolean) {
         updateUiState {
             it.copy(isPreciseSlideTypeEnabled = value)
@@ -92,8 +78,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                 SettingsProvider.updateAdvancedSettings {
                     it.copy(
                         fitSoftKeyboard = s.fitSoftKeyboard,
-                        actionPanelAppLongPressLaunchPopup = s.actionPanelAppLongPressLaunchPopup,
-                        quickLauncherAppLongPressLaunchPopup = s.quickLauncherAppLongPressLaunchPopup,
                         hideLandscape = s.hideLandscape,
                         hideScreenLock = s.hideScreenLock,
                         hideHomeScreen = s.hideHomeScreen,
@@ -118,8 +102,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
                         updateUiState {
                             it.copy(
                                 fitSoftKeyboard = item.fitSoftKeyboard,
-                                actionPanelAppLongPressLaunchPopup = item.actionPanelAppLongPressLaunchPopup,
-                                quickLauncherAppLongPressLaunchPopup = item.quickLauncherAppLongPressLaunchPopup,
                                 hideLandscape = item.hideLandscape,
                                 hideScreenLock = item.hideScreenLock,
                                 hideHomeScreen = item.hideHomeScreen,
@@ -142,8 +124,6 @@ class AdvancedSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     data class UiState(
         val fitSoftKeyboard: Boolean = false,
-        val actionPanelAppLongPressLaunchPopup: Boolean = false,
-        val quickLauncherAppLongPressLaunchPopup: Boolean = false,
         val hideLandscape: Boolean = false,
         val hideScreenLock: Boolean = false,
         val hideHomeScreen: Boolean = false,

@@ -365,7 +365,6 @@ fun SideGestureContainer(
             actionPanelStyle = actionPanelStyle,
             actionPanelState = actionPanelState,
             modifier = Modifier.matchParentSize(),
-            longPressLaunchPopup = advancedSettings.actionPanelAppLongPressLaunchPopup,
             gestureSettings = gestureSettings
         )
 

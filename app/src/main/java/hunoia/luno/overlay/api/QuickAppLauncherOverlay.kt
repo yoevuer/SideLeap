@@ -220,11 +220,9 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
 
             setContent {
                 val advancedSettings = host.advancedSettings ?: AdvancedSettings()
-                val quickLauncherPopup = advancedSettings.quickLauncherAppLongPressLaunchPopup
                 SideGestureTheme {
                     QuickAppLauncherContent(
                         initialSettings = initialSettings,
-                        quickLauncherAppLongPressLaunchPopup = quickLauncherPopup,
                         requestEnableFrozenPackage = host::requestEnableFrozenPackage,
                         onCloseAnimated = {
                             isShowing = false

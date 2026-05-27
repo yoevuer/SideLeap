@@ -107,7 +107,6 @@ fun ActionPanel(
     actionPanelStyle: ActionPanelStyle,
     actionPanelState: ActionPanelState,
     modifier: Modifier = Modifier,
-    longPressLaunchPopup: Boolean = false,
     gestureSettings: GestureSettings? = null
 ) {
     AnimatedVisibility(
@@ -143,7 +142,7 @@ fun ActionPanel(
                     Box(
                         modifier = Modifier
                             .let { thisModifier ->
-                                val miniWindow = actionPanelState.triggerType.isMiniWindow(longPressLaunchPopup)
+                                val miniWindow = selectedAction.appInfo?.miniWindow ?: false
                                 val boxMaxWidth = maxWidth
                                 val boxMaxHeight = maxHeight
                                 val spec = tween<Dp>(AnimPanelResize.toInt())

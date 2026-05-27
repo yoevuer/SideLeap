@@ -25,7 +25,6 @@ class QuickAppLauncherState(
     private val context: Context,
     private val coroutineScope: CoroutineScope,
     initialSettings: QuickAppLauncherSettings,
-    private val quickLauncherAppLongPressLaunchPopup: Boolean,
     private val requestEnableFrozenPackage: (String, (Boolean) -> Unit) -> Unit,
     private val onCloseAnimatedRaw: () -> Unit,
     private val onLaunch: (AppInfo, Boolean) -> Boolean,

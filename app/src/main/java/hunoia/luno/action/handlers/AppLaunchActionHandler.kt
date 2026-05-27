@@ -12,10 +12,8 @@ import hunoia.luno.action.Action
 import hunoia.luno.launcher.model.OpenAppOrUrlData
 import hunoia.luno.freeze.api.FreezeLaunch
 import hunoia.luno.action.appInfo
-import hunoia.luno.action.TriggerType
 import hunoia.luno.launcher.launch.Launcher
 import hunoia.luno.system.packages.queryIntentActivitiesCompat
-import hunoia.luno.action.runtimeTriggerType
 import hunoia.luno.core.serialization.JsonHelper
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -77,19 +75,8 @@ object AppLaunchActionHandler : ActionHandler {
     }
 
     private fun handleExtraLaunchApp(action: Action, context: ActionHandlerContext) {
-        val advancedSettings = context.advancedSettings
-        val appInfo = action.appInfo
-        if (appInfo != null) {
-            val longPressLaunchPopup = advancedSettings.actionPanelAppLongPressLaunchPopup
-            val triggerType = action.runtimeTriggerType()
-            val miniWindow = triggerType?.let {
-                when (it) {
-                    TriggerType.Press -> !longPressLaunchPopup
-                    TriggerType.LongPress -> longPressLaunchPopup
-                }
-            } ?: appInfo.miniWindow
-            launchAppWithFrozenSupport(context, appInfo, miniWindow)
-        }
+        val appInfo = action.appInfo ?: return
+        launchAppWithFrozenSupport(context, appInfo, appInfo.miniWindow)
     }
 
     private fun handleOpenAppActivity(action: Action, context: ActionHandlerContext) {

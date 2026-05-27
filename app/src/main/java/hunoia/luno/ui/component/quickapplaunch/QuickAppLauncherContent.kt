@@ -86,7 +86,6 @@ private enum class Page { App, Settings }
 @Composable
 internal fun QuickAppLauncherContent(
     initialSettings: QuickAppLauncherSettings,
-    quickLauncherAppLongPressLaunchPopup: Boolean,
     requestEnableFrozenPackage: (String, (Boolean) -> Unit) -> Unit,
     onCloseAnimated: () -> Unit,
     onUpdateLayout: ((QuickAppLauncherSettings) -> Unit)? = null,
@@ -101,7 +100,6 @@ internal fun QuickAppLauncherContent(
             context = context,
             coroutineScope = coroutineScope,
             initialSettings = initialSettings,
-            quickLauncherAppLongPressLaunchPopup = quickLauncherAppLongPressLaunchPopup,
             requestEnableFrozenPackage = requestEnableFrozenPackage,
             onCloseAnimatedRaw = onCloseAnimated,
             onLaunch = onLaunch,
@@ -222,10 +220,10 @@ internal fun QuickAppLauncherContent(
                                                     candidateHeight = candidateHeight,
                                                     rows = candidateRows,
                                                     onClick = { app, isFrozen ->
-                                                        state.launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
+                                                        state.launchApp(app, isFrozen, state.launcherSettings.tapOpensMiniWindow, null)
                                                     },
                                                     onLongPress = { app, isFrozen ->
-                                                        state.launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress")
+                                                        state.launchApp(app, isFrozen, !state.launcherSettings.tapOpensMiniWindow, "longPress")
                                                     }
                                                 )
                                                 Spacer(modifier = Modifier.height(8.dp))
@@ -260,11 +258,11 @@ internal fun QuickAppLauncherContent(
                                         gridHeight = contentHeight,
                                         gridColumns = state.launcherSettings.gridColumns,
                                                 onExpandKeyboard = { state.expandKeyboard() },
-                                                onClick = { app, isFrozen ->
-                                                    state.launchApp(app, isFrozen, !quickLauncherAppLongPressLaunchPopup, null)
-                                                },
-                                                onLongPress = { app, isFrozen ->
-                                                    state.launchApp(app, isFrozen, quickLauncherAppLongPressLaunchPopup, "longPress_grid")
+                                                    onClick = { app, isFrozen ->
+                                                        state.launchApp(app, isFrozen, state.launcherSettings.tapOpensMiniWindow, null)
+                                                    },
+                                                    onLongPress = { app, isFrozen ->
+                                                        state.launchApp(app, isFrozen, !state.launcherSettings.tapOpensMiniWindow, "longPress_grid")
                                                 }
                                             )
                                         }

@@ -1,7 +1,6 @@
 package hunoia.luno.settings.model
 
 import androidx.annotation.Keep
-import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.ActionPanelAppLongPressLaunchPopup
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.ActionPanelStyles
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.AnimationStyles
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.ClipApps
@@ -16,7 +15,6 @@ import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.MiniWindowHorizont
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.MiniWindowVerticalBias
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.MiniWindowVerticalEdgeMarginFraction
 import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.MiniWindowVerticalOffsetFraction
-import hunoia.luno.settings.defaults.AdvancedSettingsDefaults.QuickLauncherAppLongPressLaunchPopup
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -26,8 +24,6 @@ data class AdvancedSettings(
     val animationStyles: AnimationStyles = AnimationStyles,
     val actionPanelStyles: ActionPanelStyles = ActionPanelStyles,
     val fitSoftKeyboard: Boolean = FitSoftKeyboard,
-    val actionPanelAppLongPressLaunchPopup: Boolean = ActionPanelAppLongPressLaunchPopup,
-    val quickLauncherAppLongPressLaunchPopup: Boolean = QuickLauncherAppLongPressLaunchPopup,
     val miniWindowHorizontalBias: Float = MiniWindowHorizontalBias,
     val miniWindowVerticalBias: Float = MiniWindowVerticalBias,
     val miniWindowVerticalEdgeMarginFraction: Float = MiniWindowVerticalEdgeMarginFraction,
