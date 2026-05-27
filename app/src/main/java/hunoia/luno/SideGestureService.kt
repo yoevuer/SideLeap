@@ -49,7 +49,6 @@ import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.gesture.application.PointerAction
 import hunoia.luno.system.accessibility.Accessibility
 import hunoia.luno.system.copySensitiveText
-import hunoia.luno.ui.component.password.PasswordPanelContent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -318,10 +317,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
 
     override fun requestEnableFrozenPackage(packageName: String, onResult: (Boolean) -> Unit) {
         frozenPackageEnabler.request(packageName, onResult)
-    }
-
-    fun openPasswordGeneratorPanel() {
-        runtimePanelOverlay.show { PasswordPanelContent(applicationContext = applicationContext) }
     }
 
     fun showPointerOverlay(continuousModeOverride: Boolean? = null): Boolean =

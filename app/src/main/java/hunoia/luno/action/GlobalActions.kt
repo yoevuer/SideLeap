@@ -70,8 +70,6 @@ object GlobalActions {
     const val ONE_KEY_FREEZE_APPS = "52"
     /** 生成密码并复制 */
     const val GENERATE_PASSWORD_COPY = "53"
-    /** 打开密码生成器 */
-    const val OPEN_PASSWORD_GENERATOR = "54"
     /** 模拟点击当前位置 */
     const val CLICK_CURRENT_POSITION = "55"
     /** 虚拟鼠标 */

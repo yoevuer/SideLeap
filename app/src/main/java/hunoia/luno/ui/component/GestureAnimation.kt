@@ -1,9 +1,18 @@
 package hunoia.luno.ui.component
 import hunoia.luno.ui.theme.*
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -46,26 +55,94 @@ fun GestureAnimation(
     SideGestureState: SideGestureState,
     modifier: Modifier = Modifier
 ) {
+    val rawFingerX = SideGestureState.fingerXAnimVal
+    val rawFingerY = SideGestureState.fingerYAnimVal
+    val rawOriginX = SideGestureState.originXAnimVal
+    val rawOriginY = SideGestureState.originYAnimVal
+    val isActive = !rawFingerX.isNaN()
+
+    var lastFingerX by remember { mutableStateOf(Float.NaN) }
+    var lastFingerY by remember { mutableStateOf(Float.NaN) }
+    var lastOriginX by remember { mutableStateOf(Float.NaN) }
+    var lastOriginY by remember { mutableStateOf(Float.NaN) }
+
+    if (isActive) {
+        lastFingerX = rawFingerX
+        lastFingerY = rawFingerY
+        lastOriginX = rawOriginX
+        lastOriginY = rawOriginY
+    }
+
+    val snapProgress = remember { Animatable(0f) }
+    var snapCompleted by remember { mutableStateOf(false) }
+    LaunchedEffect(isActive) {
+        if (isActive) {
+            snapCompleted = false
+            snapProgress.snapTo(0f)
+        } else if (!lastFingerX.isNaN()) {
+            snapProgress.snapTo(0f)
+            snapProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+            snapProgress.animateTo(targetValue = 1.15f, animationSpec = tween(100))
+            snapCompleted = true
+        }
+    }
+
+    if (!isActive && snapCompleted) return
+
+    val progress = if (isActive) 1f else snapProgress.value
+    val easedProgress = (1f - progress).coerceAtLeast(0f)
+    val position = SideGestureState.button?.position ?: Position.Left
+    val displayFingerX = if (isActive) rawFingerX else {
+        if (position != Position.Bottom) lastFingerX * easedProgress else lastFingerX
+    }
+    val displayFingerY = if (isActive) rawFingerY else {
+        if (position == Position.Bottom) lastFingerY * easedProgress else lastFingerY
+    }
+    val displayOriginX = if (isActive) rawOriginX else lastOriginX
+    val displayOriginY = if (isActive) rawOriginY else lastOriginY
+
     when (animationStyle) {
         is WaveStyle -> WaveGestureAnimation(
             modifier = modifier,
             animationStyle = animationStyle,
-            sideGestureState = SideGestureState
+            sideGestureState = SideGestureState,
+            displayOriginX = displayOriginX,
+            displayOriginY = displayOriginY,
+            displayFingerX = displayFingerX,
+            displayFingerY = displayFingerY,
         )
         is CapsuleStyle -> CapsuleGestureAnimation(
             modifier = modifier,
             animationStyle = animationStyle,
-            sideGestureState = SideGestureState
+            sideGestureState = SideGestureState,
+            displayOriginX = displayOriginX,
+            displayOriginY = displayOriginY,
+            displayFingerX = displayFingerX,
+            displayFingerY = displayFingerY,
         )
         is BubbleStyle -> BubbleGestureAnimation(
             modifier = modifier,
             animationStyle = animationStyle,
-            sideGestureState = SideGestureState
+            sideGestureState = SideGestureState,
+            displayOriginX = displayOriginX,
+            displayOriginY = displayOriginY,
+            displayFingerX = displayFingerX,
+            displayFingerY = displayFingerY,
         )
         is LineStyle -> LineGestureAnimation(
             modifier = modifier,
             animationStyle = animationStyle,
-            sideGestureState = SideGestureState
+            sideGestureState = SideGestureState,
+            displayOriginX = displayOriginX,
+            displayOriginY = displayOriginY,
+            displayFingerX = displayFingerX,
+            displayFingerY = displayFingerY,
         )
     }
 }
@@ -106,6 +183,10 @@ private fun triggerRotationOffset(triggerDirection: hunoia.luno.gesture.TriggerD
 private fun CapsuleGestureAnimation(
     animationStyle: CapsuleStyle,
     sideGestureState: SideGestureState,
+    displayOriginX: Float,
+    displayOriginY: Float,
+    displayFingerX: Float,
+    displayFingerY: Float,
     modifier: Modifier = Modifier
 ) {
     val button = sideGestureState.button ?: return
@@ -116,10 +197,10 @@ private fun CapsuleGestureAnimation(
     val iconColorFilter = ColorFilter.tint(iconColor)
 
     Canvas(modifier = modifier) {
-        val originXAnimVal = sideGestureState.originXAnimVal
-        val originYAnimVal = sideGestureState.originYAnimVal
-        val fingerXAnimVal = sideGestureState.fingerXAnimVal
-        val fingerYAnimVal = sideGestureState.fingerYAnimVal
+        val originXAnimVal = displayOriginX
+        val originYAnimVal = displayOriginY
+        val fingerXAnimVal = displayFingerX
+        val fingerYAnimVal = displayFingerY
         if (originXAnimVal.isNaN() || originYAnimVal.isNaN() || fingerXAnimVal.isNaN() || fingerYAnimVal.isNaN()) {
             return@Canvas
         }
@@ -212,6 +293,10 @@ private fun CapsuleGestureAnimation(
 private fun BubbleGestureAnimation(
     animationStyle: BubbleStyle,
     sideGestureState: SideGestureState,
+    displayOriginX: Float,
+    displayOriginY: Float,
+    displayFingerX: Float,
+    displayFingerY: Float,
     modifier: Modifier = Modifier
 ) {
     val button = sideGestureState.button ?: return
@@ -222,10 +307,10 @@ private fun BubbleGestureAnimation(
     val iconColorFilter = ColorFilter.tint(iconColor)
 
     Canvas(modifier = modifier) {
-        val originXAnimVal = sideGestureState.originXAnimVal
-        val originYAnimVal = sideGestureState.originYAnimVal
-        val fingerXAnimVal = sideGestureState.fingerXAnimVal
-        val fingerYAnimVal = sideGestureState.fingerYAnimVal
+        val originXAnimVal = displayOriginX
+        val originYAnimVal = displayOriginY
+        val fingerXAnimVal = displayFingerX
+        val fingerYAnimVal = displayFingerY
         if (originXAnimVal.isNaN() || originYAnimVal.isNaN() || fingerXAnimVal.isNaN() || fingerYAnimVal.isNaN()) {
             return@Canvas
         }
@@ -293,6 +378,10 @@ private fun BubbleGestureAnimation(
 private fun WaveGestureAnimation(
     animationStyle: WaveStyle,
     sideGestureState: SideGestureState,
+    displayOriginX: Float,
+    displayOriginY: Float,
+    displayFingerX: Float,
+    displayFingerY: Float,
     modifier: Modifier = Modifier
 ) {
     val button = sideGestureState.button ?: return
@@ -311,10 +400,10 @@ private fun WaveGestureAnimation(
 
     Canvas(modifier = modifier) {
         val triggerDirection = sideGestureState.triggerDirection
-        val originXAnimVal = sideGestureState.originXAnimVal
-        val originYAnimVal = sideGestureState.originYAnimVal
-        val fingerXAnimVal = sideGestureState.fingerXAnimVal
-        val fingerYAnimVal = sideGestureState.fingerYAnimVal
+        val originXAnimVal = displayOriginX
+        val originYAnimVal = displayOriginY
+        val fingerXAnimVal = displayFingerX
+        val fingerYAnimVal = displayFingerY
         if (originXAnimVal.isNaN() ||
             originYAnimVal.isNaN() ||
             fingerXAnimVal.isNaN() ||
@@ -476,6 +565,10 @@ private fun WaveGestureAnimation(
 private fun LineGestureAnimation(
     animationStyle: LineStyle,
     sideGestureState: SideGestureState,
+    displayOriginX: Float,
+    displayOriginY: Float,
+    displayFingerX: Float,
+    displayFingerY: Float,
     modifier: Modifier = Modifier
 ) {
     val button = sideGestureState.button ?: return
@@ -486,10 +579,10 @@ private fun LineGestureAnimation(
     val iconColorFilter = ColorFilter.tint(iconColor)
 
     Canvas(modifier = modifier) {
-        val originXAnimVal = sideGestureState.originXAnimVal
-        val originYAnimVal = sideGestureState.originYAnimVal
-        val fingerXAnimVal = sideGestureState.fingerXAnimVal
-        val fingerYAnimVal = sideGestureState.fingerYAnimVal
+        val originXAnimVal = displayOriginX
+        val originYAnimVal = displayOriginY
+        val fingerXAnimVal = displayFingerX
+        val fingerYAnimVal = displayFingerY
         if (originXAnimVal.isNaN() || originYAnimVal.isNaN() || fingerXAnimVal.isNaN() || fingerYAnimVal.isNaN()) {
             return@Canvas
         }

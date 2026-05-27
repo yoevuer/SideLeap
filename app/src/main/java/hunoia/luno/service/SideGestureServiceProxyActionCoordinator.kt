@@ -89,7 +89,6 @@ internal class SideGestureServiceProxyActionCoordinator(
                 host.requestEnableFrozenPackage(packageName, onResult)
             },
             toggleQuickAppLauncher = { host.quickAppLauncherOverlay.toggle() },
-            openPasswordGenerator = { host.openPasswordGeneratorPanel() },
             showPointer = { continuousModeOverride -> host.showPointerOverlay(continuousModeOverride) },
             showVolumeScrub = { host.showVolumeScrubOverlay() },
             hideGestureButton = { delayMs ->

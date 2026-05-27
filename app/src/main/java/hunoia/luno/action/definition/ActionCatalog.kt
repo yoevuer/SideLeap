@@ -109,8 +109,6 @@ object ActionCatalog {
             R.string.action_one_key_freeze_apps, Icons.Default.AcUnit),
         ActionDefinition(GlobalActions.GENERATE_PASSWORD_COPY, ActionCategory.TOOL, ActionConfigKind.NONE,
             R.string.action_generate_password_copy, Icons.Default.ContentCopy),
-        ActionDefinition(GlobalActions.OPEN_PASSWORD_GENERATOR, ActionCategory.TOOL, ActionConfigKind.NONE,
-            R.string.action_open_password_generator, Icons.Default.Password),
         ActionDefinition(GlobalActions.HIDE_GESTURE_BUTTON, ActionCategory.SYSTEM, ActionConfigKind.HIDE_GESTURE_BUTTON,
             R.string.action_hide_gesture_button, Icons.Default.Gesture),
         ActionDefinition(GlobalActions.VOLUME_SCRUB, ActionCategory.SYSTEM, ActionConfigKind.VOLUME_SCRUB,

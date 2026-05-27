@@ -12,13 +12,11 @@ import hunoia.luno.system.copySensitiveText
 object PasswordGeneratorActionHandler : ActionHandler {
     override val supportedActions = setOf(
         GlobalActions.GENERATE_PASSWORD_COPY,
-        GlobalActions.OPEN_PASSWORD_GENERATOR,
     )
 
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
             GlobalActions.GENERATE_PASSWORD_COPY -> generateAndCopy(context)
-            GlobalActions.OPEN_PASSWORD_GENERATOR -> context.openPasswordGenerator()
             else -> return ActionExecutionResult.Ignored
         }
         return ActionExecutionResult.Success
