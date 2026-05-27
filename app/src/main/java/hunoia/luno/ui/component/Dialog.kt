@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component
+import hunoia.luno.ui.theme.*
 
 import android.view.Gravity
 import androidx.compose.foundation.background
@@ -59,6 +60,7 @@ import hunoia.luno.action.display.actionText
 import hunoia.luno.core.event.Events
 import hunoia.luno.core.event.WallpaperChangedEvent
 import hunoia.luno.settings.model.ThemeColorKey
+import hunoia.luno.ui.ext.resolveColor
 import hunoia.luno.ui.theme.DialogHexTextWidth
 import hunoia.luno.ui.theme.DialogTitlePadding
 import hunoia.luno.ui.theme.ItemPadding
@@ -202,7 +204,7 @@ fun ColorPickerDialog(
                         modifier = Modifier
                             .size(36.dp)
                             .border(
-                                width = 1.dp,
+                                width = Spacing1,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 shape = CircleShape
                             )
@@ -397,23 +399,7 @@ fun ThemeColorPickerDialog(
             ) {
                 items(ThemeColorKey.entries.size) { index ->
                     val themeKey = ThemeColorKey.entries[index]
-                    val resolvedColor = when (themeKey) {
-                        ThemeColorKey.Primary -> MaterialTheme.colorScheme.primary
-                        ThemeColorKey.PrimaryContainer -> MaterialTheme.colorScheme.primaryContainer
-                        ThemeColorKey.Secondary -> MaterialTheme.colorScheme.secondary
-                        ThemeColorKey.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
-                        ThemeColorKey.Tertiary -> MaterialTheme.colorScheme.tertiary
-                        ThemeColorKey.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
-                        ThemeColorKey.Surface -> MaterialTheme.colorScheme.surface
-                        ThemeColorKey.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
-                        ThemeColorKey.OnSurface -> MaterialTheme.colorScheme.onSurface
-                        ThemeColorKey.OnSurfaceVariant -> MaterialTheme.colorScheme.onSurfaceVariant
-                        ThemeColorKey.Outline -> MaterialTheme.colorScheme.outline
-                        ThemeColorKey.OutlineVariant -> MaterialTheme.colorScheme.outlineVariant
-                        ThemeColorKey.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
-                        ThemeColorKey.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
-                        ThemeColorKey.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
-                    }
+                    val resolvedColor = themeKey.resolveColor()
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -432,7 +418,7 @@ fun ThemeColorPickerDialog(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                            modifier = Modifier.fillMaxWidth().padding(top = Spacing4)
                         )
                     }
                 }

@@ -44,7 +44,7 @@ import hunoia.luno.settings.model.QuickAppLauncherSettings
 import hunoia.luno.core.AppContext
 import hunoia.luno.core.event.Events
 import hunoia.luno.core.event.WallpaperChangedEvent
-import hunoia.luno.launcher.query.AppQuery
+import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.query.LauncherEnvironment
 import hunoia.luno.service.SideGestureServiceProxy
 import hunoia.luno.service.takeScreenshot
@@ -239,7 +239,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         windowController.replaceMainOverlay { renderMainOverlay() }
         settingsObserver.start()
         coroutineScope.launch(Dispatchers.IO) {
-            AppQuery.queryLauncherActivities(this@SideGestureService)
+            LauncherFacade.queryApps(this@SideGestureService)
         }
     }
 

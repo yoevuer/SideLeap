@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.settings.gesture
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -450,7 +451,7 @@ fun GestureButtonSettingsScreen(
                                                     shape = CircleShape
                                                 )
                                                 .border(
-                                                    width = 1.dp,
+                                                    width = Spacing1,
                                                     color = MaterialTheme.colorScheme.outlineVariant,
                                                     shape = CircleShape
                                                 )
@@ -694,7 +695,7 @@ private fun MySideGestureSettings(
                             }
                         }
                     }
-                    .size(20.dp)
+                    .size(Spacing20)
                     .background(
                         color = when (isLongSlide) {
                             true -> MaterialTheme.colorScheme.outlineVariant
@@ -703,7 +704,7 @@ private fun MySideGestureSettings(
                         shape = CircleShape
                     )
                     .border(
-                        width = 1.dp,
+                        width = Spacing1,
                         color = MaterialTheme.colorScheme.onSurface,
                         shape = CircleShape
                     ),
@@ -727,7 +728,7 @@ private fun StyleTrailingButton(
     ) {
         Text(
             text = actionPanelStyleText(currentStyle),
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = Spacing4),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

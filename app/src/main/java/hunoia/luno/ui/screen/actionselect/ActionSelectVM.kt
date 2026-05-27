@@ -10,9 +10,9 @@ import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.core.Paths
 import hunoia.luno.action.definition.ActionCatalog
 import hunoia.luno.action.Action
+import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.gesture.GestureButton
-import hunoia.luno.launcher.icon.IconResizeCache
 import hunoia.luno.launcher.model.LauncherInfo
 import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.ui.navigation.IconResize
@@ -27,12 +27,10 @@ import hunoia.luno.action.shortcutInfo
 import hunoia.luno.ui.event.subscribeEvent
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState
-import hunoia.luno.launcher.query.AppQuery
+import hunoia.luno.freeze.FreezeFacade
 import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.settings.model.SubGesture
 import hunoia.luno.core.serialization.JsonHelper
-import hunoia.luno.freeze.api.FreezeState
-import hunoia.luno.launcher.query.ShortcutQuery
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -256,14 +254,14 @@ class ActionSelectVM(
             appInfos.forEach { appInfo ->
                 val icon = appInfo.getIcon(AppContext.get()) ?: return@forEach
                 ids.add(appInfo.qualifiedName)
-                IconResizeCache.iconCache[appInfo.qualifiedName] = icon
-                IconResizeCache.iconBgColorCache[appInfo.qualifiedName] = appInfo.iconBgColor
+                LauncherFacade.cacheIcon(appInfo.qualifiedName, icon)
+                LauncherFacade.cacheIconBgColor(appInfo.qualifiedName, appInfo.iconBgColor)
             }
             shortcutInfos.forEach { shortcutInfo ->
                 val icon = shortcutInfo.getIcon(AppContext.get()) ?: return@forEach
                 ids.add(shortcutInfo.qualifiedNameWithIntents)
-                IconResizeCache.iconCache[shortcutInfo.qualifiedNameWithIntents] = icon
-                IconResizeCache.iconBgColorCache[shortcutInfo.qualifiedNameWithIntents] = shortcutInfo.iconBgColor
+                LauncherFacade.cacheIcon(shortcutInfo.qualifiedNameWithIntents, icon)
+                LauncherFacade.cacheIconBgColor(shortcutInfo.qualifiedNameWithIntents, shortcutInfo.iconBgColor)
             }
 
             sendUiEvent(UiEvent.GotoIconResize(IconResize(ids)))
@@ -275,10 +273,10 @@ class ActionSelectVM(
     fun updateShortcutInfos() {
         viewModelScope.launchWithLoading {
             val createLauncherInfos = withContext(Dispatchers.IO) {
-                AppQuery.queryCreateShortcutActivities(AppContext.get())
+                LauncherFacade.queryShortcutActivities(AppContext.get())
             }
             val launchLauncherInfos = withContext(Dispatchers.IO) {
-                ShortcutQuery.getAllAppsWithShortcut(AppContext.get())
+                LauncherFacade.queryShortcuts(AppContext.get())
             }
             if (uiState.selectSingle) {
                 updateUiState {
@@ -368,9 +366,9 @@ class ActionSelectVM(
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
-                AppQuery.queryLauncherActivities(AppContext.get())
+                LauncherFacade.queryApps(AppContext.get())
             }
-            val frozenApps = FreezeState.queryFrozenApplications(AppContext.get())
+            val frozenApps = FreezeFacade.queryFrozenApps(AppContext.get())
             // 合并普通应用和冻结应用，普通应用优先，冻结应用只添加不存在的
             val normalPackageNames = appInfos.map { it.packageName }.toSet()
             val filteredFrozenApps = frozenApps.filter { it.packageName !in normalPackageNames }

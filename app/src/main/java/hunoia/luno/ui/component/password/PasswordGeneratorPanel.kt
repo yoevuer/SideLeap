@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component.password
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -91,7 +92,7 @@ fun PasswordGeneratorPanel(
                 .fillMaxWidth()
                 .heightIn(max = 560.dp)
                 .verticalScroll(rememberScrollState())
-                .padding(20.dp),
+                .padding(Spacing20),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
                     OutlinedTextField(
@@ -140,7 +141,7 @@ fun PasswordGeneratorPanel(
                             valueRange = PasswordMinLength.toFloat()..PasswordMaxLength.toFloat(),
                             steps = PasswordMaxLength - PasswordMinLength - 1
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(Spacing12))
                         Text(
                             text = config.length.toString(),
                             style = MaterialTheme.typography.bodyLarge,
@@ -166,7 +167,7 @@ fun PasswordGeneratorPanel(
                         IconButton(onClick = { regenerate() }) {
                             Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
                         }
-                        Spacer(modifier = Modifier.width(24.dp))
+                        Spacer(modifier = Modifier.width(Spacing24))
                         IconButton(
                             enabled = password.isNotEmpty(),
                             onClick = {

@@ -1,4 +1,5 @@
 package hunoia.luno.ui.dialog
+import hunoia.luno.ui.theme.*
 
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -74,8 +75,8 @@ import hunoia.luno.action.VirtualMouseActionData
 import hunoia.luno.action.display.actionText
 import hunoia.luno.core.serialization.JsonHelper
 
+import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.OpenAppOrUrlData
-import hunoia.luno.launcher.query.OpenAppOrUrlQuery
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxGotoBottomStrength
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxMoveScreenHover
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxMoveScreenRate
@@ -107,7 +108,7 @@ fun ActivitySettingsContent(
     onConfirm: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val launcherApps = remember(context) { OpenAppOrUrlQuery.queryLauncherApps(context) }
+    val launcherApps = remember(context) { LauncherFacade.queryLauncherAppOptions(context) }
     val existingData = remember {
         runCatching { JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data) }.getOrNull()
     }
@@ -129,7 +130,7 @@ fun ActivitySettingsContent(
     }
     val activityOptions = remember(selectedApp) {
         val app = selectedApp
-        if (app != null) OpenAppOrUrlQuery.queryActivityOptions(
+        if (app != null) LauncherFacade.queryActivityOptions(
             context = context,
             packageName = app.packageName,
             selectedActivityClassName = "",
@@ -138,7 +139,7 @@ fun ActivitySettingsContent(
     }
     val filteredActivities = activityOptions.filter {
         activityQuery.isBlank() ||
-        OpenAppOrUrlQuery.formatActivityOptionText(it, selectedApp?.packageName ?: "").contains(activityQuery, ignoreCase = true) ||
+        LauncherFacade.formatActivityOptionText(it, selectedApp?.packageName ?: "").contains(activityQuery, ignoreCase = true) ||
         it.className.contains(activityQuery, ignoreCase = true)
     }
 
@@ -164,7 +165,7 @@ fun ActivitySettingsContent(
                         .fillMaxWidth()
                         .heightIn(max = 300.dp)
                         .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(Spacing4)
                 ) {
                     filteredApps.forEach { item ->
                         Row(
@@ -175,14 +176,14 @@ fun ActivitySettingsContent(
                                     appQuery = ""
                                     activityQuery = ""
                                 }
-                                .padding(vertical = 6.dp),
+                                .padding(vertical = Spacing6),
                             horizontalArrangement = Arrangement.spacedBy(ItemPadding),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             var icon by remember(item.packageName) { mutableStateOf<Drawable?>(null) }
                             LaunchedEffect(item.packageName) {
                                 icon = withContext(Dispatchers.IO) {
-                                    OpenAppOrUrlQuery.loadApplicationIcon(context, item.packageName)
+                                    LauncherFacade.loadIcon(context, item.packageName)
                                 }
                             }
                             AsyncImage(
@@ -235,7 +236,7 @@ fun ActivitySettingsContent(
                         .fillMaxWidth()
                         .heightIn(max = 250.dp)
                         .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(Spacing4)
                 ) {
                     (if (activityQuery.isBlank()) activityOptions else filteredActivities).forEach { activity ->
                         Row(
@@ -252,7 +253,7 @@ fun ActivitySettingsContent(
                                         )
                                     )
                                 }
-                                .padding(vertical = 6.dp),
+                                .padding(vertical = Spacing6),
                             horizontalArrangement = Arrangement.spacedBy(ItemPadding),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -263,7 +264,7 @@ fun ActivitySettingsContent(
                             )
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = OpenAppOrUrlQuery.formatActivityOptionText(activity, app.packageName),
+                                    text = LauncherFacade.formatActivityOptionText(activity, app.packageName),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -354,7 +355,7 @@ fun VirtualMouseActionSettingsContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .onSingleClick { onConfirm(JsonHelper.encodeToString(VirtualMouseActionData(option))) }
-                    .padding(vertical = 2.dp),
+                    .padding(vertical = Spacing2),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(ItemPadding)
             ) {
@@ -425,7 +426,7 @@ fun ShellCommandSettingsContent(
         if (testOutput.isNotBlank()) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(Spacing12),
                 color = MaterialTheme.colorScheme.surfaceVariant
             ) {
                 Text(

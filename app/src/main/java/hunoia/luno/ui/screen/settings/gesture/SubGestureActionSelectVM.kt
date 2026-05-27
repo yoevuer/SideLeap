@@ -12,10 +12,9 @@ import hunoia.luno.action.definition.ActionCatalog
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.core.serialization.JsonHelper
 import hunoia.luno.gesture.SubGestureDirection
+import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.launcher.model.LauncherInfo
-import hunoia.luno.launcher.query.AppQuery
-import hunoia.luno.launcher.query.ShortcutQuery
 import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.settings.model.SubGesture
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
@@ -57,7 +56,7 @@ class SubGestureActionSelectVM(
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val apps = withContext(Dispatchers.IO) {
-                AppQuery.queryLauncherActivities(App.getContext())
+                LauncherFacade.queryApps(App.getContext())
             }
             updateUiState { it.copy(apps = apps) }
         }
@@ -66,7 +65,7 @@ class SubGestureActionSelectVM(
     fun updateShortcutInfos() {
         viewModelScope.launchWithLoading {
             val createShortcuts = withContext(Dispatchers.IO) {
-                ShortcutQuery.getAllAppsWithShortcut(App.getContext())
+                LauncherFacade.queryShortcuts(App.getContext())
             }
             updateUiState { it.copy(createShortcuts = createShortcuts) }
         }

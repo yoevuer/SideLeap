@@ -5,8 +5,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
+import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.ScaleableDefaults.DEFAULT_SCALE
-import hunoia.luno.launcher.icon.IconResizeCache
 import hunoia.luno.ui.event.IconResizeEvent
 import hunoia.luno.ui.screen.settings.gesture.IconResizeVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.IconResizeVM.UiState
@@ -149,15 +149,14 @@ class IconResizeVM(
                         map[id] = clipApps[id] ?: clipShortcuts[id] ?: DEFAULT_SCALE
                     }
                     updateUiState {
-                        val icons = IconResizeCache.iconCache.toMap()
+                        val icons = LauncherFacade.getIconCacheSnapshot()
                         val bgColors = mutableMapOf<String, UiState.BgColor>()
-                        IconResizeCache.iconBgColorCache.forEach { (id, bgColor) ->
+                        LauncherFacade.getIconBgColorCacheSnapshot().forEach { (id, bgColor) ->
                             if (bgColor != 0) {
                                 bgColors[id] = UiState.BgColor(true, Color(bgColor))
                             }
                         }
-                        IconResizeCache.iconCache.clear()
-                        IconResizeCache.iconBgColorCache.clear()
+                        LauncherFacade.clearIconCache()
                         it.copy(
                             ids = ids,
                             icons = icons,

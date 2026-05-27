@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.settings.gesture
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -274,7 +275,7 @@ fun SubGestureSettingsScreen(
                                         shape = CircleShape
                                     )
                                     .border(
-                                        width = 1.dp,
+                                        width = Spacing1,
                                         color = MaterialTheme.colorScheme.outlineVariant,
                                         shape = CircleShape
                                     )

@@ -42,8 +42,8 @@ import hunoia.luno.action.Action
 import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.ui.component.OptimizedScrollState
+import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.LauncherInfo
-import hunoia.luno.launcher.query.LauncherIconQuery
 import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.ui.screen.settings.gesture.IconResizeContent
 import hunoia.luno.ui.component.ActionSettingsDialog
@@ -151,7 +151,7 @@ fun ActionSelectContent(
                             val label = result.data?.shortcutStringExtraCompat(shortcutNameExtraKey()).orEmpty()
                             val iconRes = if (shortcutIconRes != null) {
                                 withContext(Dispatchers.IO) {
-                                    LauncherIconQuery.resolveShortcutIconResourceId(context, shortcutIconRes)
+                                    LauncherFacade.resolveShortcutIconResourceId(context, shortcutIconRes)
                                 }
                             } else 0
                             val shortcutInfo = LauncherInfo.ShortcutInfo(

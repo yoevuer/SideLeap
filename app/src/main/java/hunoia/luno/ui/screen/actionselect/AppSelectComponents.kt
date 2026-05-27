@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.actionselect
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -84,7 +85,7 @@ internal fun AppPage(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 32.dp),
+                                .padding(vertical = Spacing32),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -179,7 +180,7 @@ internal fun AppItem(
             ) {
                 if (appInfo.miniWindow) {
                     Icon(
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(Spacing16),
                         imageVector = Icons.Default.Window,
                         contentDescription = null
                     )

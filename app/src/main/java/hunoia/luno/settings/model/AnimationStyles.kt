@@ -70,12 +70,12 @@ data class LineStyle(
     val iconColor: Int = AnimationStylesDefaults.LineStyleIconColor,
     val iconScale: Float = AnimationStylesDefaults.LineStyleIconScale,
     val iconType: Int = AnimationStylesDefaults.LineStyleIconType,
-    val backgroundColorSource: ColorSource = AnimationStylesDefaults.LineStyleBackgroundColorSource,
-    val strokeColorSource: ColorSource = AnimationStylesDefaults.LineStyleStrokeColorSource,
-    val iconColorSource: ColorSource = AnimationStylesDefaults.LineStyleIconColorSource,
-    val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.LineStyleBackgroundColorThemeKey,
-    val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.LineStyleStrokeColorThemeKey,
-    val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.LineStyleIconColorThemeKey,
+    val backgroundColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val strokeColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val iconColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultBackgroundThemeKey,
+    val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultStrokeThemeKey,
+    val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultIconThemeKey,
 ) : AnimationStyle {
     companion object {
         const val ICON_TYPE_ARROW = 1
@@ -104,6 +104,12 @@ object AnimationStylesDefaults {
     const val Type = TYPE_WAVE
     const val IsAnimationEnabled = true
 
+    // Shared color source / theme key defaults (identical across all 4 styles)
+    val DefaultColorSource = ColorSource.Theme
+    val DefaultBackgroundThemeKey = ThemeColorKey.SurfaceContainerHigh
+    val DefaultStrokeThemeKey = ThemeColorKey.Outline
+    val DefaultIconThemeKey = ThemeColorKey.OnSurface
+
     const val WaveStyleBackgroundColor = android.graphics.Color.BLACK
     const val WaveStyleStrokeColor = android.graphics.Color.TRANSPARENT
     const val WaveStyleStrokeWidth = 0
@@ -115,12 +121,6 @@ object AnimationStylesDefaults {
     const val WaveStyleIconScale = 0.6f
     const val WaveStyleIconType = WaveStyle.ICON_TYPE_ARROW
     const val WaveStyleShapeType = WaveStyle.SHAPE_WAVE
-    val WaveStyleBackgroundColorSource = ColorSource.Theme
-    val WaveStyleStrokeColorSource = ColorSource.Theme
-    val WaveStyleIconColorSource = ColorSource.Theme
-    val WaveStyleBackgroundColorThemeKey = ThemeColorKey.SurfaceContainerHigh
-    val WaveStyleStrokeColorThemeKey = ThemeColorKey.Outline
-    val WaveStyleIconColorThemeKey = ThemeColorKey.OnSurface
 
     val CapsuleStyleBackgroundColor = android.graphics.Color.argb(220, 18, 18, 18)
     const val CapsuleStyleStrokeColor = android.graphics.Color.TRANSPARENT
@@ -131,12 +131,6 @@ object AnimationStylesDefaults {
     val CapsuleStyleIconColor = android.graphics.Color.argb(220, 255, 255, 255)
     const val CapsuleStyleIconScale = 0.52f
     const val CapsuleStyleIconType = WaveStyle.ICON_TYPE_ARROW
-    val CapsuleStyleBackgroundColorSource = ColorSource.Theme
-    val CapsuleStyleStrokeColorSource = ColorSource.Theme
-    val CapsuleStyleIconColorSource = ColorSource.Theme
-    val CapsuleStyleBackgroundColorThemeKey = ThemeColorKey.SurfaceContainerHigh
-    val CapsuleStyleStrokeColorThemeKey = ThemeColorKey.Outline
-    val CapsuleStyleIconColorThemeKey = ThemeColorKey.OnSurface
 
     val BubbleStyleBackgroundColor = android.graphics.Color.argb(220, 22, 22, 22)
     val BubbleStyleStrokeColor = android.graphics.Color.argb(36, 255, 255, 255)
@@ -146,12 +140,6 @@ object AnimationStylesDefaults {
     val BubbleStyleIconColor = android.graphics.Color.argb(232, 255, 255, 255)
     const val BubbleStyleIconScale = 0.52f
     const val BubbleStyleIconType = WaveStyle.ICON_TYPE_ARROW
-    val BubbleStyleBackgroundColorSource = ColorSource.Theme
-    val BubbleStyleStrokeColorSource = ColorSource.Theme
-    val BubbleStyleIconColorSource = ColorSource.Theme
-    val BubbleStyleBackgroundColorThemeKey = ThemeColorKey.SurfaceContainerHigh
-    val BubbleStyleStrokeColorThemeKey = ThemeColorKey.Outline
-    val BubbleStyleIconColorThemeKey = ThemeColorKey.OnSurface
 
     val LineStyleBackgroundColor = android.graphics.Color.argb(220, 18, 18, 18)
     const val LineStyleStrokeColor = android.graphics.Color.TRANSPARENT
@@ -163,12 +151,6 @@ object AnimationStylesDefaults {
     val LineStyleIconColor = android.graphics.Color.argb(220, 255, 255, 255)
     const val LineStyleIconScale = 0.5f
     const val LineStyleIconType = 1
-    val LineStyleBackgroundColorSource = ColorSource.Theme
-    val LineStyleStrokeColorSource = ColorSource.Theme
-    val LineStyleIconColorSource = ColorSource.Theme
-    val LineStyleBackgroundColorThemeKey = ThemeColorKey.SurfaceContainerHigh
-    val LineStyleStrokeColorThemeKey = ThemeColorKey.Outline
-    val LineStyleIconColorThemeKey = ThemeColorKey.OnSurface
 }
 
 sealed interface AnimationStyle
@@ -188,12 +170,12 @@ data class WaveStyle(
     val iconType: Int = AnimationStylesDefaults.WaveStyleIconType,
     val shapeType: Int = AnimationStylesDefaults.WaveStyleShapeType,
     val stickySlideEnabled: Boolean = false,
-    val backgroundColorSource: ColorSource = AnimationStylesDefaults.WaveStyleBackgroundColorSource,
-    val strokeColorSource: ColorSource = AnimationStylesDefaults.WaveStyleStrokeColorSource,
-    val iconColorSource: ColorSource = AnimationStylesDefaults.WaveStyleIconColorSource,
-    val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.WaveStyleBackgroundColorThemeKey,
-    val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.WaveStyleStrokeColorThemeKey,
-    val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.WaveStyleIconColorThemeKey,
+    val backgroundColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val strokeColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val iconColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultBackgroundThemeKey,
+    val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultStrokeThemeKey,
+    val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultIconThemeKey,
 ) : AnimationStyle {
 
     companion object {
@@ -219,12 +201,12 @@ data class CapsuleStyle(
     val iconColor: Int = AnimationStylesDefaults.CapsuleStyleIconColor,
     val iconScale: Float = AnimationStylesDefaults.CapsuleStyleIconScale,
     val iconType: Int = AnimationStylesDefaults.CapsuleStyleIconType,
-    val backgroundColorSource: ColorSource = AnimationStylesDefaults.CapsuleStyleBackgroundColorSource,
-    val strokeColorSource: ColorSource = AnimationStylesDefaults.CapsuleStyleStrokeColorSource,
-    val iconColorSource: ColorSource = AnimationStylesDefaults.CapsuleStyleIconColorSource,
-    val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.CapsuleStyleBackgroundColorThemeKey,
-    val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.CapsuleStyleStrokeColorThemeKey,
-    val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.CapsuleStyleIconColorThemeKey,
+    val backgroundColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val strokeColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val iconColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultBackgroundThemeKey,
+    val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultStrokeThemeKey,
+    val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultIconThemeKey,
 ) : AnimationStyle {
     companion object {
         const val ICON_TYPE_ARROW = 1
@@ -242,12 +224,12 @@ data class BubbleStyle(
     val iconColor: Int = AnimationStylesDefaults.BubbleStyleIconColor,
     val iconScale: Float = AnimationStylesDefaults.BubbleStyleIconScale,
     val iconType: Int = AnimationStylesDefaults.BubbleStyleIconType,
-    val backgroundColorSource: ColorSource = AnimationStylesDefaults.BubbleStyleBackgroundColorSource,
-    val strokeColorSource: ColorSource = AnimationStylesDefaults.BubbleStyleStrokeColorSource,
-    val iconColorSource: ColorSource = AnimationStylesDefaults.BubbleStyleIconColorSource,
-    val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.BubbleStyleBackgroundColorThemeKey,
-    val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.BubbleStyleStrokeColorThemeKey,
-    val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.BubbleStyleIconColorThemeKey,
+    val backgroundColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val strokeColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val iconColorSource: ColorSource = AnimationStylesDefaults.DefaultColorSource,
+    val backgroundColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultBackgroundThemeKey,
+    val strokeColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultStrokeThemeKey,
+    val iconColorThemeKey: ThemeColorKey = AnimationStylesDefaults.DefaultIconThemeKey,
 ) : AnimationStyle {
     companion object {
         const val ICON_TYPE_ARROW = 1

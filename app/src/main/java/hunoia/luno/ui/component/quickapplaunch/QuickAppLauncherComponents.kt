@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component.quickapplaunch
+import hunoia.luno.ui.theme.*
 
 import android.content.Context
 import android.graphics.drawable.Drawable
@@ -41,9 +42,8 @@ import androidx.compose.ui.unit.Dp
 import hunoia.luno.R
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.query.LauncherIconQuery
-import hunoia.luno.launcher.icon.IconResizeCache
 import hunoia.luno.ui.theme.ShapeSmall
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -60,14 +60,14 @@ internal fun KeyboardRow(
     onToken: (String) -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val cellWidth = (maxWidth - 6.dp * (keys.size - 1)) / keys.size
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+        val cellWidth = (maxWidth - Spacing6 * (keys.size - 1)) / keys.size
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing6), modifier = Modifier.fillMaxWidth()) {
             keys.forEach { (label, token) ->
                 Surface(
                     modifier = Modifier
                         .width(cellWidth)
                         .height(keyHeight)
-                        .clip(RoundedCornerShape(10.dp))
+                        .clip(RoundedCornerShape(Spacing10))
                         .combinedClickable(
                             onClick = {
                                 view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -111,12 +111,12 @@ internal fun KeyboardRow(
 
 @Composable
 internal fun rememberAppIconAsync(context: Context, packageName: String): Drawable? {
-    var icon: Drawable? by remember(packageName) { mutableStateOf(IconResizeCache.iconCache[packageName]) }
+    var icon: Drawable? by remember(packageName) { mutableStateOf(LauncherFacade.getCachedIcon(packageName)) }
     if (icon == null) {
         LaunchedEffect(packageName) {
             icon = withContext(Dispatchers.IO) {
-                LauncherIconQuery.loadApplicationIcon(context, packageName)
-            }?.also { IconResizeCache.iconCache[packageName] = it }
+                LauncherFacade.loadIcon(context, packageName)
+            }?.also { LauncherFacade.cacheIcon(packageName, it) }
         }
     }
     return icon
@@ -130,7 +130,7 @@ internal fun AppItem(app: AppInfo, onClick: () -> Unit, onLongPress: () -> Unit)
         modifier = Modifier
             .width(64.dp)
             .combinedClickable(onClick = { onClick() }, onLongClick = { onLongPress() })
-            .padding(4.dp),
+            .padding(Spacing4),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val icon = rememberAppIconAsync(context, app.packageName)
@@ -138,13 +138,13 @@ internal fun AppItem(app: AppInfo, onClick: () -> Unit, onLongPress: () -> Unit)
             AsyncImage(
                 model = icon,
                 contentDescription = app.label,
-                modifier = Modifier.height(40.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)),
+                modifier = Modifier.height(Spacing40).fillMaxWidth().clip(RoundedCornerShape(Spacing10)),
                 contentScale = ContentScale.Fit
             )
         } else {
             Box(
                 modifier = Modifier
-                    .height(40.dp)
+                    .height(Spacing40)
                     .fillMaxWidth()
                         .clip(RoundedCornerShape(ShapeSmall))
                     .background(MaterialTheme.colorScheme.surfaceVariant)

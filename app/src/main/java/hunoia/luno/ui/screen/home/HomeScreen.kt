@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.home
+import hunoia.luno.ui.theme.*
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -536,14 +537,14 @@ fun HomeScreen(
                                     },
                                     topLeft = bounds.topLeft,
                                     size = bounds.size,
-                                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(4.dp.toPx(), 4.dp.toPx())
+                                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(Spacing4.toPx(), Spacing4.toPx())
                                 )
                                 drawRoundRect(
                                     color = colorScheme.outlineVariant,
                                     topLeft = bounds.topLeft,
                                     size = bounds.size,
-                                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(4.dp.toPx(), 4.dp.toPx()),
-                                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.dp.toPx())
+                                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(Spacing4.toPx(), Spacing4.toPx()),
+                                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = Spacing1.toPx())
                                 )
                             }
                         }
@@ -774,7 +775,7 @@ internal fun DisplaySettingsContent(
                 secondaryTextColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)
             )
-            Box(Modifier.size(1.dp)) {
+            Box(Modifier.size(Spacing1)) {
                 DropdownMenu(
                     containerColor = MaterialTheme.colorScheme.surface,
                     offset = DpOffset(x = 0.dp, y = 0.dp),
@@ -851,14 +852,14 @@ private fun BackupRestoreDialog(
             shape = AlertDialogDefaults.shape,
             color = MaterialTheme.colorScheme.surface
         ) {
-            Column(modifier = Modifier.padding(24.dp)) {
+            Column(modifier = Modifier.padding(Spacing24)) {
                 TextActionButton(
                     onClick = onBackupRequest,
                     text = stringResource(id = R.string.backup),
                     secondaryText = stringResource(id = R.string.backup_hint)
                 )
                 androidx.compose.material3.HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 12.dp),
+                    modifier = Modifier.padding(vertical = Spacing12),
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
                 TextActionButton(

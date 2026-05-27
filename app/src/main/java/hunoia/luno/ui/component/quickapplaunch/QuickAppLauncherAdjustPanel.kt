@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component.quickapplaunch
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -44,23 +45,23 @@ internal fun QuickAppLauncherAdjustPanel(
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f))
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(Spacing16)) {
             AdjustSlider(stringResource(R.string.quick_app_launcher_panel_height), settings.panelHeightFraction, 0.05f, 0.9f, activeLabel, { activeLabel = it }) { value ->
                 updateLayout(settings.copy(panelHeightFraction = value))
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Spacing12))
             AdjustSlider(stringResource(R.string.quick_app_launcher_content_height), settings.contentHeightFraction, 0.35f, 0.9f, activeLabel, { activeLabel = it }) { value ->
                 updateLayout(settings.copy(contentHeightFraction = value))
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Spacing12))
             AdjustSlider(stringResource(R.string.quick_app_launcher_panel_width), settings.panelWidthFraction, 0.65f, 1.0f, activeLabel, { activeLabel = it }) { value ->
                 updateLayout(settings.copy(panelWidthFraction = value))
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Spacing12))
             AdjustSlider(stringResource(R.string.quick_app_launcher_horizontal_bias), settings.panelHorizontalBias, 0.0f, 1.0f, activeLabel, { activeLabel = it }) { value ->
                 updateLayout(settings.copy(panelHorizontalBias = value))
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Spacing12))
             AdjustSlider(stringResource(R.string.quick_app_launcher_candidate_rows), settings.candidateRows.toFloat(), 1f, 3f, activeLabel, { activeLabel = it }, valueFormatter = { it.roundToInt().toString() }) { value ->
                 updateLayout(settings.copy(candidateRows = value.roundToInt().coerceIn(1, 3)))
             }

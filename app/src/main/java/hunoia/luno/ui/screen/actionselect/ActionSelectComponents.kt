@@ -1,4 +1,5 @@
 package hunoia.luno.ui.screen.actionselect
+import hunoia.luno.ui.theme.*
 
 import android.content.Context
 import hunoia.luno.ui.component.AppSearchBar
@@ -211,7 +212,7 @@ internal fun ActionPage(
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = ContentPaddingHorizontal * 2, vertical = 4.dp),
+                    .padding(horizontal = ContentPaddingHorizontal * 2, vertical = Spacing4),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(categoryChips) { (chipKey, label) ->
@@ -235,13 +236,13 @@ internal fun ActionPage(
                                 }
                             }
                         },
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(Spacing16),
                         color = if (isSelected) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             text = label,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = Spacing12, vertical = Spacing6),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelMedium
                         )
@@ -386,7 +387,7 @@ internal fun ActionItem(
             .onClick(enabled = enabled) {
                 onSelect(!selected)
             }
-            .padding(vertical = 2.dp),
+            .padding(vertical = Spacing2),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val context = LocalContext.current
@@ -450,7 +451,7 @@ internal fun ActionItem(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            modifier = Modifier.size(20.dp),
+                            modifier = Modifier.size(Spacing20),
                             imageVector = Icons.Default.Settings,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -491,8 +492,8 @@ internal fun SelectedActionSettings(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = ContentPaddingHorizontal * 2, vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+            .padding(horizontal = ContentPaddingHorizontal * 2, vertical = Spacing4),
+        verticalArrangement = Arrangement.spacedBy(Spacing6)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -544,7 +545,7 @@ internal fun SelectedActionSettings(
                             },
                             onDragEnd = {
                                 draggedIndex?.let { from ->
-                                    val spacingPx = with(density) { 6.dp.toPx() }
+                                    val spacingPx = with(density) { Spacing6.toPx() }
                                     val step = (itemHeight + spacingPx).coerceAtLeast(1f)
                                     val delta = (dragOffset / step).roundToInt()
                                     val to = (from + delta).coerceIn(0, selectedItems.lastIndex)
@@ -559,7 +560,7 @@ internal fun SelectedActionSettings(
                             }
                         )
                     },
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(Spacing12),
                 color = if (longPressTargetIndex == index) {
                     MaterialTheme.colorScheme.primaryContainer
                 } else {
@@ -567,14 +568,14 @@ internal fun SelectedActionSettings(
                 }
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    modifier = Modifier.padding(horizontal = Spacing10, vertical = Spacing6),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Spacing4)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Menu,
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(Spacing20),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
@@ -589,21 +590,21 @@ internal fun SelectedActionSettings(
                     if (longPressAction != null) {
                         TextButton(
                             onClick = { onClearLongPress(index) },
-                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
+                            contentPadding = PaddingValues(horizontal = Spacing6, vertical = 0.dp)
                         ) {
                             Text(stringResource(R.string.clear_long_press_action))
                         }
                     } else {
                         TextButton(
                             onClick = { onSetLongPress(index) },
-                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
+                            contentPadding = PaddingValues(horizontal = Spacing6, vertical = 0.dp)
                         ) {
                             Text(stringResource(R.string.set_long_press_action))
                         }
                     }
                     IconButton(
                         onClick = { onRemoveItem(item) },
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(Spacing32)
                     ) {
                         Icon(
                             Icons.Default.Close,
@@ -638,7 +639,7 @@ internal fun SelectedBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = ContentPaddingHorizontal * 2, vertical = 4.dp),
+            .padding(horizontal = ContentPaddingHorizontal * 2, vertical = Spacing4),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -653,7 +654,7 @@ internal fun SelectedBar(
         Spacer(Modifier.weight(1f))
         TextButton(
             onClick = onClearAll,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = Spacing2)
         ) {
             Text(stringResource(R.string.clear_all))
         }

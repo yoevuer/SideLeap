@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ import hunoia.luno.settings.model.CapsuleStyle
 import hunoia.luno.settings.model.ColorSource
 import hunoia.luno.settings.model.LineStyle
 import hunoia.luno.settings.model.ThemeColorKey
+import hunoia.luno.ui.ext.resolveColor
 import hunoia.luno.settings.model.WaveStyle
 import hunoia.luno.gesture.GestureButton
 import hunoia.luno.gesture.Position
@@ -71,23 +73,7 @@ fun GestureAnimation(
 @Composable
 private fun resolveColor(source: ColorSource, themeKey: ThemeColorKey, customColor: Int): Color = when (source) {
     ColorSource.Custom -> Color(customColor)
-    ColorSource.Theme -> when (themeKey) {
-        ThemeColorKey.Primary -> MaterialTheme.colorScheme.primary
-        ThemeColorKey.PrimaryContainer -> MaterialTheme.colorScheme.primaryContainer
-        ThemeColorKey.Secondary -> MaterialTheme.colorScheme.secondary
-        ThemeColorKey.SecondaryContainer -> MaterialTheme.colorScheme.secondaryContainer
-        ThemeColorKey.Tertiary -> MaterialTheme.colorScheme.tertiary
-        ThemeColorKey.TertiaryContainer -> MaterialTheme.colorScheme.tertiaryContainer
-        ThemeColorKey.Surface -> MaterialTheme.colorScheme.surface
-        ThemeColorKey.SurfaceVariant -> MaterialTheme.colorScheme.surfaceVariant
-        ThemeColorKey.OnSurface -> MaterialTheme.colorScheme.onSurface
-        ThemeColorKey.OnSurfaceVariant -> MaterialTheme.colorScheme.onSurfaceVariant
-        ThemeColorKey.Outline -> MaterialTheme.colorScheme.outline
-        ThemeColorKey.OutlineVariant -> MaterialTheme.colorScheme.outlineVariant
-        ThemeColorKey.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
-        ThemeColorKey.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
-        ThemeColorKey.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
-    }
+    ColorSource.Theme -> themeKey.resolveColor()
 }
 
 private fun triggerRotationOffset(triggerDirection: hunoia.luno.gesture.TriggerDirection, position: Position): Float {
@@ -312,11 +298,11 @@ private fun WaveGestureAnimation(
     val button = sideGestureState.button ?: return
     val icon = animationStyle.getIcon()
     val bezierOffset = if (animationStyle.safeBounds) 70.dp.toPx() else 0f
-    val bezierSpacing = if (animationStyle.safeBounds) 40.dp.toPx() else 0f
+    val bezierSpacing = if (animationStyle.safeBounds) Spacing40.toPx() else 0f
     val bezierMaxWidth = animationStyle.width.toFloat()
     val bezierLengthHalf = bezierMaxWidth * animationStyle.bezierLengthHalfRatio
     val bezierTransformOffsetCoerce = if (animationStyle.transformEnabled) bezierLengthHalf / 2f else 0f
-    val factorDp = 1.dp.toPx()
+    val factorDp = Spacing1.toPx()
     val backgroundColor = resolveColor(animationStyle.backgroundColorSource, animationStyle.backgroundColorThemeKey, animationStyle.backgroundColor)
     val strokeColor = resolveColor(animationStyle.strokeColorSource, animationStyle.strokeColorThemeKey, animationStyle.strokeColor)
     val iconColor = resolveColor(animationStyle.iconColorSource, animationStyle.iconColorThemeKey, animationStyle.iconColor)

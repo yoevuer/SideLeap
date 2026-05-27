@@ -5,13 +5,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import hunoia.luno.freeze.FrozenQuickAppLauncherQuery
-import hunoia.luno.launcher.launch.QuickAppLaunch
+import hunoia.luno.freeze.FreezeFacade
+import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.icon.IconResizeCache
 import hunoia.luno.launcher.query.AppSearch.key
 import hunoia.luno.launcher.query.AppSearch.sortApps
-import hunoia.luno.launcher.query.LauncherIconQuery
 import hunoia.luno.launcher.query.QuickAppLauncherAppList
 import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.settings.model.QuickAppLauncherSettings
@@ -66,7 +64,7 @@ class QuickAppLauncherState(
     private fun loadApps() {
         coroutineScope.launch {
             val state = withContext(Dispatchers.IO) {
-                FrozenQuickAppLauncherQuery.queryApps(context)
+                FreezeFacade.queryQuickAppLauncherApps(context)
             }
             appListState = state
             prewarmIcons()
@@ -104,9 +102,9 @@ class QuickAppLauncherState(
         coroutineScope.launch(Dispatchers.IO) {
             val apps = appListState.apps
             for (app in apps.take(25)) {
-                if (app.packageName !in IconResizeCache.iconCache) {
-                    LauncherIconQuery.loadApplicationIcon(context, app.packageName)?.let {
-                        IconResizeCache.iconCache[app.packageName] = it
+                if (LauncherFacade.getCachedIcon(app.packageName) == null) {
+                    LauncherFacade.loadIcon(context, app.packageName)?.let {
+                        LauncherFacade.cacheIcon(app.packageName, it)
                     }
                 }
             }
@@ -114,7 +112,7 @@ class QuickAppLauncherState(
     }
 
     fun launchApp(app: AppInfo, isFrozen: Boolean, miniWindow: Boolean, debugPrefix: String?) {
-        QuickAppLaunch.launch(
+        LauncherFacade.launchApp(
             context = context,
             coroutineScope = coroutineScope,
             app = app,

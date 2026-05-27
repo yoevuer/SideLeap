@@ -1,4 +1,5 @@
 package hunoia.luno.ui.component
+import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,8 +59,8 @@ fun ComposeToast(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 12.dp),
+                .padding(horizontal = Spacing24)
+                .padding(bottom = Spacing12),
             hostState = snackbarHostState
         ) { snackbarData ->
             Text(
@@ -71,7 +72,7 @@ fun ComposeToast(modifier: Modifier = Modifier) {
                     )
                     .padding(
                         vertical = 8.dp,
-                        horizontal = 16.dp
+                        horizontal = Spacing16
                     )
                     .wrapContentSize(),
                 text = snackbarData.visuals.message,
