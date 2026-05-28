@@ -58,15 +58,19 @@ object AppLaunchActionHandler : ActionHandler {
             .firstOrNull()
         val className = resolveInfo?.activityInfo?.name
         if (!className.isNullOrEmpty()) {
-            Launcher.launchAppInPopup(
-                context.appContext, pkgName, className,
-                context.advancedSettings.miniWindowHorizontalBias,
-                context.advancedSettings.miniWindowVerticalBias,
-                context.advancedSettings.miniWindowVerticalOffsetFraction,
-                context.advancedSettings.miniWindowWidthFraction,
-                context.advancedSettings.miniWindowHeightFraction,
-                overrideBounds = context.advancedSettings.miniWindowOverrideBounds,
-            )
+            if (context.advancedSettings.miniWindowOverrideBounds) {
+                Launcher.launchAppInPopup(
+                    context.appContext, pkgName, className,
+                    context.advancedSettings.miniWindowHorizontalBias,
+                    context.advancedSettings.miniWindowVerticalBias,
+                    context.advancedSettings.miniWindowVerticalOffsetFraction,
+                    context.advancedSettings.miniWindowWidthFraction,
+                    context.advancedSettings.miniWindowHeightFraction,
+                    overrideBounds = true,
+                )
+            } else {
+                Launcher.launchAppInPopup(context.appContext, pkgName, className)
+            }
         }
     }
 
@@ -117,19 +121,30 @@ object AppLaunchActionHandler : ActionHandler {
         miniWindow: Boolean
     ) {
         context.scope.launch {
-            FreezeLaunch.launchWithAutoUnfreeze(
-                context = context.appContext,
-                packageName = appInfo.packageName,
-                className = appInfo.className,
-                miniWindow = miniWindow,
-                miniWindowHorizontalBias = context.advancedSettings.miniWindowHorizontalBias,
-                miniWindowVerticalBias = context.advancedSettings.miniWindowVerticalBias,
-                miniWindowVerticalOffsetFraction = context.advancedSettings.miniWindowVerticalOffsetFraction,
-                miniWindowWidthFraction = context.advancedSettings.miniWindowWidthFraction,
-                miniWindowHeightFraction = context.advancedSettings.miniWindowHeightFraction,
-                miniWindowOverrideBounds = context.advancedSettings.miniWindowOverrideBounds,
-            ) { _, pkg ->
-                suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
+            if (context.advancedSettings.miniWindowOverrideBounds) {
+                FreezeLaunch.launchWithAutoUnfreeze(
+                    context = context.appContext,
+                    packageName = appInfo.packageName,
+                    className = appInfo.className,
+                    miniWindow = miniWindow,
+                    miniWindowHorizontalBias = context.advancedSettings.miniWindowHorizontalBias,
+                    miniWindowVerticalBias = context.advancedSettings.miniWindowVerticalBias,
+                    miniWindowVerticalOffsetFraction = context.advancedSettings.miniWindowVerticalOffsetFraction,
+                    miniWindowWidthFraction = context.advancedSettings.miniWindowWidthFraction,
+                    miniWindowHeightFraction = context.advancedSettings.miniWindowHeightFraction,
+                    miniWindowOverrideBounds = true,
+                ) { _, pkg ->
+                    suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
+                }
+            } else {
+                FreezeLaunch.launchWithAutoUnfreeze(
+                    context = context.appContext,
+                    packageName = appInfo.packageName,
+                    className = appInfo.className,
+                    miniWindow = miniWindow,
+                ) { _, pkg ->
+                    suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
+                }
             }
         }
     }

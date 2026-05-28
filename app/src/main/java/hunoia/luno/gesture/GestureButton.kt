@@ -27,8 +27,6 @@ object GestureButtonDefaults {
     val TapActions = GestureActions()
     const val Color = android.graphics.Color.TRANSPARENT
     const val AlignRegion = true
-    const val ExcludeSystemGestureRects = false
-    const val LimitMaxExcludeSystemGestureLength = true
     val SlideTriggerDistance = DensityProvider.dp2px(30f)
     val LongSlideTriggerDistance = DensityProvider.dp2px(100f)
     const val LongPressTriggerDelayMs = 250L
@@ -81,6 +79,7 @@ object GestureButtonDefaults {
 @Keep
 data class GestureButton(
     val id: String,
+    val name: String = "",
     val position: Position,
     val angle: GestureAngle,
     val enabled: Boolean = GestureButtonDefaults.Enabled,
@@ -93,8 +92,6 @@ data class GestureButton(
     val tapActions: GestureActions = GestureButtonDefaults.TapActions,
     val color: Int = GestureButtonDefaults.Color,
     val alignRegion: Boolean = GestureButtonDefaults.AlignRegion,
-    val excludeSystemGestureRects: Boolean = GestureButtonDefaults.ExcludeSystemGestureRects,
-    val limitMaxExcludeSystemGestureLength: Boolean = GestureButtonDefaults.LimitMaxExcludeSystemGestureLength,
     val slideVibrate: Boolean = GestureButtonDefaults.SlideVibrate,
     val longSlideVibrate: Boolean = GestureButtonDefaults.LongSlideVibrate,
     val tapVibrate: Boolean = GestureButtonDefaults.TapVibrate,
@@ -120,18 +117,20 @@ data class GestureButton(
         val SideDefaults: List<GestureButton> get() = GestureButtonDefaults.SideDefaults
         val BottomDefaults: List<GestureButton> get() = GestureButtonDefaults.BottomDefaults
 
-        fun createSidePair(): List<GestureButton> {
+        fun createSidePair(leftName: String = "", rightName: String = ""): List<GestureButton> {
             val id = SystemClock.uptimeMillis().toString()
             val colorInt = randomColor()
             val color = Color(colorInt).toArgb()
             val b1 = GestureButton(
                 id = id,
+                name = leftName,
                 position = Position.Left,
                 angle = defaultGestureAngleFor(Position.Left),
                 color = color
             )
             val b2 = GestureButton(
                 id = id,
+                name = rightName,
                 position = Position.Right,
                 angle = defaultGestureAngleFor(Position.Right),
                 color = color
@@ -139,12 +138,13 @@ data class GestureButton(
             return listOf(b1, b2)
         }
 
-        fun createBottom(): GestureButton {
+        fun createBottom(name: String = ""): GestureButton {
             val id = SystemClock.uptimeMillis().toString()
             val colorInt = randomColor()
             val color = Color(colorInt).toArgb()
             return GestureButton(
                 id = id,
+                name = name,
                 position = Position.Bottom,
                 angle = defaultGestureAngleFor(Position.Bottom),
                 color = color

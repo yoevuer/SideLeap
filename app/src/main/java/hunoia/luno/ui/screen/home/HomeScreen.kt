@@ -35,10 +35,13 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -52,10 +55,12 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -63,9 +68,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -80,6 +93,7 @@ import hunoia.luno.gesture.bounds
 import hunoia.luno.ui.gesture.actionTextCompose
 import hunoia.luno.ui.gesture.buttonTextCompose
 import hunoia.luno.system.intent.gotoAccessibilitySettings
+import hunoia.luno.ui.screen.home.HomeVM.RenameTarget
 import hunoia.luno.ui.screen.home.HomeVM.UiEvent
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
@@ -92,6 +106,10 @@ import hunoia.luno.ui.component.ExpressiveCard
 import hunoia.luno.ui.component.ExpressiveSwitchItem
 import hunoia.luno.ui.component.MyTextSlider
 import hunoia.luno.ui.component.TopBar
+import hunoia.luno.ui.component.ColorPickerBottomSheet
+import hunoia.luno.ui.component.ColorSelection
+import hunoia.luno.ui.ext.resolveColor
+import hunoia.luno.settings.model.ThemeColorKey
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.settings.model.SubGesture
 import java.text.SimpleDateFormat
@@ -124,6 +142,10 @@ fun HomeScreen(
         var showMiniWindowSettings by remember { mutableStateOf(false) }
         var showAppBlacklist by remember { mutableStateOf(false) }
         var showResetConfirm by remember { mutableStateOf(false) }
+        var colorPickerTarget by remember { mutableStateOf<Any?>(null) }
+        var colorPickerColor by remember { mutableStateOf(Color.Transparent) }
+        var myColumnWindowY by remember { mutableIntStateOf(0) }
+        var cardAreaWindowY by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
     UDFComponent(
         component = vm.udfComponent,
@@ -192,6 +214,35 @@ fun HomeScreen(
                         AppBlacklistContent(onDismiss = { showAppBlacklist = false })
                     }
                 }
+                if (colorPickerTarget != null) {
+                    val scheme = MaterialTheme.colorScheme
+                    val themeColorArgb = remember(scheme) {
+                        ThemeColorKey.entries.associateWith { it.resolveColor(scheme).toArgb() }
+                    }
+                    ColorPickerBottomSheet(
+                        onDismissRequest = { colorPickerTarget = null },
+                        onColorSelected = { selection ->
+                            when (selection) {
+                                is ColorSelection.Custom -> {
+                                    when (val target = colorPickerTarget) {
+                                        is GestureButton -> vm.updateGestureButtonColor(target, selection.color.toArgb())
+                                        is SubGesture -> vm.updateSubGestureColor(target, selection.color.toArgb())
+                                    }
+                                }
+                                is ColorSelection.Theme -> {
+                                    themeColorArgb[selection.key]?.let { resolvedArgb ->
+                                        when (val target = colorPickerTarget) {
+                                            is GestureButton -> vm.updateGestureButtonColor(target, resolvedArgb)
+                                            is SubGesture -> vm.updateSubGestureColor(target, resolvedArgb)
+                                        }
+                                    }
+                                }
+                            }
+                            colorPickerTarget = null
+                        },
+                        initialColor = colorPickerColor,
+                    )
+                }
                 Column {
                 TopBar(
                     onBack = { },
@@ -201,7 +252,12 @@ fun HomeScreen(
                     actions = {}
                 )
 
-                MyColumn(scrollState = scrollState) {
+                MyColumn(
+                    modifier = Modifier.onGloballyPositioned { coords ->
+                        myColumnWindowY = coords.positionInWindow().y.roundToInt()
+                    },
+                    scrollState = scrollState,
+                ) {
                     HomeHeroCard(
                         uiState = uiState,
                         onClick = {
@@ -248,6 +304,7 @@ fun HomeScreen(
                             showResetConfirm = false
                         },
                         onResetDismiss = { showResetConfirm = false },
+                        onCardAreaPosition = { cardAreaWindowY = it },
                     )
 
                     Spacer(Modifier.height(SectionPadding))
@@ -261,7 +318,7 @@ fun HomeScreen(
                             uiState.isSideGestureButtonListExpanded ||
                             uiState.isSubGestureListExpanded
                         ) {
-                            kotlinx.coroutines.delay(80)
+                            kotlinx.coroutines.delay(120)
                             scrollState.animateScrollTo(
                                 scrollState.maxValue,
                                 animationSpec = tween(
@@ -269,6 +326,24 @@ fun HomeScreen(
                                     easing = FastOutSlowInEasing,
                                 ),
                             )
+                        }
+                    }
+
+                    LaunchedEffect(showResetConfirm) {
+                        if (showResetConfirm) {
+                            kotlinx.coroutines.delay(120)
+                            if (cardAreaWindowY > 0 && myColumnWindowY > 0) {
+                                val targetScroll = (cardAreaWindowY - myColumnWindowY - 120).coerceAtLeast(0)
+                                if (targetScroll > scrollState.value) {
+                                    scrollState.animateScrollTo(
+                                        targetScroll,
+                                        animationSpec = tween(
+                                            durationMillis = 400,
+                                            easing = FastOutSlowInEasing,
+                                        ),
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -313,6 +388,55 @@ fun HomeScreen(
                             val id = java.util.UUID.randomUUID().toString()
                             vm.addSubGesture(id)
                         },
+                        onMarkColorClick = { target ->
+                            colorPickerTarget = target
+                            colorPickerColor = when (target) {
+                                is GestureButton -> Color(target.color)
+                                is SubGesture -> Color(target.color)
+                                else -> Color.Transparent
+                            }
+                        },
+                        onGestureButtonRename = { vm.showRenameDialog(RenameTarget.GestureButton(it)) },
+                        onSubGestureRename = { vm.showRenameDialog(RenameTarget.SubGesture(it)) },
+                    )
+                }
+
+                uiState.renameDialogTarget?.let { target ->
+                    val initialName = when (target) {
+                        is RenameTarget.GestureButton -> target.button.name
+                        is RenameTarget.SubGesture -> target.gesture.name
+                    }
+                    var text by remember(target) { mutableStateOf(initialName) }
+                    val focusRequester = remember { FocusRequester() }
+                    LaunchedEffect(Unit) {
+                        kotlinx.coroutines.delay(100)
+                        focusRequester.requestFocus()
+                    }
+                    AlertDialog(
+                        onDismissRequest = { vm.hideRenameDialog() },
+                        title = { Text(stringResource(R.string.rename)) },
+                        text = {
+                            OutlinedTextField(
+                                value = text,
+                                onValueChange = { text = it },
+                                singleLine = true,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .focusRequester(focusRequester),
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                keyboardActions = KeyboardActions(onDone = { vm.doRename(target, text) }),
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { vm.doRename(target, text) }) {
+                                Text(stringResource(R.string.confirm))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { vm.hideRenameDialog() }) {
+                                Text(stringResource(R.string.cancel))
+                            }
+                        }
                     )
                 }
             }
@@ -338,7 +462,7 @@ fun HomeScreen(
                                 }
                                 val bounds = button.bounds()
                                 drawRoundRect(
-                                    color = when (button.isDefault) {
+                                    color = when (button.color == android.graphics.Color.TRANSPARENT) {
                                         true -> colorScheme.primary.copy(alpha = GestureButtonColorAlpha)
                                         else -> Color(button.color).copy(alpha = GestureButtonColorAlpha)
                                     },
@@ -457,6 +581,7 @@ private fun HomeFeatureGrid(
     showResetConfirm: Boolean,
     onResetConfirm: () -> Unit,
     onResetDismiss: () -> Unit,
+    onCardAreaPosition: (Int) -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val useTwoColumns = maxWidth >= HomeWideBreakpoint
@@ -482,6 +607,7 @@ private fun HomeFeatureGrid(
                     HomeToolsCard(
                         onBackupClick, onRestoreClick,
                         onResetToggle, showResetConfirm, onResetConfirm, onResetDismiss,
+                        onCardAreaPosition,
                     )
                 }
             }
@@ -498,6 +624,7 @@ private fun HomeFeatureGrid(
                 HomeToolsCard(
                     onBackupClick, onRestoreClick,
                     onResetToggle, showResetConfirm, onResetConfirm, onResetDismiss,
+                    onCardAreaPosition,
                 )
             }
         }
@@ -610,6 +737,7 @@ private fun HomeToolsCard(
     showResetConfirm: Boolean,
     onResetConfirm: () -> Unit,
     onResetDismiss: () -> Unit,
+    onCardAreaPosition: (Int) -> Unit,
 ) {
     ExpressiveCard(
         title = "工具",
@@ -631,20 +759,23 @@ private fun HomeToolsCard(
         AnimatedVisibility(
             visible = showResetConfirm,
             enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
+        exit = shrinkVertically() + fadeOut(),
         ) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .onGloballyPositioned { coords ->
+                        onCardAreaPosition(coords.positionInWindow().y.roundToInt())
+                    }
                     .padding(top = Spacing12),
                 shape = MaterialTheme.shapes.large,
-                color = MaterialTheme.colorScheme.errorContainer,
+                color = MaterialTheme.colorScheme.tertiaryContainer,
             ) {
                 Column(modifier = Modifier.padding(Spacing14)) {
                     Text(
                         text = stringResource(id = R.string.reset_default_settings_warning),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer,
                     )
                     Spacer(Modifier.height(Spacing12))
                     Row(
@@ -685,59 +816,71 @@ private fun HomeGestureSections(
     onAddBottom: () -> Unit,
     onAddSide: () -> Unit,
     onAddSub: () -> Unit,
+    onMarkColorClick: (Any) -> Unit,
+    onGestureButtonRename: (GestureButton) -> Unit = {},
+    onSubGestureRename: (SubGesture) -> Unit = {},
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Spacing12),
-    ) {
-        GestureEntryCard(
-            title = stringResource(id = R.string.bottom_gesture_button_list_short),
-            subtitle = "${uiState.bottomGestureButtons.count { it.enabled }} / ${uiState.bottomGestureButtons.size} 个已启用",
-            icon = Icons.Default.ArrowUpward,
-            expanded = uiState.isBottomGestureButtonListExpanded,
-            onClick = onBottomHeaderClick,
-        )
-        GestureButtonList(
-            visible = uiState.isBottomGestureButtonListExpanded,
-            buttons = uiState.bottomGestureButtons,
-            onItemClick = onBottomButtonClick,
-            onCheckedChange = onBottomCheckedChange,
-            onAddClick = onAddBottom,
-        )
-
-        GestureEntryCard(
-            title = stringResource(id = R.string.side_gesture_button_list_short),
-            subtitle = "${uiState.sideGestureButtons.count { it.enabled }} / ${uiState.sideGestureButtons.size} 个已启用",
-            icon = Icons.Default.SwapHoriz,
-            expanded = uiState.isSideGestureButtonListExpanded,
-            onClick = onSideHeaderClick,
-            accent = MaterialTheme.colorScheme.secondaryContainer,
-            onAccent = MaterialTheme.colorScheme.onSecondaryContainer,
-        )
-        GestureButtonList(
-            visible = uiState.isSideGestureButtonListExpanded,
-            buttons = uiState.sideGestureButtons,
-            onItemClick = onSideButtonClick,
-            onCheckedChange = onSideCheckedChange,
-            onAddClick = onAddSide,
-        )
-
-        GestureEntryCard(
-            title = stringResource(id = R.string.sub_gesture_list),
-            subtitle = "${uiState.subGestures.count { it.enabled }} / ${uiState.subGestures.size} 个已启用",
-            icon = Icons.Default.AllInclusive,
-            expanded = uiState.isSubGestureListExpanded,
-            onClick = onSubHeaderClick,
-            accent = MaterialTheme.colorScheme.tertiaryContainer,
-            onAccent = MaterialTheme.colorScheme.onTertiaryContainer,
-        )
-        SubGestureList(
-            visible = uiState.isSubGestureListExpanded,
-            gestures = uiState.subGestures,
-            onItemClick = onSubGestureClick,
-            onCheckedChange = onSubCheckedChange,
-            onAddClick = onAddSub,
-        )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Column {
+            GestureEntryCard(
+                title = stringResource(id = R.string.bottom_gesture_button_list_short),
+                subtitle = "${uiState.bottomGestureButtons.count { it.enabled }} / ${uiState.bottomGestureButtons.size} 个已启用",
+                icon = Icons.Default.ArrowUpward,
+                expanded = uiState.isBottomGestureButtonListExpanded,
+                onClick = onBottomHeaderClick,
+            )
+            GestureButtonList(
+                visible = uiState.isBottomGestureButtonListExpanded,
+                buttons = uiState.bottomGestureButtons,
+                onItemClick = onBottomButtonClick,
+                onCheckedChange = onBottomCheckedChange,
+                onAddClick = onAddBottom,
+                onMarkColorClick = onMarkColorClick,
+                onRenameClick = onGestureButtonRename,
+            )
+        }
+        Spacer(Modifier.height(Spacing12))
+        Column {
+            GestureEntryCard(
+                title = stringResource(id = R.string.side_gesture_button_list_short),
+                subtitle = "${uiState.sideGestureButtons.count { it.enabled }} / ${uiState.sideGestureButtons.size} 个已启用",
+                icon = Icons.Default.SwapHoriz,
+                expanded = uiState.isSideGestureButtonListExpanded,
+                onClick = onSideHeaderClick,
+                accent = MaterialTheme.colorScheme.secondaryContainer,
+                onAccent = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            GestureButtonList(
+                visible = uiState.isSideGestureButtonListExpanded,
+                buttons = uiState.sideGestureButtons,
+                onItemClick = onSideButtonClick,
+                onCheckedChange = onSideCheckedChange,
+                onAddClick = onAddSide,
+                onMarkColorClick = onMarkColorClick,
+                onRenameClick = onGestureButtonRename,
+            )
+        }
+        Spacer(Modifier.height(Spacing12))
+        Column {
+            GestureEntryCard(
+                title = stringResource(id = R.string.sub_gesture_list),
+                subtitle = "${uiState.subGestures.count { it.enabled }} / ${uiState.subGestures.size} 个已启用",
+                icon = Icons.Default.AllInclusive,
+                expanded = uiState.isSubGestureListExpanded,
+                onClick = onSubHeaderClick,
+                accent = MaterialTheme.colorScheme.tertiaryContainer,
+                onAccent = MaterialTheme.colorScheme.onTertiaryContainer,
+            )
+            SubGestureList(
+                visible = uiState.isSubGestureListExpanded,
+                gestures = uiState.subGestures,
+                onItemClick = onSubGestureClick,
+                onCheckedChange = onSubCheckedChange,
+                onAddClick = onAddSub,
+                onMarkColorClick = onMarkColorClick,
+                onRenameClick = onSubGestureRename,
+            )
+        }
     }
 }
 
@@ -779,27 +922,45 @@ private fun GestureButtonList(
     onItemClick: (GestureButton) -> Unit,
     onCheckedChange: (GestureButton, Boolean) -> Unit,
     onAddClick: () -> Unit,
+    onMarkColorClick: (Any) -> Unit,
+    onRenameClick: (GestureButton) -> Unit = {},
 ) {
     AnimatedVisibility(
         modifier = Modifier.fillMaxWidth(),
         visible = visible,
-        enter = expandVertically(),
-        exit = shrinkVertically(),
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow)) + fadeOut(),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing8)) {
+        Column(modifier = Modifier.padding(top = Spacing12)) {
             buttons.fastForEach { button ->
                 key(button) {
-                    val markColor = when (button.isDefault) {
+                    val markColor = when (button.color == android.graphics.Color.TRANSPARENT) {
                         true -> MaterialTheme.colorScheme.primary.copy(alpha = GestureButtonColorAlpha)
                         else -> Color(button.color).copy(alpha = GestureButtonColorAlpha)
                     }
                     ExpressiveSwitchItem(
                         title = button.buttonTextCompose(),
-                        subtitle = button.actionTextCompose().ifEmpty { stringResource(id = R.string.action_none) },
                         checked = button.enabled,
                         markColor = markColor,
+                        onMarkColorClick = { onMarkColorClick(button) },
                         onClick = { onItemClick(button) },
                         onCheckedChange = { onCheckedChange(button, it) },
+                        modifier = Modifier.padding(bottom = Spacing8),
+                        icon = {
+                            Box(
+                                modifier = Modifier
+                                    .size(Spacing24)
+                                    .onSingleClick { onRenameClick(button) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "重命名",
+                                    modifier = Modifier.size(Spacing16),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        },
                     )
                 }
             }
@@ -818,23 +979,41 @@ private fun SubGestureList(
     onItemClick: (String) -> Unit,
     onCheckedChange: (SubGesture, Boolean) -> Unit,
     onAddClick: () -> Unit,
+    onMarkColorClick: (Any) -> Unit,
+    onRenameClick: (SubGesture) -> Unit = {},
 ) {
     AnimatedVisibility(
         modifier = Modifier.fillMaxWidth(),
         visible = visible,
-        enter = expandVertically(),
-        exit = shrinkVertically(),
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically(animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow)) + fadeOut(),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing8)) {
+        Column(modifier = Modifier.padding(top = Spacing12)) {
             gestures.fastForEach { gesture ->
                 key(gesture.id) {
                     ExpressiveSwitchItem(
                         title = gesture.name,
-                        subtitle = "子手势配置",
                         checked = gesture.enabled,
                         markColor = Color(gesture.color).copy(alpha = GestureButtonColorAlpha),
+                        onMarkColorClick = { onMarkColorClick(gesture) },
                         onClick = { onItemClick(gesture.id) },
                         onCheckedChange = { onCheckedChange(gesture, it) },
+                        modifier = Modifier.padding(bottom = Spacing8),
+                        icon = {
+                            Box(
+                                modifier = Modifier
+                                    .size(Spacing24)
+                                    .onSingleClick { onRenameClick(gesture) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "重命名",
+                                    modifier = Modifier.size(Spacing16),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        },
                     )
                 }
             }
@@ -1052,7 +1231,6 @@ internal fun MiniWindowSettingsContent(uiState: HomeVM.UiState, vm: HomeVM) {
             text = "水平偏移",
             valueDisplay = "${(uiState.miniWindowHorizontalBias * 100).roundToInt()}%",
             valueRange = -1f..1f,
-            enabled = uiState.miniWindowOverrideBounds,
         )
         MyTextSlider(
             value = uiState.miniWindowVerticalBias,
@@ -1061,7 +1239,6 @@ internal fun MiniWindowSettingsContent(uiState: HomeVM.UiState, vm: HomeVM) {
             text = "垂直偏移",
             valueDisplay = "${(uiState.miniWindowVerticalBias * 100).roundToInt()}%",
             valueRange = -1f..1f,
-            enabled = uiState.miniWindowOverrideBounds,
         )
         MyTextSlider(
             value = uiState.miniWindowWidthFraction,
@@ -1070,7 +1247,6 @@ internal fun MiniWindowSettingsContent(uiState: HomeVM.UiState, vm: HomeVM) {
             text = "宽度",
             valueDisplay = "${(uiState.miniWindowWidthFraction * 100).roundToInt()}%",
             valueRange = 0.2f..1.5f,
-            enabled = uiState.miniWindowOverrideBounds,
         )
         MyTextSlider(
             value = uiState.miniWindowHeightFraction,
@@ -1079,7 +1255,6 @@ internal fun MiniWindowSettingsContent(uiState: HomeVM.UiState, vm: HomeVM) {
             text = "高度",
             valueDisplay = "${(uiState.miniWindowHeightFraction * 100).roundToInt()}%",
             valueRange = 0.2f..1.5f,
-            enabled = uiState.miniWindowOverrideBounds,
         )
     }
 }

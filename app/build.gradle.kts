@@ -131,7 +131,7 @@ dependencies {
     implementation(libs.jetbrains.kotlin.serialization)
     implementation(libs.androidx.datastore)
     implementation(libs.material3)
-    implementation(libs.compose.colorpicker)
+    // color-picker removed; replaced with in-app HsvRectPicker
     implementation(libs.material.icons.extended)
     implementation(libs.tinypinyin)
     implementation(libs.rikka.shizuku.api)

@@ -20,7 +20,6 @@ import hunoia.luno.system.window.removeWindows
 import hunoia.luno.system.window.setBasic
 import hunoia.luno.system.window.updateLayout
 import hunoia.luno.system.window.updateMainView
-import hunoia.luno.service.GestureView
 import hunoia.luno.core.DensityProvider
 
 class SideGestureWindowController(private val host: SideGestureService) {
@@ -105,7 +104,7 @@ class SideGestureWindowController(private val host: SideGestureService) {
             setBasic(button.enabled)
             updateGestureButton(button)
         }
-        val view = GestureView(host, button).apply {
+        val view = View(host).apply {
             tag = button
             setOnTouchListener { v, event ->
                 MotionEventDispatcher.dispatch(event)

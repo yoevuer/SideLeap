@@ -55,10 +55,3 @@ fun vibrateForActionPanel(gestureSettings: GestureSettings) {
     }
 }
 
-@RequiresPermission(VIBRATE)
-fun vibrateForMoveScreen(gestureSettings: GestureSettings) {
-    val ctx = appContext ?: return
-    if (gestureSettings.moveScreenVibrate) {
-        vibrate(ctx, DEFAULT_VIBRATION_EFFECT, DEFAULT_VIBRATION_MS)
-    }
-}

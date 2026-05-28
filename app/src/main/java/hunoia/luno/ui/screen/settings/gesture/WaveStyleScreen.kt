@@ -73,7 +73,8 @@ import hunoia.luno.ui.screen.settings.gesture.WaveStyleVM.UiEvent
 import hunoia.luno.ui.theme.MinInteractiveSize
 import hunoia.luno.ui.theme.SectionPadding
 import hunoia.luno.ui.theme.SubMinInteractiveSize
-import hunoia.luno.ui.component.ColorPickerDialog
+import hunoia.luno.ui.component.ColorPickerBottomSheet
+import hunoia.luno.ui.component.ColorSelection
 import hunoia.luno.ui.component.MyColorDisplay
 import hunoia.luno.ui.component.MyColumn
 import hunoia.luno.ui.component.MyExpandableColumn
@@ -81,7 +82,6 @@ import hunoia.luno.ui.component.ExpressiveRow
 import hunoia.luno.ui.component.ExpressiveSection
 import hunoia.luno.ui.component.ExpressiveSwitchItem
 import hunoia.luno.ui.component.MyTextSlider
-import hunoia.luno.ui.component.ThemeColorPickerDialog
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -140,31 +140,38 @@ fun WaveStyleContent(
             }
         }
     ) { uiState ->
-        if (uiState.colorPickerDialog.first) {
-            ColorPickerDialog(
-                onDismissRequest = {
-                    vm.colorPickerDialog.show(false)
-                },
-                onColorPicked = { color ->
-                    vm.colorPickerDialog.onColorChange(color.toArgb())
-                    vm.colorPickerDialog.confirm()
-                },
-                initialColor = Color(uiState.colorPickerDialog.second)
-            )
-        }
-
-        var showThemeColorPickerFor by remember { mutableStateOf<String?>(null) }
-        showThemeColorPickerFor?.let { target ->
-            ThemeColorPickerDialog(
-                onDismissRequest = { showThemeColorPickerFor = null },
-                onColorPicked = { key ->
-                    when (target) {
-                        "bg" -> vm.onBackgroundColorThemeKeyChange(key)
-                        "stroke" -> vm.onStrokeColorThemeKeyChange(key)
-                        "icon" -> vm.onIconColorThemeKeyChange(key)
+        var colorPickerTarget by remember { mutableStateOf<String?>(null) }
+        colorPickerTarget?.let { target ->
+            val style = uiState.animationStyle
+            val initial = when (target) {
+                "bg" -> resolvePreviewColor(style.backgroundColorSource, style.backgroundColorThemeKey, style.backgroundColor)
+                "stroke" -> resolvePreviewColor(style.strokeColorSource, style.strokeColorThemeKey, style.strokeColor)
+                else -> resolvePreviewColor(style.iconColorSource, style.iconColorThemeKey, style.iconColor)
+            }
+            ColorPickerBottomSheet(
+                onDismissRequest = { colorPickerTarget = null },
+                onColorSelected = { selection ->
+                    when (selection) {
+                        is ColorSelection.Custom -> {
+                            when (target) {
+                                "bg" -> { vm.colorPickerDialog.show(show = true, color = style.backgroundColor, belongsTo = style::backgroundColor) }
+                                "stroke" -> { vm.colorPickerDialog.show(show = true, color = style.strokeColor, belongsTo = style::strokeColor) }
+                                else -> { vm.colorPickerDialog.show(show = true, color = style.iconColor, belongsTo = style::iconColor) }
+                            }
+                            vm.colorPickerDialog.onColorChange(selection.color.toArgb())
+                            vm.colorPickerDialog.confirm()
+                        }
+                        is ColorSelection.Theme -> {
+                            when (target) {
+                                "bg" -> vm.onBackgroundColorThemeKeyChange(selection.key)
+                                "stroke" -> vm.onStrokeColorThemeKeyChange(selection.key)
+                                else -> vm.onIconColorThemeKeyChange(selection.key)
+                            }
+                        }
                     }
-                    showThemeColorPickerFor = null
-                }
+                    colorPickerTarget = null
+                },
+                initialColor = initial,
             )
         }
 
@@ -176,17 +183,7 @@ fun WaveStyleContent(
 
                     ExpressiveSection(title = stringResource(id = R.string.color_outline)) {
                     ExpressiveRow(
-                        onClick = {
-                            if (style.backgroundColorSource == ColorSource.Theme) {
-                                showThemeColorPickerFor = "bg"
-                            } else {
-                                vm.colorPickerDialog.show(
-                                    show = true,
-                                    color = style.backgroundColor,
-                                    belongsTo = style::backgroundColor
-                                )
-                            }
-                        },
+                        onClick = { colorPickerTarget = "bg" },
                         text = stringResource(id = R.string.background_color),
                         icon = {
                             MyColorDisplay(color = resolvePreviewColor(style.backgroundColorSource, style.backgroundColorThemeKey, style.backgroundColor))
@@ -199,17 +196,7 @@ fun WaveStyleContent(
                         }
                     )
                     ExpressiveRow(
-                        onClick = {
-                            if (style.strokeColorSource == ColorSource.Theme) {
-                                showThemeColorPickerFor = "stroke"
-                            } else {
-                                vm.colorPickerDialog.show(
-                                    show = true,
-                                    color = style.strokeColor,
-                                    belongsTo = style::strokeColor
-                                )
-                            }
-                        },
+                        onClick = { colorPickerTarget = "stroke" },
                         text = stringResource(id = R.string.stroke_color),
                         icon = {
                             MyColorDisplay(color = resolvePreviewColor(style.strokeColorSource, style.strokeColorThemeKey, style.strokeColor))
@@ -308,12 +295,12 @@ fun WaveStyleContent(
                         valueRange = MinBezierWidth.toFloat()..MaxBezierWidth.toFloat()
                     )
                     MyTextSlider(
-                        value = uiState.animationStyle.bezierLengthHalfRatio.toFloat(),
+                        value = uiState.animationStyle.bezierLengthHalfRatio,
                         onValueChange = { vm.onLengthHalfRatioChange(it) },
                         onValueChangeFinished = { vm.saveSettings() },
                         text = stringResource(id = R.string.length),
                         valueDisplay = String.format("%.1f", uiState.animationStyle.bezierLengthHalfRatio),
-                        valueRange = MinBezierLength.toFloat()..MaxBezierLength.toFloat()
+                        valueRange = MinBezierLength..MaxBezierLength
                     )
                     ExpressiveSwitchItem(
                         onCheckedChange = { vm.onSafeBoundsChange(it) },
@@ -334,17 +321,7 @@ fun WaveStyleContent(
                     title = stringResource(id = R.string.icon)
                 ) {
                     ExpressiveRow(
-                        onClick = {
-                            if (style.iconColorSource == ColorSource.Theme) {
-                                showThemeColorPickerFor = "icon"
-                            } else {
-                                vm.colorPickerDialog.show(
-                                    show = true,
-                                    color = style.iconColor,
-                                    belongsTo = style::iconColor
-                                )
-                            }
-                        },
+                        onClick = { colorPickerTarget = "icon" },
                         text = stringResource(id = R.string.tint),
                         icon = {
                             MyColorDisplay(color = resolvePreviewColor(style.iconColorSource, style.iconColorThemeKey, style.iconColor))

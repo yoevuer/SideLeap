@@ -25,7 +25,6 @@ import kotlinx.serialization.Serializable
 data class GestureSettings(
     val subGestureTimeoutMs: Long = SubGestureTimeoutMs,
     val actionPanelVibrate: Boolean = true,
-    val moveScreenVibrate: Boolean = true,
     val pointer: Pointer = Pointer()
 ) {
     @Serializable

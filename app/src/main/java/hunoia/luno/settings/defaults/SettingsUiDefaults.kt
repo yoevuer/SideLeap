@@ -24,10 +24,6 @@ object SettingsUiDefaults {
     const val MaxBezierLength = 6.0f
     const val MinIconScale = 0.0f
     const val MaxIconScale = 1.0f
-    const val MinMoveScreenRate = 1f
-    const val MaxMoveScreenRate = 3f
-    const val MinMoveScreenHover = 300f
-    const val MaxMoveScreenHover = 1000f
     const val MinGotoBottomStrength = 1f
     const val MaxGotoBottomStrength = 20f
     const val MinGestureButtonPosition = 0f

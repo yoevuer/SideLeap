@@ -1,20 +1,16 @@
 package hunoia.luno.ui.component
 
-import android.graphics.Bitmap
-import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
@@ -39,8 +35,6 @@ import hunoia.luno.system.vibration.tryVibrate
 import hunoia.luno.ui.component.DragGestureHandler
 import hunoia.luno.system.volumeDown
 import hunoia.luno.system.volumeUp
-import hunoia.luno.system.feedback.showVersionTooLowToast
-import androidx.compose.ui.graphics.Color
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.core.serialization.JsonHelper
 import hunoia.luno.settings.model.SubGesture
@@ -68,7 +62,6 @@ fun SideGestureContainer(
     actionSettings: ActionSettings = ActionSettings(),
     advancedSettings: AdvancedSettings = AdvancedSettings(),
     gestureSettings: GestureSettings = GestureSettings(),
-    onTakeScreenshot: (suspend () -> Bitmap?)? = null,
     onPointerStart: () -> Boolean = { false },
     onPointerEnd: () -> Unit = {},
     onPointerSettingsUpdate: (GestureSettings.Pointer) -> Unit = {},
@@ -89,7 +82,6 @@ fun SideGestureContainer(
     val coroutineScope = rememberCoroutineScope()
     val sideGestureState = rememberSideGestureState(buttons, advancedSettings, gestureSettings)
     val actionPanelState = rememberActionPanelState()
-    val moveScreenState = rememberMoveScreenState(gestureSettings, actionSettings.moveScreen)
     val pointerHandle = rememberPointerHandle(
         gestureSettings = gestureSettings,
         onPointerStart = { curOnPointerStart() },
@@ -196,17 +188,6 @@ fun SideGestureContainer(
                                 sideGestureState.cancel()
                                 clearSubGestureMode(notifyService = false)
                             }
-                            GlobalActions.MOVE_SCREEN -> {
-                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                    showVersionTooLowToast(context, R.string.action_move_screen)
-                                    sideGestureState.cancel()
-                                    clearSubGestureMode(notifyService = false)
-                                } else {
-                                    moveScreenState.onDragStart(sideGestureState.finger)
-                                    sideGestureState.cancel()
-                                    clearSubGestureMode(notifyService = false)
-                                }
-                            }
                             else -> {
                                 handleResolvedAction(Action(actionId), sideGestureState.button, sideGestureState.finger)
                                 if (actionId != GlobalActions.SUB_GESTURE) clearSubGestureMode()
@@ -249,10 +230,6 @@ fun SideGestureContainer(
                 actionPanelState.onDrag(dragAmount)
                 return@onDrag
             }
-            if (moveScreenState.visible) {
-                moveScreenState.onDrag(dragAmount)
-                return@onDrag
-            }
             if (!sideGestureState.isCanceled) {
                 val actions = sideGestureState.onDrag(dragAmount)
                 val button = sideGestureState.button
@@ -274,14 +251,6 @@ fun SideGestureContainer(
                             sideGestureState.cancel()
                         } else if (action.value == GlobalActions.POINTER) {
                             pointerHandle.start(action, sideGestureState.finger, pointerPreviousPosition())
-                            sideGestureState.cancel()
-                        } else if (action.value == GlobalActions.MOVE_SCREEN) {
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                showVersionTooLowToast(context, R.string.action_move_screen)
-                                sideGestureState.cancel()
-                                return@onDrag
-                            }
-                            moveScreenState.onDragStart(sideGestureState.finger)
                             sideGestureState.cancel()
                         } else {
                             handleResolvedAction(action, button, sideGestureState.finger)
@@ -318,14 +287,6 @@ fun SideGestureContainer(
                 actionPanelState.onDragEnd()
                 handleResolvedAction(action, sideGestureState.button, touchPosition)
             }
-            if (moveScreenState.visible) {
-                val touchPosition = moveScreenState.finger
-                val action = moveScreenState.done()
-                moveScreenState.onDragEnd()
-                handleResolvedAction(action, sideGestureState.button, touchPosition)
-                return@onDragEnd
-            }
-
             if (!sideGestureState.isCanceled) {
                 val touchPosition = sideGestureState.finger
                 val sourceButton = sideGestureState.button
@@ -354,9 +315,6 @@ fun SideGestureContainer(
             if (actionPanelState.visible) {
                 actionPanelState.onDragCancel()
             }
-            if (moveScreenState.visible) {
-                moveScreenState.onDragCancel()
-            }
             sideGestureState.onDragCancel()
         }
     )
@@ -368,40 +326,13 @@ fun SideGestureContainer(
             gestureSettings = gestureSettings
         )
 
-        if (!moveScreenState.visible && animationStyle != null) {
+        if (animationStyle != null) {
             key(wallpaperChangeTrigger) {
                 GestureAnimation(
                     modifier = Modifier.matchParentSize(),
                     animationStyle = animationStyle,
                     SideGestureState = sideGestureState
                 )
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            var screenshot by remember { mutableStateOf<Bitmap?>(null) }
-            LaunchedEffect(moveScreenState.visible) {
-                if (!moveScreenState.visible) {
-                    screenshot = null
-                    return@LaunchedEffect
-                }
-                screenshot = try {
-                    onTakeScreenshot?.invoke()
-                } catch (_: Exception) {
-                    null
-                }
-            }
-            if (moveScreenState.visible) {
-                val ss = screenshot
-                if (ss != null) {
-                    MoveScreen(
-                        modifier = Modifier.matchParentSize(),
-                        screenshot = ss,
-                        state = moveScreenState
-                    )
-                } else {
-                    Box(Modifier.matchParentSize().background(Color.Black))
-                }
             }
         }
 

@@ -72,7 +72,7 @@ fun GestureButtonAngleContent(
     var angle by remember(gestureButton.id, gestureButton.position, gestureButton.angle) {
         mutableStateOf(gestureButton.angle)
     }
-    val color = when (gestureButton.isDefault) {
+    val color = when (gestureButton.color == android.graphics.Color.TRANSPARENT) {
         true -> MaterialTheme.colorScheme.primary
         else -> Color(gestureButton.color)
     }

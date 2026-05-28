@@ -2,7 +2,6 @@ package hunoia.luno
 
 import android.app.WallpaperManager
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -23,7 +22,6 @@ import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.query.LauncherEnvironment
 import hunoia.luno.service.SideGestureServiceProxy
 import hunoia.luno.service.GestureOverlayView
-import hunoia.luno.service.takeScreenshot
 import hunoia.luno.service.SideGestureButtonRefreshCoordinator
 import hunoia.luno.service.SideGestureOverlayLifecycle
 import hunoia.luno.service.SideGestureRuntime
@@ -235,11 +233,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                     PointerAction.LongPress -> Accessibility.longPress(this, x, y)
                 }
                 if (!keepActive) pointerRuntime.end()
-            },
-            onTakeScreenshot = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    screenshotService.takeScreenshot()
-                } else null
             },
             windowController = windowController,
         )

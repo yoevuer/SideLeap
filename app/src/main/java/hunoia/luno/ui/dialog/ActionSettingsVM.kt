@@ -23,26 +23,6 @@ class ActionSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         loadData()
     }
 
-    fun onMoveScreenRateChange(rate: Float) {
-        updateUiState {
-            it.copy(
-                actionSettings = it.actionSettings.copy(
-                    moveScreen = it.actionSettings.moveScreen.copy(rate = rate)
-                )
-            )
-        }
-    }
-
-    fun onMoveScreenHoverChange(hoverDelayMs: Float) {
-        updateUiState {
-            it.copy(
-                actionSettings = it.actionSettings.copy(
-                    moveScreen = it.actionSettings.moveScreen.copy(hoverDelayMs = hoverDelayMs.toLong())
-                )
-            )
-        }
-    }
-
     fun onPreviousAppOperation(pkgName: String, add: Boolean) {
         updateUiState {
             val pkgNames = it.actionSettings.previousApp.packageNames

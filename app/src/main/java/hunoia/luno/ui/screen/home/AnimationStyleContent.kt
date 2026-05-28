@@ -85,16 +85,15 @@ import hunoia.luno.ui.screen.settings.gesture.getWaveStyleIcon
 import hunoia.luno.ui.theme.MinInteractiveSize
 import hunoia.luno.ui.theme.SectionPadding
 import hunoia.luno.ui.theme.SubMinInteractiveSize
-import hunoia.luno.ui.component.ColorPickerDialog
 import hunoia.luno.ui.component.MyColorDisplay
 import hunoia.luno.ui.component.MyColumn
 import hunoia.luno.ui.component.MyExpandableColumn
-import hunoia.luno.ui.component.ExpressiveCard
+import hunoia.luno.ui.component.ColorPickerBottomSheet
+import hunoia.luno.ui.component.ColorSelection
 import hunoia.luno.ui.component.ExpressiveRow
 import hunoia.luno.ui.component.ExpressiveSection
 import hunoia.luno.ui.component.MyTextSlider
 import hunoia.luno.ui.component.ExpressiveSwitchItem
-import hunoia.luno.ui.component.ThemeColorPickerDialog
 import kotlin.math.roundToInt
 
 @Composable
@@ -104,33 +103,88 @@ fun AnimationStyleContent(
 ) {
     val scrollState = rememberScrollState()
     UDFComponent(component = vm.udfComponent, onEvent = { }) { uiState ->
-        var showThemeColorPickerFor by remember { mutableStateOf<String?>(null) }
-        var pendingColorTarget by remember { mutableStateOf<String?>(null) }
-        val type = uiState.currentType
-
-        if (uiState.colorPickerDialog.first) {
-            ColorPickerDialog(
-                onDismissRequest = { vm.colorPickerDialog.show(false) },
-                onColorPicked = { color ->
-                    val argb = color.toArgb()
-                    val target = pendingColorTarget ?: return@ColorPickerDialog
-                    dispatchColorCustom(vm, type, target, argb)
-                    vm.colorPickerDialog.show(false)
-                    pendingColorTarget = null
+        var colorPickerTarget by remember { mutableStateOf<String?>(null) }
+        colorPickerTarget?.let { target ->
+            val t = uiState.currentType
+            val ws = uiState.waveStyle
+            val cs = uiState.capsuleStyle
+            val bs = uiState.bubbleStyle
+            val ls = uiState.lineStyle
+            val initial = resolvePreviewColor(
+                when (target) {
+                    "bg" -> when (t) {
+                        AnimationStyles.TYPE_WAVE -> ws.backgroundColorSource
+                        AnimationStyles.TYPE_CAPSULE -> cs.backgroundColorSource
+                        AnimationStyles.TYPE_LINE -> ls.backgroundColorSource
+                        else -> bs.backgroundColorSource
+                    }
+                    "stroke" -> when (t) {
+                        AnimationStyles.TYPE_WAVE -> ws.strokeColorSource
+                        AnimationStyles.TYPE_CAPSULE -> cs.strokeColorSource
+                        AnimationStyles.TYPE_LINE -> ls.strokeColorSource
+                        else -> bs.strokeColorSource
+                    }
+                    else -> when (t) {
+                        AnimationStyles.TYPE_WAVE -> ws.iconColorSource
+                        AnimationStyles.TYPE_CAPSULE -> cs.iconColorSource
+                        AnimationStyles.TYPE_LINE -> ls.iconColorSource
+                        else -> bs.iconColorSource
+                    }
                 },
-                initialColor = Color(uiState.colorPickerDialog.second)
+                when (target) {
+                    "bg" -> when (t) {
+                        AnimationStyles.TYPE_WAVE -> ws.backgroundColorThemeKey
+                        AnimationStyles.TYPE_CAPSULE -> cs.backgroundColorThemeKey
+                        AnimationStyles.TYPE_LINE -> ls.backgroundColorThemeKey
+                        else -> bs.backgroundColorThemeKey
+                    }
+                    "stroke" -> when (t) {
+                        AnimationStyles.TYPE_WAVE -> ws.strokeColorThemeKey
+                        AnimationStyles.TYPE_CAPSULE -> cs.strokeColorThemeKey
+                        AnimationStyles.TYPE_LINE -> ls.strokeColorThemeKey
+                        else -> bs.strokeColorThemeKey
+                    }
+                    else -> when (t) {
+                        AnimationStyles.TYPE_WAVE -> ws.iconColorThemeKey
+                        AnimationStyles.TYPE_CAPSULE -> cs.iconColorThemeKey
+                        AnimationStyles.TYPE_LINE -> ls.iconColorThemeKey
+                        else -> bs.iconColorThemeKey
+                    }
+                },
+                when (target) {
+                    "bg" -> when (t) {
+                        AnimationStyles.TYPE_WAVE -> ws.backgroundColor
+                        AnimationStyles.TYPE_CAPSULE -> cs.backgroundColor
+                        AnimationStyles.TYPE_LINE -> ls.backgroundColor
+                        else -> bs.backgroundColor
+                    }
+                    "stroke" -> when (t) {
+                        AnimationStyles.TYPE_WAVE -> ws.strokeColor
+                        AnimationStyles.TYPE_CAPSULE -> cs.strokeColor
+                        AnimationStyles.TYPE_LINE -> ls.strokeColor
+                        else -> bs.strokeColor
+                    }
+                    else -> when (t) {
+                        AnimationStyles.TYPE_WAVE -> ws.iconColor
+                        AnimationStyles.TYPE_CAPSULE -> cs.iconColor
+                        AnimationStyles.TYPE_LINE -> ls.iconColor
+                        else -> bs.iconColor
+                    }
+                },
+            )
+            ColorPickerBottomSheet(
+                onDismissRequest = { colorPickerTarget = null },
+                onColorSelected = { selection ->
+                    when (selection) {
+                        is ColorSelection.Custom -> dispatchColorCustom(vm, t, target, selection.color.toArgb())
+                        is ColorSelection.Theme -> dispatchColorThemeKey(vm, t, target, selection.key)
+                    }
+                    colorPickerTarget = null
+                },
+                initialColor = initial,
             )
         }
-
-        showThemeColorPickerFor?.let { target ->
-            ThemeColorPickerDialog(
-                onDismissRequest = { showThemeColorPickerFor = null },
-                onColorPicked = { key ->
-                    dispatchColorThemeKey(vm, type, target, key)
-                    showThemeColorPickerFor = null
-                }
-            )
-        }
+        val type = uiState.currentType
 
         val waveStyle = uiState.waveStyle
         val capsuleStyle = uiState.capsuleStyle
@@ -198,27 +252,7 @@ fun AnimationStyleContent(
         MyColumn(scrollState = scrollState) {
             ExpressiveSection(title = stringResource(id = R.string.color_outline)) {
                 ExpressiveRow(
-                    onClick = {
-                        val bgSource = when (type) {
-                            AnimationStyles.TYPE_WAVE -> waveStyle.backgroundColorSource
-                            AnimationStyles.TYPE_CAPSULE -> capsuleStyle.backgroundColorSource
-                            AnimationStyles.TYPE_LINE -> lineStyle.backgroundColorSource
-                    AnimationStyles.TYPE_LINE -> lineStyle.backgroundColor
-                    else -> bubbleStyle.backgroundColorSource
-                        }
-                        if (bgSource == ColorSource.Theme) {
-                            showThemeColorPickerFor = "bg"
-                        } else {
-                            pendingColorTarget = "bg"
-                            val color = when (type) {
-                                AnimationStyles.TYPE_WAVE -> waveStyle.backgroundColor
-                                AnimationStyles.TYPE_CAPSULE -> capsuleStyle.backgroundColor
-                                AnimationStyles.TYPE_LINE -> lineStyle.backgroundColor
-                    else -> bubbleStyle.backgroundColor
-                            }
-                            vm.colorPickerDialog.show(show = true, color = color, belongsTo = null, targetType = type)
-                        }
-                    },
+                    onClick = { colorPickerTarget = "bg" },
                     text = stringResource(id = R.string.background_color),
                     icon = {
                         MyColorDisplay(
@@ -260,26 +294,7 @@ fun AnimationStyleContent(
                     }
                 )
                 ExpressiveRow(
-                    onClick = {
-                        val strokeSource = when (type) {
-                            AnimationStyles.TYPE_WAVE -> waveStyle.strokeColorSource
-                            AnimationStyles.TYPE_CAPSULE -> capsuleStyle.strokeColorSource
-                            AnimationStyles.TYPE_LINE -> lineStyle.strokeColorSource
-                    else -> bubbleStyle.strokeColorSource
-                        }
-                        if (strokeSource == ColorSource.Theme) {
-                            showThemeColorPickerFor = "stroke"
-                        } else {
-                            pendingColorTarget = "stroke"
-                            val color = when (type) {
-                                AnimationStyles.TYPE_WAVE -> waveStyle.strokeColor
-                                AnimationStyles.TYPE_CAPSULE -> capsuleStyle.strokeColor
-                                AnimationStyles.TYPE_LINE -> lineStyle.strokeColor
-                    else -> bubbleStyle.strokeColor
-                            }
-                            vm.colorPickerDialog.show(show = true, color = color, belongsTo = null, targetType = type)
-                        }
-                    },
+                    onClick = { colorPickerTarget = "stroke" },
                     text = stringResource(id = R.string.stroke_color),
                     icon = {
                         MyColorDisplay(
@@ -412,12 +427,12 @@ fun AnimationStyleContent(
                             valueRange = MinBezierWidth.toFloat()..MaxBezierWidth.toFloat()
                         )
                         MyTextSlider(
-                            value = waveStyle.bezierLengthHalfRatio.toFloat(),
+                            value = waveStyle.bezierLengthHalfRatio,
                             onValueChange = { ratio -> vm.onWaveStyleChange { w -> w.copy(bezierLengthHalfRatio = ratio) } },
                             onValueChangeFinished = { vm.saveWaveSettings() },
                             text = stringResource(id = R.string.length),
                             valueDisplay = String.format("%.1f", waveStyle.bezierLengthHalfRatio),
-                            valueRange = MinBezierLength.toFloat()..MaxBezierLength.toFloat()
+                            valueRange = MinBezierLength..MaxBezierLength
                         )
                         ExpressiveSwitchItem(
                             onCheckedChange = { checked -> vm.onWaveStyleChange { it.copy(safeBounds = checked) }; vm.saveWaveSettings() },
@@ -579,18 +594,7 @@ fun AnimationStyleContent(
                         AnimationStyles.TYPE_LINE -> lineStyle.iconColorSource
                     else -> bubbleStyle.iconColorSource
                     }
-                    if (iconSource == ColorSource.Theme) {
-                        showThemeColorPickerFor = "icon"
-                    } else {
-                        pendingColorTarget = "icon"
-                        val color = when (type) {
-                            AnimationStyles.TYPE_WAVE -> waveStyle.iconColor
-                            AnimationStyles.TYPE_CAPSULE -> capsuleStyle.iconColor
-                            AnimationStyles.TYPE_LINE -> lineStyle.iconColor
-                    else -> bubbleStyle.iconColor
-                        }
-                        vm.colorPickerDialog.show(show = true, color = color, belongsTo = null, targetType = type)
-                    }
+                    colorPickerTarget = "icon"
                 },
                 onColorSourceChange = { checked ->
                     val source = if (checked) ColorSource.Theme else ColorSource.Custom

@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Adjust
 import androidx.compose.material.icons.filled.Gesture
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Tune
@@ -44,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.util.fastForEach
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
@@ -83,7 +83,6 @@ import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.MarkColorSize
 import hunoia.luno.ui.theme.MinItemHeightNoSecondary
 import hunoia.luno.ui.theme.SectionPadding
-import hunoia.luno.ui.component.ColorPickerDialog
 import hunoia.luno.ui.component.MyAlertDialog
 import hunoia.luno.ui.component.MyColumn
 import hunoia.luno.ui.component.ExpressiveCard
@@ -101,9 +100,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxLongPressTriggerDelayMs
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxLongSlideTriggerDelayMs
@@ -156,29 +152,18 @@ fun GestureButtonSettingsScreen(
                 onConfirmClick = { vm.copyAnotherSideGestureButton() }
             )
         }
-        if (uiState.colorPickerDialog.first) {
-            ColorPickerDialog(
-                onDismissRequest = {
-                    vm.colorPickerDialog.show(false)
-                },
-                onColorPicked = { color ->
-                    vm.colorPickerDialog.onColorChange(color)
-                    vm.colorPickerDialog.confirm()
-                },
-                initialColor = uiState.colorPickerDialog.second
-            )
-        }
-
         Box {
             Column {
                 TopBar(
                     onBack = onBack,
                     title = uiState.gestureButton.let {
                         if (it == null) return@let ""
-                        when (it.position) {
-                            Position.Left -> stringResource(id = R.string.left_gesture_button)
-                            Position.Right -> stringResource(id = R.string.right_gesture_button)
-                            Position.Bottom -> stringResource(id = R.string.bottom_gesture_button)
+                        it.name.ifEmpty {
+                            when (it.position) {
+                                Position.Left -> stringResource(id = R.string.left_gesture_button)
+                                Position.Right -> stringResource(id = R.string.right_gesture_button)
+                                Position.Bottom -> stringResource(id = R.string.bottom_gesture_button)
+                            }
                         }
                     },
                     postfixTitle = {
@@ -188,7 +173,7 @@ fun GestureButtonSettingsScreen(
                                     .padding(start = IconTextPadding)
                                     .size(MarkColorSize)
                                     .background(
-                                        color = when (uiState.gestureButton.isDefault) {
+                                        color = when (uiState.gestureButton.color == android.graphics.Color.TRANSPARENT) {
                                             true -> MaterialTheme.colorScheme.primary.copy(alpha = GestureButtonColorAlpha)
                                             else -> Color(uiState.gestureButton.color).copy(alpha = GestureButtonColorAlpha)
                                         },
@@ -453,44 +438,6 @@ fun GestureButtonSettingsScreen(
                                     subtitle = stringResource(id = R.string.gesture_button_align_hint),
                                 )
                             }
-                            if (uiState.canShowExcludeSystemGestureRects) {
-                                ExpressiveSwitchItem(
-                                    onCheckedChange = { vm.onExcludeSystemGestureRectsChange(it) },
-                                    checked = gestureButton.excludeSystemGestureRects,
-                                    title = stringResource(id = R.string.intercept_system_back_gesture),
-                                    subtitle = stringResource(id = R.string.intercept_system_back_gesture_hint),
-                                )
-                                ExpressiveSwitchItem(
-                                    enabled = gestureButton.excludeSystemGestureRects,
-                                    onCheckedChange = { vm.onLimitMaxExcludeSystemGestureLengthChange(it) },
-                                    checked = gestureButton.limitMaxExcludeSystemGestureLength,
-                                    title = stringResource(id = R.string.limit_max_intercept_length),
-                                    subtitle = stringResource(id = R.string.limit_max_intercept_length_hint),
-                                )
-                            }
-                        }
-
-                        if (!gestureButton.isDefault) {
-                            ExpressiveCard(
-                                icon = Icons.Default.Palette,
-                                title = stringResource(id = R.string.gesture_button_color),
-                                subtitle = "自定义按钮颜色",
-                                onClick = { vm.colorPickerDialog.show(true) },
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .background(
-                                            color = Color(gestureButton.color),
-                                            shape = CircleShape
-                                        )
-                                        .border(
-                                            width = Spacing1,
-                                            color = MaterialTheme.colorScheme.outlineVariant,
-                                            shape = CircleShape
-                                        )
-                                )
-                            }
                         }
 
                         ExpressiveCard(
@@ -546,7 +493,7 @@ fun GestureButtonSettingsScreen(
                     .drawBehind {
                         uiState.gestureButtons.fastForEach { button ->
                             val bounds = button.bounds()
-                            val color = when (button.isDefault) {
+                            val color = when (button.color == android.graphics.Color.TRANSPARENT) {
                                 true -> colorScheme.primary
                                 else -> Color(
                                     red = button.color.red,

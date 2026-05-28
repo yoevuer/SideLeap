@@ -12,19 +12,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Gesture
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Vibration
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,14 +42,13 @@ import hunoia.luno.ui.ext.displayNameRes
 import hunoia.luno.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.luno.settings.model.SubGesture
 import hunoia.luno.ui.navigation.SubGestureActionSelect
-import hunoia.luno.ui.component.OptimizedBottomSheet
-import hunoia.luno.ui.component.ColorPickerDialog
 import hunoia.luno.ui.component.MyAlertDialog
-import hunoia.luno.ui.component.MyColumn
-import hunoia.luno.ui.component.MyTextSlider
+import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.ExpressiveCard
 import hunoia.luno.ui.component.ExpressiveRow
 import hunoia.luno.ui.component.ExpressiveSwitchItem
+import hunoia.luno.ui.component.MyColumn
+import hunoia.luno.ui.component.MyTextSlider
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsVM.UiEvent
 import androidx.compose.foundation.layout.Arrangement
@@ -87,7 +83,6 @@ fun SubGestureSettingsScreen(
     onNavToSubGestureActionSelect: (SubGestureActionSelect) -> Unit = {},
     vm: SubGestureSettingsVM = viewModel()
 ) {
-    var showEditNameDialog by remember { mutableStateOf(false) }
     var showGestureAngles by remember { mutableStateOf(false) }
     var showSubVibrationSettings by remember { mutableStateOf(false) }
     var showSubTriggerDistanceSettings by remember { mutableStateOf(false) }
@@ -110,34 +105,6 @@ fun SubGestureSettingsScreen(
         }
 
         val gesture = uiState.subGesture ?: return@UDFComponent
-
-        if (showEditNameDialog) {
-            androidx.compose.material3.AlertDialog(
-                containerColor = MaterialTheme.colorScheme.surface,
-                onDismissRequest = { showEditNameDialog = false },
-                title = { Text(text = stringResource(id = R.string.sub_gesture)) },
-                text = {
-                    OutlinedTextField(
-                        value = uiState.editingName,
-                        onValueChange = { vm.updateName(it) },
-                        singleLine = true
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        vm.confirmName()
-                        showEditNameDialog = false
-                    }) {
-                        Text(text = stringResource(id = R.string.confirm))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showEditNameDialog = false }) {
-                        Text(text = stringResource(id = R.string.cancel))
-                    }
-                }
-            )
-        }
 
         if (showGestureAngles) {
             OptimizedBottomSheet(
@@ -177,22 +144,10 @@ fun SubGestureSettingsScreen(
             }
         }
 
-        if (uiState.colorPickerDialog.first) {
-            ColorPickerDialog(
-                onDismissRequest = { vm.colorPickerDialog.show(false) },
-                onColorPicked = { color ->
-                    vm.colorPickerDialog.onColorChange(color)
-                    vm.colorPickerDialog.confirm()
-                },
-                initialColor = uiState.colorPickerDialog.second
-            )
-        }
-
         Column {
             TopBar(
                 onBack = onBack,
-                title = uiState.editingName.ifEmpty { stringResource(id = R.string.sub_gesture) },
-                onTitleClick = { showEditNameDialog = true },
+                title = uiState.subGesture?.name?.ifEmpty { stringResource(id = R.string.sub_gesture) } ?: "",
                 titleStyle = MaterialTheme.typography.titleLarge,
                 postfixTitle = {
                     Box(
@@ -296,26 +251,6 @@ fun SubGestureSettingsScreen(
                     )
                 }
 
-                ExpressiveCard(
-                    icon = Icons.Default.Palette,
-                    title = stringResource(id = R.string.gesture_button_color),
-                    subtitle = "自定义子手势颜色",
-                    onClick = { vm.colorPickerDialog.show(true) },
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(30.dp)
-                            .background(
-                                color = Color(gesture.color),
-                                shape = CircleShape
-                            )
-                            .border(
-                                width = Spacing1,
-                                color = MaterialTheme.colorScheme.outlineVariant,
-                                shape = CircleShape
-                            )
-                    )
-                }
             }
         }
     }

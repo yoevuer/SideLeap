@@ -25,7 +25,6 @@ val actionTitleResMap: Map<String, Int> = mapOf(
     "power_button" to R.string.action_power_button,
     "keep_screen_on" to R.string.action_keep_screen_on,
     "popup_screen" to R.string.action_popup_screen,
-    "move_screen" to R.string.action_move_screen,
     "back_to_top" to R.string.action_back_to_top,
     "goto_bottom" to R.string.action_goto_bottom,
     "pointer" to R.string.action_pointer,
@@ -60,7 +59,6 @@ val actionDescResMap: Map<String, Int> = mapOf(
 
 val actionSettingHintResMap: Map<ActionConfigKind, Int> = mapOf(
     ActionConfigKind.PREVIOUS_APP to R.string.action_setting_hint_previous_app,
-    ActionConfigKind.MOVE_SCREEN to R.string.action_setting_hint_move_screen,
     ActionConfigKind.GOTO_BOTTOM to R.string.action_setting_hint_goto_bottom,
     ActionConfigKind.OPEN_APP_OR_URL to R.string.action_setting_hint_open_activity,
     ActionConfigKind.SHELL_COMMAND to R.string.action_setting_hint_shell_command,

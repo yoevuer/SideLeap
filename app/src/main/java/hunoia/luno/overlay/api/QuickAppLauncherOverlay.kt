@@ -236,15 +236,21 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
                             val now = System.currentTimeMillis()
                             val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
                             if (BuildConfig.DEBUG) Log.d("LunoLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
-                            val success = Launcher.launchAppInfo(
-                                host.context, appInfo, miniWindow,
-                                advancedSettings.miniWindowHorizontalBias,
-                                advancedSettings.miniWindowVerticalBias,
-                                advancedSettings.miniWindowVerticalOffsetFraction,
-                                advancedSettings.miniWindowWidthFraction,
-                                advancedSettings.miniWindowHeightFraction,
-                                overrideBounds = advancedSettings.miniWindowOverrideBounds,
-                            )
+                            val success = if (advancedSettings.miniWindowOverrideBounds) {
+                                Launcher.launchAppInfo(
+                                    host.context, appInfo, miniWindow,
+                                    advancedSettings.miniWindowHorizontalBias,
+                                    advancedSettings.miniWindowVerticalBias,
+                                    advancedSettings.miniWindowVerticalOffsetFraction,
+                                    advancedSettings.miniWindowWidthFraction,
+                                    advancedSettings.miniWindowHeightFraction,
+                                    overrideBounds = true,
+                                )
+                            } else {
+                                Launcher.launchAppInfo(
+                                    host.context, appInfo, miniWindow,
+                                )
+                            }
                             if (BuildConfig.DEBUG) Log.d("LunoLauncher","appClick: ${appInfo.label} launchResult=$success")
                             if (success) onAppLaunchRequested?.invoke(appInfo)
                             success

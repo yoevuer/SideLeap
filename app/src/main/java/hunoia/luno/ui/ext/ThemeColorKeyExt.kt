@@ -3,6 +3,7 @@ package hunoia.luno.ui.ext
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import hunoia.luno.R
 import hunoia.luno.settings.model.ThemeColorKey
@@ -44,4 +45,22 @@ fun ThemeColorKey.resolveColor(): Color = when (this) {
     ThemeColorKey.SurfaceContainerLow -> MaterialTheme.colorScheme.surfaceContainerLow
     ThemeColorKey.SurfaceContainer -> MaterialTheme.colorScheme.surfaceContainer
     ThemeColorKey.SurfaceContainerHigh -> MaterialTheme.colorScheme.surfaceContainerHigh
+}
+
+fun ThemeColorKey.resolveColor(scheme: ColorScheme): Color = when (this) {
+    ThemeColorKey.Primary -> scheme.primary
+    ThemeColorKey.PrimaryContainer -> scheme.primaryContainer
+    ThemeColorKey.Secondary -> scheme.secondary
+    ThemeColorKey.SecondaryContainer -> scheme.secondaryContainer
+    ThemeColorKey.Tertiary -> scheme.tertiary
+    ThemeColorKey.TertiaryContainer -> scheme.tertiaryContainer
+    ThemeColorKey.Surface -> scheme.surface
+    ThemeColorKey.SurfaceVariant -> scheme.surfaceVariant
+    ThemeColorKey.OnSurface -> scheme.onSurface
+    ThemeColorKey.OnSurfaceVariant -> scheme.onSurfaceVariant
+    ThemeColorKey.Outline -> scheme.outline
+    ThemeColorKey.OutlineVariant -> scheme.outlineVariant
+    ThemeColorKey.SurfaceContainerLow -> scheme.surfaceContainerLow
+    ThemeColorKey.SurfaceContainer -> scheme.surfaceContainer
+    ThemeColorKey.SurfaceContainerHigh -> scheme.surfaceContainerHigh
 }

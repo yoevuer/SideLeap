@@ -50,8 +50,6 @@ object GlobalActions {
     const val POWER_BUTTON = "29"
     /** 隐藏触钮 */
     const val HIDE_GESTURE_BUTTON = "40"
-    /** 移动屏幕 */
-    const val MOVE_SCREEN = "45"
     /** 屏幕常亮 */
     const val KEEP_SCREEN_ON = "46"
     /** 快速回顶部 */

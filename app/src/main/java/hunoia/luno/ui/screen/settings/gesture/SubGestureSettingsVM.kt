@@ -1,6 +1,5 @@
 package hunoia.luno.ui.screen.settings.gesture
 
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -30,29 +29,8 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
 
     override val initialState: UiState = UiState()
 
-    val colorPickerDialog = ColorPickerDialog()
-
     init {
         loadData()
-    }
-
-    fun updateName(name: String) {
-        updateUiState { it.copy(editingName = name) }
-    }
-
-    fun confirmName() {
-        viewModelScope.launch {
-            val name = uiState.editingName
-            if (name.isBlank()) return@launch
-            SettingsProvider.updateSubGestureSettings { settings ->
-                settings.copy(
-                    subGestures = settings.subGestures.map { gesture ->
-                        if (gesture.id == subGestureEditor.subGestureId) gesture.copy(name = name)
-                        else gesture
-                    }
-                )
-            }
-        }
     }
 
     fun showDeleteWarningDialog(show: Boolean) {
@@ -220,33 +198,6 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
     fun onSubCustomVibrationMsChange(value: Float) = updateSubGesture { copy(customVibrationMs = value.toLong()) }
     fun onSubTriggerDistanceChange(value: Float) = updateSubGesture { copy(triggerDistance = value.toInt()) }
 
-    inner class ColorPickerDialog {
-
-        fun show(show: Boolean) {
-            updateUiState {
-                val color = it.subGesture?.let { g -> Color(g.color) } ?: it.colorPickerDialog.second
-                it.copy(
-                    colorPickerDialog = it.colorPickerDialog.copy(first = show, second = color)
-                )
-            }
-        }
-
-        fun onColorChange(color: Color) {
-            updateUiState {
-                it.copy(colorPickerDialog = it.colorPickerDialog.copy(second = color))
-            }
-        }
-
-        fun confirm() {
-            updateUiState {
-                val pickedColor = it.colorPickerDialog.second
-                it.copy(colorPickerDialog = it.colorPickerDialog.copy(first = false))
-            }
-            val picked = uiState.colorPickerDialog.second
-            updateColor(picked.toArgb())
-        }
-    }
-
     private fun loadData() {
         viewModelScope.launch {
             SettingsProvider.subGestureSettings.collectLatest { settings ->
@@ -255,7 +206,6 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
                     it.copy(
                         subGesture = gesture,
                         allSubGestures = settings.subGestures,
-                        editingName = gesture?.name ?: ""
                     )
                 }
             }
@@ -265,10 +215,8 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
     data class UiState(
         val subGesture: SubGesture? = null,
         val allSubGestures: List<SubGesture>? = null,
-        val editingName: String = "",
         val showDeleteWarningDialog: Boolean = false,
         val showMirrorCopyDialog: Boolean = false,
-        val colorPickerDialog: Pair<Boolean, Color> = Pair(false, Color.Transparent),
     )
 
     sealed interface UiEvent

@@ -67,11 +67,8 @@ import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.SubMinInteractiveSize
 import hunoia.luno.ui.ext.displayNameRes
 import hunoia.luno.core.DensityProvider
-import com.github.skydoves.colorpicker.compose.HsvColorPicker
-import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import hunoia.luno.ui.dialog.GotoBottomSettingsContent
 import hunoia.luno.ui.dialog.HideGestureButtonSettingsContent
-import hunoia.luno.ui.dialog.MoveScreenSettingsContent
 import hunoia.luno.ui.dialog.VolumeScrubSettingsContent
 import hunoia.luno.ui.dialog.ActivitySettingsContent
 import hunoia.luno.ui.dialog.UrlSettingsContent
@@ -132,163 +129,6 @@ fun MyAlertDialog(
 }
 
 @Composable
-fun ColorPickerDialog(
-    onDismissRequest: () -> Unit,
-    onColorPicked: (Color) -> Unit,
-    initialColor: Color = MaterialTheme.colorScheme.primary,
-    autoDismiss: Boolean = true
-) {
-    val context = LocalContext.current
-    var alpha by remember { mutableStateOf(initialColor.alpha) }
-    var hexInput by remember { mutableStateOf("") }
-    var hexError by remember { mutableStateOf(false) }
-    val colorController = rememberColorPickerController()
-    LaunchedEffect(initialColor) {
-        alpha = initialColor.alpha
-        colorController.selectByColor(initialColor, false)
-    }
-    val resolvedColor by remember(colorController, alpha) {
-        derivedStateOf { colorController.selectedColor.value.copy(alpha = alpha) }
-    }
-    val hexColor by remember(resolvedColor) {
-        derivedStateOf {
-            val nativeColor = resolvedColor.toArgb()
-            val red = android.graphics.Color.red(nativeColor)
-            val green = android.graphics.Color.green(nativeColor)
-            val blue = android.graphics.Color.blue(nativeColor)
-            val a = String.format("%02X", (alpha * 255).toInt())
-            val r = String.format("%02X", red)
-            val g = String.format("%02X", green)
-            val b = String.format("%02X", blue)
-            "$a$r$g$b"
-        }
-    }
-    AlertDialog(
-        containerColor = MaterialTheme.colorScheme.surface,
-        onDismissRequest = onDismissRequest,
-        title = { },
-        text = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                HsvColorPicker(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f),
-//                    initialColor = initialColor,
-                    controller = colorController,
-                    onColorChanged = {
-                    }
-                )
-
-                Slider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = ItemPadding),
-                    value = alpha,
-                    onValueChange = { alpha = it },
-                    valueRange = 0f..1f
-                )
-                Text(
-                    text = stringResource(id = R.string.color_picker_alpha_label, (alpha * 100).toInt()),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.labelMedium
-                )
-
-                Row(
-                    modifier = Modifier.padding(ItemPadding),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(ItemPadding / 2)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .border(
-                                width = Spacing1,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                shape = CircleShape
-                            )
-                            .clip(CircleShape)
-                    ) {
-                        LazyVerticalGrid(
-                            modifier = Modifier.matchParentSize(),
-                            columns = GridCells.Fixed(5),
-                            userScrollEnabled = false
-                        ) {
-                            items(5 * 5) { index ->
-                                val color = when (index % 2 == 0) {
-                                    true -> Color.LightGray
-                                    else -> Color.White
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1f)
-                                        .background(color = color)
-                                )
-                            }
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .background(color = resolvedColor)
-                        )
-                    }
-
-                    OutlinedTextField(
-                        modifier = Modifier.weight(1f),
-                        value = hexInput,
-                        onValueChange = { hexInput = it.filter { c -> c.isDigit() || c in 'a'..'f' || c in 'A'..'F' }.take(8) },
-                        prefix = {
-                            Text(
-                                text = "#",
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = DimAlpha)
-                            )
-                        },
-                        placeholder = { Text("$hexColor", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
-                        isError = hexError,
-                        singleLine = true,
-                        textStyle = MaterialTheme.typography.labelLarge
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    if (hexInput.isNotEmpty()) {
-                        try {
-                            val newColor = Color("#$hexInput".toColorInt())
-                            colorController.selectByColor(newColor, true)
-                            hexError = false
-                        } catch (e: Exception) {
-                            hexError = true
-                            val toast = android.widget.Toast.makeText(context, R.string.invalid_color_value, android.widget.Toast.LENGTH_SHORT)
-                            toast.show()
-                            return@TextButton
-                        }
-                    }
-                    onColorPicked(resolvedColor)
-                    if (autoDismiss) {
-                        onDismissRequest()
-                    }
-                }
-            ) {
-                Text(text = stringResource(id = R.string.confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismissRequest
-            ) {
-                Text(text = stringResource(id = R.string.cancel))
-            }
-        }
-    )
-}
-
-@Composable
 fun ActionSettingsDialog(
     onDismissRequest: () -> Unit,
     action: Action,
@@ -304,10 +144,6 @@ fun ActionSettingsDialog(
         },
         text = {
             when (action.value) {
-                GlobalActions.MOVE_SCREEN -> {
-                    MoveScreenSettingsContent()
-                }
-
                 GlobalActions.PREVIOUS_APP -> {
                     PreviousAppSettingsContent()
                 }
@@ -379,64 +215,3 @@ fun ActionSettingsDialog(
     )
 }
 
-@Composable
-fun ThemeColorPickerDialog(
-    onDismissRequest: () -> Unit,
-    onColorPicked: (ThemeColorKey) -> Unit,
-) {
-    AlertDialog(
-        containerColor = MaterialTheme.colorScheme.surface,
-        onDismissRequest = onDismissRequest,
-        title = {
-            Text(text = stringResource(id = R.string.color_picker_title))
-        },
-        text = {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(ThemeColorKey.entries.size) { index ->
-                    val themeKey = ThemeColorKey.entries[index]
-                    val resolvedColor = themeKey.resolveColor()
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onSingleClick { onColorPicked(themeKey); onDismissRequest() },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(SubMinInteractiveSize)
-                                .clip(CircleShape)
-                                .background(resolvedColor)
-                        )
-                        Text(
-                            text = stringResource(id = themeKey.displayNameRes),
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth().padding(top = Spacing4)
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = { },
-        dismissButton = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(onClick = onDismissRequest) {
-                    Text(text = stringResource(id = R.string.cancel))
-                }
-                TextButton(onClick = { Events.post(WallpaperChangedEvent()) }) {
-                    Text(text = stringResource(id = R.string.refresh_theme_colors))
-                }
-            }
-        }
-    )
-}

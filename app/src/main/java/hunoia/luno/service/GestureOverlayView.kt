@@ -1,6 +1,5 @@
 package hunoia.luno.service
 
-import android.os.Build
 import android.os.SystemClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,7 +32,6 @@ fun GestureOverlayView(
     onPointerSettingsUpdate: (GestureSettings.Pointer) -> Unit,
     pointerPreviousPosition: () -> Offset,
     onPointerActionAtPosition: (Int, Int, Boolean, PointerAction) -> Unit,
-    onTakeScreenshot: suspend () -> android.graphics.Bitmap?,
     windowController: SideGestureWindowController,
 ) {
     var lastWallpaperChangeMs by remember { mutableStateOf(0L) }
@@ -83,7 +81,6 @@ fun GestureOverlayView(
                 onPointerSettingsUpdate = onPointerSettingsUpdate,
                 pointerPreviousPosition = pointerPreviousPosition,
                 onPointerActionAtPosition = onPointerActionAtPosition,
-                onTakeScreenshot = onTakeScreenshot,
                 actionSettings = actionSettings,
                 advancedSettings = advancedSettings,
                 gestureSettings = gestureSettings,

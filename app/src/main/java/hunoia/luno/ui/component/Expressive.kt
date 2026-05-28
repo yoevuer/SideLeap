@@ -1,6 +1,7 @@
 package hunoia.luno.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -199,8 +200,10 @@ fun ExpressiveSwitchItem(
     subtitle: String = "",
     secondaryTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     markColor: Color = Color.Unspecified,
+    onMarkColorClick: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     mainSecondaryTextPadding: Boolean = true,
+    icon: (@Composable () -> Unit)? = null,
 ) {
     Surface(
         modifier = modifier
@@ -250,6 +253,9 @@ fun ExpressiveSwitchItem(
                     horizontalArrangement = Arrangement.spacedBy(IconTextPadding),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    if (icon != null) {
+                        icon()
+                    }
                     Text(
                         modifier = Modifier.weight(1f),
                         text = title,
@@ -260,7 +266,16 @@ fun ExpressiveSwitchItem(
                         Box(
                             modifier = Modifier
                                 .size(MarkColorSize)
-                                .background(color = markColor, shape = CircleShape),
+                                .background(color = markColor, shape = CircleShape)
+                                .then(
+                                    if (onMarkColorClick != null) {
+                                        Modifier.clickable(
+                                            indication = null,
+                                            interactionSource = null,
+                                            onClick = onMarkColorClick,
+                                        )
+                                    } else Modifier
+                                ),
                         )
                     }
                 }

@@ -551,13 +551,7 @@ class ActionSelectVM(
                             )
                         )
                     }
-                if (state.selectSingle) {
-                    removeAll { action ->
-                        action.value == GlobalActions.MOVE_SCREEN
-                    }
                 }
-
-            }
             if (state.selectSingle) {
                 return@updateUiState state.copy(actions = allActions)
             }

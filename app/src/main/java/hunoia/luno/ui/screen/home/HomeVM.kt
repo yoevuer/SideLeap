@@ -8,6 +8,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.R
 import hunoia.luno.core.AppContext
 import hunoia.luno.gesture.GestureButton
+import hunoia.luno.gesture.Position
 import hunoia.luno.settings.model.SubGesture
 import hunoia.luno.settings.model.SubGestureSettings
 import hunoia.luno.ui.screen.home.HomeVM.UiEvent
@@ -22,6 +23,7 @@ import hunoia.luno.settings.model.InitialSettings
 import hunoia.luno.settings.model.GestureSettings.PointerTrailStyle
 import hunoia.luno.system.permission.isAccessibilitySettingsOn
 import hunoia.luno.system.permission.isIgnoringBatteryOptimizations
+import hunoia.luno.system.feedback.showToast
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -111,8 +113,12 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             return
         }
         viewModelScope.launch {
+            val maxNum = uiState.bottomGestureButtons.maxOfOrNull {
+                parseNumberSuffix(it.name.ifEmpty { it.resolveDisplayName() })
+            } ?: 0
+            val name = AppContext.get().getString(R.string.bottom_gesture_button_name, maxNum + 1)
             SettingsProvider.updateBottomGestureButtons {
-                it + GestureButton.createBottom()
+                it + GestureButton.createBottom(name = name)
             }
             delay(50)
             sendUiEvent(UiEvent.ScrollToBottom)
@@ -125,12 +131,33 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             return
         }
         viewModelScope.launch {
+            val maxNum = uiState.sideGestureButtons.chunked(2).maxOfOrNull { pair ->
+                parseNumberSuffix(pair.first().name.ifEmpty { pair.first().resolveDisplayName() })
+            } ?: 0
+            val leftName = AppContext.get().getString(R.string.left_gesture_button_name, maxNum + 1)
+            val rightName = AppContext.get().getString(R.string.right_gesture_button_name, maxNum + 1)
             SettingsProvider.updateSideGestureButtons {
-                it + GestureButton.createSidePair()
+                it + GestureButton.createSidePair(leftName = leftName, rightName = rightName)
             }
             delay(50)
             sendUiEvent(UiEvent.ScrollToBottom)
         }
+    }
+
+    private fun GestureButton.resolveDisplayName(): String {
+        if (name.isNotEmpty()) return name
+        return AppContext.get().getString(
+            when (position) {
+                Position.Left -> R.string.left_gesture_button
+                Position.Right -> R.string.right_gesture_button
+                Position.Bottom -> R.string.bottom_gesture_button
+            }
+        )
+    }
+
+    private fun parseNumberSuffix(text: String): Int {
+        val match = Regex("""(\d+)$""").find(text)
+        return match?.groupValues?.get(1)?.toIntOrNull() ?: 0
     }
 
     fun expandBottomGestureButtonList(expanded: Boolean, scrollOffset: Int = Int.MAX_VALUE) {
@@ -156,6 +183,38 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         }
         if (expanded && scrollOffset != Int.MAX_VALUE) {
             sendUiEvent(UiEvent.ScrollToEvent(scrollOffset))
+        }
+    }
+
+    fun updateGestureButtonColor(button: GestureButton, color: Int) {
+        viewModelScope.launch {
+            if (button.position == Position.Bottom) {
+                SettingsProvider.updateBottomGestureButtons { buttons ->
+                    buttons.map {
+                        if (it.id == button.id && it.position == button.position) it.copy(color = color)
+                        else it
+                    }
+                }
+            } else {
+                SettingsProvider.updateSideGestureButtons { buttons ->
+                    buttons.map {
+                        if (it.id == button.id && it.position == button.position) it.copy(color = color)
+                        else it
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateSubGestureColor(gesture: SubGesture, color: Int) {
+        viewModelScope.launch {
+            SettingsProvider.updateSubGestureSettings { settings ->
+                settings.copy(
+                    subGestures = settings.subGestures.map {
+                        if (it.id == gesture.id) it.copy(color = color) else it
+                    }
+                )
+            }
         }
     }
 
@@ -356,10 +415,12 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                 toast(R.string.bulk_freeze_failed)
             }
         ) {
+            val beforeCount = FreezeFacade.queryFrozenAppsOnIo(AppContext.get()).size
             FreezeFacade.oneKeyFreeze(AppContext.get())
-            val count = FreezeFacade.queryFrozenAppsOnIo(AppContext.get()).size
-            updateUiState { it.copy(frozenAppCount = count) }
-            toast(R.string.frozen_success)
+            val afterCount = FreezeFacade.queryFrozenAppsOnIo(AppContext.get()).size
+            updateUiState { it.copy(frozenAppCount = afterCount) }
+            val frozenCount = afterCount - beforeCount
+            showToast(AppContext.get().getString(R.string.bulk_frozen_count, frozenCount))
         }
     }
 
@@ -371,10 +432,12 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         ) {
             val frozenApps = FreezeFacade.queryFrozenAppsOnIo(AppContext.get())
             val targets = frozenApps.map { it.packageName }
+            val beforeCount = frozenApps.size
             FreezeFacade.oneKeyUnfreeze(AppContext.get(), targets)
-            val count = FreezeFacade.queryFrozenAppsOnIo(AppContext.get()).size
-            updateUiState { it.copy(frozenAppCount = count) }
-            toast(R.string.unfrozen_success)
+            val afterCount = FreezeFacade.queryFrozenAppsOnIo(AppContext.get()).size
+            updateUiState { it.copy(frozenAppCount = afterCount) }
+            val unfrozenCount = beforeCount - afterCount
+            showToast(AppContext.get().getString(R.string.bulk_unfrozen_count, unfrozenCount))
         }
     }
 
@@ -405,6 +468,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         viewModelScope.launch {
             val app = hunoia.luno.core.AppContext.get()
             val isGestureEnabled = SettingsProvider.getInitialSettings().gestureEnabled
+            @Suppress("UNCHECKED_CAST")
             val clazz = Class.forName("hunoia.luno.SideGestureService") as Class<out android.accessibilityservice.AccessibilityService?>
             val isAccessibilityEnabled = app.isAccessibilitySettingsOn(clazz)
             val isIgnoringBatteryOptimizations = app.isIgnoringBatteryOptimizations()
@@ -461,7 +525,9 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                 SettingsProvider.frozenAppSettings,
             ) { values ->
                 val initial = values[0] as InitialSettings
+                @Suppress("UNCHECKED_CAST")
                 val sideButtons = values[1] as List<GestureButton>
+                @Suppress("UNCHECKED_CAST")
                 val bottomButtons = values[2] as List<GestureButton>
                 val subGestureSettings = values[3] as SubGestureSettings
                 val gestureSettings = values[4] as GestureSettings
@@ -489,6 +555,53 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
+    fun showRenameDialog(target: RenameTarget) {
+        updateUiState { it.copy(renameDialogTarget = target) }
+    }
+
+    fun hideRenameDialog() {
+        updateUiState { it.copy(renameDialogTarget = null) }
+    }
+
+    fun doRename(target: RenameTarget, newName: String) {
+        if (newName.isBlank()) {
+            hideRenameDialog()
+            return
+        }
+        viewModelScope.launch {
+            when (target) {
+                is RenameTarget.GestureButton -> {
+                    val button = target.button
+                    if (button.position == Position.Bottom) {
+                        SettingsProvider.updateBottomGestureButtons { buttons ->
+                            buttons.map {
+                                if (it.id == button.id && it.position == button.position) it.copy(name = newName)
+                                else it
+                            }
+                        }
+                    } else {
+                        SettingsProvider.updateSideGestureButtons { buttons ->
+                            buttons.map {
+                                if (it.id == button.id && it.position == button.position) it.copy(name = newName)
+                                else it
+                            }
+                        }
+                    }
+                }
+                is RenameTarget.SubGesture -> {
+                    SettingsProvider.updateSubGestureSettings { settings ->
+                        settings.copy(
+                            subGestures = settings.subGestures.map {
+                                if (it.id == target.gesture.id) it.copy(name = newName) else it
+                            }
+                        )
+                    }
+                }
+            }
+            hideRenameDialog()
+        }
+    }
+
     data class UiState(
         val sideGestureButtons: List<GestureButton> = emptyList(),
         val bottomGestureButtons: List<GestureButton> = emptyList(),
@@ -510,7 +623,13 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         val excludedAppCount: Int = 0,
         val frozenAppCount: Int = 0,
         val selectedFrozenAppCount: Int = 0,
+        val renameDialogTarget: RenameTarget? = null,
     )
+
+    sealed interface RenameTarget {
+        data class GestureButton(val button: hunoia.luno.gesture.GestureButton) : RenameTarget
+        data class SubGesture(val gesture: hunoia.luno.settings.model.SubGesture) : RenameTarget
+    }
 
     sealed interface UiEvent {
 

@@ -1,8 +1,5 @@
 package hunoia.luno.ui.screen.settings.gesture
 
-import android.os.Build
-
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -13,14 +10,12 @@ import hunoia.luno.gesture.GestureAngle
 import hunoia.luno.gesture.GestureButton
 import hunoia.luno.gesture.TriggerDirection
 import hunoia.luno.ui.navigation.GestureButtonSettings
-import hunoia.luno.gesture.fraction
 import hunoia.luno.settings.model.ActionPanelStyles
 import hunoia.luno.system.vibration.VibrationEffects
-import hunoia.luno.system.window.rootSize
+
 import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsVM.UiState
 import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.core.DensityProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -34,14 +29,6 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
     private val gestureButtonSettings = savedStateHandle.toRoute<GestureButtonSettings>()
 
     override val initialState: UiState = UiState(gestureButtonSettings)
-
-    val colorPickerDialog = ColorPickerDialog()
-
-    private val maxExcludeSystemGestureFraction: Float by lazy {
-        val rootSize = rootSize
-        val maxExcludeSystemGestureHeight = DensityProvider.dp2px(200f)
-        maxExcludeSystemGestureHeight.toFloat() / rootSize.height.toFloat()
-    }
 
     private var loadDataJob: Job? = null
 
@@ -123,13 +110,8 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
     }
 
     fun onGestureButtonPositionChange(start: Float, end: Float) {
-        val button = uiState.gestureButton ?: return
         val fraction = end - start
-        if (fraction < MinGestureButtonLength ||
-            (button.excludeSystemGestureRects &&
-                    button.limitMaxExcludeSystemGestureLength &&
-                    fraction > maxExcludeSystemGestureFraction)
-        ) {
+        if (fraction < MinGestureButtonLength) {
             return
         }
         updateUiState {
@@ -216,6 +198,7 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
     fun onHideLandscapeChange(value: Boolean) = updateButton { copy(hideLandscape = value) }
     fun onHideScreenLockChange(value: Boolean) = updateButton { copy(hideScreenLock = value) }
     fun onHideHomeScreenChange(value: Boolean) = updateButton { copy(hideHomeScreen = value) }
+
     fun onSlideVibrateChange(value: Boolean) = updateButton { copy(slideVibrate = value) }
     fun onLongSlideVibrateChange(value: Boolean) = updateButton { copy(longSlideVibrate = value) }
     fun onTapVibrateChange(value: Boolean) = updateButton { copy(tapVibrate = value) }
@@ -257,68 +240,6 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         saveSettings()
     }
 
-    fun onExcludeSystemGestureRectsChange(value: Boolean) {
-        updateUiState {
-            val l = it.gestureButtons.toMutableList().also { list ->
-                list.forEachIndexed { index, b ->
-                    if (b.id != gestureButtonSettings.buttonId) {
-                        return@forEachIndexed
-                    }
-                    if (b.position == gestureButtonSettings.position || it.alignRegion) {
-                        val (start, end) = if (value && b.limitMaxExcludeSystemGestureLength) {
-                            val maxFraction = maxExcludeSystemGestureFraction
-                            val half = maxFraction / 2f
-                            val center = b.start + (b.fraction / 2f)
-                            val st = center - half
-                            val ed = center + half
-                            Pair(st, ed)
-                        } else {
-                            Pair(b.start, b.end)
-                        }
-                        list[index] = b.copy(
-                            start = start,
-                            end = end,
-                            excludeSystemGestureRects = value
-                        )
-                    }
-                }
-            }
-            it.copy(gestureButtons = l)
-        }
-        saveSettings()
-    }
-
-    fun onLimitMaxExcludeSystemGestureLengthChange(value: Boolean) {
-        updateUiState {
-            val l = it.gestureButtons.toMutableList().also { list ->
-                list.forEachIndexed { index, b ->
-                    if (b.id != gestureButtonSettings.buttonId) {
-                        return@forEachIndexed
-                    }
-                    if (b.position == gestureButtonSettings.position || it.alignRegion) {
-                        val (start, end) = if (value) {
-                            val maxFraction = maxExcludeSystemGestureFraction
-                            val half = maxFraction / 2f
-                            val center = b.start + (b.fraction / 2f)
-                            val st = center - half
-                            val ed = center + half
-                            Pair(st, ed)
-                        } else {
-                            Pair(b.start, b.end)
-                        }
-                        list[index] = b.copy(
-                            start = start,
-                            end = end,
-                            limitMaxExcludeSystemGestureLength = value
-                        )
-                    }
-                }
-            }
-            it.copy(gestureButtons = l)
-        }
-        saveSettings()
-    }
-
     fun saveSettings() {
         viewModelScope.launch {
             launch {
@@ -338,14 +259,6 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
     private fun loadData() {
         val gestureButtonSettings = gestureButtonSettings
         loadDataJob = viewModelScope.launch {
-            updateUiState {
-                val canShowExcludeSystemGestureRects =
-                    gestureButtonSettings.isSideButton &&
-                    gestureButtonSettings.buttonId == GestureButton.ID_DEFAULT
-                it.copy(
-                    canShowExcludeSystemGestureRects = canShowExcludeSystemGestureRects
-                )
-            }
             launch {
                 if (gestureButtonSettings.isSideButton) {
                     SettingsProvider
@@ -358,7 +271,7 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
                             updateUiState {
                                 it.copy(
                                     gestureButtons = items,
-                                    alignRegion = button?.alignRegion ?: true
+                                    alignRegion = button?.alignRegion ?: true,
                                 )
                             }
                         }
@@ -366,49 +279,18 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
                     SettingsProvider
                         .bottomGestureButtons
                         .collectLatest { items ->
+                            val button = items.find {
+                                it.id == gestureButtonSettings.buttonId &&
+                                        it.position == gestureButtonSettings.position
+                            }
                             updateUiState {
-                                it.copy(gestureButtons = items)
+                                it.copy(
+                                    gestureButtons = items,
+                                )
                             }
                         }
                 }
             }
-        }
-    }
-
-    inner class ColorPickerDialog {
-
-        fun show(show: Boolean) {
-            updateUiState {
-                val color = it.gestureButton?.let { b -> Color(b.color) } ?: it.colorPickerDialog.second
-                it.copy(
-                    colorPickerDialog = it.colorPickerDialog.copy(first = show, second = color)
-                )
-            }
-        }
-
-        fun onColorChange(color: Color) {
-            updateUiState {
-                it.copy(colorPickerDialog = it.colorPickerDialog.copy(second = color))
-            }
-        }
-
-        fun confirm() {
-            updateUiState {
-                val pickedColor = it.colorPickerDialog.second
-                val l = it.gestureButtons.toMutableList().also { list ->
-                    val gestureButtonSettings = gestureButtonSettings
-                    list.forEachIndexed { index, b ->
-                        if (b.id != gestureButtonSettings.buttonId) {
-                            return@forEachIndexed
-                        }
-                        if (b.position == gestureButtonSettings.position || it.alignRegion) {
-                            list[index] = b.copy(color = pickedColor.toArgb())
-                        }
-                    }
-                }
-                it.copy(gestureButtons = l)
-            }
-            saveSettings()
         }
     }
 
@@ -417,10 +299,8 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         val gestureButtons: List<GestureButton> = emptyList(),
         val alignRegion: Boolean = true,
         val showDeleteWarningDialog: Boolean = false,
-        val colorPickerDialog: Pair<Boolean, Color> = Pair(false, Color.Transparent),
         val isGestureButtonAdjusting: Boolean = false,
-        val canShowExcludeSystemGestureRects: Boolean = false,
-        val showCopyAnotherSideGestureButtonDialog: Boolean = false
+        val showCopyAnotherSideGestureButtonDialog: Boolean = false,
     ) {
         val gestureButton: GestureButton? = gestureButtons.find {
             it.id == gestureButtonSettings.buttonId &&

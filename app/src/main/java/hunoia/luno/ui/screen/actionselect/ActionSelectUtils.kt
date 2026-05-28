@@ -1,6 +1,5 @@
 package hunoia.luno.ui.screen.actionselect
 
-import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.Action
 import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.launcher.model.LauncherInfo
@@ -14,18 +13,6 @@ internal fun canActionEnabled(
     item: Action,
     maxSelectCount: Int
 ): Boolean {
-    val isMoveScreenSelected = selectedRecord.list.find {
-        (it as? Action)?.value == GlobalActions.MOVE_SCREEN
-    } != null
-    val isMoveScreenAction = item.value == GlobalActions.MOVE_SCREEN
-    if (isMoveScreenSelected && !isMoveScreenAction) {
-        return false
-    } else if (!isMoveScreenSelected &&
-        selectedRecord.list.isNotEmpty() &&
-        isMoveScreenAction
-    ) {
-        return false
-    }
     if (maxSelectCount <= 1) return true
     return !(selectedRecord.size >= maxSelectCount && !selectedRecord.isSelected(item))
 }
@@ -35,12 +22,6 @@ internal fun canAppInfoEnabled(
     item: AppInfo,
     maxSelectCount: Int
 ): Boolean {
-    val isMoveScreenSelected = selectedRecord.list.find {
-        (it as? Action)?.value == GlobalActions.MOVE_SCREEN
-    } != null
-    if (isMoveScreenSelected) {
-        return false
-    }
     if (maxSelectCount <= 1) return true
     return !(selectedRecord.size >= maxSelectCount && !selectedRecord.isSelected(item))
 }
@@ -50,12 +31,6 @@ internal fun canLauncherInfoEnabled(
     item: LauncherInfo,
     maxSelectCount: Int
 ): Boolean {
-    val isMoveScreenSelected = selectedRecord.list.find {
-        (it as? Action)?.value == GlobalActions.MOVE_SCREEN
-    } != null
-    if (isMoveScreenSelected) {
-        return false
-    }
     if (maxSelectCount <= 1) return true
     return !(selectedRecord.size >= maxSelectCount && !item.shortcuts.any { selectedRecord.isSelected(it) })
 }
@@ -65,12 +40,6 @@ internal fun canShortcutInfoEnabled(
     item: LauncherInfo.ShortcutInfo,
     maxSelectCount: Int
 ): Boolean {
-    val isMoveScreenSelected = selectedRecord.list.find {
-        (it as? Action)?.value == GlobalActions.MOVE_SCREEN
-    } != null
-    if (isMoveScreenSelected) {
-        return false
-    }
     if (maxSelectCount <= 1) return true
     return !(selectedRecord.size >= maxSelectCount && !selectedRecord.isSelected(item))
 }

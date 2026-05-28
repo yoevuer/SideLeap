@@ -76,7 +76,10 @@ import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.MinInteractiveSize
-import hunoia.luno.ui.component.ColorPickerDialog
+import hunoia.luno.ui.component.ColorPickerBottomSheet
+import hunoia.luno.ui.component.ColorSelection
+import hunoia.luno.ui.ext.resolveColor
+import hunoia.luno.settings.model.ThemeColorKey
 import hunoia.luno.ui.component.MyAlertDialog
 import hunoia.luno.ui.component.ExpressiveSection
 import hunoia.luno.ui.component.ExpressiveSwitchItem
@@ -121,14 +124,20 @@ fun IconResizeContent(
             )
         }
         if (uiState.showColorPickerDialog) {
-            ColorPickerDialog(
-                onDismissRequest = {
+            val scheme = MaterialTheme.colorScheme
+            val themeColors = remember(scheme) {
+                ThemeColorKey.entries.associateWith { it.resolveColor(scheme) }
+            }
+            ColorPickerBottomSheet(
+                onDismissRequest = { vm.showColorPickerDialog(false) },
+                onColorSelected = { selection ->
+                    when (selection) {
+                        is ColorSelection.Custom -> vm.onBgColorChange(selection.color)
+                        is ColorSelection.Theme -> themeColors[selection.key]?.let { vm.onBgColorChange(it) }
+                    }
                     vm.showColorPickerDialog(false)
                 },
-                onColorPicked = { color ->
-                    vm.onBgColorChange(color)
-                },
-                initialColor = uiState.selectedBgColor?.color ?: defaultBgColor
+                initialColor = uiState.selectedBgColor?.color ?: defaultBgColor,
             )
         }
 

@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Mouse
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.OpenWith
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Settings
 import hunoia.luno.action.definition.PlayPause
@@ -87,8 +86,6 @@ object ActionCatalog {
             R.string.action_keep_screen_on, Icons.Default.BrightnessHigh),
         ActionDefinition(GlobalActions.POPUP_SCREEN, ActionCategory.NAVIGATION, ActionConfigKind.NONE,
             R.string.action_popup_screen, Icons.Default.Window),
-        ActionDefinition(GlobalActions.MOVE_SCREEN, ActionCategory.NAVIGATION, ActionConfigKind.MOVE_SCREEN,
-            R.string.action_move_screen, Icons.Default.OpenWith),
         ActionDefinition(GlobalActions.BACK_TO_TOP, ActionCategory.NAVIGATION, ActionConfigKind.NONE,
             R.string.action_back_to_top, Icons.Default.VerticalAlignTop),
         ActionDefinition(GlobalActions.GOTO_BOTTOM, ActionCategory.NAVIGATION, ActionConfigKind.GOTO_BOTTOM,

@@ -78,11 +78,7 @@ import hunoia.luno.core.serialization.JsonHelper
 import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.OpenAppOrUrlData
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxGotoBottomStrength
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxMoveScreenHover
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxMoveScreenRate
 import hunoia.luno.settings.defaults.SettingsUiDefaults.MinGotoBottomStrength
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinMoveScreenHover
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinMoveScreenRate
 import hunoia.luno.system.shizuku.ShizukuBinderExecutor
 import hunoia.luno.system.feedback.showToast
 import hunoia.luno.ui.component.AppSearchBar
@@ -492,45 +488,6 @@ fun ShellCommandSettingsContent(
             ) {
                 Icon(imageVector = Icons.Default.Check, contentDescription = null)
                 Text(text = stringResource(id = R.string.confirm))
-            }
-        }
-    }
-}
-
-@Composable
-fun MoveScreenSettingsContent(vm: ActionSettingsVM = viewModel()) {
-    UDFComponent(
-        component = vm.udfComponent,
-        onEvent = {}
-    ) { uiState ->
-        LoadingComponent(
-            modifier = Modifier.fillMaxWidth(),
-            component = vm.loadingComponent
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(ItemPadding)
-            ) {
-                var localHoverDelay by remember(uiState.actionSettings.moveScreen.hoverDelayMs) { mutableStateOf(uiState.actionSettings.moveScreen.hoverDelayMs.toFloat()) }
-                MyTextSlider(
-                    value = uiState.actionSettings.moveScreen.rate,
-                    onValueChange = { vm.onMoveScreenRateChange(it) },
-                    onValueChangeFinished = { vm.saveSettings() },
-                    text = stringResource(id = R.string.move_screen_rate),
-                    valueDisplay = String.format("%.1f", uiState.actionSettings.moveScreen.rate),
-                    valueRange = MinMoveScreenRate..MaxMoveScreenRate
-                )
-                MyTextSlider(
-                    value = localHoverDelay,
-                    onValueChange = { localHoverDelay = it },
-                    onValueChangeFinished = {
-                        vm.onMoveScreenHoverChange(localHoverDelay)
-                        vm.saveSettings()
-                    },
-                    text = stringResource(id = R.string.hover_trigger_delay),
-                    valueDisplay = "${localHoverDelay.toLong()}ms",
-                    valueRange = MinMoveScreenHover..MaxMoveScreenHover
-                )
             }
         }
     }

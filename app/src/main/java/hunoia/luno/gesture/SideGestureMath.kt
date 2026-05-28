@@ -3,7 +3,6 @@ package hunoia.luno.gesture
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import hunoia.luno.core.DensityProvider
-import hunoia.luno.action.Action
 import hunoia.luno.settings.model.AnimationStyles
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.settings.model.WaveStyle
@@ -132,6 +131,4 @@ fun stickySlideValue(animationStyles: AnimationStyles): Float {
     } else 0f
 }
 
-fun hasMoveScreenSelected(list: List<Any>): Boolean {
-    return list.any { (it as? Action)?.value == "move_screen" }
-}
+

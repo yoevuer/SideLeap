@@ -50,8 +50,6 @@ object InitialSettingsDefaults {
 
 object ActionSettingsDefaults {
 
-    const val MoveScreenRate = 2f
-    const val MoveScreenHoverDelayMs = 600L
     const val GotoBottomStrength = 10
     const val PasswordMinLength = 4
     const val PasswordMaxLength = 32
