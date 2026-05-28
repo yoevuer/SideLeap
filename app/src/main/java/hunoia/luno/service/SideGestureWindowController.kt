@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import hunoia.luno.SideGestureService
 import hunoia.luno.gesture.GestureButton
 import hunoia.luno.gesture.Position
 import hunoia.luno.gesture.input.MotionEventDispatcher
@@ -20,7 +19,7 @@ import hunoia.luno.system.window.removeWindows
 import hunoia.luno.system.window.setBasic
 import hunoia.luno.system.window.updateLayout
 import hunoia.luno.system.window.updateMainView
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 
 class SideGestureWindowController(private val host: SideGestureService) {
     var mainView: View? = null

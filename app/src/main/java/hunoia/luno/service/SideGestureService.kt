@@ -1,4 +1,4 @@
-package hunoia.luno
+package hunoia.luno.service
 
 import android.app.WallpaperManager
 import android.content.res.Configuration
@@ -16,20 +16,10 @@ import hunoia.luno.settings.model.AdvancedSettings
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.settings.model.InitialSettings
 import hunoia.luno.core.AppContext
-import hunoia.luno.core.event.Events
+import hunoia.luno.core.Events
 import hunoia.luno.system.event.WallpaperChangedEvent
 import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.query.LauncherEnvironment
-import hunoia.luno.service.SideGestureServiceProxy
-import hunoia.luno.service.GestureOverlayView
-import hunoia.luno.service.SideGestureButtonRefreshCoordinator
-import hunoia.luno.service.SideGestureOverlayLifecycle
-import hunoia.luno.service.SideGestureRuntime
-import hunoia.luno.service.SideGestureRuntimeState
-import hunoia.luno.service.ScreenLockObserver
-import hunoia.luno.service.SideGestureSettingsObserver
-import hunoia.luno.service.SideGestureWindowController
-import hunoia.luno.service.WallpaperChangeObserver
 import hunoia.luno.service.runtime.PointerRuntime
 import hunoia.luno.service.runtime.VolumeScrubRuntime
 import hunoia.luno.service.runtime.GestureButtonHideRuntime

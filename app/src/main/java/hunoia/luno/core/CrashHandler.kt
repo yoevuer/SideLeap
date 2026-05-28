@@ -1,12 +1,11 @@
-package hunoia.luno.core.crash
+package hunoia.luno.core
 
 import hunoia.luno.core.Paths
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object CrashHandler : Thread.UncaughtExceptionHandler {
 
@@ -19,19 +18,15 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
     private val crashFilePath = "$crashDir/$CRASH_FILE_NAME"
 
     fun getCrashFile(): File? {
-        val path = crashFilePath
-        if (!File(path).exists()) {
-            return null
-        }
-        return File(path)
+        if (!File(crashFilePath).exists()) return null
+        return File(crashFilePath)
     }
 
     fun getCrashList(): List<String> {
-        val string = File(crashFilePath).readText()
-        if (string.isNullOrEmpty()) {
-            return emptyList()
-        }
-        return string.split(SEPARATOR).map { it.trimIndent() }.filter { it.isNotEmpty() }
+        val file = getCrashFile() ?: return emptyList()
+        val text = file.readText()
+        if (text.isNullOrEmpty()) return emptyList()
+        return text.split(SEPARATOR).map { it.trimIndent() }.filter { it.isNotEmpty() }
     }
 
     override fun uncaughtException(t: Thread, e: Throwable) {
@@ -39,29 +34,24 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
         defaultHandler?.uncaughtException(t, e)
     }
 
-    fun reset() {
-        File(crashFilePath).delete()
-    }
-
     private fun saveErrorInfo(e: Throwable) {
-        val stringBuffer = StringBuffer()
+        val builder = StringBuilder()
         val stringWriter = StringWriter()
         val printWriter = PrintWriter(stringWriter)
         e.printStackTrace(printWriter)
         printWriter.close()
         val errorStackInfo = stringWriter.toString()
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        stringBuffer.append("Time: ${dateFormat.format(Date(System.currentTimeMillis()))}\n")
-        stringBuffer.append(errorStackInfo)
-        stringBuffer.append("$SEPARATOR\n")
+        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        builder.append("Time: $timestamp\n")
+        builder.append(errorStackInfo)
+        builder.append("$SEPARATOR\n")
 
-        val cache = File(crashFilePath).readText()
-        if (!cache.isNullOrEmpty()) {
-            stringBuffer.append(cache)
+        if (File(crashFilePath).exists()) {
+            builder.append(File(crashFilePath).readText())
         }
 
         File(crashDir).mkdirs()
         File(crashFilePath).createNewFile()
-        File(crashFilePath).writeText(stringBuffer.toString())
+        File(crashFilePath).writeText(builder.toString())
     }
 }

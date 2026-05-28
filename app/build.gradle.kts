@@ -21,9 +21,6 @@ android {
             abiFilters += listOf("arm64-v8a")
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
     }
     signingConfigs {
         val localProperties = project.rootProject.file("local.properties")

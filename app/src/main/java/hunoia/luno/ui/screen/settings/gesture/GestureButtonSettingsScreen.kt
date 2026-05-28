@@ -114,10 +114,7 @@ import hunoia.luno.system.vibration.MaxCustomVibrationMs
 import hunoia.luno.system.vibration.MinCustomVibrationMs
 import hunoia.luno.system.vibration.VibrationEffects
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/28
- */
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -592,7 +589,7 @@ fun GestureButtonSettingsScreen(
                             gridStyle = gridStyle,
                             onStyleChange = { newGrid ->
                                 val newStyles = currentStyle.copy(
-                                    json = hunoia.luno.core.serialization.JsonHelper.encodeToString(newGrid)
+                                    json = hunoia.luno.core.JsonHelper.encodeToString(newGrid)
                                 )
                                 vm.updateLongSlideActionPanelStyle(direction, newStyles)
                             }
@@ -609,7 +606,7 @@ fun GestureButtonSettingsScreen(
                             isPie = isPie,
                             onItemSizeChange = { newSize ->
                                 val newStyles = currentStyle.copy(
-                                    json = hunoia.luno.core.serialization.JsonHelper.encodeToString(
+                                    json = hunoia.luno.core.JsonHelper.encodeToString(
                                         arcStyle.copy(itemSize = newSize)
                                     )
                                 )
@@ -617,7 +614,7 @@ fun GestureButtonSettingsScreen(
                             },
                             onArcLengthChange = { newLen ->
                                 val newStyles = currentStyle.copy(
-                                    json = hunoia.luno.core.serialization.JsonHelper.encodeToString(
+                                    json = hunoia.luno.core.JsonHelper.encodeToString(
                                         arcStyle.copy(arcLength = newLen)
                                     )
                                 )
@@ -625,7 +622,7 @@ fun GestureButtonSettingsScreen(
                             },
                             onSpacingChange = { newSpacing ->
                                 val newStyles = currentStyle.copy(
-                                    json = hunoia.luno.core.serialization.JsonHelper.encodeToString(
+                                    json = hunoia.luno.core.JsonHelper.encodeToString(
                                         arcStyle.copy(spreadSpacing = newSpacing)
                                     )
                                 )

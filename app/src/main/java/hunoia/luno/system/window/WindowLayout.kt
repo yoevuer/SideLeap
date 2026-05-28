@@ -6,7 +6,7 @@ import android.os.Build
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.ui.unit.IntSize
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 
 val rootSize: IntSize
     get() = IntSize(DensityProvider.screenWidthPx, DensityProvider.screenHeightPx)

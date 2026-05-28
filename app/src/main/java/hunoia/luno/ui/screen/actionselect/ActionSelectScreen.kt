@@ -60,10 +60,7 @@ import hunoia.luno.ui.permission.rememberGetInstalledAppsPermissionState
 import hunoia.luno.ui.theme.ScrollBottomPadding
 
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/2
- */
+
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable

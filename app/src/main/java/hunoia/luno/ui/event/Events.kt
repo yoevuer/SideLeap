@@ -5,13 +5,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import hunoia.luno.core.event.Events
+import hunoia.luno.core.Events
 import kotlin.reflect.KClass
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/22
- */
+
 
 @Composable
 fun <T : Any> SubscribeEvent(eventClass: KClass<T>, subscriber: (T) -> Unit) {

@@ -20,10 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/28
- */
+
 class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<UiState, UiEvent>() {
 
     private val gestureButtonSettings = savedStateHandle.toRoute<GestureButtonSettings>()

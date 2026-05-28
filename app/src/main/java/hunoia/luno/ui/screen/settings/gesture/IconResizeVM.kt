@@ -11,15 +11,12 @@ import hunoia.luno.ui.event.IconResizeEvent
 import hunoia.luno.ui.screen.settings.gesture.IconResizeVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.IconResizeVM.UiState
 import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.core.event.Events
+import hunoia.luno.core.Events
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/4
- */
+
 class IconResizeVM(
     private val ids: List<String>
 ) : BaseComposeVM<UiState, UiEvent>() {

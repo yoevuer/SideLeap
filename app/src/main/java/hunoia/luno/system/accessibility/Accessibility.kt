@@ -5,13 +5,10 @@ import android.accessibilityservice.GestureDescription
 import android.accessibilityservice.GestureDescription.StrokeDescription
 import android.graphics.Path
 import android.graphics.Point
-import android.os.Build
-import androidx.annotation.RequiresApi
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 
 object Accessibility {
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     fun click(service: AccessibilityService?, x: Int, y: Int): Boolean {
         if (service == null) return false
         val point = Point(x, y)
@@ -23,7 +20,6 @@ object Accessibility {
         return service.dispatchGesture(builder.build(), null, null)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     fun longPress(service: AccessibilityService?, x: Int, y: Int): Boolean {
         if (service == null) return false
         val point = Point(x, y)
@@ -35,7 +31,6 @@ object Accessibility {
         return service.dispatchGesture(builder.build(), null, null)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     fun doubleTap(service: AccessibilityService?, x: Int, y: Int): Boolean {
         if (service == null) return false
         val point = Point(x, y)
@@ -51,7 +46,6 @@ object Accessibility {
         return service.dispatchGesture(builder.build(), null, null)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     fun fastVerticalScroll(
         service: AccessibilityService?,
         toTop: Boolean,

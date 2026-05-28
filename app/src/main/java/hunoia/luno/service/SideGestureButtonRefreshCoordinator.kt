@@ -2,7 +2,6 @@ package hunoia.luno.service
 
 import android.view.View
 import android.view.WindowManager
-import hunoia.luno.SideGestureService
 import hunoia.luno.gesture.GestureButton
 import hunoia.luno.settings.model.AdvancedSettings
 import hunoia.luno.settings.model.InitialSettings

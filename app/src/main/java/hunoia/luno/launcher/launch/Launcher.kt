@@ -7,10 +7,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Point
 import android.graphics.Rect
-import android.os.Build
 import android.net.Uri
 import android.view.WindowManager
-import androidx.annotation.RequiresApi
 import hunoia.luno.R
 import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.launcher.model.LauncherInfo
@@ -172,7 +170,6 @@ object Launcher {
         return if (uri.scheme.isNullOrBlank()) null else candidate
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     fun launchAppInPopup(
         context: Context,
         packageName: String,
@@ -193,7 +190,6 @@ object Launcher {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     fun isMiniWindowSupported(context: Context): Boolean {
         return context.packageManager.hasSystemFeature(PackageManager.FEATURE_FREEFORM_WINDOW_MANAGEMENT)
     }
@@ -205,7 +201,6 @@ private const val DefaultMiniWindowVerticalOffsetFraction = 0f
 private const val DefaultMiniWindowWidthFraction = 0.46f
 private const val DefaultMiniWindowHeightFraction = 0.74f
 
-@RequiresApi(Build.VERSION_CODES.N)
 private object MiniWindow {
 
     private fun getRealScreenSize(context: Context): Point {

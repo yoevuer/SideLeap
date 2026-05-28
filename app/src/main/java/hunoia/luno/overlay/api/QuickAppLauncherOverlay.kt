@@ -73,7 +73,7 @@ import hunoia.luno.system.window.applyOverlayViewTreeOwners
 import hunoia.luno.system.window.windowManager
 import hunoia.luno.launcher.query.AppSearch.key
 import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.settings.model.QuickAppLauncherSettings
 import hunoia.luno.settings.model.AdvancedSettings
 import hunoia.luno.ui.theme.SideGestureTheme

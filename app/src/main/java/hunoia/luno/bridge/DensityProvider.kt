@@ -1,4 +1,4 @@
-package hunoia.luno.core
+package hunoia.luno.bridge
 
 import android.content.Context
 import android.util.DisplayMetrics

@@ -1,4 +1,4 @@
-package hunoia.luno.core.serialization
+package hunoia.luno.core
 
 import androidx.annotation.Keep
 import kotlinx.serialization.encodeToString

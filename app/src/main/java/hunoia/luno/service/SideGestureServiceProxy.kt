@@ -1,13 +1,9 @@
 package hunoia.luno.service
 
-import hunoia.luno.SideGestureService
 import hunoia.luno.action.Action
 import hunoia.luno.gesture.GestureButton
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/21
- */
+
 class SideGestureServiceProxy(private val host: SideGestureService) {
 
     private companion object {

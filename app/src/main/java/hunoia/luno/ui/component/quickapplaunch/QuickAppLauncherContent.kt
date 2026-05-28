@@ -74,7 +74,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.launcher.query.AppSearch.key
 import hunoia.luno.settings.model.QuickAppLauncherSettings

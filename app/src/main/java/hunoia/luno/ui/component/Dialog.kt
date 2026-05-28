@@ -57,7 +57,7 @@ import hunoia.luno.action.GlobalActions
 import hunoia.luno.settings.defaults.SettingsUiDefaults.DimAlpha
 import hunoia.luno.action.Action
 import hunoia.luno.ui.action.actionText
-import hunoia.luno.core.event.Events
+import hunoia.luno.core.Events
 import hunoia.luno.system.event.WallpaperChangedEvent
 import hunoia.luno.settings.model.ThemeColorKey
 import hunoia.luno.ui.ext.resolveColor
@@ -66,7 +66,7 @@ import hunoia.luno.ui.theme.DialogTitlePadding
 import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.SubMinInteractiveSize
 import hunoia.luno.ui.ext.displayNameRes
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.ui.dialog.GotoBottomSettingsContent
 import hunoia.luno.ui.dialog.HideGestureButtonSettingsContent
 import hunoia.luno.ui.dialog.VolumeScrubSettingsContent
@@ -76,10 +76,7 @@ import hunoia.luno.ui.dialog.PreviousAppSettingsContent
 import hunoia.luno.ui.dialog.ShellCommandSettingsContent
 import hunoia.luno.ui.dialog.PointerActionSettingsContent
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/1
- */
+
 
 @Composable
 fun MyAlertDialog(

@@ -5,15 +5,12 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.MultiProcessDataStoreFactory
 import androidx.datastore.core.Serializer
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/24
- */
+
 
 inline fun <reified T> Context.dataStore(fileName: String, defValue: T): DataStore<T> {
     val serializer = object : Serializer<T> {

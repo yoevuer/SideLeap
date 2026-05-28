@@ -14,7 +14,7 @@ import hunoia.luno.freeze.api.FreezeLaunch
 import hunoia.luno.action.appInfo
 import hunoia.luno.launcher.launch.Launcher
 import hunoia.luno.system.packages.queryIntentActivitiesCompat
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume

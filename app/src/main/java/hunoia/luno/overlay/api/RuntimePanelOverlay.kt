@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.ui.theme.AnimOverlayFade
 import kotlin.math.roundToInt
 

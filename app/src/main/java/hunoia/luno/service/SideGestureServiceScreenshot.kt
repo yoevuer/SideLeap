@@ -4,8 +4,7 @@ import android.accessibilityservice.AccessibilityService
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
-import hunoia.luno.SideGestureService
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 

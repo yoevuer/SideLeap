@@ -1,9 +1,6 @@
 package hunoia.luno.core
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2025/7/1
- */
+
 object Paths {
 
     val AppData: String by lazy {

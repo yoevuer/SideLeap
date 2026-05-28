@@ -3,7 +3,7 @@ package hunoia.luno.action
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.launcher.model.LauncherInfo
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 
 val Action.appInfo: AppInfo? get() {
     if (value == GlobalActions.EXTRA_LAUNCH_APP) {

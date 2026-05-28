@@ -6,10 +6,7 @@ import hunoia.luno.gesture.SubGestureDirection
 import hunoia.luno.gesture.TriggerDirection
 import kotlinx.serialization.Serializable
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/7
- */
+
 
 @Keep
 @Serializable

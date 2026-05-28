@@ -11,7 +11,7 @@ import hunoia.luno.settings.model.SnapBackType
 import hunoia.luno.settings.model.ThemeColorKey
 import hunoia.luno.settings.model.WaveStyle
 import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch

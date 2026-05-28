@@ -1,10 +1,10 @@
 package hunoia.luno.settings.model
 
 import androidx.annotation.Keep
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.settings.model.SnapBackDefaults
 import hunoia.luno.settings.model.SnapBackType
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 

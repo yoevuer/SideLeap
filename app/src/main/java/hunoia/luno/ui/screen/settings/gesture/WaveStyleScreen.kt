@@ -85,10 +85,7 @@ import hunoia.luno.ui.component.MyTextSlider
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-/**
- * @author DS-Z
- * @since 2025/11/4
- */
+
 
 @Composable
 private fun resolvePreviewColor(source: ColorSource, themeKey: ThemeColorKey, customColor: Int): Color = when (source) {

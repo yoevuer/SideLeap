@@ -14,7 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ComposeView
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.ui.theme.SideGestureTheme
 import hunoia.luno.gesture.application.PointerAction

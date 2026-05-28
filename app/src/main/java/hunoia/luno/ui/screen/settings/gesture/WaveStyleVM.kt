@@ -9,16 +9,13 @@ import hunoia.luno.settings.model.WaveStyle
 import hunoia.luno.ui.screen.settings.gesture.WaveStyleVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.WaveStyleVM.UiState
 import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlin.reflect.KCallable
 
-/**
- * @author DS-Z
- * @since 2025/11/4
- */
+
 class WaveStyleVM : BaseComposeVM<UiState, UiEvent>() {
 
     override val initialState: UiState = UiState()

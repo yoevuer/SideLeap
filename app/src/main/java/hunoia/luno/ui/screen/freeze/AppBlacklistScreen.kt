@@ -66,10 +66,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.launch
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/1
- */
+
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable

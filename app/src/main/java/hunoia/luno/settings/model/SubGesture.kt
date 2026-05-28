@@ -2,7 +2,7 @@ package hunoia.luno.settings.model
 
 import android.graphics.Color
 import androidx.annotation.Keep
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.gesture.SubGestureDirection
 import hunoia.luno.system.vibration.VibrationEffects
 import kotlinx.serialization.Serializable

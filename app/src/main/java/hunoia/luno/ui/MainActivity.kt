@@ -1,4 +1,4 @@
-package hunoia.luno
+package hunoia.luno.ui
 
 import android.app.ActivityManager
 import android.content.Context

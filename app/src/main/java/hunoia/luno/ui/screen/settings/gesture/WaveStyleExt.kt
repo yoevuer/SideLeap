@@ -14,10 +14,7 @@ import hunoia.luno.settings.model.CapsuleStyle
 import hunoia.luno.settings.model.LineStyle
 import hunoia.luno.settings.model.WaveStyle
 
-/**
- * @author DS-Z
- * @since 2025/11/5
- */
+
 
 @Composable
 fun WaveStyle.getIcon(): Painter {

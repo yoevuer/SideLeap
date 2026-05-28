@@ -36,7 +36,7 @@ import hunoia.luno.ui.component.DragGestureHandler
 import hunoia.luno.system.volumeDown
 import hunoia.luno.system.volumeUp
 import hunoia.luno.action.payload.SubGestureActionData
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 import hunoia.luno.settings.model.SubGesture
 import hunoia.luno.settings.model.SubGestureSettings
 import kotlinx.coroutines.Job
@@ -46,10 +46,7 @@ import kotlin.math.atan
 import kotlin.math.hypot
 import kotlin.math.roundToInt
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/15
- */
+
 
 @Composable
 fun SideGestureContainer(

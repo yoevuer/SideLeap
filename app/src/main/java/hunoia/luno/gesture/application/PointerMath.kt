@@ -1,7 +1,7 @@
 package hunoia.luno.gesture.application
 
 import androidx.compose.ui.geometry.Offset
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.settings.model.GestureSettings
 import kotlin.math.hypot
 

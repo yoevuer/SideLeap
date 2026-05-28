@@ -12,10 +12,7 @@ import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/1
- */
+
 
 val PermissionStatus.deniedForever: Boolean
     get() = this is PermissionStatus.Denied && !shouldShowRationale

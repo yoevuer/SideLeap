@@ -73,7 +73,7 @@ import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.ShellCommandData
 import hunoia.luno.action.PointerActionData
 import hunoia.luno.ui.action.actionText
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 
 import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.OpenAppOrUrlData
@@ -93,10 +93,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * @author DS-Z
- * @since 2025/6/30
- */
+
 
 @Composable
 fun ActivitySettingsContent(

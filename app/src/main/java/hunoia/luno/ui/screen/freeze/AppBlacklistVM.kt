@@ -15,10 +15,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/1
- */
+
 class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
 
     override val initialState: UiState = UiState()

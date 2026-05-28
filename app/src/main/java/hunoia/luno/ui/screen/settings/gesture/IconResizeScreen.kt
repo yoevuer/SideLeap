@@ -84,10 +84,7 @@ import hunoia.luno.ui.component.MyAlertDialog
 import hunoia.luno.ui.component.ExpressiveSection
 import hunoia.luno.ui.component.ExpressiveSwitchItem
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/4
- */
+
 
 @Composable
 fun IconResizeContent(

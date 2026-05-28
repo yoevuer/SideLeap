@@ -5,10 +5,7 @@ import androidx.compose.material.icons.materialIcon
 import androidx.compose.material.icons.materialPath
 import androidx.compose.ui.graphics.vector.ImageVector
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/2
- */
+
 
 @Suppress("UnusedReceiverParameter")
 val Icons.Filled.PlayPause: ImageVector

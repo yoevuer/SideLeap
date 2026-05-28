@@ -112,9 +112,6 @@ import hunoia.luno.ui.ext.resolveColor
 import hunoia.luno.settings.model.ThemeColorKey
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.settings.model.SubGesture
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.math.roundToInt
 import hunoia.luno.settings.model.GestureSettings.PointerTrailStyle
 import hunoia.luno.ui.screen.freeze.AppBlacklistContent
@@ -123,10 +120,7 @@ import hunoia.luno.ui.screen.home.sheet.FrozenAppManageSheet
 import hunoia.luno.ui.screen.home.sheet.MiniWindowSettingsSheet
 import hunoia.luno.ui.screen.home.sheet.PointerSettingsSheet
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/22
- */
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -293,7 +287,7 @@ fun HomeScreen(
                         onMiniWindowOverrideChange = { vm.onMiniWindowOverrideBoundsChange(it) },
                         onBackupClick = {
                             val appName = context.getString(context.applicationInfo.labelRes)
-                            val date = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date(System.currentTimeMillis()))
+                            val date = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
                             createFileLauncher.launch("${appName}_$date.zip")
                         },
                         onRestoreClick = { getFileLauncher.launch("*/*") },

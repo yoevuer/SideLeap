@@ -21,10 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import hunoia.luno.ui.theme.TopBarPaddingExtra
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/22
- */
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

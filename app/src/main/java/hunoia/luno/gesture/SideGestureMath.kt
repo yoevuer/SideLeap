@@ -2,7 +2,7 @@ package hunoia.luno.gesture
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.settings.model.AnimationStyles
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.settings.model.WaveStyle

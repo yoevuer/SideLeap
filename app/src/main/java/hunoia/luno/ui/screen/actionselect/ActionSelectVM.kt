@@ -30,7 +30,7 @@ import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState
 import hunoia.luno.freeze.FreezeFacade
 import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.settings.model.SubGesture
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -40,10 +40,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.FileOutputStream
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/2
- */
+
 class ActionSelectVM(
     private val actionSelect: ActionSelect
 ) : BaseComposeVM<UiState, UiEvent>() {

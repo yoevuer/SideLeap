@@ -1,7 +1,5 @@
 package hunoia.luno.service
 
-import hunoia.luno.SideGestureService
-
 internal class SideGestureOverlayLifecycle(
     private val host: SideGestureService,
 ) {

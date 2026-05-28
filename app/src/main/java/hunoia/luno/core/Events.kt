@@ -1,4 +1,4 @@
-package hunoia.luno.core.event
+package hunoia.luno.core
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,11 +11,11 @@ object Events {
 
     private var scope: CoroutineScope? = null
     private val subscribers = ConcurrentHashMap<KClass<out Any>, CopyOnWriteArrayList<(Any) -> Unit>>()
+    private var isMainThread: () -> Boolean = { true }
 
-    var isMainThread: () -> Boolean = { true }
-
-    fun initScope(applicationScope: CoroutineScope) {
+    fun initScope(applicationScope: CoroutineScope, isMainThreadCheck: () -> Boolean = { true }) {
         scope = applicationScope
+        isMainThread = isMainThreadCheck
     }
 
     fun post(event: Any, postOnUiThread: Boolean = true) {

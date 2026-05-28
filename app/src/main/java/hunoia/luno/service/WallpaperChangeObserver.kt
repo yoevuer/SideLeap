@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import hunoia.luno.core.event.Events
+import hunoia.luno.core.Events
 import hunoia.luno.system.event.WallpaperChangedEvent
 
 @Suppress("DEPRECATION")

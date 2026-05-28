@@ -11,10 +11,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-/**
- * @author DS-Z
- * @since 2025/6/30
- */
+
 class ActionSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     override val initialState: UiState = UiState()

@@ -97,10 +97,7 @@ import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/20
- */
+
 
 @Composable
 fun ActionPanel(

@@ -1,6 +1,5 @@
 package hunoia.luno.service.runtime
 
-import android.os.Build
 import androidx.compose.ui.geometry.Offset
 import hunoia.luno.settings.model.GestureSettings
 import hunoia.luno.overlay.api.PointerOverlay
@@ -64,26 +63,24 @@ class PointerRuntime(
         overlay?.closeImmediately()
         scope.launch {
             delay(80)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val service = (host as? android.accessibilityservice.AccessibilityService) ?: return@launch
-                when (action) {
-                    PointerAction.Click -> Accessibility.click(service, x, y)
-                    PointerAction.LongPress -> Accessibility.longPress(service, x, y)
-                }
+            val service = (host as? android.accessibilityservice.AccessibilityService) ?: return@launch
+            when (action) {
+                PointerAction.Click -> Accessibility.click(service, x, y)
+                PointerAction.LongPress -> Accessibility.longPress(service, x, y)
             }
-            if (keepActive && isActive) {
-                val o = overlay ?: PointerOverlay(host).also { overlay = it }
-                o.show(
-                    settings = sessionSettings ?: gestureSettingsProvider()?.pointer ?: GestureSettings.Pointer(),
-                    previousPosition = lastPosition,
-                    onPointerAction = { nextX, nextY, nextKeepActive, nextAction ->
-                        performPointerAction(nextX, nextY, nextKeepActive, nextAction)
-                    },
-                    onDismiss = { end() },
-                )
-            } else {
-                end()
-            }
+        }
+        if (keepActive && isActive) {
+            val o = overlay ?: PointerOverlay(host).also { overlay = it }
+            o.show(
+                settings = sessionSettings ?: gestureSettingsProvider()?.pointer ?: GestureSettings.Pointer(),
+                previousPosition = lastPosition,
+                onPointerAction = { nextX, nextY, nextKeepActive, nextAction ->
+                    performPointerAction(nextX, nextY, nextKeepActive, nextAction)
+                },
+                onDismiss = { end() },
+            )
+        } else {
+            end()
         }
     }
 

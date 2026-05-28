@@ -31,10 +31,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/22
- */
+
 class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     override val initialState: UiState = UiState()
@@ -469,7 +466,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             val app = hunoia.luno.core.AppContext.get()
             val isGestureEnabled = SettingsProvider.getInitialSettings().gestureEnabled
             @Suppress("UNCHECKED_CAST")
-            val clazz = Class.forName("hunoia.luno.SideGestureService") as Class<out android.accessibilityservice.AccessibilityService?>
+            val clazz = Class.forName("hunoia.luno.service.SideGestureService") as Class<out android.accessibilityservice.AccessibilityService?>
             val isAccessibilityEnabled = app.isAccessibilitySettingsOn(clazz)
             val isIgnoringBatteryOptimizations = app.isIgnoringBatteryOptimizations()
             updateUiState {

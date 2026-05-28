@@ -10,7 +10,7 @@ import hunoia.luno.action.Action
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.definition.ActionCatalog
 import hunoia.luno.action.payload.SubGestureActionData
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 import hunoia.luno.gesture.SubGestureDirection
 import hunoia.luno.launcher.LauncherFacade
 import hunoia.luno.launcher.model.AppInfo

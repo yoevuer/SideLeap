@@ -1,10 +1,11 @@
-package hunoia.luno
+package hunoia.luno.quicklaunch
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import hunoia.luno.BuildConfig
+import hunoia.luno.service.SideGestureService
 
 class QuickAppLauncherActivity : Activity() {
 

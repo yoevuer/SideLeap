@@ -43,10 +43,7 @@ import hunoia.luno.ui.theme.SideGestureTheme
 import hunoia.luno.ui.navigation.LocalNavController
 import kotlin.reflect.KType
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/22
- */
+
 
 @Composable
 fun SideGestureApp() {

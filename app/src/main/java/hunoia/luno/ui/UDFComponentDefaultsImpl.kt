@@ -8,10 +8,7 @@ import com.aaron.compose.component.UiBaseEvent
 import hunoia.luno.system.feedback.showToast
 import hunoia.luno.ui.navigation.LocalNavController
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/1
- */
+
 
 class UDFComponentDefaultsImpl : UDFComponentDefaults() {
 

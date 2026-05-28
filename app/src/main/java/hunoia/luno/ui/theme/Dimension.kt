@@ -3,10 +3,7 @@ package hunoia.luno.ui.theme
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/23
- */
+
 
 val TopBarPaddingExtra = 8.dp
 val RootPadding = 12.dp

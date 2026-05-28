@@ -5,7 +5,7 @@ import android.graphics.Color as AndroidColor
 import androidx.annotation.Keep
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.action.GestureActions
 import hunoia.luno.settings.model.LongSlideActionPanelStyles
 import hunoia.luno.system.vibration.VibrationEffects

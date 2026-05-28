@@ -2,10 +2,7 @@ package hunoia.luno.action
 
 import hunoia.luno.action.Action
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/21
- */
+
 object GlobalActions {
 
     /** 无 */

@@ -79,7 +79,7 @@ import hunoia.luno.ui.action.actionText
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.action.definition.ActionCatalog
 import hunoia.luno.action.definition.ActionCategory
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.core.JsonHelper
 import hunoia.luno.launcher.model.qualifiedName
 import hunoia.luno.launcher.model.AppInfo
 import hunoia.luno.launcher.model.LauncherInfo

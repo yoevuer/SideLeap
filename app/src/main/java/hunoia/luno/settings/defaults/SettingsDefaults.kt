@@ -2,7 +2,7 @@
 
 package hunoia.luno.settings.defaults
 
-import hunoia.luno.core.DensityProvider
+import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.settings.model.ActionPanelStyles
 import hunoia.luno.settings.model.AnimationStyles
 
