@@ -89,10 +89,11 @@ import hunoia.luno.ui.component.ColorPickerDialog
 import hunoia.luno.ui.component.MyColorDisplay
 import hunoia.luno.ui.component.MyColumn
 import hunoia.luno.ui.component.MyExpandableColumn
-import hunoia.luno.ui.component.SectionCard
-import hunoia.luno.ui.component.TextActionButton
+import hunoia.luno.ui.component.ExpressiveCard
+import hunoia.luno.ui.component.ExpressiveRow
+import hunoia.luno.ui.component.ExpressiveSection
 import hunoia.luno.ui.component.MyTextSlider
-import hunoia.luno.ui.component.LabeledSwitch
+import hunoia.luno.ui.component.ExpressiveSwitchItem
 import hunoia.luno.ui.component.ThemeColorPickerDialog
 import kotlin.math.roundToInt
 
@@ -195,8 +196,8 @@ fun AnimationStyleContent(
         var localSnapFling by remember(currentSnapFling) { mutableStateOf(currentSnapFling) }
 
         MyColumn(scrollState = scrollState) {
-            SectionCard(title = stringResource(id = R.string.color_outline)) {
-                TextActionButton(
+            ExpressiveSection(title = stringResource(id = R.string.color_outline)) {
+                ExpressiveRow(
                     onClick = {
                         val bgSource = when (type) {
                             AnimationStyles.TYPE_WAVE -> waveStyle.backgroundColorSource
@@ -219,7 +220,7 @@ fun AnimationStyleContent(
                         }
                     },
                     text = stringResource(id = R.string.background_color),
-                    prefix = {
+                    icon = {
                         MyColorDisplay(
                             color = resolvePreviewColor(
                                 when (type) {
@@ -258,7 +259,7 @@ fun AnimationStyleContent(
                         )
                     }
                 )
-                TextActionButton(
+                ExpressiveRow(
                     onClick = {
                         val strokeSource = when (type) {
                             AnimationStyles.TYPE_WAVE -> waveStyle.strokeColorSource
@@ -280,7 +281,7 @@ fun AnimationStyleContent(
                         }
                     },
                     text = stringResource(id = R.string.stroke_color),
-                    prefix = {
+                    icon = {
                         MyColorDisplay(
                             color = resolvePreviewColor(
                                 when (type) {
@@ -353,7 +354,7 @@ fun AnimationStyleContent(
                 )
             }
 
-            SectionCard(
+            ExpressiveSection(
                 modifier = Modifier.padding(top = SectionPadding),
                 title = stringResource(id = R.string.shape_style)
             ) {
@@ -396,7 +397,7 @@ fun AnimationStyleContent(
                 }
             }
 
-            SectionCard(
+            ExpressiveSection(
                 modifier = Modifier.padding(top = SectionPadding),
                 title = stringResource(id = R.string.shape_size)
             ) {
@@ -418,17 +419,17 @@ fun AnimationStyleContent(
                             valueDisplay = String.format("%.1f", waveStyle.bezierLengthHalfRatio),
                             valueRange = MinBezierLength.toFloat()..MaxBezierLength.toFloat()
                         )
-                        LabeledSwitch(
+                        ExpressiveSwitchItem(
                             onCheckedChange = { checked -> vm.onWaveStyleChange { it.copy(safeBounds = checked) }; vm.saveWaveSettings() },
                             checked = waveStyle.safeBounds,
-                            text = stringResource(id = R.string.reserved_bounds),
-                            secondaryText = stringResource(id = R.string.reserved_bounds_hint)
+                            title = stringResource(id = R.string.reserved_bounds),
+                            subtitle = stringResource(id = R.string.reserved_bounds_hint)
                         )
-                        LabeledSwitch(
+                        ExpressiveSwitchItem(
                             onCheckedChange = { checked -> vm.onWaveStyleChange { it.copy(transformEnabled = checked) }; vm.saveWaveSettings() },
                             checked = waveStyle.transformEnabled,
-                            text = stringResource(id = R.string.bezier_transform),
-                            secondaryText = stringResource(id = R.string.bezier_transform_hint)
+                            title = stringResource(id = R.string.bezier_transform),
+                            subtitle = stringResource(id = R.string.bezier_transform_hint)
                         )
                     }
                     AnimationStyles.TYPE_CAPSULE -> {
@@ -722,14 +723,14 @@ private fun IconSection(
     onIconTypeChange: (Int) -> Unit,
     onCustomIconExpandedChange: (Boolean) -> Unit
 ) {
-    SectionCard(
+    ExpressiveSection(
         modifier = Modifier.padding(top = SectionPadding),
         title = stringResource(id = R.string.icon)
     ) {
-        TextActionButton(
+        ExpressiveRow(
             onClick = onColorClick,
             text = stringResource(id = R.string.tint),
-            prefix = { MyColorDisplay(color = resolvePreviewColor(iconColorSource, iconColorThemeKey, iconColor)) },
+            icon = { MyColorDisplay(color = resolvePreviewColor(iconColorSource, iconColorThemeKey, iconColor)) },
             trailing = {
                 Switch(checked = iconColorSource == ColorSource.Theme,
                     onCheckedChange = onColorSourceChange)

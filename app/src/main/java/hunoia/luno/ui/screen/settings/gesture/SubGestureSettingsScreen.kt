@@ -11,6 +11,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Gesture
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Straighten
+import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -44,9 +50,9 @@ import hunoia.luno.ui.component.ColorPickerDialog
 import hunoia.luno.ui.component.MyAlertDialog
 import hunoia.luno.ui.component.MyColumn
 import hunoia.luno.ui.component.MyTextSlider
-import hunoia.luno.ui.component.LabeledSwitch
-import hunoia.luno.ui.component.SectionCard
-import hunoia.luno.ui.component.TextActionButton
+import hunoia.luno.ui.component.ExpressiveCard
+import hunoia.luno.ui.component.ExpressiveRow
+import hunoia.luno.ui.component.ExpressiveSwitchItem
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsVM.UiEvent
 import androidx.compose.foundation.layout.Arrangement
@@ -70,7 +76,6 @@ import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.luno.ui.theme.IconTextPadding
 import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.MinItemHeightNoSecondary
-import hunoia.luno.ui.theme.SectionPaddingNoTitle
 import hunoia.luno.ui.theme.IconTextPadding
 import hunoia.luno.ui.theme.MarkColorSize
 import hunoia.luno.ui.theme.SectionPadding
@@ -216,8 +221,13 @@ fun SubGestureSettingsScreen(
                 }
             )
 
-            MyColumn {
-                SectionCard(title = stringResource(id = R.string.direction_actions)) {
+            MyColumn(verticalArrangement = Arrangement.spacedBy(Spacing12)) {
+                ExpressiveCard(
+                    icon = Icons.Default.TouchApp,
+                    title = stringResource(id = R.string.direction_actions),
+                    subtitle = "8 个方向触发动作配置",
+                    onClick = {},
+                ) {
                     val directions = listOf(
                         SubGestureDirection.Up, SubGestureDirection.Down,
                         SubGestureDirection.Left, SubGestureDirection.Right,
@@ -227,60 +237,83 @@ fun SubGestureSettingsScreen(
                     directions.fastForEach { direction ->
                         val action = gesture.actionFor(direction)
                         val text = actionDisplayText(action, uiState.allSubGestures)
-                        TextActionButton(
+                        ExpressiveRow(
                             onClick = {
                                 onNavToSubGestureActionSelect(SubGestureActionSelect(gesture.id, direction))
                             },
                             text = stringResource(id = direction.displayNameRes),
-                            secondaryText = text.ifEmpty { stringResource(id = R.string.action_none) }
+                            secondaryText = text.ifEmpty { stringResource(id = R.string.action_none) },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Default.Gesture,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            },
                         )
                     }
                 }
 
-                SectionCard(
-                    modifier = Modifier.padding(top = SectionPadding),
-                    title = stringResource(id = R.string.sub_gesture_angles)
+                ExpressiveCard(
+                    icon = Icons.Default.Tune,
+                    title = "物理参数",
+                    subtitle = "角度、震动与触发距离",
+                    onClick = {},
                 ) {
-                    TextActionButton(
+                    ExpressiveRow(
                         onClick = { showGestureAngles = true },
-                        text = stringResource(id = R.string.sub_gesture_angles)
+                        text = stringResource(id = R.string.sub_gesture_angles),
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Straighten,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        },
                     )
-                }
-
-                SectionCard(modifier = Modifier.padding(top = SectionPadding)) {
-                    TextActionButton(
+                    ExpressiveRow(
                         onClick = { showSubVibrationSettings = true },
                         text = stringResource(id = R.string.gesture_button_vibration),
-                        secondaryText = stringResource(id = R.string.vibration_hint)
-                    )
-                }
-
-                SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
-                    TextActionButton(
-                        onClick = { showSubTriggerDistanceSettings = true },
-                        text = stringResource(id = R.string.gesture_button_trigger_distance)
-                    )
-                }
-
-                SectionCard(modifier = Modifier.padding(top = SectionPadding)) {
-                    TextActionButton(
-                        onClick = { vm.colorPickerDialog.show(true) },
-                        text = stringResource(id = R.string.gesture_button_color),
-                        prefix = {
-                            Box(
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .background(
-                                        color = Color(gesture.color),
-                                        shape = CircleShape
-                                    )
-                                    .border(
-                                        width = Spacing1,
-                                        color = MaterialTheme.colorScheme.outlineVariant,
-                                        shape = CircleShape
-                                    )
+                        secondaryText = stringResource(id = R.string.vibration_hint),
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Vibration,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
                             )
-                        }
+                        },
+                    )
+                    ExpressiveRow(
+                        onClick = { showSubTriggerDistanceSettings = true },
+                        text = stringResource(id = R.string.gesture_button_trigger_distance),
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Tune,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        },
+                    )
+                }
+
+                ExpressiveCard(
+                    icon = Icons.Default.Palette,
+                    title = stringResource(id = R.string.gesture_button_color),
+                    subtitle = "自定义子手势颜色",
+                    onClick = { vm.colorPickerDialog.show(true) },
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .background(
+                                color = Color(gesture.color),
+                                shape = CircleShape
+                            )
+                            .border(
+                                width = Spacing1,
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                shape = CircleShape
+                            )
                     )
                 }
             }
@@ -302,17 +335,17 @@ private fun SubGestureVibrationContent(
     gesture: SubGesture,
     vm: SubGestureSettingsVM
 ) {
-    MyColumn {
-        LabeledSwitch(
+    MyColumn(verticalArrangement = Arrangement.spacedBy(Spacing8)) {
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onSubVibrateChange(it) },
             checked = gesture.vibrate,
-            text = stringResource(R.string.sub_gesture_vibration)
+            title = stringResource(R.string.sub_gesture_vibration)
         )
-        LabeledSwitch(
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onSubVibrateImmediatelyChange(it) },
             checked = gesture.vibrateImmediately,
-            text = stringResource(R.string.vibrate_immediately),
-            secondaryText = stringResource(R.string.vibrate_immediately_hint)
+            title = stringResource(R.string.vibrate_immediately),
+            subtitle = stringResource(R.string.vibrate_immediately_hint)
         )
         SubVibrationEffectSelector(
             effect = gesture.vibrationEffect,

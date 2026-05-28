@@ -67,40 +67,6 @@ fun MyColumn(
 }
 
 @Composable
-fun SectionCard(
-    modifier: Modifier = Modifier,
-    title: String = "",
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        if (title.isNotEmpty()) {
-            Text(
-                modifier = Modifier
-                    .padding(bottom = SectionTitlePadding)
-                    .padding(horizontal = ContentPaddingHorizontal),
-                text = title,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium,
-                maxLines = 1
-            )
-        }
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surfaceContainer,
-            tonalElevation = Spacing2
-        ) {
-            Column(
-                modifier = Modifier.padding(Spacing8),
-                verticalArrangement = Arrangement.spacedBy(Spacing8)
-            ) {
-                content()
-            }
-        }
-    }
-}
-
-@Composable
 fun MyExpandableColumn(
     onExpandedChange: (Boolean) -> Unit,
     title: String,

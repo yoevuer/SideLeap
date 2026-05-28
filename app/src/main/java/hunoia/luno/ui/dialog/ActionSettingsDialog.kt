@@ -87,7 +87,7 @@ import hunoia.luno.system.shizuku.ShizukuBinderExecutor
 import hunoia.luno.system.feedback.showToast
 import hunoia.luno.ui.component.AppSearchBar
 import hunoia.luno.ui.component.EmptyState
-import hunoia.luno.ui.component.LabeledSwitch
+import hunoia.luno.ui.component.ExpressiveSwitchItem
 import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.ui.component.MyTextSlider
 import hunoia.luno.ui.theme.ItemPadding
@@ -703,11 +703,11 @@ fun VolumeScrubSettingsContent(vm: ActionSettingsVM = viewModel()) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(ItemPadding)
             ) {
-                LabeledSwitch(
+                ExpressiveSwitchItem(
                     onCheckedChange = { vm.onVolumeScrubHorizontalEnabledChange(it) },
                     checked = uiState.actionSettings.volumeScrub.horizontalEnabled,
-                    text = stringResource(id = R.string.horizontal_volume_scrub),
-                    secondaryText = stringResource(id = R.string.horizontal_volume_scrub_hint)
+                    title = stringResource(id = R.string.horizontal_volume_scrub),
+                    subtitle = stringResource(id = R.string.horizontal_volume_scrub_hint)
                 )
                 val stepDp = uiState.actionSettings.volumeScrub.stepThresholdDp
                 var localStepDp by remember(stepDp) { mutableStateOf(stepDp.toFloat()) }

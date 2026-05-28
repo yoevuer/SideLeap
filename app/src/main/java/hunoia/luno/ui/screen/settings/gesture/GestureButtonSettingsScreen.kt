@@ -11,9 +11,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Adjust
+import androidx.compose.material.icons.filled.Gesture
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Straighten
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.Swipe
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -73,15 +83,14 @@ import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.MarkColorSize
 import hunoia.luno.ui.theme.MinItemHeightNoSecondary
 import hunoia.luno.ui.theme.SectionPadding
-import hunoia.luno.ui.theme.SectionPaddingNoTitle
 import hunoia.luno.ui.component.ColorPickerDialog
 import hunoia.luno.ui.component.MyAlertDialog
 import hunoia.luno.ui.component.MyColumn
-import hunoia.luno.ui.component.SectionCard
-import hunoia.luno.ui.component.TextActionButton
+import hunoia.luno.ui.component.ExpressiveCard
+import hunoia.luno.ui.component.ExpressiveRow
+import hunoia.luno.ui.component.ExpressiveSwitchItem
 import hunoia.luno.ui.component.MyTextRangeSlider
 import hunoia.luno.ui.component.MyTextSlider
-import hunoia.luno.ui.component.LabeledSwitch
 import hunoia.luno.ui.component.TopBar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -209,8 +218,13 @@ fun GestureButtonSettingsScreen(
                 )
                 val gestureButton = uiState.gestureButton
                 if (gestureButton != null) {
-                    MyColumn {
-                        SectionCard(title = stringResource(id = R.string.slide_action)) {
+                    MyColumn(verticalArrangement = Arrangement.spacedBy(Spacing12)) {
+                        ExpressiveCard(
+                            icon = Icons.Default.Swipe,
+                            title = stringResource(id = R.string.slide_action),
+                            subtitle = "定义 5 个滑动方向的触发动作",
+                            onClick = {},
+                        ) {
                             val navToActionSelect: (TriggerDirection) -> Unit = { direction ->
                                 onNavToActionSelect(
                                     ActionSelect(
@@ -223,45 +237,35 @@ fun GestureButtonSettingsScreen(
                                 )
                             }
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Center)
-                                },
+                                onClick = { navToActionSelect(Center) },
                                 gestureButton = gestureButton,
                                 direction = Center,
                                 isLongSlide = false,
                                 secondaryText = gestureButton.slideActions.center.actionTextCompose()
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Up)
-                                },
+                                onClick = { navToActionSelect(Up) },
                                 gestureButton = gestureButton,
                                 direction = Up,
                                 isLongSlide = false,
                                 secondaryText = gestureButton.slideActions.up.actionTextCompose()
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Down)
-                                },
+                                onClick = { navToActionSelect(Down) },
                                 gestureButton = gestureButton,
                                 direction = Down,
                                 isLongSlide = false,
                                 secondaryText = gestureButton.slideActions.down.actionTextCompose()
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Up2)
-                                },
+                                onClick = { navToActionSelect(Up2) },
                                 gestureButton = gestureButton,
                                 direction = Up2,
                                 isLongSlide = false,
                                 secondaryText = gestureButton.slideActions.up2.actionTextCompose()
                             )
                             MySideGestureSettings(
-                                onClick = {
-                                    navToActionSelect(Down2)
-                                },
+                                onClick = { navToActionSelect(Down2) },
                                 gestureButton = gestureButton,
                                 direction = Down2,
                                 isLongSlide = false,
@@ -269,9 +273,11 @@ fun GestureButtonSettingsScreen(
                             )
                         }
 
-                        SectionCard(
-                            modifier = Modifier.padding(top = SectionPadding),
-                            title = stringResource(id = R.string.long_slide_action)
+                        ExpressiveCard(
+                            icon = Icons.Default.Gesture,
+                            title = stringResource(id = R.string.long_slide_action),
+                            subtitle = "长滑触发与动作面板样式",
+                            onClick = {},
                         ) {
                             val navToActionSelect: (TriggerDirection) -> Unit = { direction ->
                                 onNavToActionSelect(
@@ -332,9 +338,11 @@ fun GestureButtonSettingsScreen(
                             )
                         }
 
-                        SectionCard(
-                            modifier = Modifier.padding(top = SectionPadding),
-                            title = stringResource(id = R.string.tap_and_long_press_action)
+                        ExpressiveCard(
+                            icon = Icons.Default.Adjust,
+                            title = stringResource(id = R.string.tap_and_long_press_action),
+                            subtitle = "点击与长按触发配置",
+                            onClick = {},
                         ) {
                             val navToTapActionSelect: (TriggerDirection) -> Unit = { direction ->
                                 onNavToActionSelect(
@@ -349,9 +357,7 @@ fun GestureButtonSettingsScreen(
                                 )
                             }
                             MySideGestureSettings(
-                                onClick = {
-                                    navToTapActionSelect(Center)
-                                },
+                                onClick = { navToTapActionSelect(Center) },
                                 gestureButton = gestureButton,
                                 direction = Center,
                                 isLongSlide = false,
@@ -378,20 +384,46 @@ fun GestureButtonSettingsScreen(
                             )
                         }
 
-                        SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
-                            TextActionButton(
+                        ExpressiveCard(
+                            icon = Icons.Default.Tune,
+                            title = "物理参数",
+                            subtitle = "角度、震动、触发距离与尺寸",
+                            onClick = {},
+                        ) {
+                            ExpressiveRow(
                                 onClick = { showGestureAngles = true },
                                 text = stringResource(id = R.string.gesture_angles),
-                                secondaryText = stringResource(id = R.string.gesture_button_angles_hint)
+                                secondaryText = stringResource(id = R.string.gesture_button_angles_hint),
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Straighten,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                    )
+                                },
                             )
-                            TextActionButton(
+                            ExpressiveRow(
                                 onClick = { showVibrationSettings = true },
                                 text = stringResource(id = R.string.gesture_button_vibration),
-                                secondaryText = stringResource(id = R.string.vibration_hint)
+                                secondaryText = stringResource(id = R.string.vibration_hint),
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Vibration,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                    )
+                                },
                             )
-                            TextActionButton(
+                            ExpressiveRow(
                                 onClick = { showTriggerDistanceSettings = true },
-                                text = stringResource(id = R.string.gesture_button_trigger_distance)
+                                text = stringResource(id = R.string.gesture_button_trigger_distance),
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                    )
+                                },
                             )
                             var localBtnWidth by remember(gestureButton.width) { mutableStateOf(gestureButton.width.toFloat()) }
                             MyTextSlider(
@@ -414,81 +446,93 @@ fun GestureButtonSettingsScreen(
                                 valueRange = MinGestureButtonPosition..MaxGestureButtonPosition
                             )
                             if (uiState.gestureButtonSettings.isSideButton) {
-                                LabeledSwitch(
+                                ExpressiveSwitchItem(
                                     onCheckedChange = { vm.onGestureButtonAlignChange(it) },
                                     checked = uiState.alignRegion,
-                                    text = stringResource(id = R.string.gesture_button_align),
-                                    secondaryText = stringResource(id = R.string.gesture_button_align_hint)
+                                    title = stringResource(id = R.string.gesture_button_align),
+                                    subtitle = stringResource(id = R.string.gesture_button_align_hint),
                                 )
                             }
                             if (uiState.canShowExcludeSystemGestureRects) {
-                                LabeledSwitch(
+                                ExpressiveSwitchItem(
                                     onCheckedChange = { vm.onExcludeSystemGestureRectsChange(it) },
                                     checked = gestureButton.excludeSystemGestureRects,
-                                    text = stringResource(id = R.string.intercept_system_back_gesture),
-                                    secondaryText = stringResource(id = R.string.intercept_system_back_gesture_hint)
+                                    title = stringResource(id = R.string.intercept_system_back_gesture),
+                                    subtitle = stringResource(id = R.string.intercept_system_back_gesture_hint),
                                 )
-                                LabeledSwitch(
+                                ExpressiveSwitchItem(
                                     enabled = gestureButton.excludeSystemGestureRects,
                                     onCheckedChange = { vm.onLimitMaxExcludeSystemGestureLengthChange(it) },
                                     checked = gestureButton.limitMaxExcludeSystemGestureLength,
-                                    text = stringResource(id = R.string.limit_max_intercept_length),
-                                    secondaryText = stringResource(id = R.string.limit_max_intercept_length_hint)
+                                    title = stringResource(id = R.string.limit_max_intercept_length),
+                                    subtitle = stringResource(id = R.string.limit_max_intercept_length_hint),
                                 )
                             }
                         }
-                            if (!gestureButton.isDefault) {
-                            SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
-                                TextActionButton(
-                                    onClick = { vm.colorPickerDialog.show(true) },
-                                    text = stringResource(id = R.string.gesture_button_color),
-                                    prefix = {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(30.dp)
-                                                .background(
-                                                    color = Color(gestureButton.color),
-                                                    shape = CircleShape
-                                                )
-                                                .border(
-                                                    width = Spacing1,
-                                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                                    shape = CircleShape
-                                                )
+
+                        if (!gestureButton.isDefault) {
+                            ExpressiveCard(
+                                icon = Icons.Default.Palette,
+                                title = stringResource(id = R.string.gesture_button_color),
+                                subtitle = "自定义按钮颜色",
+                                onClick = { vm.colorPickerDialog.show(true) },
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .background(
+                                            color = Color(gestureButton.color),
+                                            shape = CircleShape
                                         )
-                                    }
+                                        .border(
+                                            width = Spacing1,
+                                            color = MaterialTheme.colorScheme.outlineVariant,
+                                            shape = CircleShape
+                                        )
                                 )
                             }
                         }
-                        SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
-                            LabeledSwitch(
+
+                        ExpressiveCard(
+                            icon = Icons.Default.Keyboard,
+                            title = "行为适配",
+                            subtitle = "键盘与滑动模式",
+                            onClick = {},
+                        ) {
+                            ExpressiveSwitchItem(
                                 onCheckedChange = { vm.onFitSoftKeyboardChange(it) },
                                 checked = gestureButton.fitSoftKeyboard,
-                                text = stringResource(R.string.fit_soft_keyboard),
-                                secondaryText = stringResource(R.string.fit_soft_keyboard_hint)
+                                title = stringResource(R.string.fit_soft_keyboard),
+                                subtitle = stringResource(R.string.fit_soft_keyboard_hint),
                             )
-                            LabeledSwitch(
+                            ExpressiveSwitchItem(
                                 onCheckedChange = { vm.onPreciseSlideTypeChange(it) },
                                 checked = gestureButton.isPreciseSlideType,
-                                text = stringResource(R.string.precise_slide_type),
-                                secondaryText = stringResource(R.string.precise_slide_type_hint)
+                                title = stringResource(R.string.precise_slide_type),
+                                subtitle = stringResource(R.string.precise_slide_type_hint),
                             )
                         }
-                        SectionCard(modifier = Modifier.padding(top = SectionPaddingNoTitle)) {
-                            LabeledSwitch(
+
+                        ExpressiveCard(
+                            icon = Icons.Default.Visibility,
+                            title = "显示场景",
+                            subtitle = "横屏、锁屏与桌面隐藏",
+                            onClick = {},
+                        ) {
+                            ExpressiveSwitchItem(
                                 onCheckedChange = { vm.onHideLandscapeChange(it) },
                                 checked = gestureButton.hideLandscape,
-                                text = stringResource(R.string.landscape)
+                                title = stringResource(R.string.landscape),
                             )
-                            LabeledSwitch(
+                            ExpressiveSwitchItem(
                                 onCheckedChange = { vm.onHideScreenLockChange(it) },
                                 checked = gestureButton.hideScreenLock,
-                                text = stringResource(R.string.lock_screen)
+                                title = stringResource(R.string.lock_screen),
                             )
-                            LabeledSwitch(
+                            ExpressiveSwitchItem(
                                 onCheckedChange = { vm.onHideHomeScreenChange(it) },
                                 checked = gestureButton.hideHomeScreen,
-                                text = stringResource(R.string.launcher)
+                                title = stringResource(R.string.launcher),
                             )
                         }
                     }
@@ -658,92 +702,95 @@ private fun MySideGestureSettings(
     text: String? = null,
     trailing: (@Composable () -> Unit)? = null
 ) {
-    TextActionButton(
+    val accent = when (isLongSlide) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        else -> MaterialTheme.colorScheme.primaryContainer
+    }
+    val onAccent = when (isLongSlide) {
+        true -> MaterialTheme.colorScheme.onSecondaryContainer
+        else -> MaterialTheme.colorScheme.onPrimaryContainer
+    }
+    val label = text ?: when (direction) {
+        Center -> when (gestureButton.position) {
+            Position.Left -> stringResource(id = R.string.slide_to_right)
+            Position.Right -> stringResource(id = R.string.slide_to_left)
+            Position.Bottom -> stringResource(id = R.string.slide_to_top)
+        }
+        Up -> when (gestureButton.position) {
+            Position.Left -> stringResource(id = R.string.slide_to_top_right)
+            Position.Right -> stringResource(id = R.string.slide_to_top_left)
+            Position.Bottom -> stringResource(id = R.string.slide_to_top_left)
+        }
+        Down -> when (gestureButton.position) {
+            Position.Left -> stringResource(id = R.string.slide_to_bottom_right)
+            Position.Right -> stringResource(id = R.string.slide_to_bottom_left)
+            Position.Bottom -> stringResource(id = R.string.slide_to_top_right)
+        }
+        Center2 -> stringResource(R.string.long_press)
+        Up2 -> when (gestureButton.position) {
+            Position.Left, Position.Right -> stringResource(id = R.string.slide_to_top)
+            Position.Bottom -> stringResource(id = R.string.slide_to_left)
+        }
+        Down2 -> when (gestureButton.position) {
+            Position.Left, Position.Right -> stringResource(id = R.string.slide_to_bottom)
+            Position.Bottom -> stringResource(id = R.string.slide_to_right)
+        }
+    }
+    val imageVector = when (direction) {
+        Center2 -> Icons.Default.Adjust
+        else -> Icons.AutoMirrored.Filled.ArrowForward
+    }
+    val rotation = when (direction) {
+        Up -> when (gestureButton.position) {
+            Position.Left -> -45f
+            Position.Right -> -135f
+            Position.Bottom -> -135f
+        }
+        Center -> when (gestureButton.position) {
+            Position.Left -> 0f
+            Position.Right -> 180f
+            Position.Bottom -> -90f
+        }
+        Down -> when (gestureButton.position) {
+            Position.Left -> 45f
+            Position.Right -> 135f
+            Position.Bottom -> -45f
+        }
+        Up2 -> when (gestureButton.position) {
+            Position.Left, Position.Right -> -90f
+            Position.Bottom -> -180f
+        }
+        Center2 -> 0f
+        Down2 -> when (gestureButton.position) {
+            Position.Left, Position.Right -> 90f
+            Position.Bottom -> 0f
+        }
+    }
+    ExpressiveRow(
         onClick = onClick,
-        text = text ?: when (direction) {
-            Center -> when (gestureButton.position) {
-                Position.Left -> stringResource(id = R.string.slide_to_right)
-                Position.Right -> stringResource(id = R.string.slide_to_left)
-                Position.Bottom -> stringResource(id = R.string.slide_to_top)
-            }
-            Up -> when (gestureButton.position) {
-                Position.Left -> stringResource(id = R.string.slide_to_top_right)
-                Position.Right -> stringResource(id = R.string.slide_to_top_left)
-                Position.Bottom -> stringResource(id = R.string.slide_to_top_left)
-            }
-            Down -> when (gestureButton.position) {
-                Position.Left -> stringResource(id = R.string.slide_to_bottom_right)
-                Position.Right -> stringResource(id = R.string.slide_to_bottom_left)
-                Position.Bottom -> stringResource(id = R.string.slide_to_top_right)
-            }
-            Center2 -> stringResource(R.string.long_press)
-            Up2 -> when (gestureButton.position) {
-                Position.Left, Position.Right -> stringResource(id = R.string.slide_to_top)
-                Position.Bottom -> stringResource(id = R.string.slide_to_left)
-            }
-            Down2 -> when (gestureButton.position) {
-                Position.Left, Position.Right -> stringResource(id = R.string.slide_to_bottom)
-                Position.Bottom -> stringResource(id = R.string.slide_to_right)
-            }
-        },
+        text = label,
         secondaryText = if (secondaryText.isNotEmpty()) secondaryText
             else stringResource(id = R.string.action_none),
         secondaryTextColor = MaterialTheme.colorScheme.primary,
         trailing = trailing,
-        prefix = {
-            val imageVector = when (direction) {
-                Center2 -> Icons.Default.Adjust
-                else -> Icons.AutoMirrored.Filled.ArrowForward
-            }
-            Icon(
-                modifier = Modifier
-                    .graphicsLayer {
-                        val position = gestureButton.position
-                        rotationZ = when (direction) {
-                            Up -> when (position) {
-                                Position.Left -> -45f
-                                Position.Right -> -135f
-                                Position.Bottom -> -135f
-                            }
-                            Center -> when (position) {
-                                Position.Left -> 0f
-                                Position.Right -> 180f
-                                Position.Bottom -> -90f
-                            }
-                            Down -> when (position) {
-                                Position.Left -> 45f
-                                Position.Right -> 135f
-                                Position.Bottom -> -45f
-                            }
-                            Up2 -> when (position) {
-                                Position.Left, Position.Right -> -90f
-                                Position.Bottom -> -180f
-                            }
-                            Center2 -> 0f
-                            Down2 -> when (position) {
-                                Position.Left, Position.Right -> 90f
-                                Position.Bottom -> 0f
-                            }
-                        }
-                    }
-                    .size(Spacing20)
-                    .background(
-                        color = when (isLongSlide) {
-                            true -> MaterialTheme.colorScheme.outlineVariant
-                            else -> MaterialTheme.colorScheme.surface
-                        },
-                        shape = CircleShape
+        icon = {
+            Surface(
+                modifier = Modifier.size(Spacing32),
+                shape = MaterialTheme.shapes.medium,
+                color = accent,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        modifier = Modifier
+                            .graphicsLayer { rotationZ = rotation }
+                            .size(Spacing20),
+                        imageVector = imageVector,
+                        contentDescription = null,
+                        tint = onAccent,
                     )
-                    .border(
-                        width = Spacing1,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        shape = CircleShape
-                    ),
-                imageVector = imageVector,
-                contentDescription = null,
-                tint = LocalContentColor.current
-            )
-        }
+                }
+            }
+        },
     )
 }
 
@@ -782,32 +829,32 @@ private fun GestureButtonVibrationContent(
     vm: GestureButtonSettingsVM
 ) {
     val scrollState = rememberScrollState()
-    MyColumn(scrollState = scrollState) {
-        LabeledSwitch(
+    MyColumn(verticalArrangement = Arrangement.spacedBy(Spacing8)) {
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onSlideVibrateChange(it) },
             checked = button.slideVibrate,
-            text = stringResource(R.string.vibration_slide)
+            title = stringResource(R.string.vibration_slide)
         )
-        LabeledSwitch(
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onLongSlideVibrateChange(it) },
             checked = button.longSlideVibrate,
-            text = stringResource(R.string.vibration_long_slide)
+            title = stringResource(R.string.vibration_long_slide)
         )
-        LabeledSwitch(
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onTapVibrateChange(it) },
             checked = button.tapVibrate,
-            text = stringResource(R.string.vibration_tap)
+            title = stringResource(R.string.vibration_tap)
         )
-        LabeledSwitch(
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onLongPressVibrateChange(it) },
             checked = button.longPressVibrate,
-            text = stringResource(R.string.vibration_long_press)
+            title = stringResource(R.string.vibration_long_press)
         )
-        LabeledSwitch(
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onVibrateImmediatelyChange(it) },
             checked = button.vibrateImmediately,
-            text = stringResource(R.string.vibrate_immediately),
-            secondaryText = stringResource(R.string.vibrate_immediately_hint)
+            title = stringResource(R.string.vibrate_immediately),
+            subtitle = stringResource(R.string.vibrate_immediately_hint)
         )
         VibrationEffectSelector(
             effect = button.vibrationEffect,
@@ -913,11 +960,11 @@ private fun GestureButtonTriggerDistanceContent(
             valueDisplay = "${button.longSlideTriggerDistance}px",
             valueRange = MinLongSlideTriggerDistance.toFloat()..MaxLongSlideTriggerDistance.toFloat()
         )
-        LabeledSwitch(
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onLongSlideTriggerImmediatelyChange(it) },
             checked = button.longSlideTriggerImmediately,
-            text = stringResource(R.string.long_slide_trigger_immediately),
-            secondaryText = stringResource(R.string.long_slide_trigger_immediately_hint)
+            title = stringResource(R.string.long_slide_trigger_immediately),
+            subtitle = stringResource(R.string.long_slide_trigger_immediately_hint)
         )
         MyTextSlider(
             value = button.longSlideTriggerDelayMs.toFloat(),

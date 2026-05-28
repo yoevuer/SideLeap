@@ -77,10 +77,10 @@ import hunoia.luno.ui.component.ColorPickerDialog
 import hunoia.luno.ui.component.MyColorDisplay
 import hunoia.luno.ui.component.MyColumn
 import hunoia.luno.ui.component.MyExpandableColumn
-import hunoia.luno.ui.component.SectionCard
-import hunoia.luno.ui.component.TextActionButton
+import hunoia.luno.ui.component.ExpressiveRow
+import hunoia.luno.ui.component.ExpressiveSection
+import hunoia.luno.ui.component.ExpressiveSwitchItem
 import hunoia.luno.ui.component.MyTextSlider
-import hunoia.luno.ui.component.LabeledSwitch
 import hunoia.luno.ui.component.ThemeColorPickerDialog
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -174,8 +174,8 @@ fun WaveStyleContent(
                     var localStrokeWidth by remember(style.strokeWidth) { mutableStateOf(style.strokeWidth.toFloat()) }
                     var localWidth by remember(style.width) { mutableStateOf(style.width.toFloat()) }
 
-                    SectionCard(title = stringResource(id = R.string.color_outline)) {
-                    TextActionButton(
+                    ExpressiveSection(title = stringResource(id = R.string.color_outline)) {
+                    ExpressiveRow(
                         onClick = {
                             if (style.backgroundColorSource == ColorSource.Theme) {
                                 showThemeColorPickerFor = "bg"
@@ -188,7 +188,7 @@ fun WaveStyleContent(
                             }
                         },
                         text = stringResource(id = R.string.background_color),
-                        prefix = {
+                        icon = {
                             MyColorDisplay(color = resolvePreviewColor(style.backgroundColorSource, style.backgroundColorThemeKey, style.backgroundColor))
                         },
                         trailing = {
@@ -198,7 +198,7 @@ fun WaveStyleContent(
                             )
                         }
                     )
-                    TextActionButton(
+                    ExpressiveRow(
                         onClick = {
                             if (style.strokeColorSource == ColorSource.Theme) {
                                 showThemeColorPickerFor = "stroke"
@@ -211,7 +211,7 @@ fun WaveStyleContent(
                             }
                         },
                         text = stringResource(id = R.string.stroke_color),
-                        prefix = {
+                        icon = {
                             MyColorDisplay(color = resolvePreviewColor(style.strokeColorSource, style.strokeColorThemeKey, style.strokeColor))
                         },
                         trailing = {
@@ -234,7 +234,7 @@ fun WaveStyleContent(
                     )
                 }
 
-                SectionCard(
+                ExpressiveSection(
                     modifier = Modifier.padding(top = SectionPadding),
                     title = stringResource(id = R.string.shape_style)
                 ) {
@@ -292,7 +292,7 @@ fun WaveStyleContent(
                     }
                 }
 
-                SectionCard(
+                ExpressiveSection(
                     modifier = Modifier.padding(top = SectionPadding),
                     title = stringResource(id = R.string.shape_size)
                 ) {
@@ -315,25 +315,25 @@ fun WaveStyleContent(
                         valueDisplay = String.format("%.1f", uiState.animationStyle.bezierLengthHalfRatio),
                         valueRange = MinBezierLength.toFloat()..MaxBezierLength.toFloat()
                     )
-                    LabeledSwitch(
+                    ExpressiveSwitchItem(
                         onCheckedChange = { vm.onSafeBoundsChange(it) },
                         checked = uiState.animationStyle.safeBounds,
-                        text = stringResource(id = R.string.reserved_bounds),
-                        secondaryText = stringResource(id = R.string.reserved_bounds_hint)
+                        title = stringResource(id = R.string.reserved_bounds),
+                        subtitle = stringResource(id = R.string.reserved_bounds_hint)
                     )
-                    LabeledSwitch(
+                    ExpressiveSwitchItem(
                         onCheckedChange = { vm.onTransformEnabledChange(it) },
                         checked = uiState.animationStyle.transformEnabled,
-                        text = stringResource(id = R.string.bezier_transform),
-                        secondaryText = stringResource(id = R.string.bezier_transform_hint)
+                        title = stringResource(id = R.string.bezier_transform),
+                        subtitle = stringResource(id = R.string.bezier_transform_hint)
                     )
                 }
 
-                SectionCard(
+                ExpressiveSection(
                     modifier = Modifier.padding(top = SectionPadding),
                     title = stringResource(id = R.string.icon)
                 ) {
-                    TextActionButton(
+                    ExpressiveRow(
                         onClick = {
                             if (style.iconColorSource == ColorSource.Theme) {
                                 showThemeColorPickerFor = "icon"
@@ -346,7 +346,7 @@ fun WaveStyleContent(
                             }
                         },
                         text = stringResource(id = R.string.tint),
-                        prefix = {
+                        icon = {
                             MyColorDisplay(color = resolvePreviewColor(style.iconColorSource, style.iconColorThemeKey, style.iconColor))
                         },
                         trailing = {

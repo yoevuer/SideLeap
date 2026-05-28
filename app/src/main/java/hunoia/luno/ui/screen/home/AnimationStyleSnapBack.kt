@@ -1,9 +1,9 @@
 package hunoia.luno.ui.screen.home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,11 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.aaron.compose.ktx.clipToBackground
@@ -23,8 +23,10 @@ import hunoia.luno.R
 import hunoia.luno.settings.model.SnapBackDefaults
 import hunoia.luno.settings.model.SnapBackType
 import hunoia.luno.ui.component.MyTextSlider
-import hunoia.luno.ui.component.SectionCard
-import hunoia.luno.ui.theme.SectionPadding
+import hunoia.luno.ui.theme.ContentPaddingHorizontal
+import hunoia.luno.ui.theme.SectionTitlePadding
+import hunoia.luno.ui.theme.Spacing12
+import hunoia.luno.ui.theme.Spacing8
 
 
 @Composable
@@ -43,65 +45,82 @@ fun SnapBackSection(
     onFlingDecayChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    SectionCard(
-        modifier = modifier.padding(top = SectionPadding),
-        title = stringResource(id = R.string.snap_back_style)
-    ) {
-        StyleChipRow(
-            selected = currentType,
-            onSelected = onTypeChange
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            modifier = Modifier
+                .padding(bottom = SectionTitlePadding)
+                .padding(horizontal = ContentPaddingHorizontal),
+            text = stringResource(id = R.string.snap_back_style),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = 1,
         )
-        Spacer(Modifier.height(8.dp))
-        when (currentType) {
-            SnapBackType.SPRING -> {
-                MyTextSlider(
-                    value = springStiffness,
-                    onValueChange = onSpringStiffnessChange,
-                    text = stringResource(id = R.string.snap_back_speed),
-                    valueDisplay = String.format("%.0f%%", springStiffness * 100),
-                    valueRange = 0f..1f
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surfaceContainer,
+        ) {
+            Column(
+                modifier = Modifier.padding(Spacing8),
+                verticalArrangement = Arrangement.spacedBy(Spacing8),
+            ) {
+                StyleChipRow(
+                    selected = currentType,
+                    onSelected = onTypeChange
                 )
-                MyTextSlider(
-                    value = springDamping,
-                    onValueChange = onSpringDampingChange,
-                    text = stringResource(id = R.string.snap_back_bounce),
-                    valueDisplay = String.format("%.0f%%", springDamping * 100),
-                    valueRange = 0f..1f
-                )
-            }
-            SnapBackType.EASE_OUT -> {
-                MyTextSlider(
-                    value = easeOutDurationMs.toFloat(),
-                    onValueChange = { onEaseOutDurationChange(it.toInt()) },
-                    text = stringResource(id = R.string.snap_back_duration),
-                    valueDisplay = "${easeOutDurationMs}ms",
-                    valueRange = 100f..1000f
-                )
-            }
-            SnapBackType.SNAP -> {
-                Text(
-                    text = stringResource(id = R.string.snap_back_snap_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            SnapBackType.ELASTIC -> {
-                MyTextSlider(
-                    value = elasticCoefficient,
-                    onValueChange = onElasticCoefficientChange,
-                    text = stringResource(id = R.string.snap_back_elastic),
-                    valueDisplay = String.format("%.0f%%", elasticCoefficient * 100),
-                    valueRange = 0f..1f
-                )
-            }
-            SnapBackType.FLING -> {
-                MyTextSlider(
-                    value = flingDecay,
-                    onValueChange = onFlingDecayChange,
-                    text = stringResource(id = R.string.snap_back_fling_decay),
-                    valueDisplay = String.format("%.0f%%", flingDecay * 100),
-                    valueRange = 0f..1f
-                )
+                Spacer(Modifier.height(8.dp))
+                when (currentType) {
+                    SnapBackType.SPRING -> {
+                        MyTextSlider(
+                            value = springStiffness,
+                            onValueChange = onSpringStiffnessChange,
+                            text = stringResource(id = R.string.snap_back_speed),
+                            valueDisplay = String.format("%.0f%%", springStiffness * 100),
+                            valueRange = 0f..1f
+                        )
+                        MyTextSlider(
+                            value = springDamping,
+                            onValueChange = onSpringDampingChange,
+                            text = stringResource(id = R.string.snap_back_bounce),
+                            valueDisplay = String.format("%.0f%%", springDamping * 100),
+                            valueRange = 0f..1f
+                        )
+                    }
+                    SnapBackType.EASE_OUT -> {
+                        MyTextSlider(
+                            value = easeOutDurationMs.toFloat(),
+                            onValueChange = { onEaseOutDurationChange(it.toInt()) },
+                            text = stringResource(id = R.string.snap_back_duration),
+                            valueDisplay = "${easeOutDurationMs}ms",
+                            valueRange = 100f..1000f
+                        )
+                    }
+                    SnapBackType.SNAP -> {
+                        Text(
+                            text = stringResource(id = R.string.snap_back_snap_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    SnapBackType.ELASTIC -> {
+                        MyTextSlider(
+                            value = elasticCoefficient,
+                            onValueChange = onElasticCoefficientChange,
+                            text = stringResource(id = R.string.snap_back_elastic),
+                            valueDisplay = String.format("%.0f%%", elasticCoefficient * 100),
+                            valueRange = 0f..1f
+                        )
+                    }
+                    SnapBackType.FLING -> {
+                        MyTextSlider(
+                            value = flingDecay,
+                            onValueChange = onFlingDecayChange,
+                            text = stringResource(id = R.string.snap_back_fling_decay),
+                            valueDisplay = String.format("%.0f%%", flingDecay * 100),
+                            valueRange = 0f..1f
+                        )
+                    }
+                }
             }
         }
     }

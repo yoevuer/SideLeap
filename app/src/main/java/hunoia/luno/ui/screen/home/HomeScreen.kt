@@ -88,7 +88,8 @@ import hunoia.luno.ui.theme.MinItemHeightNoSecondary
 import hunoia.luno.ui.theme.SectionPadding
 import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.MyColumn
-import hunoia.luno.ui.component.LabeledSwitch
+import hunoia.luno.ui.component.ExpressiveCard
+import hunoia.luno.ui.component.ExpressiveSwitchItem
 import hunoia.luno.ui.component.MyTextSlider
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.settings.model.GestureSettings
@@ -509,7 +510,7 @@ private fun HomeAnimationCard(
     onClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    ExpressiveFeatureCard(
+    ExpressiveCard(
         title = stringResource(id = R.string.animation_style_short),
         subtitle = "回弹、样式与触发反馈",
         icon = Icons.Default.Animation,
@@ -526,7 +527,7 @@ private fun HomeAnimationCard(
 
 @Composable
 private fun HomeExcludeCard(uiState: HomeVM.UiState, onClick: () -> Unit) {
-    ExpressiveFeatureCard(
+    ExpressiveCard(
         title = stringResource(id = R.string.exclude_app_short),
         subtitle = "${uiState.excludedAppCount} 个应用已排除",
         icon = Icons.Default.Block,
@@ -542,7 +543,7 @@ private fun HomeExcludeCard(uiState: HomeVM.UiState, onClick: () -> Unit) {
 
 @Composable
 private fun HomePointerCard(onClick: () -> Unit) {
-    ExpressiveFeatureCard(
+    ExpressiveCard(
         title = stringResource(id = R.string.pointer),
         subtitle = "灵敏度、轨迹与长按",
         icon = Icons.Default.TouchApp,
@@ -561,7 +562,7 @@ private fun HomeFrozenCard(
     onFreezeClick: () -> Unit,
     onUnfreezeClick: () -> Unit,
 ) {
-    ExpressiveFeatureCard(
+    ExpressiveCard(
         title = stringResource(id = R.string.frozen_app_manage_short),
         subtitle = "已冻结 ${uiState.frozenAppCount} / 已选 ${uiState.selectedFrozenAppCount}",
         icon = Icons.Default.AcUnit,
@@ -586,7 +587,7 @@ private fun HomeMiniWindowCard(
     onClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    ExpressiveFeatureCard(
+    ExpressiveCard(
         title = stringResource(id = R.string.mini_window_position_short),
         subtitle = if (uiState.miniWindowOverrideBounds) "自定义位置与大小" else "由系统决定小窗边界",
         icon = Icons.Default.Widgets,
@@ -610,7 +611,7 @@ private fun HomeToolsCard(
     onResetConfirm: () -> Unit,
     onResetDismiss: () -> Unit,
 ) {
-    ExpressiveFeatureCard(
+    ExpressiveCard(
         title = "工具",
         subtitle = "备份、恢复、恢复默认",
         icon = Icons.Default.Build,
@@ -665,55 +666,6 @@ private fun HomeToolsCard(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ExpressiveFeatureCard(
-    title: String,
-    subtitle: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit,
-    accent: Color = MaterialTheme.colorScheme.primaryContainer,
-    onAccent: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-    trailing: @Composable (() -> Unit)? = null,
-    actions: @Composable () -> Unit,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column(modifier = Modifier.padding(Spacing16)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing12),
-            ) {
-                Surface(
-                    modifier = Modifier.size(Spacing48),
-                    shape = MaterialTheme.shapes.large,
-                    color = accent,
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(imageVector = icon, contentDescription = null, tint = onAccent)
-                    }
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = title, style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(Spacing4))
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                trailing?.invoke()
-            }
-            Spacer(Modifier.height(Spacing16))
-            actions()
         }
     }
 }
@@ -799,7 +751,7 @@ private fun GestureEntryCard(
     accent: Color = MaterialTheme.colorScheme.primaryContainer,
     onAccent: Color = MaterialTheme.colorScheme.onPrimaryContainer,
 ) {
-    ExpressiveFeatureCard(
+    ExpressiveCard(
         title = title,
         subtitle = subtitle,
         icon = icon,
@@ -895,46 +847,6 @@ private fun SubGestureList(
 }
 
 @Composable
-private fun ExpressiveSwitchItem(
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    markColor: Color,
-    onClick: () -> Unit,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(Spacing14),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing12),
-        ) {
-            Surface(
-                modifier = Modifier.size(Spacing12),
-                shape = MaterialTheme.shapes.small,
-                color = markColor,
-                content = {},
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(Spacing4))
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Switch(checked = checked, onCheckedChange = onCheckedChange)
-        }
-    }
-}
-
-@Composable
 private fun AddEntryButton(text: String, onClick: () -> Unit) {
     FilledTonalButton(
         modifier = Modifier.fillMaxWidth().heightIn(min = MinItemHeightNoSecondary),
@@ -958,11 +870,11 @@ internal fun PointerSettingsContent(
 ) {
     var showTrailStyleDropdown by remember { mutableStateOf(false) }
     MyColumn(scrollState = scrollState ?: rememberScrollState()) {
-        LabeledSwitch(
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onPointerContinuousModeChange(it) },
             checked = pointer.continuousMode,
-            text = stringResource(id = R.string.pointer_continuous_mode),
-            secondaryText = stringResource(id = R.string.pointer_continuous_mode_hint)
+            title = stringResource(id = R.string.pointer_continuous_mode),
+            subtitle = stringResource(id = R.string.pointer_continuous_mode_hint)
         )
         val currentPointer by rememberUpdatedState(pointer)
         MyTextSlider(
@@ -1081,16 +993,16 @@ internal fun PointerSettingsContent(
                 valueRange = 0.2f..1f,
             )
         }
-        LabeledSwitch(
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onPointerClickAnimationChange(it) },
             checked = pointer.clickAnimationEnabled,
-            text = stringResource(id = R.string.pointer_click_animation)
+            title = stringResource(id = R.string.pointer_click_animation)
         )
-        LabeledSwitch(
+        ExpressiveSwitchItem(
             onCheckedChange = { vm.onPointerLongPressEnabledChange(it) },
             checked = pointer.longPressEnabled,
-            text = stringResource(id = R.string.pointer_long_press),
-            secondaryText = stringResource(id = R.string.pointer_long_press_hint)
+            title = stringResource(id = R.string.pointer_long_press),
+            subtitle = stringResource(id = R.string.pointer_long_press_hint)
         )
         if (pointer.longPressEnabled) {
             var localLongPressDelay by remember(pointer.longPressDelayMs) { mutableStateOf(pointer.longPressDelayMs.toFloat()) }

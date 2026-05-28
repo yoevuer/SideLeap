@@ -26,7 +26,7 @@ import hunoia.luno.ui.theme.RootPadding
 import hunoia.luno.ui.theme.ScrollBottomPadding
 import hunoia.luno.ui.theme.SectionPadding
 import hunoia.luno.ui.component.MyTextSlider
-import hunoia.luno.ui.component.SectionCard
+import hunoia.luno.ui.component.ExpressiveSection
 import hunoia.luno.ui.screen.settings.gesture.ArcStylePreview
 import hunoia.luno.ui.screen.settings.gesture.PieStylePreview
 import kotlin.math.roundToInt
@@ -68,7 +68,7 @@ fun ArcOrPieSettingsContent(
                     .padding(bottom = SectionPadding)
             )
         }
-        SectionCard(title = stringResource(id = R.string.icon)) {
+        ExpressiveSection(title = stringResource(id = R.string.icon)) {
             MyTextSlider(
                 value = localItemSize,
                 onValueChange = { localItemSize = it },
@@ -78,7 +78,7 @@ fun ArcOrPieSettingsContent(
                 valueRange = MinItemSize.toFloat()..MaxItemSize.toFloat()
             )
         }
-        SectionCard(
+        ExpressiveSection(
             modifier = Modifier.padding(top = SectionPadding),
             title = stringResource(id = R.string.layout)
         ) {

@@ -78,8 +78,8 @@ import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.MinInteractiveSize
 import hunoia.luno.ui.component.ColorPickerDialog
 import hunoia.luno.ui.component.MyAlertDialog
-import hunoia.luno.ui.component.SectionCard
-import hunoia.luno.ui.component.LabeledSwitch
+import hunoia.luno.ui.component.ExpressiveSection
+import hunoia.luno.ui.component.ExpressiveSwitchItem
 
 /**
  * @author aaronzzxup@gmail.com
@@ -284,16 +284,16 @@ fun IconResizeContent(
                     }
                 }
 
-                SectionCard {
-                    LabeledSwitch(
-                        onTextClick = {
+                ExpressiveSection {
+                    ExpressiveSwitchItem(
+                        onClick = {
                             vm.showColorPickerDialog(true)
                         },
                         onCheckedChange = { enabled ->
                             vm.onBgColorEnabled(enabled, defaultBgColor)
                         },
                         checked = uiState.selectedBgColor?.enabled ?: false,
-                        text = stringResource(id = R.string.background_color),
+                        title = stringResource(id = R.string.background_color),
                         markColor = uiState.selectedBgColor?.color ?: defaultBgColor
                     )
                 }
