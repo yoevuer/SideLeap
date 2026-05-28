@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,68 +54,74 @@ fun MyTextSlider(
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     steps: Int? = null,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = MinItemHeightNoSecondary)
-            .padding(vertical = ContentPaddingVerticalWithSection),
-        verticalArrangement = Arrangement.spacedBy(IconTextPadding)
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .padding(horizontal = ContentPaddingHorizontal)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth()
+                .heightIn(min = MinItemHeightNoSecondary)
+                .padding(vertical = ContentPaddingVerticalWithSection),
+            verticalArrangement = Arrangement.spacedBy(IconTextPadding)
         ) {
-            Text(
-                modifier = Modifier.widthIn(max = 999.dp),
-                text = text,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1
-            )
-            if (valueDisplay != null) {
-                Spacer(modifier = Modifier.width(IconTextPadding))
-                Text(
-                    text = valueDisplay,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelSmall,
-                    maxLines = 1
-                )
-            }
-        }
-        if (sliderValueHint != null) {
-            Box(
+            Row(
                 modifier = Modifier
                     .padding(horizontal = ContentPaddingHorizontal)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    modifier = Modifier.align(Alignment.CenterStart),
-                    text = sliderValueHint.first,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.widthIn(max = 999.dp),
+                    text = text,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 1
                 )
-                Text(
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    text = sliderValueHint.second,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1
-                )
+                if (valueDisplay != null) {
+                    Spacer(modifier = Modifier.width(IconTextPadding))
+                    Text(
+                        text = valueDisplay,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelSmall,
+                        maxLines = 1
+                    )
+                }
             }
+            if (sliderValueHint != null) {
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = ContentPaddingHorizontal)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        text = sliderValueHint.first,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1
+                    )
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        text = sliderValueHint.second,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1
+                    )
+                }
+            }
+            MySlider(
+                modifier = Modifier
+                    .padding(horizontal = ContentPaddingHorizontal)
+                    .height(30.dp),
+                enabled = enabled,
+                value = value,
+                onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished,
+                valueRange = valueRange,
+                steps = steps,
+            )
         }
-        MySlider(
-            modifier = Modifier
-                .padding(horizontal = ContentPaddingHorizontal)
-                .height(30.dp),
-            enabled = enabled,
-            value = value,
-            onValueChange = onValueChange,
-            onValueChangeFinished = onValueChangeFinished,
-            valueRange = valueRange,
-            steps = steps,
-        )
     }
 }
 
@@ -129,53 +136,59 @@ fun MyTextRangeSlider(
     onValueChangeFinished: (() -> Unit)? = null,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = MinItemHeightNoSecondary)
-            .padding(vertical = ContentPaddingVerticalWithSection),
-        verticalArrangement = Arrangement.spacedBy(IconTextPadding)
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        Text(
+        Column(
             modifier = Modifier
-                .padding(horizontal = ContentPaddingHorizontal)
-                .width(IntrinsicSize.Max),
-            text = text,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1
-        )
-        if (sliderValueHint != null) {
-            Box(
+                .fillMaxWidth()
+                .heightIn(min = MinItemHeightNoSecondary)
+                .padding(vertical = ContentPaddingVerticalWithSection),
+            verticalArrangement = Arrangement.spacedBy(IconTextPadding)
+        ) {
+            Text(
                 modifier = Modifier
                     .padding(horizontal = ContentPaddingHorizontal)
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    modifier = Modifier.align(Alignment.CenterStart),
-                    text = sliderValueHint.first,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1
-                )
-                Text(
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    text = sliderValueHint.second,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 1
-                )
+                    .width(IntrinsicSize.Max),
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1
+            )
+            if (sliderValueHint != null) {
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = ContentPaddingHorizontal)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        text = sliderValueHint.first,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1
+                    )
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        text = sliderValueHint.second,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1
+                    )
+                }
             }
+            MyRangeSlider(
+                modifier = Modifier
+                    .padding(horizontal = ContentPaddingHorizontal - Spacing6)
+                    .height(30.dp),
+                enabled = enabled,
+                value = value,
+                onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished,
+                valueRange = valueRange
+            )
         }
-        MyRangeSlider(
-            modifier = Modifier
-                .padding(horizontal = ContentPaddingHorizontal - Spacing6)
-                .height(30.dp),
-            enabled = enabled,
-            value = value,
-            onValueChange = onValueChange,
-            onValueChangeFinished = onValueChangeFinished,
-            valueRange = valueRange
-        )
     }
 }
 

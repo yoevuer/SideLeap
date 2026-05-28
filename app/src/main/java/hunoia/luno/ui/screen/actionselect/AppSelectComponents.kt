@@ -19,6 +19,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -145,69 +146,77 @@ internal fun AppItem(
     selectSingle: Boolean,
     enabled: Boolean = true
 ) {
-    Row(
+    Surface(
         modifier = Modifier
             .alpha(if (enabled) 1f else SettingsUiDefaults.DisabledAlpha)
             .fillMaxWidth()
-            .combinedClickable(
-                enabled = enabled,
-                onLongClick = onLongClick,
-                onClick = {
-                    onSelect(!selected)
-                }
-            )
-            .padding(vertical = ContentPaddingVertical),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = Spacing12, vertical = Spacing4),
+        shape = MaterialTheme.shapes.large,
+        color = if (selected) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        val context = LocalContext.current
-        AsyncImage(
+        Row(
             modifier = Modifier
-                .padding(start = ContentPaddingHorizontal * 2)
-                .size(MinInteractiveSize),
-            model = appInfo.icon,
-            contentDescription = null,
-            imageLoader = context.imageLoader,
-            contentScale = ContentScale.Crop
-        )
-        Column(
-            modifier = Modifier
-                .padding(start = IconTextPadding, end = ItemPadding)
-                .weight(1f)
+                .fillMaxWidth()
+                .combinedClickable(
+                    enabled = enabled,
+                    onLongClick = onLongClick,
+                    onClick = { onSelect(!selected) }
+                )
+                .padding(vertical = ContentPaddingVertical),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            val context = LocalContext.current
+            AsyncImage(
+                modifier = Modifier
+                    .padding(start = ContentPaddingHorizontal)
+                    .size(MinInteractiveSize),
+                model = appInfo.icon,
+                contentDescription = null,
+                imageLoader = context.imageLoader,
+                contentScale = ContentScale.Crop
+            )
+            Column(
+                modifier = Modifier
+                    .padding(start = IconTextPadding, end = ItemPadding)
+                    .weight(1f)
             ) {
-                if (appInfo.miniWindow) {
-                    Icon(
-                        modifier = Modifier.size(Spacing16),
-                        imageVector = Icons.Default.Window,
-                        contentDescription = null
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Spacing8)
+                ) {
+                    if (appInfo.miniWindow) {
+                        Icon(
+                            modifier = Modifier.size(Spacing16),
+                            imageVector = Icons.Default.Window,
+                            contentDescription = null
+                        )
+                    }
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = appInfo.label,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleMedium,
                     )
                 }
                 Text(
-                    modifier = Modifier.weight(1f),
-                    text = appInfo.label,
+                    modifier = Modifier.fillMaxWidth(),
+                    text = appInfo.packageName,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = appInfo.packageName,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-        if (!selectSingle) {
-            Checkbox(
-                modifier = Modifier.padding(end = TopBarPaddingExtra),
-                enabled = enabled,
-                checked = selected,
-                onCheckedChange = onSelect
-            )
+            if (!selectSingle) {
+                Checkbox(
+                    modifier = Modifier.padding(end = TopBarPaddingExtra),
+                    enabled = enabled,
+                    checked = selected,
+                    onCheckedChange = onSelect
+                )
+            }
         }
     }
 }

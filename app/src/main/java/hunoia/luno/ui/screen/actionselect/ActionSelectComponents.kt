@@ -379,94 +379,109 @@ internal fun ActionItem(
 ) {
     val def = ActionCatalog.byId(action.value)
     val settingHintText = def?.let { actionSettingHintResMap[it.configKind]?.let { res -> stringResource(res) } }
-    Row(
+    Surface(
         modifier = Modifier
             .alpha(if (enabled) 1f else SettingsUiDefaults.DisabledAlpha)
             .fillMaxWidth()
-            .heightIn(min = MinInteractiveSize)
-            .onClick(enabled = enabled) {
-                onSelect(!selected)
-            }
-            .padding(vertical = Spacing2),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = Spacing12, vertical = Spacing4),
+        onClick = { onSelect(!selected) },
+        enabled = enabled,
+        shape = MaterialTheme.shapes.large,
+        color = if (selected) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        val context = LocalContext.current
-        val icon = actionIcon(action)
-        Box(
+        Row(
             modifier = Modifier
-                .padding(start = ContentPaddingHorizontal * 2)
-                .size(MinIconSize)
+                .fillMaxWidth()
+                .heightIn(min = MinInteractiveSize)
+                .padding(vertical = Spacing8),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            if (icon is ImageVector) {
-                Image(
-                    imageVector = icon,
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                )
-            } else {
-                AsyncImage(
-                    model = icon,
-                    contentDescription = null,
-                    imageLoader = context.imageLoader,
-                    contentScale = ContentScale.Crop,
-                    colorFilter = null
-                )
-            }
-        }
-
-        Column(
-            modifier = Modifier
-                .padding(horizontal = ItemPadding)
-                .weight(1f)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+            val context = LocalContext.current
+            val icon = actionIcon(action)
+            Surface(
+                modifier = Modifier
+                    .padding(start = ContentPaddingHorizontal)
+                    .size(Spacing40),
+                shape = MaterialTheme.shapes.medium,
+                color = if (selected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.primaryContainer,
             ) {
-                Text(
-                    modifier = Modifier
-                        .weight(1f, false)
-                        .basicMarquee(velocity = 50.dp),
-                    text = actionLabel,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (showSettings) {
-                    Box(
-                        modifier = Modifier
-                            .size(30.dp)
-                            .combinedClickable(
-                                enabled = enabled,
-                                onClick = {
-                                    onSettingsClick?.invoke()
-                                },
-                                onLongClick = if (settingHintText != null) {
-                                    { showToast(settingHintText) }
-                                } else null
-                            )
-                            .clipToBackground(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(Spacing20),
-                            imageVector = Icons.Default.Settings,
+                Box(modifier = Modifier.padding(Spacing8), contentAlignment = Alignment.Center) {
+                    if (icon is ImageVector) {
+                        Image(
+                            imageVector = icon,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            colorFilter = ColorFilter.tint(
+                                if (selected) MaterialTheme.colorScheme.onPrimary
+                                else MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        )
+                    } else {
+                        AsyncImage(
+                            model = icon,
+                            contentDescription = null,
+                            imageLoader = context.imageLoader,
+                            contentScale = ContentScale.Crop,
+                            colorFilter = null
                         )
                     }
                 }
             }
-        }
-        if (!selectSingle) {
-            Checkbox(
-                modifier = Modifier.padding(end = TopBarPaddingExtra),
-                enabled = enabled,
-                checked = selected,
-                onCheckedChange = onSelect
-            )
+
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = ItemPadding)
+                    .weight(1f)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .weight(1f, false)
+                            .basicMarquee(velocity = 50.dp),
+                        text = actionLabel,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    if (showSettings) {
+                        Box(
+                            modifier = Modifier
+                                .size(Spacing32)
+                                .combinedClickable(
+                                    enabled = enabled,
+                                    onClick = { onSettingsClick?.invoke() },
+                                    onLongClick = if (settingHintText != null) {
+                                        { showToast(settingHintText) }
+                                    } else null
+                                )
+                                .clipToBackground(
+                                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                    shape = CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(Spacing20),
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+            if (!selectSingle) {
+                Checkbox(
+                    modifier = Modifier.padding(end = TopBarPaddingExtra),
+                    enabled = enabled,
+                    checked = selected,
+                    onCheckedChange = onSelect
+                )
+            }
         }
     }
 }

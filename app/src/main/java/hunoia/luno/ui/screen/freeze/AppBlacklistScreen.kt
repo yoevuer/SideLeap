@@ -21,6 +21,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -247,47 +248,57 @@ private fun AppBlacklistItem(
     selected: Boolean,
     appInfo: AppInfo
 ) {
-    Row(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .onClick { onSelect(!selected) }
-            .padding(vertical = ContentPaddingVertical),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = Spacing12, vertical = Spacing4),
+        onClick = { onSelect(!selected) },
+        shape = MaterialTheme.shapes.large,
+        color = if (selected) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        val context = LocalContext.current
-        AsyncImage(
+        Row(
             modifier = Modifier
-                .padding(start = ContentPaddingHorizontal * 2)
-                .size(MinInteractiveSize),
-            model = appInfo.icon,
-            contentDescription = null,
-            imageLoader = context.imageLoader,
-            contentScale = ContentScale.Crop
-        )
-        Column(
-            modifier = Modifier
-                .padding(start = IconTextPadding, end = ItemPadding)
-                .weight(1f)
+                .fillMaxWidth()
+                .padding(vertical = ContentPaddingVertical),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = appInfo.label,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+            val context = LocalContext.current
+            AsyncImage(
+                modifier = Modifier
+                    .padding(start = ContentPaddingHorizontal)
+                    .size(MinInteractiveSize),
+                model = appInfo.icon,
+                contentDescription = null,
+                imageLoader = context.imageLoader,
+                contentScale = ContentScale.Crop
             )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = appInfo.packageName,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.labelMedium
+            Column(
+                modifier = Modifier
+                    .padding(start = IconTextPadding, end = ItemPadding)
+                    .weight(1f)
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = appInfo.label,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = appInfo.packageName,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+            Checkbox(
+                modifier = Modifier.padding(end = TopBarPaddingExtra),
+                checked = selected,
+                onCheckedChange = onSelect
             )
         }
-        Checkbox(
-            modifier = Modifier.padding(end = TopBarPaddingExtra),
-            checked = selected,
-            onCheckedChange = onSelect
-        )
     }
 }

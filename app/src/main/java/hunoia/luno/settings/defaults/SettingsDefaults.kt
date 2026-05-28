@@ -11,10 +11,12 @@ object AdvancedSettingsDefaults {
     val ExcludeApps = emptyList<String>()
     val AnimationStyles = AnimationStyles()
     val ActionPanelStyles = ActionPanelStyles()
-    const val MiniWindowHorizontalBias = 0.5f
-    const val MiniWindowVerticalBias = 0.7f
-    const val MiniWindowVerticalEdgeMarginFraction = 0.05f
+    const val MiniWindowHorizontalBias = 0f
+    const val MiniWindowVerticalBias = 0f
     const val MiniWindowVerticalOffsetFraction = 0f
+    const val MiniWindowWidthFraction = 0.46f
+    const val MiniWindowHeightFraction = 0.74f
+    const val MiniWindowOverrideBounds = false
     val ClipApps = emptyMap<String, Float>()
     val ClipShortcuts = emptyMap<String, Float>()
 }

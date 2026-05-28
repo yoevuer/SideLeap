@@ -237,13 +237,13 @@ class QuickAppLauncherOverlay(private val host: QuickAppLauncherOverlayHost) {
                             val interval = if (lastCloseMs > 0) now - lastCloseMs else -1L
                             if (BuildConfig.DEBUG) Log.d("LunoLauncher","appClick: ${appInfo.label} pkg=${appInfo.packageName} miniWindow=$miniWindow intervalSinceClose=${interval}ms")
                             val success = Launcher.launchAppInfo(
-                                host.context,
-                                appInfo,
-                                miniWindow,
+                                host.context, appInfo, miniWindow,
                                 advancedSettings.miniWindowHorizontalBias,
                                 advancedSettings.miniWindowVerticalBias,
-                                advancedSettings.miniWindowVerticalEdgeMarginFraction,
                                 advancedSettings.miniWindowVerticalOffsetFraction,
+                                advancedSettings.miniWindowWidthFraction,
+                                advancedSettings.miniWindowHeightFraction,
+                                overrideBounds = advancedSettings.miniWindowOverrideBounds,
                             )
                             if (BuildConfig.DEBUG) Log.d("LunoLauncher","appClick: ${appInfo.label} launchResult=$success")
                             if (success) onAppLaunchRequested?.invoke(appInfo)

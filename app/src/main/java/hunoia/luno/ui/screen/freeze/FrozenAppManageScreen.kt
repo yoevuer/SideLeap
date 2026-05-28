@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -234,60 +235,69 @@ private fun FrozenAppItem(
     onLongClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    Row(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .combinedClickable(
-                onClick = { onCheckedChange(!checked) },
-                onLongClick = onLongClick
-            )
-            .padding(vertical = ContentPaddingVertical),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = Spacing12, vertical = Spacing4),
+        shape = MaterialTheme.shapes.large,
+        color = if (checked) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        AsyncImage(
+        Row(
             modifier = Modifier
-                .padding(start = ContentPaddingHorizontal * 2)
-                .size(MinInteractiveSize)
-                .clip(RoundedCornerShape(Spacing12)),
-            model = app.icon,
-            contentDescription = null,
-            imageLoader = context.imageLoader,
-            contentScale = ContentScale.Crop
-        )
-        Column(
-            modifier = Modifier
-                .padding(start = IconTextPadding, end = ItemPadding)
-                .weight(1f)
+                .fillMaxWidth()
+                .combinedClickable(
+                    onClick = { onCheckedChange(!checked) },
+                    onLongClick = onLongClick
+                )
+                .padding(vertical = ContentPaddingVertical),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = app.label,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = app.packageName,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-        if (isFrozen) {
-            Icon(
-                modifier = Modifier.padding(end = Spacing4),
-                imageVector = Icons.Default.AcUnit,
+            AsyncImage(
+                modifier = Modifier
+                    .padding(start = ContentPaddingHorizontal)
+                    .size(MinInteractiveSize)
+                    .clip(RoundedCornerShape(Spacing12)),
+                model = app.icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                imageLoader = context.imageLoader,
+                contentScale = ContentScale.Crop
+            )
+            Column(
+                modifier = Modifier
+                    .padding(start = IconTextPadding, end = ItemPadding)
+                    .weight(1f)
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = app.label,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = app.packageName,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+            if (isFrozen) {
+                Icon(
+                    modifier = Modifier.padding(end = Spacing4),
+                    imageVector = Icons.Default.AcUnit,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Checkbox(
+                modifier = Modifier.padding(end = TopBarPaddingExtra),
+                checked = checked,
+                onCheckedChange = onCheckedChange
             )
         }
-        Checkbox(
-            modifier = Modifier.padding(end = TopBarPaddingExtra),
-            checked = checked,
-            onCheckedChange = onCheckedChange
-        )
     }
 }

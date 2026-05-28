@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -191,93 +192,105 @@ internal fun LauncherInfoItem(
     launcherInfo: LauncherInfo,
     selectSingle: Boolean
 ) {
-    Column(
+    Surface(
         modifier = Modifier
             .alpha(if (canLauncherInfoEnabled(launcherInfo)) 1f else SettingsUiDefaults.DisabledAlpha)
             .fillMaxWidth()
+            .padding(horizontal = Spacing12, vertical = Spacing4),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .onClick(enabled = canLauncherInfoEnabled(launcherInfo)) {
-                    onClick()
-                }
-                .padding(vertical = ContentPaddingVertical),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val context = LocalContext.current
-            AsyncImage(
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
                 modifier = Modifier
-                    .padding(start = ContentPaddingHorizontal * 2)
-                    .size(MinInteractiveSize),
-                model = launcherInfo.icon,
-                contentDescription = null,
-                imageLoader = context.imageLoader,
-            )
-            Column(
-                modifier = Modifier
-                    .padding(start = IconTextPadding, end = ItemPadding)
-                    .weight(1f)
+                    .fillMaxWidth()
+                    .onClick(enabled = canLauncherInfoEnabled(launcherInfo)) { onClick() }
+                    .padding(vertical = ContentPaddingVertical),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = launcherInfo.label,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                val context = LocalContext.current
+                AsyncImage(
+                    modifier = Modifier
+                        .padding(start = ContentPaddingHorizontal)
+                        .size(MinInteractiveSize),
+                    model = launcherInfo.icon,
+                    contentDescription = null,
+                    imageLoader = context.imageLoader,
                 )
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = launcherInfo.packageName,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.labelMedium
-                )
+                Column(
+                    modifier = Modifier
+                        .padding(start = IconTextPadding, end = ItemPadding)
+                        .weight(1f)
+                ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = launcherInfo.label,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = launcherInfo.packageName,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
             }
-        }
 
-        Column {
-            launcherInfo.shortcuts.fastForEach { shortcutInfo ->
-                key(shortcutInfo) {
-                    val selected = isShortcutInfoSelected(shortcutInfo)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onClick(enabled = canShortcutInfoEnabled(shortcutInfo)) {
-                                onSelect(shortcutInfo, !selected)
-                            },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val context = LocalContext.current
-                        AsyncImage(
+            Column(modifier = Modifier.padding(start = Spacing8, end = Spacing8, bottom = Spacing8)) {
+                launcherInfo.shortcuts.fastForEach { shortcutInfo ->
+                    key(shortcutInfo) {
+                        val selected = isShortcutInfoSelected(shortcutInfo)
+                        Surface(
                             modifier = Modifier
-                                .padding(start = ContentPaddingHorizontal * 3)
-                                .size(SubMinInteractiveSize),
-                            model = shortcutInfo.icon,
-                            contentDescription = null,
-                            imageLoader = context.imageLoader
-                        )
-                        Column(
-                            modifier = Modifier
-                                .padding(start = IconTextPadding, end = ItemPadding)
-                                .weight(1f)
+                                .fillMaxWidth()
+                                .padding(top = Spacing4),
+                            onClick = { onSelect(shortcutInfo, !selected) },
+                            enabled = canShortcutInfoEnabled(shortcutInfo),
+                            shape = MaterialTheme.shapes.medium,
+                            color = if (selected) MaterialTheme.colorScheme.primaryContainer
+                                    else MaterialTheme.colorScheme.surfaceContainer,
                         ) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = shortcutInfo.label,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        if (!selectSingle) {
-                            Checkbox(
-                                modifier = Modifier.padding(end = TopBarPaddingExtra),
-                                enabled = canShortcutInfoEnabled(shortcutInfo),
-                                checked = selected,
-                                onCheckedChange = { newSelected ->
-                                    onSelect(shortcutInfo, newSelected)
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = Spacing8),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val context = LocalContext.current
+                                AsyncImage(
+                                    modifier = Modifier
+                                        .padding(start = ContentPaddingHorizontal)
+                                        .size(SubMinInteractiveSize),
+                                    model = shortcutInfo.icon,
+                                    contentDescription = null,
+                                    imageLoader = context.imageLoader
+                                )
+                                Column(
+                                    modifier = Modifier
+                                        .padding(start = IconTextPadding, end = ItemPadding)
+                                        .weight(1f)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        text = shortcutInfo.label,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
                                 }
-                            )
+                                if (!selectSingle) {
+                                    Checkbox(
+                                        modifier = Modifier.padding(end = TopBarPaddingExtra),
+                                        enabled = canShortcutInfoEnabled(shortcutInfo),
+                                        checked = selected,
+                                        onCheckedChange = { newSelected ->
+                                            onSelect(shortcutInfo, newSelected)
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }

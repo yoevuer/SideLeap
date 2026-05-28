@@ -59,13 +59,13 @@ object AppLaunchActionHandler : ActionHandler {
         val className = resolveInfo?.activityInfo?.name
         if (!className.isNullOrEmpty()) {
             Launcher.launchAppInPopup(
-                context.appContext,
-                pkgName,
-                className,
+                context.appContext, pkgName, className,
                 context.advancedSettings.miniWindowHorizontalBias,
                 context.advancedSettings.miniWindowVerticalBias,
-                context.advancedSettings.miniWindowVerticalEdgeMarginFraction,
                 context.advancedSettings.miniWindowVerticalOffsetFraction,
+                context.advancedSettings.miniWindowWidthFraction,
+                context.advancedSettings.miniWindowHeightFraction,
+                overrideBounds = context.advancedSettings.miniWindowOverrideBounds,
             )
         }
     }
@@ -124,8 +124,10 @@ object AppLaunchActionHandler : ActionHandler {
                 miniWindow = miniWindow,
                 miniWindowHorizontalBias = context.advancedSettings.miniWindowHorizontalBias,
                 miniWindowVerticalBias = context.advancedSettings.miniWindowVerticalBias,
-                miniWindowVerticalEdgeMarginFraction = context.advancedSettings.miniWindowVerticalEdgeMarginFraction,
                 miniWindowVerticalOffsetFraction = context.advancedSettings.miniWindowVerticalOffsetFraction,
+                miniWindowWidthFraction = context.advancedSettings.miniWindowWidthFraction,
+                miniWindowHeightFraction = context.advancedSettings.miniWindowHeightFraction,
+                miniWindowOverrideBounds = context.advancedSettings.miniWindowOverrideBounds,
             ) { _, pkg ->
                 suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
             }

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -58,61 +59,67 @@ fun TextActionButton(
         vertical = ContentPaddingVerticalWithSection
     )
 ) {
-    Row(
+    Surface(
         modifier = modifier
             .alpha(if (enabled) 1f else DISABLED_ALPHA)
-            .fillMaxWidth()
-            .let {
-                val minHeight = if (secondaryText.isEmpty()) {
-                    MinItemHeightNoSecondary
-                } else {
-                    MinItemHeight
-                }
-                it.heightIn(min = minHeight)
-            }
-            .onSingleClick(enabled = enabled) {
-                onClick()
-            }
-            .padding(contentPadding),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+            .fillMaxWidth(),
+        onClick = { if (enabled) onClick() },
+        enabled = enabled,
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Row(
             modifier = Modifier
-                .weight(1f)
-                .height(IntrinsicSize.Max),
+                .fillMaxWidth()
+                .let {
+                    val minHeight = if (secondaryText.isEmpty()) {
+                        MinItemHeightNoSecondary
+                    } else {
+                        MinItemHeight
+                    }
+                    it.heightIn(min = minHeight)
+                }
+                .padding(contentPadding),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(IconTextPadding)
+            horizontalArrangement = Arrangement.spacedBy(ItemPadding)
         ) {
-            prefix?.invoke()
-            Column(
+            Row(
                 modifier = Modifier
                     .weight(1f)
-                    .width(IntrinsicSize.Max),
-                verticalArrangement = Arrangement.spacedBy(MainSecondaryTextPadding)
+                    .height(IntrinsicSize.Max),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(IconTextPadding)
             ) {
-                Text(
-                    modifier = Modifier.width(IntrinsicSize.Max),
-                    text = text,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1
-                )
-                if (secondaryText.isNotEmpty()) {
+                prefix?.invoke()
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .width(IntrinsicSize.Max),
+                    verticalArrangement = Arrangement.spacedBy(MainSecondaryTextPadding)
+                ) {
                     Text(
                         modifier = Modifier.width(IntrinsicSize.Max),
-                        text = secondaryText,
-                        color = secondaryTextColor,
-                        style = MaterialTheme.typography.labelMedium,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                        text = text,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1
                     )
+                    if (secondaryText.isNotEmpty()) {
+                        Text(
+                            modifier = Modifier.width(IntrinsicSize.Max),
+                            text = secondaryText,
+                            color = secondaryTextColor,
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
-        }
-        if (trailing != null) {
-            trailing()
-        } else if (enabled) {
-            Icon(imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = text)
+            if (trailing != null) {
+                trailing()
+            } else if (enabled) {
+                Icon(imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = text)
+            }
         }
     }
 }
@@ -134,83 +141,91 @@ fun LabeledSwitch(
         vertical = ContentPaddingVerticalWithSection
     )
 ) {
-    Row(
+    Surface(
         modifier = modifier
             .alpha(if (enabled) 1f else DISABLED_ALPHA)
-            .fillMaxWidth()
-            .let {
-                val minHeight = if (secondaryText.isEmpty()) {
-                    MinItemHeightNoSecondary
-                } else {
-                    MinItemHeight
-                }
-                it.heightIn(min = minHeight)
+            .fillMaxWidth(),
+        onClick = {
+            if (onTextClick != null) {
+                onTextClick()
+            } else {
+                onCheckedChange(!checked)
             }
-            .onSingleClick(enabled = enabled) {
-                if (onTextClick != null) {
-                    onTextClick()
-                } else {
-                    onCheckedChange(!checked)
-                }
-            }
-            .padding(contentPadding),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(ItemPadding)
+        },
+        enabled = enabled,
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        val mainSecondaryPadding = when (mainSecondaryTextPadding) {
-            true -> MainSecondaryTextPadding
-            else -> 0.dp
-        }
-        Column(
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .height(IntrinsicSize.Max),
-            verticalArrangement = Arrangement.spacedBy(mainSecondaryPadding)
+                .fillMaxWidth()
+                .let {
+                    val minHeight = if (secondaryText.isEmpty()) {
+                        MinItemHeightNoSecondary
+                    } else {
+                        MinItemHeight
+                    }
+                    it.heightIn(min = minHeight)
+                }
+                .padding(contentPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(ItemPadding)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(IconTextPadding),
-                verticalAlignment = Alignment.CenterVertically
+            val mainSecondaryPadding = when (mainSecondaryTextPadding) {
+                true -> MainSecondaryTextPadding
+                else -> 0.dp
+            }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(IntrinsicSize.Max),
+                verticalArrangement = Arrangement.spacedBy(mainSecondaryPadding)
             ) {
-                Text(
-                        modifier = Modifier.weight(1f),
-                    text = text,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1
-                )
-                if (markColor.isSpecified) {
-                    Box(
-                        modifier = Modifier
-                            .size(MarkColorSize)
-                            .background(color = markColor, shape = CircleShape)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(IconTextPadding),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                            modifier = Modifier.weight(1f),
+                        text = text,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1
+                    )
+                    if (markColor.isSpecified) {
+                        Box(
+                            modifier = Modifier
+                                .size(MarkColorSize)
+                                .background(color = markColor, shape = CircleShape)
+                        )
+                    }
+                }
+                if (secondaryText.isNotEmpty()) {
+                    Text(
+                        modifier = Modifier.width(IntrinsicSize.Max),
+                        text = secondaryText,
+                        color = secondaryTextColor,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
-            if (secondaryText.isNotEmpty()) {
-                Text(
-                    modifier = Modifier.width(IntrinsicSize.Max),
-                    text = secondaryText,
-                    color = secondaryTextColor,
-                    style = MaterialTheme.typography.labelMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+            if (onTextClick != null) {
+                VerticalDivider(
+                    modifier = Modifier.height(DividerHeight),
+                    color = MaterialTheme.colorScheme.outlineVariant
                 )
             }
-        }
-        if (onTextClick != null) {
-            VerticalDivider(
-                modifier = Modifier.height(DividerHeight),
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
-        }
-        CompositionLocalProvider(
-            LocalMinimumInteractiveComponentSize provides 0.dp
-        ) {
-            Switch(
-                enabled = enabled,
-                checked = checked,
-                onCheckedChange = onCheckedChange
-            )
+            CompositionLocalProvider(
+                LocalMinimumInteractiveComponentSize provides 0.dp
+            ) {
+                Switch(
+                    enabled = enabled,
+                    checked = checked,
+                    onCheckedChange = onCheckedChange
+                )
+            }
         }
     }
 }

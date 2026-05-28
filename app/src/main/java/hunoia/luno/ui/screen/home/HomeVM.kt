@@ -2,7 +2,6 @@ package hunoia.luno.ui.screen.home
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 
@@ -16,7 +15,9 @@ import hunoia.luno.ui.screen.home.HomeVM.UiState
 import hunoia.luno.settings.backup.BackupHelper
 import hunoia.luno.settings.SettingsProvider
 import hunoia.luno.settings.model.AdvancedSettings
+import hunoia.luno.settings.model.FrozenAppSettings
 import hunoia.luno.settings.model.GestureSettings
+import hunoia.luno.freeze.FreezeFacade
 import hunoia.luno.settings.model.InitialSettings
 import hunoia.luno.settings.model.GestureSettings.PointerTrailStyle
 import hunoia.luno.system.permission.isAccessibilitySettingsOn
@@ -38,6 +39,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     init {
         loadData()
+        loadFrozenCount()
     }
 
     fun backup(context: Context, saveTo: Uri) {
@@ -134,24 +136,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     fun showResetWarningDialog(show: Boolean) {
         updateUiState {
             it.copy(showResetWarningDialog = show)
-        }
-    }
-
-    fun showBackupRestoreDialog(show: Boolean) {
-        updateUiState {
-            it.copy(showBackupRestoreDialog = show)
-        }
-    }
-
-    fun showMoreMenu(show: Boolean, delayBlock: (() -> Unit)? = null) {
-        viewModelScope.launch {
-            updateUiState {
-                it.copy(showMoreMenu = show)
-            }
-            if (delayBlock != null) {
-                delay(100)
-                delayBlock()
-            }
         }
     }
 
@@ -344,19 +328,52 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     }
 
     fun onMiniWindowHorizontalBiasChange(value: Float) {
-        updateUiState { it.copy(miniWindowHorizontalBias = value.coerceIn(0f, 1f)) }
+        updateUiState { it.copy(miniWindowHorizontalBias = value.coerceIn(-1f, 1f)) }
     }
 
     fun onMiniWindowVerticalBiasChange(value: Float) {
-        updateUiState { it.copy(miniWindowVerticalBias = value.coerceIn(0f, 1f)) }
-    }
-
-    fun onMiniWindowVerticalEdgeMarginChange(value: Float) {
-        updateUiState { it.copy(miniWindowVerticalEdgeMarginFraction = value.coerceIn(0f, 0.2f)) }
+        updateUiState { it.copy(miniWindowVerticalBias = value.coerceIn(-1f, 1f)) }
     }
 
     fun onMiniWindowVerticalOffsetChange(value: Float) {
         updateUiState { it.copy(miniWindowVerticalOffsetFraction = value.coerceIn(-0.3f, 0.3f)) }
+    }
+
+    fun onMiniWindowWidthFractionChange(value: Float) {
+        updateUiState { it.copy(miniWindowWidthFraction = value.coerceIn(0.2f, 1.5f)) }
+    }
+
+    fun onMiniWindowHeightFractionChange(value: Float) {
+        updateUiState { it.copy(miniWindowHeightFraction = value.coerceIn(0.2f, 1.5f)) }
+    }
+
+    fun onMiniWindowOverrideBoundsChange(value: Boolean) {
+        updateUiState { it.copy(miniWindowOverrideBounds = value) }
+    }
+
+    fun oneKeyFreeze() {
+        viewModelScope.launch {
+            FreezeFacade.oneKeyFreeze(AppContext.get())
+            val count = FreezeFacade.queryFrozenAppsOnIo(AppContext.get()).size
+            updateUiState { it.copy(frozenAppCount = count) }
+        }
+    }
+
+    fun oneKeyUnfreeze() {
+        viewModelScope.launch {
+            val frozenApps = FreezeFacade.queryFrozenAppsOnIo(AppContext.get())
+            val targets = frozenApps.map { it.packageName }
+            FreezeFacade.oneKeyUnfreeze(AppContext.get(), targets)
+            val count = FreezeFacade.queryFrozenAppsOnIo(AppContext.get()).size
+            updateUiState { it.copy(frozenAppCount = count) }
+        }
+    }
+
+    private fun loadFrozenCount() {
+        viewModelScope.launch {
+            val frozenApps = FreezeFacade.queryFrozenAppsOnIo(AppContext.get())
+            updateUiState { it.copy(frozenAppCount = frozenApps.size) }
+        }
     }
 
     fun saveDisplaySettings() {
@@ -366,8 +383,10 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                     animationStyles = it.animationStyles.copy(isAnimationEnabled = uiState.showAnimation),
                     miniWindowHorizontalBias = uiState.miniWindowHorizontalBias,
                     miniWindowVerticalBias = uiState.miniWindowVerticalBias,
-                    miniWindowVerticalEdgeMarginFraction = uiState.miniWindowVerticalEdgeMarginFraction,
                     miniWindowVerticalOffsetFraction = uiState.miniWindowVerticalOffsetFraction,
+                    miniWindowWidthFraction = uiState.miniWindowWidthFraction,
+                    miniWindowHeightFraction = uiState.miniWindowHeightFraction,
+                    miniWindowOverrideBounds = uiState.miniWindowOverrideBounds,
                 )
             }
         }
@@ -430,6 +449,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                 SettingsProvider.subGestureSettings,
                 SettingsProvider.gestureSettings,
                 SettingsProvider.advancedSettings,
+                SettingsProvider.frozenAppSettings,
             ) { values ->
                 val initial = values[0] as InitialSettings
                 val sideButtons = values[1] as List<GestureButton>
@@ -437,6 +457,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                 val subGestureSettings = values[3] as SubGestureSettings
                 val gestureSettings = values[4] as GestureSettings
                 val advancedSettings = values[5] as AdvancedSettings
+                val frozenAppSettings = values[6] as FrozenAppSettings
                 uiState.copy(
                     isGestureEnabled = initial.gestureEnabled,
                     sideGestureButtons = sideButtons.sortedBy { it.id },
@@ -446,8 +467,12 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                     showAnimation = advancedSettings.animationStyles.isAnimationEnabled,
                     miniWindowHorizontalBias = advancedSettings.miniWindowHorizontalBias,
                     miniWindowVerticalBias = advancedSettings.miniWindowVerticalBias,
-                    miniWindowVerticalEdgeMarginFraction = advancedSettings.miniWindowVerticalEdgeMarginFraction,
                     miniWindowVerticalOffsetFraction = advancedSettings.miniWindowVerticalOffsetFraction,
+                    miniWindowWidthFraction = advancedSettings.miniWindowWidthFraction,
+                    miniWindowHeightFraction = advancedSettings.miniWindowHeightFraction,
+                    miniWindowOverrideBounds = advancedSettings.miniWindowOverrideBounds,
+                    excludedAppCount = advancedSettings.excludeApps.size,
+                    selectedFrozenAppCount = frozenAppSettings.oneKeyPackageNames.size,
                 )
             }.collectLatest { state ->
                 updateUiState { state }
@@ -465,15 +490,18 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         val isSubGestureListExpanded: Boolean = false,
         val isBottomGestureButtonListExpanded: Boolean = false,
         val isSideGestureButtonListExpanded: Boolean = false,
-        val showMoreMenu: Boolean = false,
         val showResetWarningDialog: Boolean = false,
-        val showBackupRestoreDialog: Boolean = false,
         val pointer: GestureSettings.Pointer = GestureSettings.Pointer(),
         val showAnimation: Boolean = false,
-        val miniWindowHorizontalBias: Float = 0.5f,
-        val miniWindowVerticalBias: Float = 0.7f,
-        val miniWindowVerticalEdgeMarginFraction: Float = 0.05f,
+        val miniWindowHorizontalBias: Float = 0f,
+        val miniWindowVerticalBias: Float = 0f,
         val miniWindowVerticalOffsetFraction: Float = 0f,
+        val miniWindowWidthFraction: Float = 0.46f,
+        val miniWindowHeightFraction: Float = 0.74f,
+        val miniWindowOverrideBounds: Boolean = false,
+        val excludedAppCount: Int = 0,
+        val frozenAppCount: Int = 0,
+        val selectedFrozenAppCount: Int = 0,
     )
 
     sealed interface UiEvent {

@@ -19,6 +19,7 @@ val SectionTitlePadding = 8.dp
 val SectionPadding = RootPadding * 2
 val SectionPaddingNoTitle = RootPadding
 val ScrollBottomPadding = 24.dp
+val HomeWideBreakpoint = 600.dp
 val DividerHeight = 24.dp
 val MainSecondaryTextPadding = 6.dp
 val EdgeMenuPadding = RootPadding
@@ -41,13 +42,17 @@ val Spacing2 = 2.dp
 val Spacing4 = 4.dp
 val Spacing5 = 5.dp
 val Spacing6 = 6.dp
+val Spacing8 = 8.dp
 val Spacing10 = 10.dp
 val Spacing12 = 12.dp
+val Spacing14 = 14.dp
 val Spacing16 = 16.dp
 val Spacing20 = 20.dp
 val Spacing24 = 24.dp
 val Spacing32 = 32.dp
 val Spacing40 = 40.dp
+val Spacing48 = 48.dp
+val Spacing56 = 56.dp
 
 // Shape corner radii
 val ShapeSmall = 8.dp

@@ -86,11 +86,14 @@ fun SectionCard(
         }
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.medium,
+            shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.surfaceContainer,
             tonalElevation = Spacing2
         ) {
-            Column {
+            Column(
+                modifier = Modifier.padding(Spacing8),
+                verticalArrangement = Arrangement.spacedBy(Spacing8)
+            ) {
                 content()
             }
         }
@@ -109,7 +112,7 @@ fun MyExpandableColumn(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = shape,
+        shape = MaterialTheme.shapes.extraLarge,
         color = backgroundColor
     ) {
         Column {
@@ -120,10 +123,7 @@ fun MyExpandableColumn(
                     .onClick {
                         onExpandedChange(!expanded)
                     }
-                    .padding(
-                        horizontal = ContentPaddingHorizontal,
-                        vertical = ContentPaddingVerticalWithSection
-                    ),
+                    .padding(horizontal = Spacing16, vertical = Spacing14),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(ItemPadding)
             ) {
@@ -183,7 +183,7 @@ fun ExpandChip(
     Surface(
         onClick = { onClick() },
         modifier = modifier,
-        shape = RoundedCornerShape(Spacing16),
+        shape = MaterialTheme.shapes.large,
         color = bgColor,
         tonalElevation = if (selected) Spacing2 else 0.dp,
         border = BorderStroke(1.dp, borderColor),

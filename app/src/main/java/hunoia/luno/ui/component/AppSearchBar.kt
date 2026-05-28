@@ -1,7 +1,6 @@
 package hunoia.luno.ui.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -17,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import hunoia.luno.R
-import hunoia.luno.ui.theme.ShapeMedium
 
 @Composable
 fun AppSearchBar(
@@ -40,10 +38,11 @@ fun AppSearchBar(
                 }
             }
         },
-        shape = RoundedCornerShape(ShapeMedium),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedBorderColor = Color.Transparent,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ),
         singleLine = true
     )
