@@ -133,12 +133,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
-    fun showResetWarningDialog(show: Boolean) {
-        updateUiState {
-            it.copy(showResetWarningDialog = show)
-        }
-    }
-
     fun expandBottomGestureButtonList(expanded: Boolean, scrollOffset: Int = Int.MAX_VALUE) {
         updateUiState {
             it.copy(
@@ -349,23 +343,38 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun onMiniWindowOverrideBoundsChange(value: Boolean) {
         updateUiState { it.copy(miniWindowOverrideBounds = value) }
+        viewModelScope.launch {
+            SettingsProvider.updateAdvancedSettings {
+                it.copy(miniWindowOverrideBounds = value)
+            }
+        }
     }
 
     fun oneKeyFreeze() {
-        viewModelScope.launch {
+        viewModelScope.launch(
+            CoroutineExceptionHandler { _, _ ->
+                toast(R.string.bulk_freeze_failed)
+            }
+        ) {
             FreezeFacade.oneKeyFreeze(AppContext.get())
             val count = FreezeFacade.queryFrozenAppsOnIo(AppContext.get()).size
             updateUiState { it.copy(frozenAppCount = count) }
+            toast(R.string.frozen_success)
         }
     }
 
     fun oneKeyUnfreeze() {
-        viewModelScope.launch {
+        viewModelScope.launch(
+            CoroutineExceptionHandler { _, _ ->
+                toast(R.string.bulk_unfreeze_failed)
+            }
+        ) {
             val frozenApps = FreezeFacade.queryFrozenAppsOnIo(AppContext.get())
             val targets = frozenApps.map { it.packageName }
             FreezeFacade.oneKeyUnfreeze(AppContext.get(), targets)
             val count = FreezeFacade.queryFrozenAppsOnIo(AppContext.get()).size
             updateUiState { it.copy(frozenAppCount = count) }
+            toast(R.string.unfrozen_success)
         }
     }
 
@@ -490,7 +499,6 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
         val isSubGestureListExpanded: Boolean = false,
         val isBottomGestureButtonListExpanded: Boolean = false,
         val isSideGestureButtonListExpanded: Boolean = false,
-        val showResetWarningDialog: Boolean = false,
         val pointer: GestureSettings.Pointer = GestureSettings.Pointer(),
         val showAnimation: Boolean = false,
         val miniWindowHorizontalBias: Float = 0f,

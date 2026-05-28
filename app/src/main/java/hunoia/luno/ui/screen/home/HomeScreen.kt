@@ -87,7 +87,6 @@ import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.MinItemHeightNoSecondary
 import hunoia.luno.ui.theme.SectionPadding
 import hunoia.luno.ui.component.OptimizedBottomSheet
-import hunoia.luno.ui.component.MyAlertDialog
 import hunoia.luno.ui.component.MyColumn
 import hunoia.luno.ui.component.LabeledSwitch
 import hunoia.luno.ui.component.MyTextSlider
@@ -123,6 +122,7 @@ fun HomeScreen(
         var showAnimationStyle by remember { mutableStateOf(false) }
         var showMiniWindowSettings by remember { mutableStateOf(false) }
         var showAppBlacklist by remember { mutableStateOf(false) }
+        var showResetConfirm by remember { mutableStateOf(false) }
     val context = LocalContext.current
     UDFComponent(
         component = vm.udfComponent,
@@ -144,15 +144,6 @@ fun HomeScreen(
             }
         }
     ) { uiState ->
-        if (uiState.showResetWarningDialog) {
-            MyAlertDialog(
-                onDismissRequest = { vm.showResetWarningDialog(false) },
-                onConfirmClick = { vm.reset() },
-                title = stringResource(id = R.string.reset_default_settings_warning),
-                text = stringResource(id = R.string.reset_default_settings_warning_desc)
-            )
-        }
-
         val createFileLauncher = rememberLauncherForActivityResult(
             contract = CreateDocument("*/*")
         ) { uri ->
@@ -249,7 +240,13 @@ fun HomeScreen(
                             createFileLauncher.launch("${appName}_$date.zip")
                         },
                         onRestoreClick = { getFileLauncher.launch("*/*") },
-                        onResetClick = { vm.showResetWarningDialog(true) },
+                        onResetToggle = { showResetConfirm = !showResetConfirm },
+                        showResetConfirm = showResetConfirm,
+                        onResetConfirm = {
+                            vm.reset()
+                            showResetConfirm = false
+                        },
+                        onResetDismiss = { showResetConfirm = false },
                     )
 
                     Spacer(Modifier.height(SectionPadding))
@@ -455,7 +452,10 @@ private fun HomeFeatureGrid(
     onMiniWindowOverrideChange: (Boolean) -> Unit,
     onBackupClick: () -> Unit,
     onRestoreClick: () -> Unit,
-    onResetClick: () -> Unit,
+    onResetToggle: () -> Unit,
+    showResetConfirm: Boolean,
+    onResetConfirm: () -> Unit,
+    onResetDismiss: () -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val useTwoColumns = maxWidth >= HomeWideBreakpoint
@@ -478,7 +478,10 @@ private fun HomeFeatureGrid(
                 ) {
                     HomeFrozenCard(uiState, onFrozenClick, onFreezeClick, onUnfreezeClick)
                     HomeExcludeCard(uiState, onExcludeClick)
-                    HomeToolsCard(onBackupClick, onRestoreClick, onResetClick)
+                    HomeToolsCard(
+                        onBackupClick, onRestoreClick,
+                        onResetToggle, showResetConfirm, onResetConfirm, onResetDismiss,
+                    )
                 }
             }
         } else {
@@ -491,7 +494,10 @@ private fun HomeFeatureGrid(
                 HomeFrozenCard(uiState, onFrozenClick, onFreezeClick, onUnfreezeClick)
                 HomeMiniWindowCard(uiState, onMiniWindowClick, onMiniWindowOverrideChange)
                 HomeExcludeCard(uiState, onExcludeClick)
-                HomeToolsCard(onBackupClick, onRestoreClick, onResetClick)
+                HomeToolsCard(
+                    onBackupClick, onRestoreClick,
+                    onResetToggle, showResetConfirm, onResetConfirm, onResetDismiss,
+                )
             }
         }
     }
@@ -599,7 +605,10 @@ private fun HomeMiniWindowCard(
 private fun HomeToolsCard(
     onBackupClick: () -> Unit,
     onRestoreClick: () -> Unit,
-    onResetClick: () -> Unit,
+    onResetToggle: () -> Unit,
+    showResetConfirm: Boolean,
+    onResetConfirm: () -> Unit,
+    onResetDismiss: () -> Unit,
 ) {
     ExpressiveFeatureCard(
         title = "工具",
@@ -614,8 +623,47 @@ private fun HomeToolsCard(
             FilledTonalButton(onClick = onRestoreClick, modifier = Modifier.weight(1f)) {
                 Text("恢复")
             }
-            FilledTonalButton(onClick = onResetClick, modifier = Modifier.weight(1f)) {
+            FilledTonalButton(onClick = onResetToggle, modifier = Modifier.weight(1f)) {
                 Text("默认")
+            }
+        }
+        AnimatedVisibility(
+            visible = showResetConfirm,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Spacing12),
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.errorContainer,
+            ) {
+                Column(modifier = Modifier.padding(Spacing14)) {
+                    Text(
+                        text = stringResource(id = R.string.reset_default_settings_warning),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                    Spacer(Modifier.height(Spacing12))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(Spacing6),
+                    ) {
+                        FilledTonalButton(
+                            onClick = onResetDismiss,
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text("取消")
+                        }
+                        FilledTonalButton(
+                            onClick = onResetConfirm,
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text("确认重置")
+                        }
+                    }
+                }
             }
         }
     }
