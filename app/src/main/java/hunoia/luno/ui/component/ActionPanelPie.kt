@@ -42,11 +42,11 @@ import coil.compose.AsyncImage
 import coil.imageLoader
 import com.aaron.compose.ktx.toDp
 import com.aaron.compose.ktx.toPx
-import hunoia.luno.action.Action
-import hunoia.luno.action.GlobalActions
-import hunoia.luno.action.appInfo
-import hunoia.luno.ui.action.actionIcon
-import hunoia.luno.action.shortcutInfo
+import hunoia.luno.config.model.Action
+import hunoia.luno.action.api.ActionFacade
+import hunoia.luno.action.api.appInfo
+
+import hunoia.luno.action.api.shortcutInfo
 import hunoia.luno.config.model.Position
 import hunoia.luno.config.model.PieStyle
 import hunoia.luno.config.model.GestureSettings

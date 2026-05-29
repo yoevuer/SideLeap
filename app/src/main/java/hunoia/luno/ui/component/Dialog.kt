@@ -53,28 +53,28 @@ import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.onSingleClick
 import com.aaron.compose.utils.SystemFontScaleHandler
 import hunoia.luno.R
-import hunoia.luno.action.GlobalActions
+import hunoia.luno.action.api.ActionFacade
 import hunoia.luno.config.defaults.SettingsUiDefaults.DimAlpha
-import hunoia.luno.action.Action
-import hunoia.luno.ui.action.actionText
+import hunoia.luno.config.model.Action
+import hunoia.luno.ui.component.actionText
 import hunoia.luno.core.Events
 import hunoia.luno.bridge.WallpaperChangedEvent
 import hunoia.luno.config.model.ThemeColorKey
-import hunoia.luno.ui.ext.resolveColor
+import hunoia.luno.ui.component.resolveColor
 import hunoia.luno.ui.theme.DialogHexTextWidth
 import hunoia.luno.ui.theme.DialogTitlePadding
 import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.SubMinInteractiveSize
-import hunoia.luno.ui.ext.displayNameRes
+import hunoia.luno.ui.component.displayNameRes
 import hunoia.luno.bridge.DensityProvider
-import hunoia.luno.ui.dialog.GotoBottomSettingsContent
-import hunoia.luno.ui.dialog.HideGestureButtonSettingsContent
-import hunoia.luno.ui.dialog.VolumeScrubSettingsContent
-import hunoia.luno.ui.dialog.ActivitySettingsContent
-import hunoia.luno.ui.dialog.UrlSettingsContent
-import hunoia.luno.ui.dialog.PreviousAppSettingsContent
-import hunoia.luno.ui.dialog.ShellCommandSettingsContent
-import hunoia.luno.ui.dialog.PointerActionSettingsContent
+import hunoia.luno.ui.screen.settings.GotoBottomSettingsContent
+import hunoia.luno.ui.screen.settings.HideGestureButtonSettingsContent
+import hunoia.luno.ui.screen.settings.VolumeScrubSettingsContent
+import hunoia.luno.ui.screen.settings.ActivitySettingsContent
+import hunoia.luno.ui.screen.settings.UrlSettingsContent
+import hunoia.luno.ui.screen.settings.PreviousAppSettingsContent
+import hunoia.luno.ui.screen.settings.ShellCommandSettingsContent
+import hunoia.luno.ui.screen.settings.PointerActionSettingsContent
 
 
 
@@ -141,15 +141,15 @@ fun ActionSettingsDialog(
         },
         text = {
             when (action.value) {
-                GlobalActions.PREVIOUS_APP -> {
+                ActionFacade.PREVIOUS_APP -> {
                     PreviousAppSettingsContent()
                 }
 
-                GlobalActions.GOTO_BOTTOM -> {
+                ActionFacade.GOTO_BOTTOM -> {
                     GotoBottomSettingsContent()
                 }
 
-                GlobalActions.OPEN_APP_ACTIVITY -> {
+                ActionFacade.OPEN_APP_ACTIVITY -> {
                     ActivitySettingsContent(
                         action = action,
                         onConfirm = {
@@ -160,7 +160,7 @@ fun ActionSettingsDialog(
                         }
                     )
                 }
-                GlobalActions.OPEN_URL -> {
+                ActionFacade.OPEN_URL -> {
                     UrlSettingsContent(
                         action = action,
                         onConfirm = {
@@ -172,7 +172,7 @@ fun ActionSettingsDialog(
                     )
                 }
 
-                GlobalActions.EXECUTE_SHELL_COMMAND -> {
+                ActionFacade.EXECUTE_SHELL_COMMAND -> {
                     ShellCommandSettingsContent(
                         action = action,
                         onConfirm = {
@@ -184,7 +184,7 @@ fun ActionSettingsDialog(
                     )
                 }
 
-                GlobalActions.POINTER -> {
+                ActionFacade.POINTER -> {
                     PointerActionSettingsContent(
                         action = action,
                         onConfirm = {
@@ -196,11 +196,11 @@ fun ActionSettingsDialog(
                     )
                 }
 
-                GlobalActions.HIDE_GESTURE_BUTTON -> {
+                ActionFacade.HIDE_GESTURE_BUTTON -> {
                     HideGestureButtonSettingsContent()
                 }
 
-                GlobalActions.VOLUME_SCRUB -> {
+                ActionFacade.VOLUME_SCRUB -> {
                     VolumeScrubSettingsContent()
                 }
             }

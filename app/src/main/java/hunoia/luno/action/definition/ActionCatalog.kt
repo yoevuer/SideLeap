@@ -38,7 +38,7 @@ import androidx.compose.material.icons.filled.ViewCarousel
 import androidx.compose.material.icons.filled.Window
 import androidx.compose.ui.graphics.vector.ImageVector
 import hunoia.luno.R
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.action.GlobalActions
 
 object ActionCatalog {

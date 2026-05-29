@@ -35,10 +35,10 @@ import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.luno.R
-import hunoia.luno.ui.action.actionText
+import hunoia.luno.ui.component.actionText
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.config.model.SubGestureDirection
-import hunoia.luno.ui.ext.displayNameRes
+import hunoia.luno.ui.component.displayNameRes
 import hunoia.luno.config.defaults.SettingsUiDefaults.GestureButtonColorAlpha
 import hunoia.luno.config.model.SubGesture
 import hunoia.luno.ui.navigation.SubGestureActionSelect
@@ -260,7 +260,7 @@ fun SubGestureSettingsScreen(
 private fun actionDisplayText(actionId: String?, allSubGestures: List<SubGesture>?): String {
     if (actionId == null || actionId.isEmpty()) return ""
     if (actionId != hunoia.luno.action.GlobalActions.SUB_GESTURE) {
-        return actionText(hunoia.luno.action.Action(actionId))
+        return actionText(hunoia.luno.config.model.Action(actionId))
     }
     return stringResource(id = R.string.action_sub_gesture)
 }

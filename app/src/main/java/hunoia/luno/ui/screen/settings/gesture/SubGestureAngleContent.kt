@@ -43,7 +43,7 @@ import androidx.compose.ui.util.fastForEach
 import hunoia.luno.R
 import hunoia.luno.config.model.SubGestureDirection
 import hunoia.luno.config.defaults.SettingsUiDefaults
-import hunoia.luno.ui.ext.displayNameRes
+import hunoia.luno.ui.component.displayNameRes
 import hunoia.luno.config.model.SubGestureAngle
 import hunoia.luno.config.model.copyNewNoGap
 import hunoia.luno.ui.theme.ContentPaddingHorizontal

@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.R
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.core.AppContext
-import hunoia.luno.action.GlobalActions
+import hunoia.luno.action.api.ActionFacade
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.core.JsonHelper
 import hunoia.luno.config.model.SubGestureDirection
@@ -88,7 +88,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
 
         fun cleanIfSubGesture(action: Action?): Action? {
             if (action == null) return null
-            if (action.value == GlobalActions.SUB_GESTURE) {
+            if (action.value == ActionFacade.SUB_GESTURE) {
                 val data = try {
                     kotlinx.serialization.json.Json.decodeFromString<SubGestureActionData>(action.data)
                 } catch (_: Exception) { null }
@@ -137,7 +137,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
         ConfigProvider.updateBottomGestureButtons { cleanActions(it) }
         ConfigProvider.updateSubGestureSettings { settings ->
             val cleanedSubGestures = settings.subGestures.map { gesture ->
-                fun clean(id: String?) = if (id == deletedId || id == GlobalActions.SUB_GESTURE) null else id
+                fun clean(id: String?) = if (id == deletedId || id == ActionFacade.SUB_GESTURE) null else id
                 gesture.copy(
                     upActionId = clean(gesture.upActionId),
                     downActionId = clean(gesture.downActionId),

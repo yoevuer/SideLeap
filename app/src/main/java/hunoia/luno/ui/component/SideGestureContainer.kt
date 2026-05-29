@@ -15,11 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import hunoia.luno.R
-import hunoia.luno.action.GlobalActions
-import hunoia.luno.action.Action
+import hunoia.luno.action.api.ActionFacade
+import hunoia.luno.config.model.Action
 import hunoia.luno.pointer.PointerAction
 import hunoia.luno.pointer.rememberPointerHandle
-import hunoia.luno.action.withRuntimeTouchPosition
+import hunoia.luno.action.api.withRuntimeTouchPosition
 import hunoia.luno.config.model.ActionPanelStyle
 import hunoia.luno.config.model.ActionPanelStyles
 import hunoia.luno.config.model.ActionSettings
@@ -125,7 +125,7 @@ fun SideGestureContainer(
     }
 
     fun tryEnterSubGesture(action: Action): Boolean {
-        if (action.value != GlobalActions.SUB_GESTURE) return false
+        if (action.value != ActionFacade.SUB_GESTURE) return false
         val id = try {
             JsonHelper.decodeFromString<SubGestureActionData>(action.data).id
         } catch (_: Exception) { return false }
@@ -172,23 +172,23 @@ fun SideGestureContainer(
                     val actionId = sg.actionFor(direction)
                     subGestureAccum = Offset.Zero
                     sg.tryVibrate()
-                    if (actionId != null && actionId != GlobalActions.NONE) {
+                    if (actionId != null && actionId != ActionFacade.NONE) {
                         when (actionId) {
-                            GlobalActions.VOLUME_SCRUB -> {
+                            ActionFacade.VOLUME_SCRUB -> {
                                 isVolumeScrubMode = true
                                 volumeScrubAccumulator = 0f
                                 volumeScrubAccumulatorX = 0f
                                 sideGestureState.cancel()
                                 clearSubGestureMode(notifyService = false)
                             }
-                            GlobalActions.POINTER -> {
+                            ActionFacade.POINTER -> {
                                 pointerHandle.start(Action(actionId), sideGestureState.finger, pointerPreviousPosition())
                                 sideGestureState.cancel()
                                 clearSubGestureMode(notifyService = false)
                             }
                             else -> {
                                 handleResolvedAction(Action(actionId), sideGestureState.button, sideGestureState.finger)
-                                if (actionId != GlobalActions.SUB_GESTURE) clearSubGestureMode()
+                                if (actionId != ActionFacade.SUB_GESTURE) clearSubGestureMode()
                             }
                         }
                     } else {
@@ -242,12 +242,12 @@ fun SideGestureContainer(
                             sideGestureState.cancel()
                     } else if (actions.isNotEmpty()) {
                         val action = actions.first()
-                        if (action.value == GlobalActions.VOLUME_SCRUB) {
+                        if (action.value == ActionFacade.VOLUME_SCRUB) {
                             isVolumeScrubMode = true
                             volumeScrubAccumulator = 0f
                             volumeScrubAccumulatorX = 0f
                             sideGestureState.cancel()
-                        } else if (action.value == GlobalActions.POINTER) {
+                        } else if (action.value == ActionFacade.POINTER) {
                             pointerHandle.start(action, sideGestureState.finger, pointerPreviousPosition())
                             sideGestureState.cancel()
                         } else {

@@ -38,7 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.component.UiBaseEvent
 import hunoia.luno.R
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.ui.component.OptimizedScrollState
@@ -48,7 +48,7 @@ import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.ui.screen.settings.gesture.IconResizeContent
 import hunoia.luno.ui.component.ActionSettingsDialog
 import hunoia.luno.ui.component.MySnackbarHost
-import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiEvent
+import hunoia.luno.ui.screen.actionselect.UiEvent
 import hunoia.luno.bridge.feedback.showToast
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted

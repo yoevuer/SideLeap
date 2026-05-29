@@ -7,6 +7,7 @@ import hunoia.luno.freeze.api.FreezeLaunch
 import hunoia.luno.freeze.api.FreezeResult
 import hunoia.luno.freeze.api.FreezeState
 import hunoia.luno.freeze.api.OneKeyFreezeResult
+import hunoia.luno.quicklaunch.QuickLaunchFacade
 import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.quicklaunch.query.QuickAppLauncherAppList
 
@@ -54,8 +55,10 @@ object FreezeFacade {
         FreezeState.invalidateFrozenCache()
     }
 
-    fun queryQuickAppLauncherApps(context: Context): QuickAppLauncherAppList =
-        FrozenQuickAppLauncherQuery.queryApps(context)
+    fun queryQuickAppLauncherApps(context: Context): QuickAppLauncherAppList {
+        val frozenApps = FreezeState.queryFrozenApplications(context)
+        return QuickLaunchFacade.queryCombinedQuickAppList(context, frozenApps)
+    }
 
     suspend fun launchWithAutoUnfreeze(
         context: Context,

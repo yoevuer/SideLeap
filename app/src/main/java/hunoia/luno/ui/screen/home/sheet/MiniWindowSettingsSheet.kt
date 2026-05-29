@@ -7,12 +7,13 @@ import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.OptimizedScrollState
 import hunoia.luno.ui.screen.home.HomeVM
 import hunoia.luno.ui.screen.home.MiniWindowSettingsContent
+import hunoia.luno.ui.screen.home.UiState
 
 @Composable
 fun MiniWindowSettingsSheet(
     show: Boolean,
     onDismiss: () -> Unit,
-    uiState: HomeVM.UiState,
+    uiState: UiState,
     vm: HomeVM
 ) {
     if (!show) return

@@ -78,7 +78,7 @@ import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.MinInteractiveSize
 import hunoia.luno.ui.component.ColorPickerBottomSheet
 import hunoia.luno.ui.component.ColorSelection
-import hunoia.luno.ui.ext.resolveColor
+import hunoia.luno.ui.component.resolveColor
 import hunoia.luno.config.model.ThemeColorKey
 import hunoia.luno.ui.component.MyAlertDialog
 import hunoia.luno.ui.component.ExpressiveSection

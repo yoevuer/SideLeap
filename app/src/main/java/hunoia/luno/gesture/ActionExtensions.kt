@@ -1,8 +1,8 @@
 package hunoia.luno.gesture
 
-import hunoia.luno.action.Action
-import hunoia.luno.action.GestureActions
-import hunoia.luno.action.GestureActionsDefaults
+import hunoia.luno.config.model.Action
+import hunoia.luno.config.model.GestureActions
+import hunoia.luno.config.model.GestureActionsDefaults
 import hunoia.luno.config.model.ActionPanelStyles
 import hunoia.luno.config.model.LongSlideActionPanelStyles
 import hunoia.luno.config.model.TriggerDirection

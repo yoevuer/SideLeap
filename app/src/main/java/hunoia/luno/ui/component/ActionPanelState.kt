@@ -1,0 +1,100 @@
+package hunoia.luno.ui.component
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import hunoia.luno.action.TriggerType
+import hunoia.luno.config.model.Action
+import hunoia.luno.config.model.ActionPanelStyle
+import hunoia.luno.config.model.Position
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+@Composable
+fun rememberActionPanelState(): ActionPanelState {
+    val coroutineScope = rememberCoroutineScope()
+    return remember {
+        ActionPanelState(coroutineScope)
+    }
+}
+
+class ActionPanelState(private val coroutineScope: CoroutineScope) : LongSlideState() {
+
+    var visible: Boolean by mutableStateOf(false)
+        private set
+    var actions: List<Action> by mutableStateOf(emptyList())
+        private set
+    var position: Position by mutableStateOf(Position.Left)
+        private set
+    var actionPanelStyle: ActionPanelStyle? by mutableStateOf(null)
+        private set
+    private val pendingActions: MutableMap<Int, Action> = mutableStateMapOf()
+
+    private val selectedBaseAction: Action by derivedStateOf {
+        pendingActions.values.find { it != Action.NONE } ?: Action.NONE
+    }
+    val selectedAction: Action by derivedStateOf {
+        when (triggerType) {
+            TriggerType.Press -> selectedBaseAction
+            TriggerType.LongPress -> selectedBaseAction.longPressAction ?: selectedBaseAction
+        }
+    }
+    var triggerType: TriggerType by mutableStateOf(TriggerType.Press)
+        private set
+    private var delayTriggerTypeChangedJob: Job? = null
+
+    override fun onDragStart(offset: Offset) {
+        super.onDragStart(offset)
+        visible = true
+    }
+
+    fun ready(position: Position, actions: List<Action>, actionPanelStyle: ActionPanelStyle) {
+        this.position = position
+        this.actions = actions
+        this.actionPanelStyle = actionPanelStyle
+    }
+
+    fun done(): Action {
+        val action = selectedAction
+        val triggerType = triggerType
+        reset()
+        return action.copy(extra = triggerType)
+    }
+
+    fun isSelected(action: Action): Boolean {
+        return pendingActions.values.find { it == action } != null
+    }
+
+    fun select(index: Int, action: Action) {
+        pendingActions[index] = action
+
+        delayTriggerTypeChangedJob?.cancel()
+        triggerType = TriggerType.Press
+        delayTriggerTypeChangedJob = coroutineScope.launch {
+            delay(500)
+            triggerType = TriggerType.LongPress
+        }
+    }
+
+    override fun reset() {
+        visible = false
+        actionPanelStyle = null
+        pendingActions.clear()
+        origin = Offset.Unspecified
+        finger = Offset.Unspecified
+        delayTriggerTypeChangedJob?.cancel()
+        triggerType = TriggerType.Press
+    }
+
+    /**
+     * 用于实现短按和长按
+     */
+}

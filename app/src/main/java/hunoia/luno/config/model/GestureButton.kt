@@ -6,7 +6,7 @@ import androidx.annotation.Keep
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import hunoia.luno.bridge.DensityProvider
-import hunoia.luno.action.GestureActions
+import hunoia.luno.config.model.GestureActions
 import hunoia.luno.bridge.vibration.VibrationEffects
 import kotlin.random.Random
 import kotlinx.serialization.Serializable
@@ -49,7 +49,7 @@ object GestureButtonDefaults {
             angle = defaultGestureAngleFor(Position.Left),
             start = 0.0f,
             end = 1.0f,
-            slideActions = GestureActions(center = hunoia.luno.action.Action.toList(hunoia.luno.action.GlobalActions.BACK))
+            slideActions = GestureActions(center = hunoia.luno.config.model.Action.toList(hunoia.luno.action.GlobalActions.BACK))
         ),
         GestureButton(
             id = ID_DEFAULT,
@@ -57,7 +57,7 @@ object GestureButtonDefaults {
             angle = defaultGestureAngleFor(Position.Right),
             start = 0.0f,
             end = 1.0f,
-            slideActions = GestureActions(center = hunoia.luno.action.Action.toList(hunoia.luno.action.GlobalActions.BACK))
+            slideActions = GestureActions(center = hunoia.luno.config.model.Action.toList(hunoia.luno.action.GlobalActions.BACK))
         )
     )
     val BottomDefaults = listOf(
@@ -68,8 +68,8 @@ object GestureButtonDefaults {
             enabled = false,
             start = 0.0f,
             end = 1.0f,
-            slideActions = GestureActions(center = hunoia.luno.action.Action.toList(hunoia.luno.action.GlobalActions.HOME)),
-            longSlideActions = GestureActions(center = hunoia.luno.action.Action.toList(hunoia.luno.action.GlobalActions.RECENT))
+            slideActions = GestureActions(center = hunoia.luno.config.model.Action.toList(hunoia.luno.action.GlobalActions.HOME)),
+            longSlideActions = GestureActions(center = hunoia.luno.config.model.Action.toList(hunoia.luno.action.GlobalActions.RECENT))
         )
     )
 }

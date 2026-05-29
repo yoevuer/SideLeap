@@ -8,10 +8,10 @@ import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.GlobalActions
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.OpenAppOrUrlData
 import hunoia.luno.freeze.FreezeFacade
-import hunoia.luno.action.appInfo
+import hunoia.luno.action.api.appInfo
 import hunoia.luno.quicklaunch.QuickLaunchFacade
 import hunoia.luno.bridge.queryIntentActivitiesCompat
 import hunoia.luno.core.JsonHelper

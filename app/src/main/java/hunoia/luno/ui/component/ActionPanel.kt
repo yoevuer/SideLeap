@@ -63,19 +63,18 @@ import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.toDp
 import com.aaron.compose.ktx.toPx
 
-import hunoia.luno.action.GlobalActions
+import hunoia.luno.action.api.ActionFacade
 import hunoia.luno.config.defaults.SettingsUiDefaults.DimAlpha
 import hunoia.luno.action.TriggerType
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.ActionPanelStyle
 import hunoia.luno.config.model.ArcStyle
 import hunoia.luno.config.model.GridStyle
 import hunoia.luno.config.model.PieStyle
 import hunoia.luno.config.model.Position
-import hunoia.luno.ui.action.actionIcon
-import hunoia.luno.ui.action.actionText
-import hunoia.luno.action.appInfo
-import hunoia.luno.action.shortcutInfo
+
+import hunoia.luno.action.api.appInfo
+import hunoia.luno.action.api.shortcutInfo
 import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.gesture.vibrateForActionPanel
 import hunoia.luno.ui.theme.AnimNormal
@@ -131,7 +130,7 @@ fun ActionPanel(
                     .align(Alignment.Center)
                     .displayCutoutPadding()
                     .padding(RootPadding),
-                visible = selectedAction.value == GlobalActions.EXTRA_LAUNCH_APP,
+                visible = selectedAction.value == ActionFacade.EXTRA_LAUNCH_APP,
                 enter = enter,
                 exit = ExitTransition.None
             ) {
@@ -359,8 +358,8 @@ internal fun ActionPanelIcon(action: Action, iconSize: Dp, bitmapIconSize: Dp = 
 internal fun actionPanelItemColor(action: Action): Color {
     val actionIcon = actionIcon(action = action)
     return when (action.value) {
-        GlobalActions.EXTRA_LAUNCH_APP -> action.appInfo?.iconBgColor.toActionPanelColor()
-        GlobalActions.EXTRA_LAUNCH_SHORTCUT -> action.shortcutInfo?.iconBgColor.toActionPanelColor()
+        ActionFacade.EXTRA_LAUNCH_APP -> action.appInfo?.iconBgColor.toActionPanelColor()
+        ActionFacade.EXTRA_LAUNCH_SHORTCUT -> action.shortcutInfo?.iconBgColor.toActionPanelColor()
 
         else -> MaterialTheme.colorScheme.primary
     }
@@ -371,83 +370,4 @@ internal fun Int?.toActionPanelColor(): Color {
     return if (this == null || this == 0) MaterialTheme.colorScheme.primary else Color(this)
 }
 
-@Composable
-fun rememberActionPanelState(): ActionPanelState {
-    val coroutineScope = rememberCoroutineScope()
-    return remember {
-        ActionPanelState(coroutineScope)
-    }
-}
 
-class ActionPanelState(private val coroutineScope: CoroutineScope) : LongSlideState() {
-
-    var visible: Boolean by mutableStateOf(false)
-        private set
-    var actions: List<Action> by mutableStateOf(emptyList())
-        private set
-    var position: Position by mutableStateOf(Position.Left)
-        private set
-    var actionPanelStyle: ActionPanelStyle? by mutableStateOf(null)
-        private set
-    private val pendingActions: MutableMap<Int, Action> = mutableStateMapOf()
-
-    private val selectedBaseAction: Action by derivedStateOf {
-        pendingActions.values.find { it != Action.NONE } ?: Action.NONE
-    }
-    val selectedAction: Action by derivedStateOf {
-        when (triggerType) {
-            TriggerType.Press -> selectedBaseAction
-            TriggerType.LongPress -> selectedBaseAction.longPressAction ?: selectedBaseAction
-        }
-    }
-    var triggerType: TriggerType by mutableStateOf(TriggerType.Press)
-        private set
-    private var delayTriggerTypeChangedJob: Job? = null
-
-    override fun onDragStart(offset: Offset) {
-        super.onDragStart(offset)
-        visible = true
-    }
-
-    fun ready(position: Position, actions: List<Action>, actionPanelStyle: ActionPanelStyle) {
-        this.position = position
-        this.actions = actions
-        this.actionPanelStyle = actionPanelStyle
-    }
-
-    fun done(): Action {
-        val action = selectedAction
-        val triggerType = triggerType
-        reset()
-        return action.copy(extra = triggerType)
-    }
-
-    fun isSelected(action: Action): Boolean {
-        return pendingActions.values.find { it == action } != null
-    }
-
-    fun select(index: Int, action: Action) {
-        pendingActions[index] = action
-
-        delayTriggerTypeChangedJob?.cancel()
-        triggerType = TriggerType.Press
-        delayTriggerTypeChangedJob = coroutineScope.launch {
-            delay(500)
-            triggerType = TriggerType.LongPress
-        }
-    }
-
-    override fun reset() {
-        visible = false
-        actionPanelStyle = null
-        pendingActions.clear()
-        origin = Offset.Unspecified
-        finger = Offset.Unspecified
-        delayTriggerTypeChangedJob?.cancel()
-        triggerType = TriggerType.Press
-    }
-
-    /**
-     * 用于实现短按和长按
-     */
-}

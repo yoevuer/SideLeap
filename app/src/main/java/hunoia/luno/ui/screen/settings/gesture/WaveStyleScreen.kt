@@ -60,7 +60,7 @@ import hunoia.luno.config.defaults.SettingsUiDefaults.MinBezierWidth
 import hunoia.luno.config.defaults.SettingsUiDefaults.MinIconScale
 import hunoia.luno.config.model.ColorSource
 import hunoia.luno.config.model.ThemeColorKey
-import hunoia.luno.ui.ext.resolveColor
+import hunoia.luno.ui.component.resolveColor
 import hunoia.luno.config.model.WaveStyle
 import hunoia.luno.config.model.WaveStyle.Companion.ICON_TYPE_ANGLE
 import hunoia.luno.config.model.WaveStyle.Companion.ICON_TYPE_ARROW

@@ -1,6 +1,6 @@
 package hunoia.luno.service
 
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.GestureButton
 
 

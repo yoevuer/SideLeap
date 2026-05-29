@@ -2,8 +2,7 @@ package hunoia.luno.freeze.api
 
 import android.content.Context
 import hunoia.luno.R
-import hunoia.luno.quicklaunch.launch.Launcher
-import hunoia.luno.quicklaunch.query.AppQuery
+import hunoia.luno.quicklaunch.QuickLaunchFacade
 import hunoia.luno.bridge.feedback.showToast
 import kotlinx.coroutines.delay
 
@@ -29,10 +28,10 @@ object FreezeLaunch {
                 return false
             }
             FreezeState.invalidateFrozenCache()
-            AppQuery.invalidateLauncherCache()
+            QuickLaunchFacade.invalidateLauncherCache()
             delay(100)
         }
-        return launchApp(
+        return QuickLaunchFacade.launchAppDirect(
             context, packageName, className, miniWindow,
             miniWindowHorizontalBias, miniWindowVerticalBias,
             miniWindowVerticalOffsetFraction,
@@ -54,34 +53,9 @@ object FreezeLaunch {
                 return false
             }
             FreezeState.invalidateFrozenCache()
-            AppQuery.invalidateLauncherCache()
+            QuickLaunchFacade.invalidateLauncherCache()
             delay(100)
         }
-        return launchAppActivity(context, packageName, className)
-    }
-
-    private fun launchApp(
-        context: Context,
-        packageName: String,
-        className: String,
-        miniWindow: Boolean = false,
-        miniWindowHorizontalBias: Float = 0f,
-        miniWindowVerticalBias: Float = 0f,
-        miniWindowVerticalOffsetFraction: Float = 0f,
-        miniWindowWidthFraction: Float = 0.46f,
-        miniWindowHeightFraction: Float = 0.74f,
-        miniWindowOverrideBounds: Boolean = false,
-    ): Boolean {
-        return Launcher.launchApp(
-            context, packageName, className, miniWindow,
-            miniWindowHorizontalBias, miniWindowVerticalBias,
-            miniWindowVerticalOffsetFraction,
-            miniWindowWidthFraction, miniWindowHeightFraction,
-            overrideBounds = miniWindowOverrideBounds,
-        )
-    }
-
-    private fun launchAppActivity(context: Context, packageName: String, className: String): Boolean {
-        return Launcher.launchAppActivity(context, packageName, className)
+        return QuickLaunchFacade.launchAppActivityDirect(context, packageName, className)
     }
 }

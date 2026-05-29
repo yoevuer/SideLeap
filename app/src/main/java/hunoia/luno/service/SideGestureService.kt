@@ -20,15 +20,14 @@ import hunoia.luno.core.Events
 import hunoia.luno.core.Events.SubscribeEvent
 import hunoia.luno.bridge.WallpaperChangedEvent
 import hunoia.luno.quicklaunch.QuickLaunchFacade
-import hunoia.luno.quicklaunch.query.LauncherEnvironment
 import hunoia.luno.pointer.PointerRuntime
 import hunoia.luno.pointer.PointerFacade
 import hunoia.luno.service.runtime.VolumeScrubRuntime
 import hunoia.luno.service.runtime.GestureButtonHideRuntime
 import java.lang.ref.WeakReference
 import hunoia.luno.config.ConfigProvider
-import hunoia.luno.quicklaunch.QuickAppLauncherOverlay
-import hunoia.luno.quicklaunch.QuickAppLauncherOverlayHost
+import hunoia.luno.service.QuickAppLauncherOverlay
+import hunoia.luno.service.QuickAppLauncherOverlayHost
 import hunoia.luno.service.RuntimePanelOverlay
 import hunoia.luno.service.RuntimePanelOverlayHost
 import hunoia.luno.pointer.PointerOverlayHost
@@ -291,7 +290,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     }
 
     override fun nowInLauncher(): Boolean {
-        return LauncherEnvironment.isLauncherPackage(this, getCurrentPackageName())
+        return QuickLaunchFacade.isLauncherPackage(this, getCurrentPackageName())
     }
 
     override fun requestEnableFrozenPackage(packageName: String, onResult: (Boolean) -> Unit) {

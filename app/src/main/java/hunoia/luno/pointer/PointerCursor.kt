@@ -24,8 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import hunoia.luno.action.Action
-import hunoia.luno.action.pointerSettings
+import hunoia.luno.config.model.Action
+import hunoia.luno.pointer.pointerSettings
 import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.config.model.GestureSettings.PointerTrailStyle
 import kotlinx.coroutines.CoroutineScope

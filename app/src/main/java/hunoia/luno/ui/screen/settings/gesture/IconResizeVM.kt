@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.quicklaunch.QuickLaunchFacade
 import hunoia.luno.quicklaunch.model.ScaleableDefaults.DEFAULT_SCALE
-import hunoia.luno.ui.event.IconResizeEvent
+import hunoia.luno.ui.component.IconResizeEvent
 import hunoia.luno.ui.screen.settings.gesture.IconResizeVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.IconResizeVM.UiState
 import hunoia.luno.config.ConfigProvider

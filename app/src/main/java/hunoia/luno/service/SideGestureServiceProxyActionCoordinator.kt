@@ -6,7 +6,7 @@ import android.content.Intent
 import android.os.PowerManager
 import android.view.accessibility.AccessibilityEvent
 import hunoia.luno.R
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.api.ActionRegistry
 import hunoia.luno.config.model.GestureButton

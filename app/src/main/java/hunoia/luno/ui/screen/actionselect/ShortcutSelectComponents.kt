@@ -42,7 +42,7 @@ import hunoia.luno.config.defaults.SettingsUiDefaults
 import hunoia.luno.quicklaunch.model.icon
 import hunoia.luno.quicklaunch.model.qualifiedName
 import hunoia.luno.quicklaunch.model.LauncherInfo
-import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
+import hunoia.luno.ui.screen.actionselect.UiState.SelectedRecord
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVertical
 import hunoia.luno.ui.theme.IconTextPadding

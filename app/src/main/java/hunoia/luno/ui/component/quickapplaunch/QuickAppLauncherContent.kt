@@ -1,8 +1,6 @@
 package hunoia.luno.ui.component.quickapplaunch
 import hunoia.luno.ui.theme.*
 
-import android.view.HapticFeedbackConstants
-import android.view.View
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateFloatAsState
@@ -12,55 +10,28 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -71,25 +42,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.quicklaunch.model.AppInfo
-import hunoia.luno.quicklaunch.query.AppSearch.key
 import hunoia.luno.config.model.QuickAppLauncherSettings
-import hunoia.luno.ui.theme.AnimOverlayFade
-import hunoia.luno.ui.theme.AnimPanelShift
-import hunoia.luno.ui.theme.AnimPostHideDelay
-import hunoia.luno.ui.theme.ScrollBottomPadding
-import hunoia.luno.ui.theme.ShapeExtraLarge
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
-import com.github.promeg.pinyinhelper.Pinyin
-import hunoia.luno.ui.component.password.PasswordGeneratorPanel
-import hunoia.luno.bridge.copySensitiveText
-
-private enum class Page { App, Settings, Password }
 
 @Composable
 internal fun QuickAppLauncherContent(
@@ -299,118 +258,16 @@ internal fun QuickAppLauncherContent(
                                     }
                                 }
                             }
-                                Page.Settings -> {
-                                    Column(
-                                        modifier = Modifier
-                                            .height(contentHeight)
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .verticalScroll(rememberScrollState())
-                                        ) {
-                                            QuickAppLauncherAdjustPanel(
-                                                onSettingsChanged = { onUpdateLayout?.invoke(it) },
-                                            )
-                                        }
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .pointerInput(Unit) {
-                                                    var drag = 0f
-                                                    detectVerticalDragGestures(
-                                                        onDragStart = { drag = 0f },
-                                                        onVerticalDrag = { change, amount ->
-                                                            change.consume()
-                                                            drag += amount
-                                                            if (drag > 32f) {
-                                                                currentPage = Page.App
-                                                                state.keyboardExpanded = true
-                                                            }
-                                                        }
-                                                    )
-                                                },
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Column(
-                                                horizontalAlignment = Alignment.CenterHorizontally,
-                                                modifier = Modifier
-                                                    .padding(vertical = Spacing6)
-                                                    .clickable {
-                                                        currentPage = Page.App
-                                                        state.keyboardExpanded = true
-                                                    }
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .width(44.dp)
-                                                        .height(Spacing5)
-                                                        .clip(RoundedCornerShape(99.dp))
-                                                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                                Page.Password -> {
-                                    Column(
-                                        modifier = Modifier.height(contentHeight)
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .verticalScroll(rememberScrollState())
-                                        ) {
-                                            PasswordGeneratorPanel(
-                                                onClose = {
-                                                    currentPage = Page.App
-                                                    state.keyboardExpanded = true
-                                                },
-                                                onCopyPassword = { password ->
-                                                    copySensitiveText(context, "Generated Password", password)
-                                                    true
-                                                }
-                                            )
-                                        }
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .pointerInput(Unit) {
-                                                    var drag = 0f
-                                                    detectVerticalDragGestures(
-                                                        onDragStart = { drag = 0f },
-                                                        onVerticalDrag = { change, amount ->
-                                                            change.consume()
-                                                            drag += amount
-                                                            if (drag > 32f) {
-                                                                currentPage = Page.App
-                                                                state.keyboardExpanded = true
-                                                            }
-                                                        }
-                                                    )
-                                                },
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Column(
-                                                horizontalAlignment = Alignment.CenterHorizontally,
-                                                modifier = Modifier
-                                                    .padding(vertical = Spacing6)
-                                                    .clickable {
-                                                        currentPage = Page.App
-                                                        state.keyboardExpanded = true
-                                                    }
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .width(44.dp)
-                                                        .height(Spacing5)
-                                                        .clip(RoundedCornerShape(99.dp))
-                                                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
+                                Page.Settings -> SettingsPageContent(
+                                    contentHeight = contentHeight,
+                                    onUpdateLayout = onUpdateLayout,
+                                    onNavigateToApp = { currentPage = Page.App; state.keyboardExpanded = true },
+                                )
+                                Page.Password -> PasswordPageContent(
+                                    contentHeight = contentHeight,
+                                    context = context,
+                                    onNavigateToApp = { currentPage = Page.App; state.keyboardExpanded = true },
+                                )
                             }
                         }
                     }
@@ -418,231 +275,6 @@ internal fun QuickAppLauncherContent(
             }
         }
     }
-}
-
-@Composable
-private fun PageMatchIcon(
-    name: String,
-    iconHeight: Dp? = null,
-    onClick: () -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(Spacing4)
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .let { if (iconHeight != null) it.height(iconHeight).fillMaxWidth() else it.fillMaxWidth().aspectRatio(1f) }
-                .clip(RoundedCornerShape(Spacing10))
-                .background(MaterialTheme.colorScheme.secondaryContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = when (name) {
-                    "密码" -> Icons.Default.Lock
-                    else -> Icons.Default.Settings
-                },
-                contentDescription = name,
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.width(28.dp).height(28.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun CandidateAppRows(
-    pageMatches: List<Pair<String, Page>>,
-    chunkedApps: List<List<AppInfo>>,
-    frozenPkgs: Set<String>,
-    candidateHeight: Dp,
-    rows: Int = 1,
-    onClick: (AppInfo, Boolean) -> Unit,
-    onLongPress: (AppInfo, Boolean) -> Unit,
-    onPageMatchClick: (Page) -> Unit,
-) {
-    val iconHeight = (candidateHeight - Spacing2 * (rows - 1)) / rows - Spacing4 * 2
-    val rowState = rememberLazyListState()
-    LaunchedEffect(chunkedApps) {
-        rowState.animateScrollToItem(0)
-    }
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(candidateHeight)
-    ) {
-        LazyRow(
-            state = rowState,
-            horizontalArrangement = Arrangement.spacedBy(Spacing2),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            if (pageMatches.isNotEmpty()) {
-                item {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(Spacing2),
-                        modifier = Modifier.width(64.dp)
-                    ) {
-                        pageMatches.forEach { (name, page) ->
-                            PageMatchIcon(
-                                name = name,
-                                iconHeight = iconHeight,
-                                onClick = { onPageMatchClick(page) }
-                            )
-                        }
-                    }
-                }
-            }
-            items(chunkedApps, key = { chunk -> chunk.firstOrNull()?.key() ?: "empty" }) { columnApps ->
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(Spacing2),
-                    modifier = Modifier.width(64.dp)
-                ) {
-                    columnApps.forEach { app ->
-                        key(app.key()) {
-                            val isFrozen = app.packageName in frozenPkgs
-                            AppItem(
-                                app = app,
-                                iconHeight = iconHeight,
-                                onClick = { onClick(app, isFrozen) },
-                                onLongPress = { onLongPress(app, isFrozen) }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AppGrid(
-    pageMatches: List<Pair<String, Page>>,
-    apps: List<AppInfo>,
-    frozenPkgs: Set<String>,
-    gridState: LazyGridState,
-    gridAtTop: Boolean,
-    keyboardExpanded: Boolean,
-    gridHeight: Dp,
-    gridColumns: Int = 4,
-    onExpandKeyboard: () -> Unit,
-    onClick: (AppInfo, Boolean) -> Unit,
-    onLongPress: (AppInfo, Boolean) -> Unit,
-    onPageMatchClick: (Page) -> Unit,
-) {
-    val view = LocalView.current
-
-    Box(
-        modifier = Modifier
-            .height(gridHeight)
-            .fillMaxWidth()
-            .pointerInput(gridAtTop) {
-                var totalDrag = 0f
-                detectVerticalDragGestures(
-                    onDragStart = { totalDrag = 0f },
-                    onVerticalDrag = { change, dragAmount ->
-                        if (gridAtTop && dragAmount > 0f) {
-                            change.consume()
-                            totalDrag += dragAmount
-                            if (totalDrag > 32f) onExpandKeyboard()
-                        }
-                    }
-                )
-            }
-    ) {
-        LazyVerticalGrid(
-            state = gridState,
-            columns = GridCells.Fixed(gridColumns),
-            verticalArrangement = Arrangement.spacedBy(Spacing4),
-            horizontalArrangement = Arrangement.spacedBy(Spacing4),
-            contentPadding = PaddingValues(bottom = ScrollBottomPadding),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            if (pageMatches.isNotEmpty()) {
-                pageMatches.forEach { (name, page) ->
-                    item {
-                        PageMatchIcon(
-                            name = name,
-                            onClick = { onPageMatchClick(page) }
-                        )
-                    }
-                }
-            }
-            if (apps.isEmpty()) {
-                item { Box(modifier = Modifier.height(88.dp).fillMaxWidth()) }
-            }
-            items(apps, key = { it.key() }, contentType = { "app" }) { app ->
-                val isFrozen = app.packageName in frozenPkgs
-                AppItem(
-                    app = app,
-                    onClick = { onClick(app, isFrozen) },
-                    onLongPress = { onLongPress(app, isFrozen) }
-                )
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .pointerInput(keyboardExpanded) {
-                    var totalDrag = 0f
-                    detectVerticalDragGestures(
-                        onDragStart = { totalDrag = 0f },
-                        onVerticalDrag = { change, dragAmount ->
-                            change.consume()
-                            totalDrag += dragAmount
-                            if (!keyboardExpanded && totalDrag > 32f) onExpandKeyboard()
-                        }
-                    )
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .padding(vertical = Spacing6)
-                    .clickable {
-                        view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                        onExpandKeyboard()
-                    }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(44.dp)
-                        .height(Spacing5)
-                        .clip(RoundedCornerShape(99.dp))
-                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
-                )
-            }
-        }
-    }
-}
-
-private fun pageMatchesTokens(pageName: String, tokens: List<String>): Boolean {
-    val text = pageName.lowercase()
-    val pinyin = buildString { pageName.forEach { append(Pinyin.toPinyin(it).lowercase()) } }
-    val initials = buildString { pageName.forEach { append(Pinyin.toPinyin(it).first().lowercaseChar()) } }
-    return matchesTokens(text, tokens) || matchesTokens(pinyin, tokens) || matchesTokens(initials, tokens)
-}
-
-private fun matchesTokens(text: String, tokens: List<String>): Boolean {
-    if (tokens.isEmpty()) return false
-    if (tokens.size > text.length) return false
-    for (start in 0..(text.length - tokens.size)) {
-        var ok = true
-        for (i in tokens.indices) {
-            val token = tokens[i]
-            val ch = text[start + i]
-            if (token.length == 1 && token[0].isDigit()) {
-                if (token[0] != ch) { ok = false; break }
-            } else if (!token.lowercase().contains(ch.lowercaseChar())) { ok = false; break }
-        }
-        if (ok) return true
-    }
-    return false
 }
 
 

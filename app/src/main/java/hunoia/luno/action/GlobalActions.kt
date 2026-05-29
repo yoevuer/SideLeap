@@ -1,6 +1,6 @@
 package hunoia.luno.action
 
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 
 
 object GlobalActions {

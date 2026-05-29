@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.core.AppContext
 import hunoia.luno.R
-import hunoia.luno.action.Action
-import hunoia.luno.action.GlobalActions
-import hunoia.luno.action.definition.ActionCatalog
+import hunoia.luno.config.model.Action
+import hunoia.luno.action.api.ActionFacade
+
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.core.JsonHelper
 import hunoia.luno.config.model.SubGestureDirection
@@ -17,7 +17,7 @@ import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.config.ConfigProvider
 import hunoia.luno.config.model.SubGesture
-import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
+import hunoia.luno.ui.screen.actionselect.UiState.SelectedRecord
 import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectVM.UiState
 import kotlinx.coroutines.Dispatchers
@@ -102,7 +102,7 @@ class SubGestureActionSelectVM(
         updateUiState {
             val list = if (selected) {
                 listOf(Action(
-                    value = GlobalActions.EXTRA_LAUNCH_APP,
+                    value = ActionFacade.EXTRA_LAUNCH_APP,
                     data = JsonHelper.encodeToString(appInfo)
                 ))
             } else emptyList()
@@ -115,7 +115,7 @@ class SubGestureActionSelectVM(
         updateUiState {
             val list = if (selected) {
                 listOf(Action(
-                    value = GlobalActions.EXTRA_LAUNCH_SHORTCUT,
+                    value = ActionFacade.EXTRA_LAUNCH_SHORTCUT,
                     data = JsonHelper.encodeToString(shortcutInfo)
                 ))
             } else emptyList()
@@ -131,7 +131,7 @@ class SubGestureActionSelectVM(
                 .find { it.id == subGestureId }
                 ?.actionFor(direction)
 
-            val allActions = ActionCatalog.definitions
+            val allActions = ActionFacade.definitions
                 .filter { it.isDisplayed }
                 .map { it.toAction() }
                 .toMutableList()
@@ -140,13 +140,13 @@ class SubGestureActionSelectVM(
             enabledSubGestures.forEach { subGesture ->
                 allActions.add(
                     Action(
-                        value = GlobalActions.SUB_GESTURE,
+                        value = ActionFacade.SUB_GESTURE,
                         data = JsonHelper.encodeToString(SubGestureActionData(id = subGesture.id))
                     )
                 )
             }
 
-            val selectedList = if (currentAction != null && currentAction != GlobalActions.NONE) {
+            val selectedList = if (currentAction != null && currentAction != ActionFacade.NONE) {
                 listOf(currentAction as Any)
             } else emptyList()
 

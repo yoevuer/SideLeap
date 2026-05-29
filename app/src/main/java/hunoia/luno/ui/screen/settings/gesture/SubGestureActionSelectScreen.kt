@@ -14,19 +14,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import hunoia.luno.ui.ext.displayNameRes
+import hunoia.luno.ui.component.displayNameRes
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import hunoia.luno.R
-import hunoia.luno.action.Action
-import hunoia.luno.action.definition.ActionCatalog
+import hunoia.luno.config.model.Action
+import hunoia.luno.action.api.ActionFacade
 import hunoia.luno.config.model.SubGestureDirection
 import hunoia.luno.ui.component.ActionSettingsDialog
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.ui.screen.actionselect.ActionPage
-import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
+import hunoia.luno.ui.screen.actionselect.UiState.SelectedRecord
 import hunoia.luno.ui.theme.ScrollBottomPadding
 import hunoia.luno.ui.permission.rememberGetInstalledAppsPermissionState
 

@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.GestureButton
 import hunoia.luno.config.model.Position
 import hunoia.luno.config.model.TriggerDirection

@@ -1,6 +1,6 @@
 package hunoia.luno.action.api
 
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.action.handlers.allHandlers
 
 object ActionRegistry {

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastForEachIndexed
 import com.aaron.compose.ktx.toDp
 import com.aaron.compose.ktx.toPx
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.Position
 import hunoia.luno.config.model.GridStyle
 import hunoia.luno.config.model.GestureSettings

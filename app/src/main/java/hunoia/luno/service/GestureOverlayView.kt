@@ -27,7 +27,7 @@ import hunoia.luno.pointer.PointerAction
 fun GestureOverlayView(
     screenshotService: SideGestureService,
     onSubGestureModeChanged: (Boolean) -> Unit,
-    onAction: (hunoia.luno.action.Action, hunoia.luno.config.model.GestureButton?) -> Unit,
+    onAction: (hunoia.luno.config.model.Action, hunoia.luno.config.model.GestureButton?) -> Unit,
     onPointerStart: () -> Boolean,
     onPointerEnd: () -> Unit,
     onPointerSettingsUpdate: (GestureSettings.Pointer) -> Unit,

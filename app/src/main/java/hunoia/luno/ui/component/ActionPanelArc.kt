@@ -41,11 +41,11 @@ import coil.imageLoader
 import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.toDp
 import com.aaron.compose.ktx.toPx
-import hunoia.luno.action.Action
-import hunoia.luno.action.GlobalActions
-import hunoia.luno.action.appInfo
-import hunoia.luno.ui.action.actionIcon
-import hunoia.luno.action.shortcutInfo
+import hunoia.luno.config.model.Action
+import hunoia.luno.action.api.ActionFacade
+import hunoia.luno.action.api.appInfo
+
+import hunoia.luno.action.api.shortcutInfo
 import hunoia.luno.config.model.Position
 import hunoia.luno.config.model.ArcStyle
 import hunoia.luno.config.model.GestureSettings
@@ -164,8 +164,8 @@ internal fun AnimatedVisibilityScope.ArcActionPanel(
                             .fillMaxSize()
                             .clipToBackground(
                                 color = when (action.value) {
-                                    GlobalActions.EXTRA_LAUNCH_APP -> action.appInfo?.iconBgColor.toActionPanelColor()
-                                    GlobalActions.EXTRA_LAUNCH_SHORTCUT -> action.shortcutInfo?.iconBgColor.toActionPanelColor()
+                                    ActionFacade.EXTRA_LAUNCH_APP -> action.appInfo?.iconBgColor.toActionPanelColor()
+                                    ActionFacade.EXTRA_LAUNCH_SHORTCUT -> action.shortcutInfo?.iconBgColor.toActionPanelColor()
 
                                     else -> MaterialTheme.colorScheme.primary
                                 },

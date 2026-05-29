@@ -2,6 +2,7 @@ package hunoia.luno.pointer
 
 import android.content.Context
 import androidx.compose.ui.geometry.Offset
+import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.GestureSettings
 import kotlinx.coroutines.CoroutineScope
 
@@ -26,4 +27,7 @@ object PointerFacade {
         val current = runtime.getCurrentSettings() ?: return
         runtime.onSettingsUpdate(current.copy(continuousMode = !current.continuousMode))
     }
+
+    fun pointerContinuousModeOverride(action: Action): Boolean? =
+        action.pointerContinuousModeOverride()
 }

@@ -12,7 +12,9 @@ import hunoia.luno.quicklaunch.launch.QuickAppLaunch
 import hunoia.luno.quicklaunch.icon.IconResizeCache
 import hunoia.luno.quicklaunch.query.ActivityOption
 import hunoia.luno.quicklaunch.query.LauncherAppOption
+import hunoia.luno.quicklaunch.query.LauncherEnvironment
 import hunoia.luno.quicklaunch.query.OpenAppOrUrlQuery
+import hunoia.luno.quicklaunch.query.QuickAppLauncherAppList
 import kotlinx.coroutines.CoroutineScope
 
 object QuickLaunchFacade {
@@ -106,6 +108,49 @@ object QuickLaunchFacade {
         AppQuery.invalidateLauncherCache()
     }
 
+    fun launchAppDirect(
+        context: Context,
+        packageName: String,
+        className: String,
+        miniWindow: Boolean = false,
+        miniWindowHorizontalBias: Float = 0f,
+        miniWindowVerticalBias: Float = 0f,
+        miniWindowVerticalOffsetFraction: Float = 0f,
+        miniWindowWidthFraction: Float = 0.46f,
+        miniWindowHeightFraction: Float = 0.74f,
+        miniWindowOverrideBounds: Boolean = false,
+    ): Boolean {
+        return Launcher.launchApp(
+            context, packageName, className, miniWindow,
+            miniWindowHorizontalBias, miniWindowVerticalBias,
+            miniWindowVerticalOffsetFraction,
+            miniWindowWidthFraction, miniWindowHeightFraction,
+            overrideBounds = miniWindowOverrideBounds,
+        )
+    }
+
+    fun launchAppActivityDirect(context: Context, packageName: String, className: String): Boolean {
+        return Launcher.launchAppActivity(context, packageName, className)
+    }
+
+    fun queryCombinedQuickAppList(context: Context, frozenApps: List<AppInfo>): QuickAppLauncherAppList {
+        val frozenPkgSet = frozenApps.map { it.packageName }.toSet()
+        val launcherApps = AppQuery.queryLauncherActivities(context = context, allowRepeatPackage = false)
+        val normalPkgNames = launcherApps.map { it.packageName }.toSet()
+        return QuickAppLauncherAppList(
+            apps = launcherApps + frozenApps.filter { it.packageName !in normalPkgNames },
+            frozenPkgs = frozenPkgSet
+        )
+    }
+
+    fun queryAppListWithFrozenMark(context: Context, frozenPkgs: Set<String>): QuickAppLauncherAppList {
+        val launcherApps = AppQuery.queryLauncherActivities(context = context, allowRepeatPackage = false)
+        return QuickAppLauncherAppList(
+            apps = launcherApps,
+            frozenPkgs = frozenPkgs
+        )
+    }
+
     fun launchAppInPopup(
         context: Context,
         packageName: String,
@@ -127,4 +172,7 @@ object QuickLaunchFacade {
     fun launchShortcutInfo(context: Context, shortcutInfo: LauncherInfo.ShortcutInfo) {
         Launcher.launchShortcutInfo(context, shortcutInfo)
     }
+
+    fun isLauncherPackage(context: Context, packageName: String): Boolean =
+        LauncherEnvironment.isLauncherPackage(context, packageName)
 }
