@@ -42,14 +42,14 @@ import hunoia.luno.action.Action
 import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.ui.component.OptimizedScrollState
-import hunoia.luno.launcher.LauncherFacade
-import hunoia.luno.launcher.model.LauncherInfo
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.ui.screen.settings.gesture.IconResizeContent
 import hunoia.luno.ui.component.ActionSettingsDialog
 import hunoia.luno.ui.component.MySnackbarHost
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiEvent
-import hunoia.luno.system.feedback.showToast
+import hunoia.luno.bridge.feedback.showToast
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.Dispatchers
@@ -148,7 +148,7 @@ fun ActionSelectContent(
                             val label = result.data?.getStringExtra(shortcutNameExtraKey()).orEmpty()
                             val iconRes = if (shortcutIconRes != null) {
                                 withContext(Dispatchers.IO) {
-                                    LauncherFacade.resolveShortcutIconResourceId(context, shortcutIconRes)
+                                    QuickLaunchFacade.resolveShortcutIconResourceId(context, shortcutIconRes)
                                 }
                             } else 0
                             val shortcutInfo = LauncherInfo.ShortcutInfo(

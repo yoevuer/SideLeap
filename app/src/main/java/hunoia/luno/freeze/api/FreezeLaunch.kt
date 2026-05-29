@@ -2,9 +2,9 @@ package hunoia.luno.freeze.api
 
 import android.content.Context
 import hunoia.luno.R
-import hunoia.luno.launcher.launch.Launcher
-import hunoia.luno.launcher.query.AppQuery
-import hunoia.luno.system.feedback.showToast
+import hunoia.luno.quicklaunch.launch.Launcher
+import hunoia.luno.quicklaunch.query.AppQuery
+import hunoia.luno.bridge.feedback.showToast
 import kotlinx.coroutines.delay
 
 object FreezeLaunch {

@@ -22,7 +22,7 @@ import com.google.accompanist.permissions.isGranted
 import hunoia.luno.R
 import hunoia.luno.action.Action
 import hunoia.luno.action.definition.ActionCatalog
-import hunoia.luno.gesture.SubGestureDirection
+import hunoia.luno.config.model.SubGestureDirection
 import hunoia.luno.ui.component.ActionSettingsDialog
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.ui.screen.actionselect.ActionPage

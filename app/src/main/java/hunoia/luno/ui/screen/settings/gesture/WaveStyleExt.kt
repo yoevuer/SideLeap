@@ -8,11 +8,11 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import hunoia.luno.gesture.Position
-import hunoia.luno.settings.model.BubbleStyle
-import hunoia.luno.settings.model.CapsuleStyle
-import hunoia.luno.settings.model.LineStyle
-import hunoia.luno.settings.model.WaveStyle
+import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.BubbleStyle
+import hunoia.luno.config.model.CapsuleStyle
+import hunoia.luno.config.model.LineStyle
+import hunoia.luno.config.model.WaveStyle
 
 
 

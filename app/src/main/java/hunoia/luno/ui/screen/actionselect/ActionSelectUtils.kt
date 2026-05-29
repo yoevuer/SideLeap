@@ -1,8 +1,8 @@
 package hunoia.luno.ui.screen.actionselect
 
 import hunoia.luno.action.Action
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.model.LauncherInfo
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 
 internal const val MAX_SELECT_COUNT = 5

@@ -9,11 +9,11 @@ import hunoia.luno.R
 import hunoia.luno.action.Action
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.api.ActionRegistry
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.settings.model.ActionSettings
-import hunoia.luno.system.feedback.showToast
-import hunoia.luno.system.feedback.showToastLong
-import hunoia.luno.system.feedback.showVersionTooLowToast as showVersionTooLowToastUtil
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.ActionSettings
+import hunoia.luno.bridge.feedback.showToast
+import hunoia.luno.bridge.feedback.showToastLong
+import hunoia.luno.bridge.feedback.showVersionTooLowToast as showVersionTooLowToastUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -78,8 +78,8 @@ internal class SideGestureServiceProxyActionCoordinator(
             appContext = host.applicationContext,
             scope = scopeProvider(),
             actionSettings = host.actionSettings ?: ActionSettings(),
-            advancedSettings = host.advancedSettings ?: hunoia.luno.settings.model.AdvancedSettings(),
-            gestureSettings = host.gestureSettings ?: hunoia.luno.settings.model.GestureSettings(),
+            advancedSettings = host.advancedSettings ?: hunoia.luno.config.model.AdvancedSettings(),
+            gestureSettings = host.gestureSettings ?: hunoia.luno.config.model.GestureSettings(),
             showToast = { showToast(it) },
             showLongToast = { showToastLong(it) },
             currentPackageName = { currPackageName },

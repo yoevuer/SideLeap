@@ -1,8 +1,8 @@
 package hunoia.luno.service
 
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.settings.model.AdvancedSettings
-import hunoia.luno.settings.model.InitialSettings
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.AdvancedSettings
+import hunoia.luno.config.model.InitialSettings
 
 internal data class SideGestureRuntimeState(
     val currentPackageName: String,

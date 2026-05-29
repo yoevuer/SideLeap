@@ -26,27 +26,27 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.dp
 import com.aaron.compose.ktx.toPx
 import androidx.compose.material3.MaterialTheme
-import hunoia.luno.settings.model.AnimationStyle
-import hunoia.luno.settings.model.BubbleStyle
-import hunoia.luno.settings.model.CapsuleStyle
-import hunoia.luno.settings.model.ColorSource
-import hunoia.luno.settings.model.LineStyle
-import hunoia.luno.settings.model.SnapBackDefaults
-import hunoia.luno.settings.model.SnapBackType
-import hunoia.luno.settings.model.ThemeColorKey
+import hunoia.luno.config.model.AnimationStyle
+import hunoia.luno.config.model.BubbleStyle
+import hunoia.luno.config.model.CapsuleStyle
+import hunoia.luno.config.model.ColorSource
+import hunoia.luno.config.model.LineStyle
+import hunoia.luno.config.model.SnapBackDefaults
+import hunoia.luno.config.model.SnapBackType
+import hunoia.luno.config.model.ThemeColorKey
 import hunoia.luno.ui.ext.resolveColor
-import hunoia.luno.settings.model.WaveStyle
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.gesture.Position
-import hunoia.luno.gesture.TriggerDirection.Center
+import hunoia.luno.config.model.WaveStyle
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.TriggerDirection.Center
 import hunoia.luno.gesture.horizontalMirror
 import hunoia.luno.gesture.isVertical
 import hunoia.luno.gesture.whenVertical
-import hunoia.luno.gesture.TriggerDirection.Center2
-import hunoia.luno.gesture.TriggerDirection.Down
-import hunoia.luno.gesture.TriggerDirection.Down2
-import hunoia.luno.gesture.TriggerDirection.Up
-import hunoia.luno.gesture.TriggerDirection.Up2
+import hunoia.luno.config.model.TriggerDirection.Center2
+import hunoia.luno.config.model.TriggerDirection.Down
+import hunoia.luno.config.model.TriggerDirection.Down2
+import hunoia.luno.config.model.TriggerDirection.Up
+import hunoia.luno.config.model.TriggerDirection.Up2
 import hunoia.luno.ui.screen.settings.gesture.getIcon
 import hunoia.luno.ui.screen.settings.gesture.getIconInitialRotation
 
@@ -194,7 +194,7 @@ private fun resolveColor(source: ColorSource, themeKey: ThemeColorKey, customCol
     ColorSource.Theme -> themeKey.resolveColor()
 }
 
-private fun triggerRotationOffset(triggerDirection: hunoia.luno.gesture.TriggerDirection, position: Position): Float {
+private fun triggerRotationOffset(triggerDirection: hunoia.luno.config.model.TriggerDirection, position: Position): Float {
     return when (triggerDirection) {
         Up -> when (position) {
             Position.Left -> -45f

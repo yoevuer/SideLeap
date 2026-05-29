@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 
-import hunoia.luno.App
+import hunoia.luno.core.AppContext
 import hunoia.luno.R
 import hunoia.luno.action.Action
 import hunoia.luno.action.appInfo
@@ -15,7 +15,7 @@ import hunoia.luno.action.shortcutInfo
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.GestureActions
 import hunoia.luno.action.definition.ActionCatalog
-import hunoia.luno.launcher.model.icon
+import hunoia.luno.quicklaunch.model.icon
 
 fun Context.actionText(action: Action, emptyIfNone: Boolean = true): String = when (action.value) {
     GlobalActions.EXTRA_LAUNCH_APP -> action.appInfo?.label ?: ""
@@ -62,7 +62,7 @@ fun List<Action>.actionTextCompose(emptyIfNone: Boolean = false): String {
                 it.value.isNotEmpty() && it.value != GlobalActions.NONE
             }
             .joinToString(separator = ",") {
-                App.getContext().actionText(it, emptyIfNone)
+                AppContext.get().actionText(it, emptyIfNone)
             }
     }
 }

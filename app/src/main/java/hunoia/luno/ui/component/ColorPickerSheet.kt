@@ -63,7 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import hunoia.luno.R
-import hunoia.luno.settings.model.ThemeColorKey
+import hunoia.luno.config.model.ThemeColorKey
 import hunoia.luno.ui.ext.displayNameRes
 import hunoia.luno.ui.ext.resolveColor
 import hunoia.luno.ui.theme.Spacing10

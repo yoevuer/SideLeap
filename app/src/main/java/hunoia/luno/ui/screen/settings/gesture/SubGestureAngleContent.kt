@@ -41,11 +41,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import hunoia.luno.R
-import hunoia.luno.gesture.SubGestureDirection
-import hunoia.luno.settings.defaults.SettingsUiDefaults
+import hunoia.luno.config.model.SubGestureDirection
+import hunoia.luno.config.defaults.SettingsUiDefaults
 import hunoia.luno.ui.ext.displayNameRes
-import hunoia.luno.settings.model.SubGestureAngle
-import hunoia.luno.settings.model.copyNewNoGap
+import hunoia.luno.config.model.SubGestureAngle
+import hunoia.luno.config.model.copyNewNoGap
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVertical
 import hunoia.luno.ui.theme.ItemPadding

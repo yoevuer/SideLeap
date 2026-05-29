@@ -1,7 +1,7 @@
 package hunoia.luno.action.handlers
 
 import hunoia.luno.R
-import hunoia.luno.system.copySensitiveText
+import hunoia.luno.bridge.copySensitiveText
 import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext

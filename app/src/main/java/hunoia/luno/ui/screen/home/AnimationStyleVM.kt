@@ -2,15 +2,15 @@ package hunoia.luno.ui.screen.home
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.luno.settings.model.AnimationStyles
-import hunoia.luno.settings.model.BubbleStyle
-import hunoia.luno.settings.model.CapsuleStyle
-import hunoia.luno.settings.model.ColorSource
-import hunoia.luno.settings.model.LineStyle
-import hunoia.luno.settings.model.SnapBackType
-import hunoia.luno.settings.model.ThemeColorKey
-import hunoia.luno.settings.model.WaveStyle
-import hunoia.luno.settings.SettingsProvider
+import hunoia.luno.config.model.AnimationStyles
+import hunoia.luno.config.model.BubbleStyle
+import hunoia.luno.config.model.CapsuleStyle
+import hunoia.luno.config.model.ColorSource
+import hunoia.luno.config.model.LineStyle
+import hunoia.luno.config.model.SnapBackType
+import hunoia.luno.config.model.ThemeColorKey
+import hunoia.luno.config.model.WaveStyle
+import hunoia.luno.config.ConfigProvider
 import hunoia.luno.core.JsonHelper
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
@@ -30,7 +30,7 @@ class AnimationStyleVM : BaseComposeVM<AnimationStyleVM.UiState, AnimationStyleV
     fun onTabSelected(type: Int) {
         if (type == uiState.currentType) return
         viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings { advanced ->
+            ConfigProvider.updateAdvancedSettings { advanced ->
                 val updatedStyles = advanced.animationStyles.selectType(type)
                 advanced.copy(animationStyles = updatedStyles)
             }
@@ -84,7 +84,7 @@ class AnimationStyleVM : BaseComposeVM<AnimationStyleVM.UiState, AnimationStyleV
 
     fun saveWaveSettings() {
         viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings { advanced ->
+            ConfigProvider.updateAdvancedSettings { advanced ->
                 val payload = JsonHelper.encodeToString(uiState.waveStyle)
                 advanced.copy(
                     animationStyles = advanced.animationStyles.updateStyle(AnimationStyles.TYPE_WAVE, payload)
@@ -95,7 +95,7 @@ class AnimationStyleVM : BaseComposeVM<AnimationStyleVM.UiState, AnimationStyleV
 
     fun saveCapsuleSettings() {
         viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings { advanced ->
+            ConfigProvider.updateAdvancedSettings { advanced ->
                 val payload = JsonHelper.encodeToString(uiState.capsuleStyle)
                 advanced.copy(
                     animationStyles = advanced.animationStyles.updateStyle(AnimationStyles.TYPE_CAPSULE, payload)
@@ -106,7 +106,7 @@ class AnimationStyleVM : BaseComposeVM<AnimationStyleVM.UiState, AnimationStyleV
 
     fun saveBubbleSettings() {
         viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings { advanced ->
+            ConfigProvider.updateAdvancedSettings { advanced ->
                 val payload = JsonHelper.encodeToString(uiState.bubbleStyle)
                 advanced.copy(
                     animationStyles = advanced.animationStyles.updateStyle(AnimationStyles.TYPE_BUBBLE, payload)
@@ -126,7 +126,7 @@ class AnimationStyleVM : BaseComposeVM<AnimationStyleVM.UiState, AnimationStyleV
 
     fun saveLineSettings() {
         viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings { advanced ->
+            ConfigProvider.updateAdvancedSettings { advanced ->
                 val payload = JsonHelper.encodeToString(uiState.lineStyle)
                 advanced.copy(
                     animationStyles = advanced.animationStyles.updateStyle(AnimationStyles.TYPE_LINE, payload)
@@ -137,7 +137,7 @@ class AnimationStyleVM : BaseComposeVM<AnimationStyleVM.UiState, AnimationStyleV
 
         private fun loadData() {
         viewModelScope.launch {
-            SettingsProvider
+            ConfigProvider
                 .advancedSettings
                 .take(1)
                 .collectLatest { advanced ->

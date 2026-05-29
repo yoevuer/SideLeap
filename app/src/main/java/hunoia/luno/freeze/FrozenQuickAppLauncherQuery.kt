@@ -2,8 +2,8 @@ package hunoia.luno.freeze
 
 import android.content.Context
 import hunoia.luno.freeze.api.FreezeState
-import hunoia.luno.launcher.query.AppQuery
-import hunoia.luno.launcher.query.QuickAppLauncherAppList
+import hunoia.luno.quicklaunch.query.AppQuery
+import hunoia.luno.quicklaunch.query.QuickAppLauncherAppList
 
 object FrozenQuickAppLauncherQuery {
     fun queryApps(context: Context): QuickAppLauncherAppList {

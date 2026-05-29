@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import hunoia.luno.BuildConfig
-import hunoia.luno.service.SideGestureService
 
 class QuickAppLauncherActivity : Activity() {
 
@@ -18,10 +17,7 @@ class QuickAppLauncherActivity : Activity() {
         if (BuildConfig.DEBUG) Log.d("LunoLauncher", "activity: onCreate taskId=$taskId isTaskRoot=$isTaskRoot action=${intent?.action} flags=${intent?.flags} data=${intent?.dataString} categories=${intent?.categories} extras=${intent?.extras?.keySet()}")
         if (BuildConfig.DEBUG) Log.d("LunoLauncher", "activity: onCreate callingPackage=$callingPackage referrer=$referrer source=externalActivity")
 
-        SideGestureService.current?.let { service ->
-            if (BuildConfig.DEBUG) Log.d("LunoLauncher", "activity: service.current found, calling show()")
-            service.quickAppLauncherOverlay?.show()
-        } ?: Log.w("LunoLauncher", "activity: service.current is null, cannot show")
+        QuickLaunchFacade.showOverlay()
 
         if (BuildConfig.DEBUG) Log.d("LunoLauncher", "activity: calling finish() reason=immediateAfterShow")
         finish()

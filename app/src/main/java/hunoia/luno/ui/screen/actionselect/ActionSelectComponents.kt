@@ -71,7 +71,7 @@ import com.aaron.compose.ktx.clipToBackground
 import com.aaron.compose.ktx.onClick
 import hunoia.luno.R
 import kotlin.math.roundToInt
-import hunoia.luno.settings.defaults.SettingsUiDefaults
+import hunoia.luno.config.defaults.SettingsUiDefaults
 import hunoia.luno.action.Action
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.ui.action.actionIcon
@@ -80,11 +80,11 @@ import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.action.definition.ActionCatalog
 import hunoia.luno.action.definition.ActionCategory
 import hunoia.luno.core.JsonHelper
-import hunoia.luno.launcher.model.qualifiedName
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.model.LauncherInfo
-import hunoia.luno.settings.model.SubGesture
-import hunoia.luno.system.feedback.showToast
+import hunoia.luno.quicklaunch.model.qualifiedName
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.model.LauncherInfo
+import hunoia.luno.config.model.SubGesture
+import hunoia.luno.bridge.feedback.showToast
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.IconTextPadding

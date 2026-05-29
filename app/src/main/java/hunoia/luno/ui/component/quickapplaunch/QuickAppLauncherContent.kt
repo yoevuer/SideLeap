@@ -75,9 +75,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 import hunoia.luno.bridge.DensityProvider
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.query.AppSearch.key
-import hunoia.luno.settings.model.QuickAppLauncherSettings
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.query.AppSearch.key
+import hunoia.luno.config.model.QuickAppLauncherSettings
 import hunoia.luno.ui.theme.AnimOverlayFade
 import hunoia.luno.ui.theme.AnimPanelShift
 import hunoia.luno.ui.theme.AnimPostHideDelay
@@ -87,7 +87,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
 import com.github.promeg.pinyinhelper.Pinyin
 import hunoia.luno.ui.component.password.PasswordGeneratorPanel
-import hunoia.luno.system.copySensitiveText
+import hunoia.luno.bridge.copySensitiveText
 
 private enum class Page { App, Settings, Password }
 

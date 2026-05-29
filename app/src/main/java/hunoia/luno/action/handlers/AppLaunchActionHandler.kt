@@ -9,11 +9,11 @@ import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.Action
-import hunoia.luno.launcher.model.OpenAppOrUrlData
-import hunoia.luno.freeze.api.FreezeLaunch
+import hunoia.luno.config.model.OpenAppOrUrlData
+import hunoia.luno.freeze.FreezeFacade
 import hunoia.luno.action.appInfo
-import hunoia.luno.launcher.launch.Launcher
-import hunoia.luno.system.packages.queryIntentActivitiesCompat
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.bridge.queryIntentActivitiesCompat
 import hunoia.luno.core.JsonHelper
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -59,7 +59,7 @@ object AppLaunchActionHandler : ActionHandler {
         val className = resolveInfo?.activityInfo?.name
         if (!className.isNullOrEmpty()) {
             if (context.advancedSettings.miniWindowOverrideBounds) {
-                Launcher.launchAppInPopup(
+                QuickLaunchFacade.launchAppInPopup(
                     context.appContext, pkgName, className,
                     context.advancedSettings.miniWindowHorizontalBias,
                     context.advancedSettings.miniWindowVerticalBias,
@@ -69,7 +69,7 @@ object AppLaunchActionHandler : ActionHandler {
                     overrideBounds = true,
                 )
             } else {
-                Launcher.launchAppInPopup(context.appContext, pkgName, className)
+                QuickLaunchFacade.launchAppInPopup(context.appContext, pkgName, className)
             }
         }
     }
@@ -87,7 +87,7 @@ object AppLaunchActionHandler : ActionHandler {
         }
         if (data != null && data.packageName.isNotBlank() && data.activityClassName.isNotBlank()) {
             context.scope.launch {
-                FreezeLaunch.launchActivityWithAutoUnfreeze(
+                FreezeFacade.launchActivityWithAutoUnfreeze(
                     context = context.appContext,
                     packageName = data.packageName,
                     className = data.activityClassName
@@ -117,12 +117,12 @@ object AppLaunchActionHandler : ActionHandler {
 
     private fun launchAppWithFrozenSupport(
         context: ActionHandlerContext,
-        appInfo: hunoia.luno.launcher.model.AppInfo,
+        appInfo: hunoia.luno.quicklaunch.model.AppInfo,
         miniWindow: Boolean
     ) {
         context.scope.launch {
             if (context.advancedSettings.miniWindowOverrideBounds) {
-                FreezeLaunch.launchWithAutoUnfreeze(
+                FreezeFacade.launchWithAutoUnfreeze(
                     context = context.appContext,
                     packageName = appInfo.packageName,
                     className = appInfo.className,
@@ -137,7 +137,7 @@ object AppLaunchActionHandler : ActionHandler {
                     suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
                 }
             } else {
-                FreezeLaunch.launchWithAutoUnfreeze(
+                FreezeFacade.launchWithAutoUnfreeze(
                     context = context.appContext,
                     packageName = appInfo.packageName,
                     className = appInfo.className,

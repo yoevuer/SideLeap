@@ -11,32 +11,33 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.runtime.Composable
 import com.aaron.composeaccessibility.ComponentAccessibilityService
-import hunoia.luno.settings.model.ActionSettings
-import hunoia.luno.settings.model.AdvancedSettings
-import hunoia.luno.settings.model.GestureSettings
-import hunoia.luno.settings.model.InitialSettings
+import hunoia.luno.config.model.ActionSettings
+import hunoia.luno.config.model.AdvancedSettings
+import hunoia.luno.config.model.GestureSettings
+import hunoia.luno.config.model.InitialSettings
 import hunoia.luno.core.AppContext
 import hunoia.luno.core.Events
-import hunoia.luno.system.event.WallpaperChangedEvent
-import hunoia.luno.launcher.LauncherFacade
-import hunoia.luno.launcher.query.LauncherEnvironment
-import hunoia.luno.service.runtime.PointerRuntime
+import hunoia.luno.core.Events.SubscribeEvent
+import hunoia.luno.bridge.WallpaperChangedEvent
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.query.LauncherEnvironment
+import hunoia.luno.pointer.PointerRuntime
+import hunoia.luno.pointer.PointerFacade
 import hunoia.luno.service.runtime.VolumeScrubRuntime
 import hunoia.luno.service.runtime.GestureButtonHideRuntime
-import hunoia.luno.ui.event.SubscribeEvent
 import java.lang.ref.WeakReference
-import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.overlay.api.QuickAppLauncherOverlay
-import hunoia.luno.overlay.api.QuickAppLauncherOverlayHost
-import hunoia.luno.overlay.api.RuntimePanelOverlay
-import hunoia.luno.overlay.api.RuntimePanelOverlayHost
-import hunoia.luno.overlay.api.PointerOverlayHost
+import hunoia.luno.config.ConfigProvider
+import hunoia.luno.quicklaunch.QuickAppLauncherOverlay
+import hunoia.luno.quicklaunch.QuickAppLauncherOverlayHost
+import hunoia.luno.service.RuntimePanelOverlay
+import hunoia.luno.service.RuntimePanelOverlayHost
+import hunoia.luno.pointer.PointerOverlayHost
 import hunoia.luno.freeze.FrozenPackageEnabler
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.gesture.application.PointerAction
-import hunoia.luno.system.accessibility.Accessibility
-import hunoia.luno.system.copySensitiveText
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.pointer.PointerAction
+import hunoia.luno.bridge.accessibility.Accessibility
+import hunoia.luno.bridge.copySensitiveText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -60,10 +61,11 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             onAppLaunchRequested = { app ->
                 coroutineScope.launch(Dispatchers.IO) {
                     recordQuickAppLaunchIfSuccess(true, "${app.packageName}/${app.className}") {
-                        SettingsProvider.recordQuickAppLaunch(it)
+                        ConfigProvider.recordQuickAppLaunch(it)
                     }
                 }
             }
+            QuickLaunchFacade.showOverlay = { show() }
         }
     }
     val runtimePanelOverlay by lazy {
@@ -75,7 +77,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     private val buttonRefreshCoordinator = SideGestureButtonRefreshCoordinator(
         host = this,
         scopeProvider = { coroutineScope },
-        initialSettingsProvider = { SettingsProvider.getInitialSettings() },
+        initialSettingsProvider = { ConfigProvider.getInitialSettings() },
         advancedSettingsProvider = { advancedSettings },
         buttonViewsProvider = { windowController.buttonViews },
         runtimeStateProvider = {
@@ -127,7 +129,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         scope = coroutineScope,
         gestureSettingsProvider = { gestureSettings },
         onStateChanged = { updateGestureButtons() },
-    )
+    ).also { PointerFacade.runtimeProvider = { it } }
     private val volumeScrubRuntime = VolumeScrubRuntime(
         context = this,
         actionSettingsProvider = { actionSettings },
@@ -192,7 +194,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         windowController.replaceMainOverlay { renderMainOverlay() }
         settingsObserver.start()
         coroutineScope.launch(Dispatchers.IO) {
-            LauncherFacade.queryApps(this@SideGestureService)
+            QuickLaunchFacade.queryApps(this@SideGestureService)
         }
     }
 

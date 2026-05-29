@@ -7,23 +7,23 @@ import com.aaron.compose.base.BaseComposeVM
 
 import hunoia.luno.R
 import hunoia.luno.core.AppContext
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.gesture.Position
-import hunoia.luno.settings.model.SubGesture
-import hunoia.luno.settings.model.SubGestureSettings
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.SubGesture
+import hunoia.luno.config.model.SubGestureSettings
 import hunoia.luno.ui.screen.home.HomeVM.UiEvent
 import hunoia.luno.ui.screen.home.HomeVM.UiState
-import hunoia.luno.settings.backup.BackupHelper
-import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.settings.model.AdvancedSettings
-import hunoia.luno.settings.model.FrozenAppSettings
-import hunoia.luno.settings.model.GestureSettings
+import hunoia.luno.config.backup.BackupHelper
+import hunoia.luno.config.ConfigProvider
+import hunoia.luno.config.model.AdvancedSettings
+import hunoia.luno.config.model.FrozenAppSettings
+import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.freeze.FreezeFacade
-import hunoia.luno.settings.model.InitialSettings
-import hunoia.luno.settings.model.GestureSettings.PointerTrailStyle
-import hunoia.luno.system.permission.isAccessibilitySettingsOn
-import hunoia.luno.system.permission.isIgnoringBatteryOptimizations
-import hunoia.luno.system.feedback.showToast
+import hunoia.luno.config.model.InitialSettings
+import hunoia.luno.config.model.GestureSettings.PointerTrailStyle
+import hunoia.luno.bridge.isAccessibilitySettingsOn
+import hunoia.luno.bridge.isIgnoringBatteryOptimizations
+import hunoia.luno.bridge.feedback.showToast
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -67,7 +67,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun addSubGesture(id: String) {
         viewModelScope.launch {
-            SettingsProvider.updateSubGestureSettings { settings ->
+            ConfigProvider.updateSubGestureSettings { settings ->
                 val newGesture = SubGesture(
                     id = id,
                     name = AppContext.get().getString(R.string.sub_gesture_default_name, settings.subGestures.size + 1),
@@ -114,7 +114,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                 parseNumberSuffix(it.name.ifEmpty { it.resolveDisplayName() })
             } ?: 0
             val name = AppContext.get().getString(R.string.bottom_gesture_button_name, maxNum + 1)
-            SettingsProvider.updateBottomGestureButtons {
+            ConfigProvider.updateBottomGestureButtons {
                 it + GestureButton.createBottom(name = name)
             }
             delay(50)
@@ -133,7 +133,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
             } ?: 0
             val leftName = AppContext.get().getString(R.string.left_gesture_button_name, maxNum + 1)
             val rightName = AppContext.get().getString(R.string.right_gesture_button_name, maxNum + 1)
-            SettingsProvider.updateSideGestureButtons {
+            ConfigProvider.updateSideGestureButtons {
                 it + GestureButton.createSidePair(leftName = leftName, rightName = rightName)
             }
             delay(50)
@@ -186,14 +186,14 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     fun updateGestureButtonColor(button: GestureButton, color: Int) {
         viewModelScope.launch {
             if (button.position == Position.Bottom) {
-                SettingsProvider.updateBottomGestureButtons { buttons ->
+                ConfigProvider.updateBottomGestureButtons { buttons ->
                     buttons.map {
                         if (it.id == button.id && it.position == button.position) it.copy(color = color)
                         else it
                     }
                 }
             } else {
-                SettingsProvider.updateSideGestureButtons { buttons ->
+                ConfigProvider.updateSideGestureButtons { buttons ->
                     buttons.map {
                         if (it.id == button.id && it.position == button.position) it.copy(color = color)
                         else it
@@ -205,7 +205,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun updateSubGestureColor(gesture: SubGesture, color: Int) {
         viewModelScope.launch {
-            SettingsProvider.updateSubGestureSettings { settings ->
+            ConfigProvider.updateSubGestureSettings { settings ->
                 settings.copy(
                     subGestures = settings.subGestures.map {
                         if (it.id == gesture.id) it.copy(color = color) else it
@@ -250,7 +250,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun deleteSubGesture(gesture: SubGesture) {
         viewModelScope.launch {
-            SettingsProvider.updateSubGestureSettings { settings ->
+            ConfigProvider.updateSubGestureSettings { settings ->
                 val remainingIds = settings.subGestures
                     .filter { it.id != gesture.id }
                     .map { it.id }
@@ -268,9 +268,9 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     }
 
     private suspend fun cleanSubGestureReferences(deletedId: String) {
-        val sideButtons = SettingsProvider.getSideGestureButtons()
-        val bottomButtons = SettingsProvider.getBottomGestureButtons()
-        val subSettings = SettingsProvider.getSubGestureSettings()
+        val sideButtons = ConfigProvider.getSideGestureButtons()
+        val bottomButtons = ConfigProvider.getBottomGestureButtons()
+        val subSettings = ConfigProvider.getSubGestureSettings()
         fun cleanIfSubGesture(action: hunoia.luno.action.Action?): hunoia.luno.action.Action? {
             if (action == null) return null
             if (action.value == hunoia.luno.action.GlobalActions.SUB_GESTURE) return null
@@ -281,7 +281,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                 action
             }
         }
-        fun cleanActions(buttons: List<hunoia.luno.gesture.GestureButton>): List<hunoia.luno.gesture.GestureButton> {
+        fun cleanActions(buttons: List<hunoia.luno.config.model.GestureButton>): List<hunoia.luno.config.model.GestureButton> {
             return buttons.map { button ->
                 button.copy(
                     slideActions = button.slideActions.copy(
@@ -311,9 +311,9 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                 )
             }
         }
-        SettingsProvider.updateSideGestureButtons { cleanActions(it) }
-        SettingsProvider.updateBottomGestureButtons { cleanActions(it) }
-        SettingsProvider.updateSubGestureSettings { settings ->
+        ConfigProvider.updateSideGestureButtons { cleanActions(it) }
+        ConfigProvider.updateBottomGestureButtons { cleanActions(it) }
+        ConfigProvider.updateSubGestureSettings { settings ->
             fun clean(id: String?) = if (id == deletedId || id == hunoia.luno.action.GlobalActions.SUB_GESTURE) null else id
             val cleanedSubGestures = settings.subGestures.map { gesture ->
                 gesture.copy(
@@ -337,7 +337,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun savePointerSettings() {
         viewModelScope.launch {
-            SettingsProvider.updateGestureSettings {
+            ConfigProvider.updateGestureSettings {
                 it.copy(pointer = uiState.pointer)
             }
         }
@@ -400,7 +400,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     fun onMiniWindowOverrideBoundsChange(value: Boolean) {
         updateUiState { it.copy(miniWindowOverrideBounds = value) }
         viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings {
+            ConfigProvider.updateAdvancedSettings {
                 it.copy(miniWindowOverrideBounds = value)
             }
         }
@@ -447,7 +447,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun saveDisplaySettings() {
         viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings {
+            ConfigProvider.updateAdvancedSettings {
                 it.copy(
                     animationStyles = it.animationStyles.copy(isAnimationEnabled = uiState.showAnimation),
                     miniWindowHorizontalBias = uiState.miniWindowHorizontalBias,
@@ -464,7 +464,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     fun updatePermissionState() {
         viewModelScope.launch {
             val app = hunoia.luno.core.AppContext.get()
-            val isGestureEnabled = SettingsProvider.getInitialSettings().gestureEnabled
+            val isGestureEnabled = ConfigProvider.getInitialSettings().gestureEnabled
             @Suppress("UNCHECKED_CAST")
             val clazz = Class.forName("hunoia.luno.service.SideGestureService") as Class<out android.accessibilityservice.AccessibilityService?>
             val isAccessibilityEnabled = app.isAccessibilitySettingsOn(clazz)
@@ -481,29 +481,29 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun reset() {
         viewModelScope.launch {
-            SettingsProvider.resetAll()
+            ConfigProvider.resetAll()
         }
     }
 
     private fun saveSettings() {
         viewModelScope.launch {
             launch {
-                SettingsProvider.updateInitialSettings {
+                ConfigProvider.updateInitialSettings {
                     it.copy(gestureEnabled = uiState.isGestureEnabled)
                 }
             }
             launch {
-                SettingsProvider.updateSideGestureButtons {
+                ConfigProvider.updateSideGestureButtons {
                     uiState.sideGestureButtons
                 }
             }
             launch {
-                SettingsProvider.updateBottomGestureButtons {
+                ConfigProvider.updateBottomGestureButtons {
                     uiState.bottomGestureButtons
                 }
             }
             launch {
-                SettingsProvider.updateSubGestureSettings {
+                ConfigProvider.updateSubGestureSettings {
                     SubGestureSettings(subGestures = uiState.subGestures)
                 }
             }
@@ -513,13 +513,13 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     private fun loadData() {
         viewModelScope.launch {
             combine(
-                SettingsProvider.initialSettings,
-                SettingsProvider.sideGestureButtons,
-                SettingsProvider.bottomGestureButtons,
-                SettingsProvider.subGestureSettings,
-                SettingsProvider.gestureSettings,
-                SettingsProvider.advancedSettings,
-                SettingsProvider.frozenAppSettings,
+                ConfigProvider.initialSettings,
+                ConfigProvider.sideGestureButtons,
+                ConfigProvider.bottomGestureButtons,
+                ConfigProvider.subGestureSettings,
+                ConfigProvider.gestureSettings,
+                ConfigProvider.advancedSettings,
+                ConfigProvider.frozenAppSettings,
             ) { values ->
                 val initial = values[0] as InitialSettings
                 @Suppress("UNCHECKED_CAST")
@@ -570,14 +570,14 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                 is RenameTarget.GestureButton -> {
                     val button = target.button
                     if (button.position == Position.Bottom) {
-                        SettingsProvider.updateBottomGestureButtons { buttons ->
+                        ConfigProvider.updateBottomGestureButtons { buttons ->
                             buttons.map {
                                 if (it.id == button.id && it.position == button.position) it.copy(name = newName)
                                 else it
                             }
                         }
                     } else {
-                        SettingsProvider.updateSideGestureButtons { buttons ->
+                        ConfigProvider.updateSideGestureButtons { buttons ->
                             buttons.map {
                                 if (it.id == button.id && it.position == button.position) it.copy(name = newName)
                                 else it
@@ -586,7 +586,7 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
                     }
                 }
                 is RenameTarget.SubGesture -> {
-                    SettingsProvider.updateSubGestureSettings { settings ->
+                    ConfigProvider.updateSubGestureSettings { settings ->
                         settings.copy(
                             subGestures = settings.subGestures.map {
                                 if (it.id == target.gesture.id) it.copy(name = newName) else it
@@ -624,8 +624,8 @@ class HomeVM : BaseComposeVM<UiState, UiEvent>() {
     )
 
     sealed interface RenameTarget {
-        data class GestureButton(val button: hunoia.luno.gesture.GestureButton) : RenameTarget
-        data class SubGesture(val gesture: hunoia.luno.settings.model.SubGesture) : RenameTarget
+        data class GestureButton(val button: hunoia.luno.config.model.GestureButton) : RenameTarget
+        data class SubGesture(val gesture: hunoia.luno.config.model.SubGesture) : RenameTarget
     }
 
     sealed interface UiEvent {

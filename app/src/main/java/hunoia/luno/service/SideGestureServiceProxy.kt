@@ -1,7 +1,7 @@
 package hunoia.luno.service
 
 import hunoia.luno.action.Action
-import hunoia.luno.gesture.GestureButton
+import hunoia.luno.config.model.GestureButton
 
 
 class SideGestureServiceProxy(private val host: SideGestureService) {

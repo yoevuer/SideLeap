@@ -1,5 +1,10 @@
 package hunoia.luno.core
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,4 +51,22 @@ object Events {
             it(event)
         }
     }
+
+    @Composable
+    fun <T : Any> SubscribeEvent(eventClass: KClass<T>, subscriber: (T) -> Unit) {
+        val curSubscriber by rememberUpdatedState(newValue = subscriber)
+        val subscriberObj: Subscriber<T> = remember {
+            Subscriber {
+                curSubscriber(it)
+            }
+        }
+        DisposableEffect(eventClass, subscriberObj) {
+            subscribe(eventClass, subscriberObj)
+            onDispose {
+                unsubscribe(eventClass, subscriberObj)
+            }
+        }
+    }
+
+    private fun interface Subscriber<T> : (T) -> Unit
 }

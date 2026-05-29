@@ -7,8 +7,8 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import hunoia.luno.settings.model.SnapBackDefaults
-import hunoia.luno.settings.model.SnapBackType
+import hunoia.luno.config.model.SnapBackDefaults
+import hunoia.luno.config.model.SnapBackType
 
 data class SnapBackParams(
     val type: SnapBackType = SnapBackType.SPRING,

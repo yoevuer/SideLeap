@@ -8,7 +8,7 @@ import android.os.Looper
 import android.os.Message
 import android.os.Messenger
 import hunoia.luno.freeze.api.FreezeAction
-import hunoia.luno.system.shizuku.ShizukuCommand
+import hunoia.luno.shizuku.ShizukuCommand
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

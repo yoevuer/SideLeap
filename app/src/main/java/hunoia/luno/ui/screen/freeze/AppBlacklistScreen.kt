@@ -46,12 +46,12 @@ import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.component.UiBaseEvent
 import com.aaron.compose.ktx.onClick
 import hunoia.luno.R
-import hunoia.luno.launcher.model.AppInfo
+import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.ui.permission.deniedForever
-import hunoia.luno.system.intent.gotoAppDetailSettings
-import hunoia.luno.system.feedback.showToast
-import hunoia.luno.launcher.model.icon
-import hunoia.luno.launcher.model.qualifiedName
+import hunoia.luno.bridge.intent.gotoAppDetailSettings
+import hunoia.luno.bridge.feedback.showToast
+import hunoia.luno.quicklaunch.model.icon
+import hunoia.luno.quicklaunch.model.qualifiedName
 import hunoia.luno.ui.permission.rememberGetInstalledAppsPermissionState
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVertical

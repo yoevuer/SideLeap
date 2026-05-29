@@ -67,11 +67,11 @@ import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.component.UiBaseEvent
 import com.aaron.compose.ktx.onClick
 import hunoia.luno.R
-import hunoia.luno.settings.defaults.SettingsUiDefaults.DimAlpha
-import hunoia.luno.launcher.model.ScaleableDefaults.DEFAULT_SCALE
-import hunoia.luno.launcher.model.ScaleableDefaults.MAX_SCALE
-import hunoia.luno.launcher.model.ScaleableDefaults.MIN_SCALE
-import hunoia.luno.system.feedback.showToast
+import hunoia.luno.config.defaults.SettingsUiDefaults.DimAlpha
+import hunoia.luno.quicklaunch.model.ScaleableDefaults.DEFAULT_SCALE
+import hunoia.luno.quicklaunch.model.ScaleableDefaults.MAX_SCALE
+import hunoia.luno.quicklaunch.model.ScaleableDefaults.MIN_SCALE
+import hunoia.luno.bridge.feedback.showToast
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.luno.ui.theme.ItemPadding
@@ -79,7 +79,7 @@ import hunoia.luno.ui.theme.MinInteractiveSize
 import hunoia.luno.ui.component.ColorPickerBottomSheet
 import hunoia.luno.ui.component.ColorSelection
 import hunoia.luno.ui.ext.resolveColor
-import hunoia.luno.settings.model.ThemeColorKey
+import hunoia.luno.config.model.ThemeColorKey
 import hunoia.luno.ui.component.MyAlertDialog
 import hunoia.luno.ui.component.ExpressiveSection
 import hunoia.luno.ui.component.ExpressiveSwitchItem

@@ -5,17 +5,17 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinGestureButtonLength
-import hunoia.luno.gesture.GestureAngle
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.gesture.TriggerDirection
+import hunoia.luno.config.defaults.SettingsUiDefaults.MinGestureButtonLength
+import hunoia.luno.config.model.GestureAngle
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.TriggerDirection
 import hunoia.luno.ui.navigation.GestureButtonSettings
-import hunoia.luno.settings.model.ActionPanelStyles
-import hunoia.luno.system.vibration.VibrationEffects
+import hunoia.luno.config.model.ActionPanelStyles
+import hunoia.luno.bridge.vibration.VibrationEffects
 
 import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsVM.UiState
-import hunoia.luno.settings.SettingsProvider
+import hunoia.luno.config.ConfigProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -49,7 +49,7 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         viewModelScope.launch {
             loadDataJob?.cancel()
             if (gestureButtonSettings.isSideButton) {
-                SettingsProvider.updateSideGestureButtons {
+                ConfigProvider.updateSideGestureButtons {
                     it.toMutableList().apply {
                         removeAll { item ->
                             item.id == uiState.gestureButton?.id
@@ -57,7 +57,7 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
                     }
                 }
             } else {
-                SettingsProvider.updateBottomGestureButtons {
+                ConfigProvider.updateBottomGestureButtons {
                     it.toMutableList().apply {
                         removeAll { item ->
                             item.id == uiState.gestureButton?.id
@@ -241,11 +241,11 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         viewModelScope.launch {
             launch {
                 if (gestureButtonSettings.isSideButton) {
-                    SettingsProvider.updateSideGestureButtons {
+                    ConfigProvider.updateSideGestureButtons {
                         uiState.gestureButtons
                     }
                 } else {
-                    SettingsProvider.updateBottomGestureButtons {
+                    ConfigProvider.updateBottomGestureButtons {
                         uiState.gestureButtons
                     }
                 }
@@ -258,7 +258,7 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         loadDataJob = viewModelScope.launch {
             launch {
                 if (gestureButtonSettings.isSideButton) {
-                    SettingsProvider
+                    ConfigProvider
                         .sideGestureButtons
                         .collectLatest { items ->
                             val button = items.find {
@@ -273,7 +273,7 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
                             }
                         }
                 } else {
-                    SettingsProvider
+                    ConfigProvider
                         .bottomGestureButtons
                         .collectLatest { items ->
                             val button = items.find {

@@ -2,7 +2,7 @@ package hunoia.luno.ui.screen.home.sheet
 
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
-import hunoia.luno.settings.model.GestureSettings
+import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.ui.component.BottomSheetNestedContent
 import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.OptimizedScrollState

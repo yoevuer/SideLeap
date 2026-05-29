@@ -2,9 +2,9 @@ package hunoia.luno.action.api
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
-import hunoia.luno.settings.model.ActionSettings
-import hunoia.luno.settings.model.AdvancedSettings
-import hunoia.luno.settings.model.GestureSettings
+import hunoia.luno.config.model.ActionSettings
+import hunoia.luno.config.model.AdvancedSettings
+import hunoia.luno.config.model.GestureSettings
 import kotlinx.coroutines.CoroutineScope
 
 data class ActionHandlerContext(

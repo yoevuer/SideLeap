@@ -20,8 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.aaron.compose.ktx.clipToBackground
 import hunoia.luno.R
-import hunoia.luno.settings.model.SnapBackDefaults
-import hunoia.luno.settings.model.SnapBackType
+import hunoia.luno.config.model.SnapBackDefaults
+import hunoia.luno.config.model.SnapBackType
 import hunoia.luno.ui.component.MyTextSlider
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.SectionTitlePadding

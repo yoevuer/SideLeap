@@ -2,10 +2,10 @@ package hunoia.luno.service
 
 import android.view.View
 import android.view.WindowManager
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.settings.model.AdvancedSettings
-import hunoia.luno.settings.model.InitialSettings
-import hunoia.luno.system.window.setFlags
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.AdvancedSettings
+import hunoia.luno.config.model.InitialSettings
+import hunoia.luno.bridge.window.setFlags
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

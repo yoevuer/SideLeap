@@ -22,9 +22,9 @@ import androidx.compose.ui.util.fastForEachIndexed
 import com.aaron.compose.ktx.toDp
 import com.aaron.compose.ktx.toPx
 import hunoia.luno.action.Action
-import hunoia.luno.gesture.Position
-import hunoia.luno.settings.model.GridStyle
-import hunoia.luno.settings.model.GestureSettings
+import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.GridStyle
+import hunoia.luno.config.model.GestureSettings
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.min

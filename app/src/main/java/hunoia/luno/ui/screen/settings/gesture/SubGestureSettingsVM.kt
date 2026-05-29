@@ -11,13 +11,13 @@ import hunoia.luno.core.AppContext
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.core.JsonHelper
-import hunoia.luno.gesture.SubGestureDirection
+import hunoia.luno.config.model.SubGestureDirection
 import hunoia.luno.ui.navigation.SubGestureEditor
-import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.settings.model.SubGesture
-import hunoia.luno.settings.model.SubGestureAngle
-import hunoia.luno.settings.model.SubGestureSettings
-import hunoia.luno.system.vibration.VibrationEffects
+import hunoia.luno.config.ConfigProvider
+import hunoia.luno.config.model.SubGesture
+import hunoia.luno.config.model.SubGestureAngle
+import hunoia.luno.config.model.SubGestureSettings
+import hunoia.luno.bridge.vibration.VibrationEffects
 import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsVM.UiState
 import kotlinx.coroutines.flow.collectLatest
@@ -63,7 +63,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
                     }
                 ),
             )
-            SettingsProvider.updateSubGestureSettings { settings ->
+            ConfigProvider.updateSubGestureSettings { settings ->
                 settings.copy(subGestures = settings.subGestures + mirrored)
             }
         }
@@ -71,7 +71,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
 
     fun deleteSubGesture() {
         viewModelScope.launch {
-            SettingsProvider.updateSubGestureSettings { settings ->
+            ConfigProvider.updateSubGestureSettings { settings ->
                 settings.copy(
                     subGestures = settings.subGestures.filter { it.id != subGestureEditor.subGestureId }
                 )
@@ -83,8 +83,8 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
     }
 
     private suspend fun cleanReferences(deletedId: String) {
-        val sideButtons = SettingsProvider.getSideGestureButtons()
-        val bottomButtons = SettingsProvider.getBottomGestureButtons()
+        val sideButtons = ConfigProvider.getSideGestureButtons()
+        val bottomButtons = ConfigProvider.getBottomGestureButtons()
 
         fun cleanIfSubGesture(action: Action?): Action? {
             if (action == null) return null
@@ -102,7 +102,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
             }
         }
 
-        fun cleanActions(buttons: List<hunoia.luno.gesture.GestureButton>): List<hunoia.luno.gesture.GestureButton> {
+        fun cleanActions(buttons: List<hunoia.luno.config.model.GestureButton>): List<hunoia.luno.config.model.GestureButton> {
             return buttons.map { button ->
                 button.copy(
                     slideActions = button.slideActions.copy(
@@ -133,9 +133,9 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
             }
         }
 
-        SettingsProvider.updateSideGestureButtons { cleanActions(it) }
-        SettingsProvider.updateBottomGestureButtons { cleanActions(it) }
-        SettingsProvider.updateSubGestureSettings { settings ->
+        ConfigProvider.updateSideGestureButtons { cleanActions(it) }
+        ConfigProvider.updateBottomGestureButtons { cleanActions(it) }
+        ConfigProvider.updateSubGestureSettings { settings ->
             val cleanedSubGestures = settings.subGestures.map { gesture ->
                 fun clean(id: String?) = if (id == deletedId || id == GlobalActions.SUB_GESTURE) null else id
                 gesture.copy(
@@ -155,7 +155,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
 
     fun updateAngle(angle: SubGestureAngle) {
         viewModelScope.launch {
-            SettingsProvider.updateSubGestureSettings { settings ->
+            ConfigProvider.updateSubGestureSettings { settings ->
                 settings.copy(
                     subGestures = settings.subGestures.map { gesture ->
                         if (gesture.id == subGestureEditor.subGestureId) gesture.copy(angle = angle)
@@ -168,7 +168,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
 
     fun updateColor(color: Int) {
         viewModelScope.launch {
-            SettingsProvider.updateSubGestureSettings { settings ->
+            ConfigProvider.updateSubGestureSettings { settings ->
                 settings.copy(
                     subGestures = settings.subGestures.map { gesture ->
                         if (gesture.id == subGestureEditor.subGestureId) gesture.copy(color = color)
@@ -181,7 +181,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
 
     private fun updateSubGesture(fieldUpdate: SubGesture.() -> SubGesture) {
         viewModelScope.launch {
-            SettingsProvider.updateSubGestureSettings { settings ->
+            ConfigProvider.updateSubGestureSettings { settings ->
                 settings.copy(
                     subGestures = settings.subGestures.map { gesture ->
                         if (gesture.id == subGestureEditor.subGestureId) gesture.fieldUpdate()
@@ -200,7 +200,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<U
 
     private fun loadData() {
         viewModelScope.launch {
-            SettingsProvider.subGestureSettings.collectLatest { settings ->
+            ConfigProvider.subGestureSettings.collectLatest { settings ->
                 val gesture = settings.subGestures.find { it.id == subGestureEditor.subGestureId }
                 updateUiState {
                     it.copy(

@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.aaron.compose.ktx.onSingleClick
-import hunoia.luno.settings.defaults.SettingsUiDefaults
+import hunoia.luno.config.defaults.SettingsUiDefaults
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.luno.ui.theme.DividerHeight

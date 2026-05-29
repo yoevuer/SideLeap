@@ -54,9 +54,9 @@ import coil.imageLoader
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.component.UiBaseEvent
 import hunoia.luno.R
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.model.icon
-import hunoia.luno.system.feedback.showToast
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.model.icon
+import hunoia.luno.bridge.feedback.showToast
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVertical
 import hunoia.luno.ui.theme.IconTextPadding

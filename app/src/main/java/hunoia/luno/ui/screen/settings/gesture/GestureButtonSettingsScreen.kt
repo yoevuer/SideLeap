@@ -51,27 +51,27 @@ import androidx.core.graphics.red
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.luno.R
-import hunoia.luno.settings.defaults.SettingsUiDefaults.GestureButtonColorAlpha
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxGestureButtonPosition
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxGestureButtonWidth
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinGestureButtonPosition
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinGestureButtonWidth
+import hunoia.luno.config.defaults.SettingsUiDefaults.GestureButtonColorAlpha
+import hunoia.luno.config.defaults.SettingsUiDefaults.MaxGestureButtonPosition
+import hunoia.luno.config.defaults.SettingsUiDefaults.MaxGestureButtonWidth
+import hunoia.luno.config.defaults.SettingsUiDefaults.MinGestureButtonPosition
+import hunoia.luno.config.defaults.SettingsUiDefaults.MinGestureButtonWidth
 import hunoia.luno.ui.navigation.ActionSelect
-import hunoia.luno.gesture.GestureButton
+import hunoia.luno.config.model.GestureButton
 import hunoia.luno.ui.component.OptimizedBottomSheet
-import hunoia.luno.gesture.Position
-import hunoia.luno.gesture.TriggerDirection
-import hunoia.luno.gesture.TriggerDirection.Center
-import hunoia.luno.gesture.TriggerDirection.Center2
-import hunoia.luno.gesture.TriggerDirection.Down
-import hunoia.luno.gesture.TriggerDirection.Down2
-import hunoia.luno.gesture.TriggerDirection.Up
-import hunoia.luno.gesture.TriggerDirection.Up2
+import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.TriggerDirection
+import hunoia.luno.config.model.TriggerDirection.Center
+import hunoia.luno.config.model.TriggerDirection.Center2
+import hunoia.luno.config.model.TriggerDirection.Down
+import hunoia.luno.config.model.TriggerDirection.Down2
+import hunoia.luno.config.model.TriggerDirection.Up
+import hunoia.luno.config.model.TriggerDirection.Up2
 import hunoia.luno.ui.action.actionTextCompose
 import hunoia.luno.gesture.bounds
 import hunoia.luno.gesture.styleBy
-import hunoia.luno.settings.model.ActionPanelStyles
-import hunoia.luno.settings.model.LongSlideActionPanelStyles
+import hunoia.luno.config.model.ActionPanelStyles
+import hunoia.luno.config.model.LongSlideActionPanelStyles
 import hunoia.luno.ui.screen.settings.gesture.ActionPanelStyleSelectContent
 import hunoia.luno.ui.screen.settings.gesture.ArcOrPieSettingsContent
 import hunoia.luno.ui.screen.settings.gesture.GridStyleSettingsContent
@@ -101,18 +101,18 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import com.aaron.compose.ktx.onSingleClick
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxLongPressTriggerDelayMs
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxLongSlideTriggerDelayMs
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxLongSlideTriggerDistance
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxSlideTriggerDistance
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinLongPressTriggerDelayMs
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinLongSlideTriggerDelayMs
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinLongSlideTriggerDistance
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinSlideTriggerDistance
-import hunoia.luno.settings.defaults.SettingsUiDefaults.getPredefinedVibrationEffectText
-import hunoia.luno.system.vibration.MaxCustomVibrationMs
-import hunoia.luno.system.vibration.MinCustomVibrationMs
-import hunoia.luno.system.vibration.VibrationEffects
+import hunoia.luno.config.defaults.SettingsUiDefaults.MaxLongPressTriggerDelayMs
+import hunoia.luno.config.defaults.SettingsUiDefaults.MaxLongSlideTriggerDelayMs
+import hunoia.luno.config.defaults.SettingsUiDefaults.MaxLongSlideTriggerDistance
+import hunoia.luno.config.defaults.SettingsUiDefaults.MaxSlideTriggerDistance
+import hunoia.luno.config.defaults.SettingsUiDefaults.MinLongPressTriggerDelayMs
+import hunoia.luno.config.defaults.SettingsUiDefaults.MinLongSlideTriggerDelayMs
+import hunoia.luno.config.defaults.SettingsUiDefaults.MinLongSlideTriggerDistance
+import hunoia.luno.config.defaults.SettingsUiDefaults.MinSlideTriggerDistance
+import hunoia.luno.config.defaults.SettingsUiDefaults.getPredefinedVibrationEffectText
+import hunoia.luno.bridge.vibration.MaxCustomVibrationMs
+import hunoia.luno.bridge.vibration.MinCustomVibrationMs
+import hunoia.luno.bridge.vibration.VibrationEffects
 
 
 
@@ -583,8 +583,8 @@ fun GestureButtonSettingsScreen(
             ) {
                 when (configStyleType) {
                     ActionPanelStyles.TYPE_GRID -> {
-                        val gridStyle = currentStyle.value as? hunoia.luno.settings.model.GridStyle
-                            ?: hunoia.luno.settings.model.GridStyle()
+                        val gridStyle = currentStyle.value as? hunoia.luno.config.model.GridStyle
+                            ?: hunoia.luno.config.model.GridStyle()
                         GridStyleSettingsContent(
                             gridStyle = gridStyle,
                             onStyleChange = { newGrid ->
@@ -596,9 +596,9 @@ fun GestureButtonSettingsScreen(
                         )
                     }
                     else -> {
-                        val isPie = configStyleType == hunoia.luno.settings.model.ActionPanelStyles.TYPE_PIE
-                        val arcStyle = currentStyle.value as? hunoia.luno.settings.model.ArcStyle
-                            ?: hunoia.luno.settings.model.ArcStyle()
+                        val isPie = configStyleType == hunoia.luno.config.model.ActionPanelStyles.TYPE_PIE
+                        val arcStyle = currentStyle.value as? hunoia.luno.config.model.ArcStyle
+                            ?: hunoia.luno.config.model.ArcStyle()
                         ArcOrPieSettingsContent(
                             itemSize = arcStyle.itemSize,
                             arcLength = arcStyle.arcLength,

@@ -2,10 +2,10 @@ package hunoia.luno.ui.dialog
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.luno.settings.model.ActionSettings
+import hunoia.luno.config.model.ActionSettings
 import hunoia.luno.ui.dialog.ActionSettingsVM.UiEvent
 import hunoia.luno.ui.dialog.ActionSettingsVM.UiState
-import hunoia.luno.settings.SettingsProvider
+import hunoia.luno.config.ConfigProvider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -80,7 +80,7 @@ class ActionSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun saveSettings() {
         viewModelScope.launchWithLoading {
-            SettingsProvider.updateActionSettings {
+            ConfigProvider.updateActionSettings {
                 uiState.actionSettings
             }
         }
@@ -88,7 +88,7 @@ class ActionSettingsVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun loadData() {
         viewModelScope.launch {
-            SettingsProvider
+            ConfigProvider
                 .actionSettings
                 .take(1)
                 .collectLatest { actionSettings ->

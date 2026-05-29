@@ -16,9 +16,9 @@ import hunoia.luno.core.AppContext
 import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.core.CrashHandler
 import hunoia.luno.core.Events
-import hunoia.luno.system.handler.isMainThread
-import hunoia.luno.system.feedback.initToastScope
-import hunoia.luno.system.vibration.initVibrationContext
+import hunoia.luno.bridge.isMainThread
+import hunoia.luno.bridge.feedback.initToastScope
+import hunoia.luno.bridge.vibration.initVibrationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

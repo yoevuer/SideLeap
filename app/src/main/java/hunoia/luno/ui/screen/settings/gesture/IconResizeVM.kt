@@ -5,12 +5,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.luno.launcher.LauncherFacade
-import hunoia.luno.launcher.model.ScaleableDefaults.DEFAULT_SCALE
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.model.ScaleableDefaults.DEFAULT_SCALE
 import hunoia.luno.ui.event.IconResizeEvent
 import hunoia.luno.ui.screen.settings.gesture.IconResizeVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.IconResizeVM.UiState
-import hunoia.luno.settings.SettingsProvider
+import hunoia.luno.config.ConfigProvider
 import hunoia.luno.core.Events
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
@@ -103,7 +103,7 @@ class IconResizeVM(
             val uiState = uiState
             val ids = uiState.ids
             val scaleFactors = uiState.scaleFactors
-            SettingsProvider.updateAdvancedSettings {
+            ConfigProvider.updateAdvancedSettings {
                 val newClipApps = it.clipApps.toMutableMap()
                 val newClipShortcuts = it.clipShortcuts.toMutableMap()
                 ids.forEach { id ->
@@ -135,7 +135,7 @@ class IconResizeVM(
 
     private fun loadData() {
         viewModelScope.launch {
-            SettingsProvider
+            ConfigProvider
                 .advancedSettings
                 .take(1)
                 .collectLatest { advancedSettings ->
@@ -146,14 +146,14 @@ class IconResizeVM(
                         map[id] = clipApps[id] ?: clipShortcuts[id] ?: DEFAULT_SCALE
                     }
                     updateUiState {
-                        val icons = LauncherFacade.getIconCacheSnapshot()
+                        val icons = QuickLaunchFacade.getIconCacheSnapshot()
                         val bgColors = mutableMapOf<String, UiState.BgColor>()
-                        LauncherFacade.getIconBgColorCacheSnapshot().forEach { (id, bgColor) ->
+                        QuickLaunchFacade.getIconBgColorCacheSnapshot().forEach { (id, bgColor) ->
                             if (bgColor != 0) {
                                 bgColors[id] = UiState.BgColor(true, Color(bgColor))
                             }
                         }
-                        LauncherFacade.clearIconCache()
+                        QuickLaunchFacade.clearIconCache()
                         it.copy(
                             ids = ids,
                             icons = icons,

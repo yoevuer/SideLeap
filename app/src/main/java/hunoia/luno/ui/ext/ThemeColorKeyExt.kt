@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import hunoia.luno.R
-import hunoia.luno.settings.model.ThemeColorKey
+import hunoia.luno.config.model.ThemeColorKey
 
 @get:StringRes
 val ThemeColorKey.displayNameRes: Int

@@ -10,26 +10,26 @@ import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.core.Paths
 import hunoia.luno.action.definition.ActionCatalog
 import hunoia.luno.action.Action
-import hunoia.luno.launcher.LauncherFacade
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.launcher.model.LauncherInfo
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.ui.navigation.IconResize
-import hunoia.luno.gesture.Position
-import hunoia.luno.gesture.TriggerDirection
+import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.TriggerDirection
 import hunoia.luno.ui.event.IconResizeEvent
 import hunoia.luno.action.appInfo
-import hunoia.luno.launcher.model.getIcon
-import hunoia.luno.launcher.model.qualifiedName
-import hunoia.luno.launcher.model.qualifiedNameWithIntents
+import hunoia.luno.quicklaunch.model.getIcon
+import hunoia.luno.quicklaunch.model.qualifiedName
+import hunoia.luno.quicklaunch.model.qualifiedNameWithIntents
 import hunoia.luno.action.shortcutInfo
 import hunoia.luno.ui.event.subscribeEvent
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiEvent
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState
 import hunoia.luno.freeze.FreezeFacade
-import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.settings.model.SubGesture
+import hunoia.luno.config.ConfigProvider
+import hunoia.luno.config.model.SubGesture
 import hunoia.luno.core.JsonHelper
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -251,14 +251,14 @@ class ActionSelectVM(
             appInfos.forEach { appInfo ->
                 val icon = appInfo.getIcon(AppContext.get()) ?: return@forEach
                 ids.add(appInfo.qualifiedName)
-                LauncherFacade.cacheIcon(appInfo.qualifiedName, icon)
-                LauncherFacade.cacheIconBgColor(appInfo.qualifiedName, appInfo.iconBgColor)
+                QuickLaunchFacade.cacheIcon(appInfo.qualifiedName, icon)
+                QuickLaunchFacade.cacheIconBgColor(appInfo.qualifiedName, appInfo.iconBgColor)
             }
             shortcutInfos.forEach { shortcutInfo ->
                 val icon = shortcutInfo.getIcon(AppContext.get()) ?: return@forEach
                 ids.add(shortcutInfo.qualifiedNameWithIntents)
-                LauncherFacade.cacheIcon(shortcutInfo.qualifiedNameWithIntents, icon)
-                LauncherFacade.cacheIconBgColor(shortcutInfo.qualifiedNameWithIntents, shortcutInfo.iconBgColor)
+                QuickLaunchFacade.cacheIcon(shortcutInfo.qualifiedNameWithIntents, icon)
+                QuickLaunchFacade.cacheIconBgColor(shortcutInfo.qualifiedNameWithIntents, shortcutInfo.iconBgColor)
             }
 
             sendUiEvent(UiEvent.GotoIconResize(IconResize(ids)))
@@ -270,10 +270,10 @@ class ActionSelectVM(
     fun updateShortcutInfos() {
         viewModelScope.launchWithLoading {
             val createLauncherInfos = withContext(Dispatchers.IO) {
-                LauncherFacade.queryShortcutActivities(AppContext.get())
+                QuickLaunchFacade.queryShortcutActivities(AppContext.get())
             }
             val launchLauncherInfos = withContext(Dispatchers.IO) {
-                LauncherFacade.queryShortcuts(AppContext.get())
+                QuickLaunchFacade.queryShortcuts(AppContext.get())
             }
             if (uiState.selectSingle) {
                 updateUiState {
@@ -363,7 +363,7 @@ class ActionSelectVM(
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val appInfos = withContext(Dispatchers.IO) {
-                LauncherFacade.queryApps(AppContext.get())
+                QuickLaunchFacade.queryApps(AppContext.get())
             }
             val frozenApps = FreezeFacade.queryFrozenApps(AppContext.get())
             // 合并普通应用和冻结应用，普通应用优先，冻结应用只添加不存在的
@@ -479,18 +479,18 @@ class ActionSelectVM(
     private fun loadData() {
         viewModelScope.launch {
             val buttons = if (actionSelect.isSideButton) {
-                SettingsProvider.sideGestureButtons
+                ConfigProvider.sideGestureButtons
             } else {
-                SettingsProvider.bottomGestureButtons
+                ConfigProvider.bottomGestureButtons
             }
-            SettingsProvider
+            ConfigProvider
                 .gestureSettings
                 .combine(buttons) { f1, f2 ->
                     f1 to f2
                 }
                 .take(1)
                 .collectLatest { (gestureSettings, gestureButtons) ->
-                    val subGestures = SettingsProvider.getSubGestureSettings().subGestures
+                    val subGestures = ConfigProvider.getSubGestureSettings().subGestures
                     val button = gestureButtons.find {
                         it.id == actionSelect.gestureButtonId && it.position == actionSelect.position
                     }
@@ -570,9 +570,9 @@ class ActionSelectVM(
     private fun saveSettings() {
         viewModelScope.launch {
             val buttonsUpdater = if (actionSelect.isSideButton) {
-                SettingsProvider::updateSideGestureButtons
+                ConfigProvider::updateSideGestureButtons
             } else {
-                SettingsProvider::updateBottomGestureButtons
+                ConfigProvider::updateBottomGestureButtons
             }
             buttonsUpdater { list ->
                 val mutableList = list.toMutableList()

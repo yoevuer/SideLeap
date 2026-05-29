@@ -1,8 +1,8 @@
 package hunoia.luno.action
 
 import hunoia.luno.action.GlobalActions
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.model.LauncherInfo
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.core.JsonHelper
 
 val Action.appInfo: AppInfo? get() {

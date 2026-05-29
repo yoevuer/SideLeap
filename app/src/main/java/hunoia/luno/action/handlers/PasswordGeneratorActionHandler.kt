@@ -7,7 +7,7 @@ import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.api.PasswordGenerator
-import hunoia.luno.system.copySensitiveText
+import hunoia.luno.bridge.copySensitiveText
 
 object PasswordGeneratorActionHandler : ActionHandler {
     override val supportedActions = setOf(

@@ -38,10 +38,10 @@ import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import androidx.compose.foundation.ExperimentalFoundationApi
 import hunoia.luno.R
-import hunoia.luno.settings.defaults.SettingsUiDefaults
-import hunoia.luno.launcher.model.icon
-import hunoia.luno.launcher.model.qualifiedName
-import hunoia.luno.launcher.model.LauncherInfo
+import hunoia.luno.config.defaults.SettingsUiDefaults
+import hunoia.luno.quicklaunch.model.icon
+import hunoia.luno.quicklaunch.model.qualifiedName
+import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVertical

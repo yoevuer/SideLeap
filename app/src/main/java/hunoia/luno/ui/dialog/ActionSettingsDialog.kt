@@ -75,16 +75,16 @@ import hunoia.luno.action.PointerActionData
 import hunoia.luno.ui.action.actionText
 import hunoia.luno.core.JsonHelper
 
-import hunoia.luno.launcher.LauncherFacade
-import hunoia.luno.launcher.model.OpenAppOrUrlData
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MaxGotoBottomStrength
-import hunoia.luno.settings.defaults.SettingsUiDefaults.MinGotoBottomStrength
-import hunoia.luno.system.shizuku.ShizukuBinderExecutor
-import hunoia.luno.system.feedback.showToast
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.config.model.OpenAppOrUrlData
+import hunoia.luno.config.defaults.SettingsUiDefaults.MaxGotoBottomStrength
+import hunoia.luno.config.defaults.SettingsUiDefaults.MinGotoBottomStrength
+import hunoia.luno.shizuku.ShizukuBinderExecutor
+import hunoia.luno.bridge.feedback.showToast
 import hunoia.luno.ui.component.AppSearchBar
 import hunoia.luno.ui.component.EmptyState
 import hunoia.luno.ui.component.ExpressiveSwitchItem
-import hunoia.luno.settings.SettingsProvider
+import hunoia.luno.config.ConfigProvider
 import hunoia.luno.ui.component.MyTextSlider
 import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.MinInteractiveSize
@@ -101,7 +101,7 @@ fun ActivitySettingsContent(
     onConfirm: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val launcherApps = remember(context) { LauncherFacade.queryLauncherAppOptions(context) }
+    val launcherApps = remember(context) { QuickLaunchFacade.queryLauncherAppOptions(context) }
     val existingData = remember {
         runCatching { JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data) }.getOrNull()
     }
@@ -123,7 +123,7 @@ fun ActivitySettingsContent(
     }
     val activityOptions = remember(selectedApp) {
         val app = selectedApp
-        if (app != null) LauncherFacade.queryActivityOptions(
+        if (app != null) QuickLaunchFacade.queryActivityOptions(
             context = context,
             packageName = app.packageName,
             selectedActivityClassName = "",
@@ -132,7 +132,7 @@ fun ActivitySettingsContent(
     }
     val filteredActivities = activityOptions.filter {
         activityQuery.isBlank() ||
-        LauncherFacade.formatActivityOptionText(it, selectedApp?.packageName ?: "").contains(activityQuery, ignoreCase = true) ||
+        QuickLaunchFacade.formatActivityOptionText(it, selectedApp?.packageName ?: "").contains(activityQuery, ignoreCase = true) ||
         it.className.contains(activityQuery, ignoreCase = true)
     }
 
@@ -176,7 +176,7 @@ fun ActivitySettingsContent(
                             var icon by remember(item.packageName) { mutableStateOf<Drawable?>(null) }
                             LaunchedEffect(item.packageName) {
                                 icon = withContext(Dispatchers.IO) {
-                                    LauncherFacade.loadIcon(context, item.packageName)
+                                    QuickLaunchFacade.loadIcon(context, item.packageName)
                                 }
                             }
                             AsyncImage(
@@ -257,7 +257,7 @@ fun ActivitySettingsContent(
                             )
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = LauncherFacade.formatActivityOptionText(activity, app.packageName),
+                                    text = QuickLaunchFacade.formatActivityOptionText(activity, app.packageName),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )

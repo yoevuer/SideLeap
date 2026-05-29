@@ -6,12 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.R
 import hunoia.luno.core.AppContext
-import hunoia.luno.launcher.LauncherFacade
-import hunoia.luno.launcher.model.AppInfo
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.freeze.FreezeFacade
-import hunoia.luno.settings.model.FrozenAppSettings
-import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.system.feedback.showComposeToast
+import hunoia.luno.config.model.FrozenAppSettings
+import hunoia.luno.config.ConfigProvider
+import hunoia.luno.bridge.feedback.showComposeToast
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -27,7 +27,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
 
     init {
         viewModelScope.launch {
-            SettingsProvider.frozenAppSettings.collectLatest { settings ->
+            ConfigProvider.frozenAppSettings.collectLatest { settings ->
                 updateUiState {
                     it.copy(
                         oneKeyPackageNames = settings.oneKeyPackageNames,
@@ -59,7 +59,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
 
     fun commitSelections() {
         viewModelScope.launch {
-            SettingsProvider.updateFrozenAppSettings { settings ->
+            ConfigProvider.updateFrozenAppSettings { settings ->
                 settings.copy(oneKeyPackageNames = uiState.pendingOneKeyPackageNames)
             }
         }
@@ -72,7 +72,7 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
                 updateUiState { it.copy(refreshing = true) }
                 val apps = withContext(Dispatchers.IO) {
                     val context = AppContext.get()
-                    val normal = LauncherFacade.queryApps(
+                    val normal = QuickLaunchFacade.queryApps(
                         context = context,
                         allowRepeatPackage = false
                     )

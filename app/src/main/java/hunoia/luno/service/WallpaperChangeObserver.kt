@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import hunoia.luno.core.Events
-import hunoia.luno.system.event.WallpaperChangedEvent
+import hunoia.luno.bridge.WallpaperChangedEvent
 
 @Suppress("DEPRECATION")
 class WallpaperChangeObserver(private val context: Context) {

@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
-import hunoia.luno.App
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.system.packages.PackageChangeReceiver
+import hunoia.luno.core.AppContext
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.bridge.PackageChangeReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,11 +19,11 @@ object FreezeState {
     private fun ensureReceiver() {
         if (receiverRegistered) return
         receiverRegistered = true
-        PackageChangeReceiver.register(App.getContext()) {
+        PackageChangeReceiver.register(AppContext.get()) {
             frozenCache = null
-            App.applicationScope.launch {
+            AppContext.applicationScope?.launch {
                 withContext(Dispatchers.IO) {
-                    queryFrozenApplications(App.getContext())
+                    queryFrozenApplications(AppContext.get())
                 }
             }
         }

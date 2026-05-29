@@ -11,22 +11,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import hunoia.luno.system.event.WallpaperChangedEvent
-import hunoia.luno.settings.model.ActionSettings
-import hunoia.luno.settings.model.AdvancedSettings
-import hunoia.luno.settings.model.GestureSettings
-import hunoia.luno.settings.model.SubGestureSettings
-import hunoia.luno.settings.SettingsProvider
+import hunoia.luno.bridge.WallpaperChangedEvent
+import hunoia.luno.config.model.ActionSettings
+import hunoia.luno.config.model.AdvancedSettings
+import hunoia.luno.config.model.GestureSettings
+import hunoia.luno.config.model.SubGestureSettings
+import hunoia.luno.config.ConfigProvider
 import hunoia.luno.ui.component.SideGestureContainer
-import hunoia.luno.ui.event.SubscribeEvent
+import hunoia.luno.core.Events
+import hunoia.luno.core.Events.SubscribeEvent
 import hunoia.luno.ui.theme.SideGestureTheme
-import hunoia.luno.gesture.application.PointerAction
+import hunoia.luno.pointer.PointerAction
 
 @Composable
 fun GestureOverlayView(
     screenshotService: SideGestureService,
     onSubGestureModeChanged: (Boolean) -> Unit,
-    onAction: (hunoia.luno.action.Action, hunoia.luno.gesture.GestureButton?) -> Unit,
+    onAction: (hunoia.luno.action.Action, hunoia.luno.config.model.GestureButton?) -> Unit,
     onPointerStart: () -> Boolean,
     onPointerEnd: () -> Unit,
     onPointerSettingsUpdate: (GestureSettings.Pointer) -> Unit,
@@ -40,7 +41,7 @@ fun GestureOverlayView(
         if (now - lastWallpaperChangeMs < 500L) return@SubscribeEvent
         lastWallpaperChangeMs = now
     }
-    val advancedSettingsForTheme by SettingsProvider
+    val advancedSettingsForTheme by ConfigProvider
         .advancedSettings
         .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
     val themeKey = remember(lastWallpaperChangeMs, advancedSettingsForTheme.animationStyles.json) {
@@ -48,22 +49,22 @@ fun GestureOverlayView(
     }
     SideGestureTheme(wallpaperChangeTrigger = themeKey) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val sideButtons by SettingsProvider
+            val sideButtons by ConfigProvider
                 .sideGestureButtons
                 .collectAsStateWithLifecycle(initialValue = emptyList())
-            val bottomButtons by SettingsProvider
+            val bottomButtons by ConfigProvider
                 .bottomGestureButtons
                 .collectAsStateWithLifecycle(initialValue = emptyList())
-            val advancedSettings by SettingsProvider
+            val advancedSettings by ConfigProvider
                 .advancedSettings
                 .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
-            val gestureSettings by SettingsProvider
+            val gestureSettings by ConfigProvider
                 .gestureSettings
                 .collectAsStateWithLifecycle(initialValue = GestureSettings())
-            val actionSettings by SettingsProvider
+            val actionSettings by ConfigProvider
                 .actionSettings
                 .collectAsStateWithLifecycle(initialValue = ActionSettings())
-            val subGestureSettings by SettingsProvider
+            val subGestureSettings by ConfigProvider
                 .subGestureSettings
                 .collectAsStateWithLifecycle(initialValue = SubGestureSettings())
             SideGestureContainer(

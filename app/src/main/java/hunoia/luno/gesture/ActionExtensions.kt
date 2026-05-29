@@ -3,8 +3,9 @@ package hunoia.luno.gesture
 import hunoia.luno.action.Action
 import hunoia.luno.action.GestureActions
 import hunoia.luno.action.GestureActionsDefaults
-import hunoia.luno.settings.model.ActionPanelStyles
-import hunoia.luno.settings.model.LongSlideActionPanelStyles
+import hunoia.luno.config.model.ActionPanelStyles
+import hunoia.luno.config.model.LongSlideActionPanelStyles
+import hunoia.luno.config.model.TriggerDirection
 
 fun GestureActions.actionsBy(direction: TriggerDirection): List<Action> {
     return when (direction) {

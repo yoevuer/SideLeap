@@ -1,7 +1,7 @@
 package hunoia.luno.service.runtime
 
 import android.os.SystemClock
-import hunoia.luno.gesture.GestureButton
+import hunoia.luno.config.model.GestureButton
 import hunoia.luno.service.hiddenKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay

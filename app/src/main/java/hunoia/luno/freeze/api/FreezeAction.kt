@@ -14,9 +14,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import hunoia.luno.freeze.ShizukuBridgeService
-import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.system.shizuku.ShizukuCommand
-import hunoia.luno.system.shizuku.ShizukuRuntime
+import hunoia.luno.config.ConfigProvider
+import hunoia.luno.shizuku.ShizukuCommand
+import hunoia.luno.shizuku.ShizukuRuntime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -125,7 +125,7 @@ object FreezeAction {
     }
 
     suspend fun oneKeyFreeze(context: Context): OneKeyFreezeResult = withContext(Dispatchers.IO) {
-        val settings = SettingsProvider.getFrozenAppSettings()
+        val settings = ConfigProvider.getFrozenAppSettings()
         val oneKeySet = settings.oneKeyPackageNames
 
         val rawTargets = oneKeySet
@@ -251,7 +251,7 @@ object FreezeAction {
     }
 
     fun computeOneKeyTargetsInRange(
-        apps: List<hunoia.luno.launcher.model.AppInfo>,
+        apps: List<hunoia.luno.quicklaunch.model.AppInfo>,
         oneKeyPackageNames: Set<String>
     ): List<String> {
         return apps

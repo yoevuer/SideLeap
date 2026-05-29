@@ -6,13 +6,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import hunoia.luno.freeze.FreezeFacade
-import hunoia.luno.launcher.LauncherFacade
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.query.AppSearch.key
-import hunoia.luno.launcher.query.AppSearch.sortApps
-import hunoia.luno.launcher.query.QuickAppLauncherAppList
-import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.settings.model.QuickAppLauncherSettings
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.query.AppSearch.key
+import hunoia.luno.quicklaunch.query.AppSearch.sortApps
+import hunoia.luno.quicklaunch.query.QuickAppLauncherAppList
+import hunoia.luno.config.ConfigProvider
+import hunoia.luno.config.model.QuickAppLauncherSettings
 import hunoia.luno.ui.theme.AnimPostHideDelay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +53,7 @@ class QuickAppLauncherState(
 
     init {
         coroutineScope.launch {
-            SettingsProvider.quickAppLauncherSettings.collectLatest { launcherSettings = it }
+            ConfigProvider.quickAppLauncherSettings.collectLatest { launcherSettings = it }
         }
         loadApps()
         onRegisterCloseAnimated?.invoke(closeAnimated)
@@ -100,9 +100,9 @@ class QuickAppLauncherState(
         coroutineScope.launch(Dispatchers.IO) {
             val apps = appListState.apps
             for (app in apps.take(25)) {
-                if (LauncherFacade.getCachedIcon(app.packageName) == null) {
-                    LauncherFacade.loadIcon(context, app.packageName)?.let {
-                        LauncherFacade.cacheIcon(app.packageName, it)
+                if (QuickLaunchFacade.getCachedIcon(app.packageName) == null) {
+                    QuickLaunchFacade.loadIcon(context, app.packageName)?.let {
+                        QuickLaunchFacade.cacheIcon(app.packageName, it)
                     }
                 }
             }
@@ -110,7 +110,7 @@ class QuickAppLauncherState(
     }
 
     fun launchApp(app: AppInfo, isFrozen: Boolean, miniWindow: Boolean, debugPrefix: String?) {
-        LauncherFacade.launchApp(
+        QuickLaunchFacade.launchApp(
             context = context,
             coroutineScope = coroutineScope,
             app = app,

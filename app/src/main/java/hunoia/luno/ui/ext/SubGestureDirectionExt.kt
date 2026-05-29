@@ -2,7 +2,7 @@ package hunoia.luno.ui.ext
 
 import androidx.annotation.StringRes
 import hunoia.luno.R
-import hunoia.luno.gesture.SubGestureDirection
+import hunoia.luno.config.model.SubGestureDirection
 
 @get:StringRes
 val SubGestureDirection.displayNameRes: Int

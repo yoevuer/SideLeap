@@ -4,19 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.luno.App
+import hunoia.luno.core.AppContext
 import hunoia.luno.R
 import hunoia.luno.action.Action
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.definition.ActionCatalog
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.core.JsonHelper
-import hunoia.luno.gesture.SubGestureDirection
-import hunoia.luno.launcher.LauncherFacade
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.model.LauncherInfo
-import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.settings.model.SubGesture
+import hunoia.luno.config.model.SubGestureDirection
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.model.LauncherInfo
+import hunoia.luno.config.ConfigProvider
+import hunoia.luno.config.model.SubGesture
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectVM.UiState
@@ -56,7 +56,7 @@ class SubGestureActionSelectVM(
     fun updateAppInfos() {
         viewModelScope.launchWithLoading {
             val apps = withContext(Dispatchers.IO) {
-                LauncherFacade.queryApps(App.getContext())
+                QuickLaunchFacade.queryApps(AppContext.get())
             }
             updateUiState { it.copy(apps = apps) }
         }
@@ -65,7 +65,7 @@ class SubGestureActionSelectVM(
     fun updateShortcutInfos() {
         viewModelScope.launchWithLoading {
             val createShortcuts = withContext(Dispatchers.IO) {
-                LauncherFacade.queryShortcuts(App.getContext())
+                QuickLaunchFacade.queryShortcuts(AppContext.get())
             }
             updateUiState { it.copy(createShortcuts = createShortcuts) }
         }
@@ -77,7 +77,7 @@ class SubGestureActionSelectVM(
         viewModelScope.launch {
             val selectedList = uiState.selectedRecord.list.filterIsInstance<Action>()
             val action = selectedList.lastOrNull()
-            SettingsProvider.updateSubGestureSettings { settings ->
+            ConfigProvider.updateSubGestureSettings { settings ->
                 settings.copy(
                     subGestures = settings.subGestures.map { gesture ->
                         if (gesture.id == subGestureId) gesture.withAction(direction, action?.value)
@@ -126,7 +126,7 @@ class SubGestureActionSelectVM(
 
     private fun assembleActions() {
         viewModelScope.launch {
-            val settings = SettingsProvider.getSubGestureSettings()
+            val settings = ConfigProvider.getSubGestureSettings()
             val currentAction = settings.subGestures
                 .find { it.id == subGestureId }
                 ?.actionFor(direction)

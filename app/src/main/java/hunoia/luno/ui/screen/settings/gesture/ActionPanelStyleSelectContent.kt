@@ -36,7 +36,7 @@ import androidx.compose.ui.util.fastForEachIndexed
 import com.aaron.compose.ktx.clipToBorder
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.luno.R
-import hunoia.luno.settings.model.ActionPanelStyles
+import hunoia.luno.config.model.ActionPanelStyles
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.luno.ui.theme.ItemPadding

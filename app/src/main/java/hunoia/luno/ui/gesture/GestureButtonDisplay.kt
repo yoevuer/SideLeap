@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import hunoia.luno.R
 import hunoia.luno.ui.action.actionTextCompose
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.gesture.Position
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.Position
 
 @Composable
 fun GestureButton.buttonTextCompose(): String {

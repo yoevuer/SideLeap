@@ -41,11 +41,11 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import hunoia.luno.R
-import hunoia.luno.settings.defaults.SettingsUiDefaults
-import hunoia.luno.launcher.model.icon
-import hunoia.luno.launcher.model.qualifiedName
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.system.intent.gotoAppDetailSettings
+import hunoia.luno.config.defaults.SettingsUiDefaults
+import hunoia.luno.quicklaunch.model.icon
+import hunoia.luno.quicklaunch.model.qualifiedName
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.bridge.intent.gotoAppDetailSettings
 import hunoia.luno.ui.permission.deniedForever
 import hunoia.luno.ui.screen.actionselect.ActionSelectVM.UiState.SelectedRecord
 import hunoia.luno.ui.theme.ContentPaddingHorizontal

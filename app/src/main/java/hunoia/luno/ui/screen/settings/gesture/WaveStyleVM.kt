@@ -2,13 +2,13 @@ package hunoia.luno.ui.screen.settings.gesture
 
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
-import hunoia.luno.settings.model.AnimationStyles
-import hunoia.luno.settings.model.ColorSource
-import hunoia.luno.settings.model.ThemeColorKey
-import hunoia.luno.settings.model.WaveStyle
+import hunoia.luno.config.model.AnimationStyles
+import hunoia.luno.config.model.ColorSource
+import hunoia.luno.config.model.ThemeColorKey
+import hunoia.luno.config.model.WaveStyle
 import hunoia.luno.ui.screen.settings.gesture.WaveStyleVM.UiEvent
 import hunoia.luno.ui.screen.settings.gesture.WaveStyleVM.UiState
-import hunoia.luno.settings.SettingsProvider
+import hunoia.luno.config.ConfigProvider
 import hunoia.luno.core.JsonHelper
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
@@ -136,7 +136,7 @@ class WaveStyleVM : BaseComposeVM<UiState, UiEvent>() {
 
     fun saveSettings() {
         viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings {
+            ConfigProvider.updateAdvancedSettings {
                 it.copy(
                     animationStyles = it.animationStyles.copy(
                         type = AnimationStyles.TYPE_WAVE,
@@ -149,7 +149,7 @@ class WaveStyleVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun loadData() {
         viewModelScope.launch {
-            SettingsProvider
+            ConfigProvider
                 .advancedSettings
                 .take(1)
                 .collectLatest { advancedSettings ->

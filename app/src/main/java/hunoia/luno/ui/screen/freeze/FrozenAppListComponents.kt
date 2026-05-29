@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.imageLoader
 import hunoia.luno.R
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.model.icon
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.model.icon
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

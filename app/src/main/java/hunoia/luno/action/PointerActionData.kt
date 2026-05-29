@@ -2,7 +2,7 @@ package hunoia.luno.action
 
 import androidx.annotation.Keep
 import hunoia.luno.core.JsonHelper
-import hunoia.luno.settings.model.GestureSettings
+import hunoia.luno.config.model.GestureSettings
 import kotlinx.serialization.Serializable
 
 @Serializable

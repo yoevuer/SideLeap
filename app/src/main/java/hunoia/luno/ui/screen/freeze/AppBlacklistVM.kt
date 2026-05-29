@@ -3,12 +3,12 @@ package hunoia.luno.ui.screen.freeze
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.core.AppContext
-import hunoia.luno.launcher.LauncherFacade
-import hunoia.luno.launcher.model.AppInfo
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.freeze.FreezeFacade
 import hunoia.luno.ui.screen.freeze.AppBlacklistVM.UiEvent
 import hunoia.luno.ui.screen.freeze.AppBlacklistVM.UiState
-import hunoia.luno.settings.SettingsProvider
+import hunoia.luno.config.ConfigProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
@@ -50,7 +50,7 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
             save()
             val appInfos = withContext(Dispatchers.IO) {
                 try {
-                    LauncherFacade
+                    QuickLaunchFacade
                         .queryApps(AppContext.get())
                         .filter { it.packageName != AppContext.get().packageName }
                 } catch (_: Exception) {
@@ -73,7 +73,7 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun save() {
         viewModelScope.launch {
-            SettingsProvider.updateAdvancedSettings {
+            ConfigProvider.updateAdvancedSettings {
                 it.copy(excludeApps = uiState.excludeApps)
             }
         }
@@ -81,7 +81,7 @@ class AppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
 
     private fun loadData() {
         viewModelScope.launch {
-            SettingsProvider
+            ConfigProvider
                 .advancedSettings
                 .take(1)
                 .collectLatest { item ->

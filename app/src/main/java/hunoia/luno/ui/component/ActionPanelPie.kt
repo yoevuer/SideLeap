@@ -47,10 +47,10 @@ import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.appInfo
 import hunoia.luno.ui.action.actionIcon
 import hunoia.luno.action.shortcutInfo
-import hunoia.luno.gesture.Position
-import hunoia.luno.settings.model.PieStyle
-import hunoia.luno.settings.model.GestureSettings
-import hunoia.luno.system.vibration.vibrateForActionPanel
+import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.PieStyle
+import hunoia.luno.config.model.GestureSettings
+import hunoia.luno.gesture.vibrateForActionPanel
 import kotlinx.coroutines.flow.filter
 import kotlin.math.asin
 import kotlin.math.atan2

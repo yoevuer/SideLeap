@@ -54,12 +54,12 @@ import com.aaron.compose.ktx.onSingleClick
 import com.aaron.compose.utils.SystemFontScaleHandler
 import hunoia.luno.R
 import hunoia.luno.action.GlobalActions
-import hunoia.luno.settings.defaults.SettingsUiDefaults.DimAlpha
+import hunoia.luno.config.defaults.SettingsUiDefaults.DimAlpha
 import hunoia.luno.action.Action
 import hunoia.luno.ui.action.actionText
 import hunoia.luno.core.Events
-import hunoia.luno.system.event.WallpaperChangedEvent
-import hunoia.luno.settings.model.ThemeColorKey
+import hunoia.luno.bridge.WallpaperChangedEvent
+import hunoia.luno.config.model.ThemeColorKey
 import hunoia.luno.ui.ext.resolveColor
 import hunoia.luno.ui.theme.DialogHexTextWidth
 import hunoia.luno.ui.theme.DialogTitlePadding

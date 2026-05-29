@@ -43,8 +43,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import hunoia.luno.R
 import coil.compose.AsyncImage
-import hunoia.luno.launcher.LauncherFacade
-import hunoia.luno.launcher.model.AppInfo
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.ui.theme.ShapeSmall
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -112,12 +112,12 @@ internal fun KeyboardRow(
 
 @Composable
 internal fun rememberAppIconAsync(context: Context, packageName: String): Drawable? {
-    var icon: Drawable? by remember(packageName) { mutableStateOf(LauncherFacade.getCachedIcon(packageName)) }
+    var icon: Drawable? by remember(packageName) { mutableStateOf(QuickLaunchFacade.getCachedIcon(packageName)) }
     if (icon == null) {
         LaunchedEffect(packageName) {
             icon = withContext(Dispatchers.IO) {
-                LauncherFacade.loadIcon(context, packageName)
-            }?.also { LauncherFacade.cacheIcon(packageName, it) }
+                QuickLaunchFacade.loadIcon(context, packageName)
+            }?.also { QuickLaunchFacade.cacheIcon(packageName, it) }
         }
     }
     return icon
