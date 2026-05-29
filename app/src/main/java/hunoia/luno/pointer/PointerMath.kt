@@ -5,11 +5,6 @@ import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.config.model.GestureSettings
 import kotlin.math.hypot
 
-enum class PointerAction {
-    Click,
-    LongPress,
-}
-
 fun pointerInitialPosition(
     settings: GestureSettings.Pointer,
     previousPosition: Offset = Offset.Unspecified,

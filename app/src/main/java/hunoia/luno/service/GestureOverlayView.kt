@@ -17,7 +17,7 @@ import hunoia.luno.config.model.AdvancedSettings
 import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.config.model.SubGestureSettings
 import hunoia.luno.config.ConfigProvider
-import hunoia.luno.ui.component.SideGestureContainer
+import hunoia.luno.ui.component.container.SideGestureContainer
 import hunoia.luno.core.Events
 import hunoia.luno.core.Events.SubscribeEvent
 import hunoia.luno.ui.theme.SideGestureTheme
@@ -41,12 +41,7 @@ fun GestureOverlayView(
         if (now - lastWallpaperChangeMs < 500L) return@SubscribeEvent
         lastWallpaperChangeMs = now
     }
-    val advancedSettingsForTheme by ConfigProvider
-        .advancedSettings
-        .collectAsStateWithLifecycle(initialValue = AdvancedSettings())
-    val themeKey = remember(lastWallpaperChangeMs, advancedSettingsForTheme.animationStyles.json) {
-        lastWallpaperChangeMs.toString() + "_" + advancedSettingsForTheme.animationStyles.json
-    }
+    val themeKey = lastWallpaperChangeMs.toString()
     SideGestureTheme(wallpaperChangeTrigger = themeKey) {
         Box(modifier = Modifier.fillMaxSize()) {
             val sideButtons by ConfigProvider
@@ -70,12 +65,7 @@ fun GestureOverlayView(
             SideGestureContainer(
                 modifier = Modifier.matchParentSize(),
                 buttons = sideButtons + bottomButtons,
-                wallpaperChangeTrigger = lastWallpaperChangeMs,
                 onSubGestureModeChanged = onSubGestureModeChanged,
-                animationStyle = when (advancedSettings.animationStyles.isAnimationEnabled) {
-                    true -> advancedSettings.animationStyles.value
-                    else -> null
-                },
                 onAction = onAction,
                 onPointerStart = onPointerStart,
                 onPointerEnd = onPointerEnd,

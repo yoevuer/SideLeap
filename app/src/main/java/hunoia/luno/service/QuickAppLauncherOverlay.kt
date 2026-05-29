@@ -77,7 +77,7 @@ import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.config.model.QuickAppLauncherSettings
 import hunoia.luno.config.model.AdvancedSettings
 import hunoia.luno.ui.theme.SideGestureTheme
-import hunoia.luno.ui.component.quickapplaunch.QuickAppLauncherContent
+import hunoia.luno.ui.quicklaunch.QuickAppLauncherContent
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner

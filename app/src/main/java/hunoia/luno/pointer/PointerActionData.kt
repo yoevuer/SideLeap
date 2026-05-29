@@ -2,7 +2,7 @@ package hunoia.luno.pointer
 import hunoia.luno.config.model.Action
 
 import androidx.annotation.Keep
-import hunoia.luno.core.JsonHelper
+import hunoia.luno.core.JsonSerializer
 import hunoia.luno.config.model.GestureSettings
 import kotlinx.serialization.Serializable
 
@@ -21,7 +21,7 @@ data class PointerActionData(
 
 fun Action.pointerContinuousModeOverride(): Boolean? {
     val mode = runCatching {
-        JsonHelper.decodeFromString<PointerActionData>(data).mode
+        JsonSerializer.decodeFromString<PointerActionData>(data).mode
     }.getOrDefault(PointerActionData.Mode.Default)
     return when (mode) {
         PointerActionData.Mode.Default -> null

@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import hunoia.luno.ui.theme.AnimNavTransition
 import hunoia.luno.ui.theme.NavExitOffsetDivisor
 
 import hunoia.luno.ui.navigation.ActionSelect
@@ -32,15 +33,15 @@ import hunoia.luno.ui.navigation.Home
 import hunoia.luno.ui.navigation.SubGestureActionSelect
 import hunoia.luno.ui.navigation.SubGestureEditor
 
-import hunoia.luno.ui.screen.actionselect.ActionSelectContent
+import hunoia.luno.ui.actionselect.ActionSelectContent
 
-import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsScreen
+import hunoia.luno.ui.settings.gesture.button.GestureButtonSettingsScreen
 
-import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectContent
-import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsScreen
-import hunoia.luno.ui.screen.home.HomeScreen
+import hunoia.luno.ui.settings.gesture.subgesture.SubGestureActionSelectContent
+import hunoia.luno.ui.settings.gesture.subgesture.SubGestureSettingsScreen
 import hunoia.luno.ui.theme.SideGestureTheme
 import hunoia.luno.ui.navigation.LocalNavController
+import hunoia.luno.ui.home.HomeScreen
 import kotlin.reflect.KType
 
 
@@ -72,7 +73,6 @@ fun SideGestureApp() {
             ) {
                 myComposable<Home> {
                     HomeScreen(
-
                         onNavToGestureButtonSettings = { button ->
                             navController.navigate(GestureButtonSettings(button.id, button.position))
                         },
@@ -151,4 +151,4 @@ private inline fun <reified T : Any> NavGraphBuilder.myComposable(
     }
 }
 
-private const val ANIMATION_DURATION_MS = 400
+private const val ANIMATION_DURATION_MS = AnimNavTransition

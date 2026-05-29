@@ -57,7 +57,6 @@ fun MyColumn(
     Column(
         modifier = modifier
             .verticalScroll(scrollState)
-            .navigationBarsPadding()
             .padding(RootPadding)
             .padding(bottom = ScrollBottomPadding),
         verticalArrangement = verticalArrangement,

@@ -4,12 +4,10 @@ package hunoia.luno.config.defaults
 
 import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.config.model.ActionPanelStyles
-import hunoia.luno.config.model.AnimationStyles
 
 object AdvancedSettingsDefaults {
 
     val ExcludeApps = emptyList<String>()
-    val AnimationStyles = AnimationStyles()
     val ActionPanelStyles = ActionPanelStyles()
     const val MiniWindowHorizontalBias = 0f
     const val MiniWindowVerticalBias = 0f

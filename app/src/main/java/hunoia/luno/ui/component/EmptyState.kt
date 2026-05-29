@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import hunoia.luno.ui.theme.ShapeLarge
+import hunoia.luno.ui.theme.Spacing64
 
 @Composable
 fun EmptyState(
@@ -30,7 +31,7 @@ fun EmptyState(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = Spacing24, horizontal = Spacing16),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(ShapeLarge),
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
         Column(
@@ -41,8 +42,8 @@ fun EmptyState(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                modifier = Modifier.size(Spacing64),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = IconEmptyAlpha)
             )
             Text(
                 text = message,

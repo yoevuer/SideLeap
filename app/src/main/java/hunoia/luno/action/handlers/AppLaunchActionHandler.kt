@@ -14,7 +14,7 @@ import hunoia.luno.freeze.FreezeFacade
 import hunoia.luno.action.api.appInfo
 import hunoia.luno.quicklaunch.QuickLaunchFacade
 import hunoia.luno.bridge.queryIntentActivitiesCompat
-import hunoia.luno.core.JsonHelper
+import hunoia.luno.core.JsonSerializer
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -81,7 +81,7 @@ object AppLaunchActionHandler : ActionHandler {
 
     private fun handleOpenAppActivity(action: Action, context: ActionHandlerContext) {
         val data = try {
-            JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data)
+            JsonSerializer.decodeFromString<OpenAppOrUrlData>(action.data)
         } catch (e: Exception) {
             null
         }
@@ -100,7 +100,7 @@ object AppLaunchActionHandler : ActionHandler {
 
     private fun handleOpenUrl(action: Action, context: ActionHandlerContext) {
         val data = try {
-            JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data)
+            JsonSerializer.decodeFromString<OpenAppOrUrlData>(action.data)
         } catch (e: Exception) {
             null
         }

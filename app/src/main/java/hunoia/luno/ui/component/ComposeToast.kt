@@ -68,7 +68,7 @@ fun ComposeToast(modifier: Modifier = Modifier) {
                     .widthIn(max = 300.dp)
                     .clipToBackground(
                         color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        shape = RoundedCornerShape(ShapeLarge)
+                        shape = MaterialTheme.shapes.large
                     )
                     .padding(
                         vertical = 8.dp,

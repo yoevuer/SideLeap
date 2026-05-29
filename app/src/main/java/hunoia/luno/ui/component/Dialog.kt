@@ -60,21 +60,14 @@ import hunoia.luno.ui.component.actionText
 import hunoia.luno.core.Events
 import hunoia.luno.bridge.WallpaperChangedEvent
 import hunoia.luno.config.model.ThemeColorKey
-import hunoia.luno.ui.component.resolveColor
+import hunoia.luno.ui.theme.resolveColor
 import hunoia.luno.ui.theme.DialogHexTextWidth
 import hunoia.luno.ui.theme.DialogTitlePadding
 import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.SubMinInteractiveSize
 import hunoia.luno.ui.component.displayNameRes
 import hunoia.luno.bridge.DensityProvider
-import hunoia.luno.ui.screen.settings.GotoBottomSettingsContent
-import hunoia.luno.ui.screen.settings.HideGestureButtonSettingsContent
-import hunoia.luno.ui.screen.settings.VolumeScrubSettingsContent
-import hunoia.luno.ui.screen.settings.ActivitySettingsContent
-import hunoia.luno.ui.screen.settings.UrlSettingsContent
-import hunoia.luno.ui.screen.settings.PreviousAppSettingsContent
-import hunoia.luno.ui.screen.settings.ShellCommandSettingsContent
-import hunoia.luno.ui.screen.settings.PointerActionSettingsContent
+import hunoia.luno.ui.component.displayNameRes
 
 
 
@@ -125,90 +118,7 @@ fun MyAlertDialog(
     )
 }
 
-@Composable
-fun ActionSettingsDialog(
-    onDismissRequest: () -> Unit,
-    action: Action,
-    autoDismiss: Boolean = true,
-    onActionDataChanged: (String) -> Unit = {}
-) {
-    val context = LocalContext.current
-    AlertDialog(
-        containerColor = MaterialTheme.colorScheme.surface,
-        onDismissRequest = onDismissRequest,
-        title = {
-            Text(text = context.actionText(action))
-        },
-        text = {
-            when (action.value) {
-                ActionFacade.PREVIOUS_APP -> {
-                    PreviousAppSettingsContent()
-                }
 
-                ActionFacade.GOTO_BOTTOM -> {
-                    GotoBottomSettingsContent()
-                }
 
-                ActionFacade.OPEN_APP_ACTIVITY -> {
-                    ActivitySettingsContent(
-                        action = action,
-                        onConfirm = {
-                            onActionDataChanged(it)
-                            if (autoDismiss) {
-                                onDismissRequest()
-                            }
-                        }
-                    )
-                }
-                ActionFacade.OPEN_URL -> {
-                    UrlSettingsContent(
-                        action = action,
-                        onConfirm = {
-                            onActionDataChanged(it)
-                            if (autoDismiss) {
-                                onDismissRequest()
-                            }
-                        }
-                    )
-                }
 
-                ActionFacade.EXECUTE_SHELL_COMMAND -> {
-                    ShellCommandSettingsContent(
-                        action = action,
-                        onConfirm = {
-                            onActionDataChanged(it)
-                            if (autoDismiss) {
-                                onDismissRequest()
-                            }
-                        }
-                    )
-                }
-
-                ActionFacade.POINTER -> {
-                    PointerActionSettingsContent(
-                        action = action,
-                        onConfirm = {
-                            onActionDataChanged(it)
-                            if (autoDismiss) {
-                                onDismissRequest()
-                            }
-                        }
-                    )
-                }
-
-                ActionFacade.HIDE_GESTURE_BUTTON -> {
-                    HideGestureButtonSettingsContent()
-                }
-
-                ActionFacade.VOLUME_SCRUB -> {
-                    VolumeScrubSettingsContent()
-                }
-            }
-        },
-        confirmButton = {
-        },
-        dismissButton = {
-        }
-    )
-}
 

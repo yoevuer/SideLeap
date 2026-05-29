@@ -32,7 +32,7 @@ fun TopBar(
     actions: @Composable RowScope.() -> Unit = {},
     showBackIcon: Boolean = true,
     onTitleClick: (() -> Unit)? = null,
-    titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
+    titleStyle: TextStyle = MaterialTheme.typography.headlineMedium,
     containerColor: Color = Color.Transparent,
     postfixTitle: (@Composable () -> Unit)? = null,
     titleContent: (@Composable () -> Unit)? = null,

@@ -4,6 +4,11 @@ import hunoia.luno.config.model.GestureButton
 import hunoia.luno.config.model.AdvancedSettings
 import hunoia.luno.config.model.InitialSettings
 
+interface SideGestureRuntime {
+    fun nowInLauncher(): Boolean
+    fun requestEnableFrozenPackage(packageName: String, onResult: (Boolean) -> Unit)
+}
+
 internal data class SideGestureRuntimeState(
     val currentPackageName: String,
     val isNowInLockScreenPage: Boolean,

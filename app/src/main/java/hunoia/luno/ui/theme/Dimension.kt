@@ -50,8 +50,10 @@ val Spacing32 = 32.dp
 val Spacing40 = 40.dp
 val Spacing48 = 48.dp
 val Spacing56 = 56.dp
+val Spacing64 = 64.dp
 
 // Shape corner radii
+val ShapeExtraSmall = 4.dp
 val ShapeSmall = 8.dp
 val ShapeMedium = Spacing12
 val ShapeLarge = Spacing16
@@ -64,7 +66,19 @@ const val AnimMedium = 200L
 const val AnimSlow = 250L
 const val AnimPanelShift = 180L
 const val AnimPanelResize = 250L
-const val AnimOverlayFade = 200L
+const val AnimOverlayFade = AnimMedium
 const val AnimPostHideDelay = 250L
 const val AnimFrameInterval = 16L
 const val AnimTriggerDebounce = 500L
+const val AnimNavTransition = 400
+
+// Gesture / interaction
+val HideButtonDelayRange: ClosedFloatingPointRange<Float> = 500f..5000f
+val VolumeScrubSensitivityRange: ClosedFloatingPointRange<Float> = 8f..40f
+
+// Component sizes
+val MiniWindowDefaultHeight = 267.dp
+val SliderTextMaxWidth = 999.dp
+val SliderTrackHeight = 30.dp
+
+val IconEmptyAlpha = 0.4f

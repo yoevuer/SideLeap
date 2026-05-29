@@ -6,7 +6,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import hunoia.luno.ui.theme.generator.AppTheme
+import hunoia.luno.ui.theme.AppTheme
 import hunoia.luno.ui.component.ComposeToast
 
 @Composable

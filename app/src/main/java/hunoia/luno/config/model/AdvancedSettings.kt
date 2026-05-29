@@ -2,7 +2,6 @@ package hunoia.luno.config.model
 
 import androidx.annotation.Keep
 import hunoia.luno.config.defaults.AdvancedSettingsDefaults.ActionPanelStyles
-import hunoia.luno.config.defaults.AdvancedSettingsDefaults.AnimationStyles
 import hunoia.luno.config.defaults.AdvancedSettingsDefaults.ClipApps
 import hunoia.luno.config.defaults.AdvancedSettingsDefaults.ClipShortcuts
 
@@ -19,7 +18,6 @@ import kotlinx.serialization.Serializable
 @Keep
 data class AdvancedSettings(
     val excludeApps: List<String> = ExcludeApps,
-    val animationStyles: AnimationStyles = AnimationStyles,
     val actionPanelStyles: ActionPanelStyles = ActionPanelStyles,
     val miniWindowHorizontalBias: Float = MiniWindowHorizontalBias,
     val miniWindowVerticalBias: Float = MiniWindowVerticalBias,

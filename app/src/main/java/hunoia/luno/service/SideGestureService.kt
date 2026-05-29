@@ -70,7 +70,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     val runtimePanelOverlay by lazy {
         RuntimePanelOverlay(this)
     }
-    internal val overlayLifecycle = SideGestureOverlayLifecycle(this)
     override val coroutineScope = MainScope()
     private val windowController = SideGestureWindowController(this)
     private val buttonRefreshCoordinator = SideGestureButtonRefreshCoordinator(
@@ -109,13 +108,12 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         scopeProvider = { coroutineScope },
         log = { message -> android.util.Log.d("LunoLauncher", message) }
     )
-    private val wallpaperChangeObserver = WallpaperChangeObserver(this)
-    private var wallpaperColorsListener: WallpaperManager.OnColorsChangedListener? = null
-    private val screenLockObserver = ScreenLockObserver(
+    private val systemBroadcastObserver = SystemBroadcastObserver(
         context = this,
         onScreenOff = {
             isNowInLockScreenPage = true
-            overlayLifecycle.onScreenLocked()
+            quickAppLauncherOverlay.closeImmediately()
+            runtimePanelOverlay.closeImmediately()
             updateGestureButtons()
         },
         onUserPresent = {
@@ -123,6 +121,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             updateGestureButtons()
         }
     )
+    private var wallpaperColorsListener: WallpaperManager.OnColorsChangedListener? = null
     private val pointerRuntime = PointerRuntime(
         host = this,
         scope = coroutineScope,
@@ -174,17 +173,17 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     override fun onDestroy() {
         super.onDestroy()
         if (current === this) currentRef = null
-        overlayLifecycle.onDestroy()
+        quickAppLauncherOverlay.closeImmediately()
+        runtimePanelOverlay.close()
         frozenPackageEnabler.release()
         coroutineScope.cancel()
         pointerRuntime.onDestroy()
         volumeScrubRuntime.onDestroy()
         proxy.onRelease()
-        screenLockObserver.unregister()
+        systemBroadcastObserver.unregister()
         wallpaperColorsListener?.let { listener ->
             WallpaperManager.getInstance(this).removeOnColorsChangedListener(listener)
         }
-        wallpaperChangeObserver.unregister()
     }
 
     override fun onSetOverlay() {
@@ -198,8 +197,12 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     }
 
     private fun registerRuntimeObservers() {
-        registerScreenLockObserver()
-        registerWallpaperChangeObserver()
+        systemBroadcastObserver.register()
+        val listener = WallpaperManager.OnColorsChangedListener { _, _ ->
+            Events.post(WallpaperChangedEvent())
+        }
+        wallpaperColorsListener = listener
+        WallpaperManager.getInstance(this).addOnColorsChangedListener(listener, Handler(Looper.getMainLooper()))
     }
 
     @Composable
@@ -227,19 +230,6 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             },
             windowController = windowController,
         )
-    }
-
-    private fun registerScreenLockObserver() {
-        screenLockObserver.register()
-    }
-
-    private fun registerWallpaperChangeObserver() {
-        wallpaperChangeObserver.register()
-        val listener = WallpaperManager.OnColorsChangedListener { _, _ ->
-            Events.post(WallpaperChangedEvent())
-        }
-        wallpaperColorsListener = listener
-        WallpaperManager.getInstance(this).addOnColorsChangedListener(listener, Handler(Looper.getMainLooper()))
     }
 
     private fun updateMainLayout() {
