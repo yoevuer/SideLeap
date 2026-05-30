@@ -176,7 +176,7 @@ fun FrozenAppManageContent(
                                 )
                                 Spacer(Modifier.padding(Spacing4))
                                 Text(
-                                    text = "已选",
+                                    text = stringResource(R.string.tab_selected),
                                     style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

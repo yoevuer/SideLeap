@@ -26,6 +26,7 @@ import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.luno.ui.theme.IconTextPadding
 import hunoia.luno.ui.theme.ItemPadding
+import hunoia.luno.ui.theme.CardShape
 import hunoia.luno.ui.theme.MainSecondaryTextPadding
 import hunoia.luno.ui.theme.MinItemHeight
 import hunoia.luno.ui.theme.MinItemHeightNoSecondary
@@ -47,7 +48,7 @@ fun ExpressiveRow(
             .fillMaxWidth(),
         onClick = { if (enabled) onClick() },
         enabled = enabled,
-        shape = MaterialTheme.shapes.large,
+        shape = CardShape,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Row(

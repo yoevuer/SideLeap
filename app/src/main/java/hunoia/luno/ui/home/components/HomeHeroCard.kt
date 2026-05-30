@@ -36,15 +36,15 @@ fun HomeHeroCard(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     val enabled = uiState.isGestureEnabled
-    val status = when {
-        enabled -> "手势运行中"
-        !uiState.isAccessibilityEnabled -> "需要无障碍权限"
-        else -> "手势已关闭"
+    val statusRes = when {
+        enabled -> R.string.gesture_status_running
+        !uiState.isAccessibilityEnabled -> R.string.gesture_status_needs_accessibility
+        else -> R.string.gesture_status_disabled
     }
-    val desc = when {
-        enabled -> "底部、侧边和子手势会按当前配置响应。"
-        !uiState.isAccessibilityEnabled -> "开启前需要先授予无障碍服务权限。"
-        else -> "开启后即可使用已配置的所有手势入口。"
+    val descRes = when {
+        enabled -> R.string.gesture_running_desc
+        !uiState.isAccessibilityEnabled -> R.string.gesture_needs_accessibility_desc
+        else -> R.string.gesture_disabled_desc
     }
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -87,13 +87,13 @@ fun HomeHeroCard(
                 )
                 Spacer(Modifier.height(Spacing4))
                 Text(
-                    text = status,
+                    text = stringResource(statusRes),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(Modifier.height(Spacing6))
                 Text(
-                    text = desc,
+                    text = stringResource(descRes),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (enabled) MaterialTheme.colorScheme.onPrimaryContainer
                             else MaterialTheme.colorScheme.onSurfaceVariant,

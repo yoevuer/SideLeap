@@ -33,9 +33,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.imageLoader
 import com.aaron.compose.ktx.onClick
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
-import com.google.accompanist.permissions.isGranted
 import androidx.compose.foundation.ExperimentalFoundationApi
 import hunoia.luno.R
 import hunoia.luno.config.defaults.SettingsUiDefaults
@@ -53,7 +50,7 @@ import hunoia.luno.ui.theme.TopBarPaddingExtra
 import androidx.compose.foundation.background
 import androidx.compose.ui.util.fastForEach
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ShortcutPage(
     onClick: (LauncherInfo) -> Unit,
@@ -62,7 +59,7 @@ internal fun ShortcutPage(
     launchShortcuts: List<LauncherInfo>,
     selectedRecord: SelectedRecord,
     snackbarHostState: SnackbarHostState,
-    permissionState: PermissionState,
+    permissionState: hunoia.luno.ui.permission.PermissionState,
     selectSingle: Boolean,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
@@ -72,7 +69,7 @@ internal fun ShortcutPage(
         selectedRecord.list.filterIsInstance<LauncherInfo.ShortcutInfo>()
     }
     Box(modifier = modifier) {
-        if (permissionState.status.isGranted) {
+        if (permissionState.isGranted) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = contentPadding

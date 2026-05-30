@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.fastForEach
 import com.aaron.compose.ktx.onSingleClick
 
@@ -64,7 +65,7 @@ fun GestureEntryCard(
         },
     ) {
         FilledTonalButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-            Text(if (expanded) "收起" else "展开")
+            Text(if (expanded) stringResource(R.string.collapse) else stringResource(R.string.expand))
         }
     }
 }
@@ -109,7 +110,7 @@ fun GestureButtonList(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
-                                    contentDescription = "重命名",
+                                    contentDescription = stringResource(R.string.rename),
                                     modifier = Modifier.size(Spacing16),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -162,7 +163,7 @@ fun SubGestureList(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
-                                    contentDescription = "重命名",
+                                    contentDescription = stringResource(R.string.rename),
                                     modifier = Modifier.size(Spacing16),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

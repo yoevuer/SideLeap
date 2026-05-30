@@ -65,8 +65,6 @@ import hunoia.luno.ui.component.AppSearchBar
 import hunoia.luno.ui.component.EmptyState
 import hunoia.luno.ui.component.actionIcon
 import hunoia.luno.ui.component.displayNameRes
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
 import hunoia.luno.ui.actionselect.UiState.SelectedRecord
 import hunoia.luno.ui.theme.*
 
@@ -295,7 +293,7 @@ fun SelectedBar(
         }
     }
 }
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ActionPage(
     onSettingsClick: (Action) -> Unit,
@@ -319,7 +317,7 @@ internal fun ActionPage(
     longPressTargetIndex: Int?,
     selectSingle: Boolean,
     snackbarHostState: SnackbarHostState,
-    permissionState: com.google.accompanist.permissions.PermissionState,
+    permissionState: hunoia.luno.ui.permission.PermissionState,
     contentPadding: PaddingValues = PaddingValues(),
     maxSelectCount: Int = MAX_SELECT_COUNT
 ) {

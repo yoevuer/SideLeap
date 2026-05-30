@@ -35,7 +35,7 @@ fun GestureButtonSlideActionsCard(
     ExpressiveCard(
         icon = Icons.Default.Swipe,
         title = stringResource(id = R.string.slide_action),
-        subtitle = "定义 5 个滑动方向的触发动作",
+        subtitle = stringResource(id = R.string.slide_actions_subtitle),
         onClick = {},
     ) {
         val navToActionSelect: (TriggerDirection) -> Unit = { direction ->
@@ -97,7 +97,7 @@ fun GestureButtonLongSlideActionsCard(
     ExpressiveCard(
         icon = Icons.Default.Gesture,
         title = stringResource(id = R.string.long_slide_action),
-        subtitle = "长滑触发与动作面板样式",
+        subtitle = stringResource(id = R.string.long_slide_subtitle),
         onClick = {},
     ) {
         val navToActionSelect: (TriggerDirection) -> Unit = { direction ->
@@ -169,7 +169,7 @@ fun GestureButtonTapActionsCard(
     ExpressiveCard(
         icon = Icons.Default.Adjust,
         title = stringResource(id = R.string.tap_and_long_press_action),
-        subtitle = "点击与长按触发配置",
+        subtitle = stringResource(id = R.string.tap_long_press_subtitle),
         onClick = {},
     ) {
         val navToTapActionSelect: (TriggerDirection) -> Unit = { direction ->

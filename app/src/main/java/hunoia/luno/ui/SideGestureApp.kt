@@ -6,6 +6,8 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +25,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import hunoia.luno.ui.theme.AnimNavTransition
-import hunoia.luno.ui.theme.NavExitOffsetDivisor
 
 import hunoia.luno.ui.navigation.ActionSelect
 
@@ -59,16 +60,20 @@ fun SideGestureApp() {
                 navController = navController,
                 startDestination = Home,
                 enterTransition = {
-                    slideInHorizontally(animationSpec = tween(durationMs)) { it }
+                    fadeIn(animationSpec = tween(durationMs)) +
+                        slideInHorizontally(animationSpec = tween(durationMs)) { it / 4 }
                 },
                 exitTransition = {
-                    slideOutHorizontally(animationSpec = tween(durationMs)) { -it / NavExitOffsetDivisor }
+                    fadeOut(animationSpec = tween(durationMs)) +
+                        slideOutHorizontally(animationSpec = tween(durationMs)) { -it / 4 }
                 },
                 popEnterTransition = {
-                    slideInHorizontally(animationSpec = tween(durationMs)) { -it / NavExitOffsetDivisor }
+                    fadeIn(animationSpec = tween(durationMs)) +
+                        slideInHorizontally(animationSpec = tween(durationMs)) { -it / 4 }
                 },
                 popExitTransition = {
-                    slideOutHorizontally(animationSpec = tween(durationMs)) { it }
+                    fadeOut(animationSpec = tween(durationMs)) +
+                        slideOutHorizontally(animationSpec = tween(durationMs)) { it / 4 }
                 }
             ) {
                 myComposable<Home> {

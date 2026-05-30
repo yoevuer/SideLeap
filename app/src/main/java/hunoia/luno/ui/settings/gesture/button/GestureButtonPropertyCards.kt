@@ -41,8 +41,8 @@ fun GestureButtonPhysicalParamsCard(
 ) {
     ExpressiveCard(
         icon = Icons.Default.Tune,
-        title = "物理参数",
-        subtitle = "角度、震动、触发距离与尺寸",
+        title = stringResource(id = R.string.physical_params),
+        subtitle = stringResource(id = R.string.physical_params_subtitle),
         onClick = {},
     ) {
         ExpressiveRow(
@@ -118,8 +118,8 @@ fun GestureButtonBehaviorCard(
 ) {
     ExpressiveCard(
         icon = Icons.Default.Keyboard,
-        title = "行为适配",
-        subtitle = "键盘与滑动模式",
+        title = stringResource(id = R.string.behavior_adaptation),
+        subtitle = stringResource(id = R.string.keyboard_slide_mode),
         onClick = {},
     ) {
         ExpressiveSwitchItem(
@@ -144,8 +144,8 @@ fun GestureButtonDisplayCard(
 ) {
     ExpressiveCard(
         icon = Icons.Default.Visibility,
-        title = "显示场景",
-        subtitle = "横屏、锁屏与桌面隐藏",
+        title = stringResource(id = R.string.display_scenes),
+        subtitle = stringResource(id = R.string.display_scenes_subtitle),
         onClick = {},
     ) {
         ExpressiveSwitchItem(

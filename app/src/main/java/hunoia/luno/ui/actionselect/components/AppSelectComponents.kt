@@ -37,16 +37,12 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.imageLoader
 import androidx.compose.foundation.combinedClickable
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
-import com.google.accompanist.permissions.isGranted
 import hunoia.luno.R
 import hunoia.luno.config.defaults.SettingsUiDefaults
 import hunoia.luno.quicklaunch.model.icon
 import hunoia.luno.quicklaunch.model.qualifiedName
 import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.bridge.intent.gotoAppDetailSettings
-import hunoia.luno.ui.permission.deniedForever
 import hunoia.luno.ui.actionselect.UiState.SelectedRecord
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVertical
@@ -58,7 +54,6 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.SnackbarResult
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 internal fun AppPage(
     onLongClick: (AppInfo) -> Unit,
@@ -66,7 +61,7 @@ internal fun AppPage(
     appInfos: List<AppInfo>,
     selectedRecord: SelectedRecord,
     snackbarHostState: SnackbarHostState,
-    permissionState: PermissionState,
+    permissionState: hunoia.luno.ui.permission.PermissionState,
     selectSingle: Boolean,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
@@ -76,7 +71,7 @@ internal fun AppPage(
         selectedRecord.list.filterIsInstance<AppInfo>()
     }
     Box(modifier = modifier) {
-        if (permissionState.status.isGranted) {
+        if (permissionState.isGranted) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = contentPadding
@@ -221,11 +216,10 @@ internal fun AppItem(
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 internal fun PermissionPage(
     snackbarHostState: SnackbarHostState,
-    permissionState: PermissionState
+    permissionState: hunoia.luno.ui.permission.PermissionState
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -235,7 +229,7 @@ internal fun PermissionPage(
         val coroutineScope = rememberCoroutineScope()
         TextButton(
             onClick = {
-                if (permissionState.status.deniedForever) {
+                if (permissionState.deniedForever) {
                     coroutineScope.launch {
                         val result = snackbarHostState.showSnackbar(
                             message = context.getString(R.string.goto_grant_get_apps_permission),

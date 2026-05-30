@@ -1,9 +1,8 @@
 package hunoia.luno.ui.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-
 
 val TopBarPaddingExtra = 8.dp
 val RootPadding = 12.dp
@@ -31,8 +30,6 @@ val DialogHexTextWidth = 120.dp
 
 // Gesture / interaction thresholds
 val MiniWindowWidth = 200.dp
-const val NavExitOffsetDivisor = 3
-
 // Spacing / gap
 val Spacing1 = 1.dp
 val Spacing2 = 2.dp
@@ -52,15 +49,29 @@ val Spacing48 = 48.dp
 val Spacing56 = 56.dp
 val Spacing64 = 64.dp
 
-// Shape corner radii
+// Shape primitives
 val ShapeExtraSmall = 4.dp
 val ShapeSmall = 8.dp
 val ShapeMedium = Spacing12
 val ShapeLarge = Spacing16
 val ShapeExtraLarge = Spacing20
 
+// Semantic shape tokens — override these to update component shapes globally
+val CardCorner = ShapeExtraLarge
+val DialogCorner = ShapeMedium
+val SheetCorner = ShapeExtraLarge
+val ChipCorner = ShapeSmall
+val ButtonCorner = ShapeSmall
+val SearchBarCorner = ShapeExtraLarge
+val ToastCorner = ShapeMedium
+val SliderCorner = ShapeExtraSmall
+
+val CardShape = RoundedCornerShape(CardCorner)
+val DialogShape = RoundedCornerShape(DialogCorner)
+val SheetTopShape = RoundedCornerShape(topStart = SheetCorner, topEnd = SheetCorner)
+
 // Animation durations (ms)
-const val AnimRipple = 400L
+const val AnimRipple = 300L
 const val AnimNormal = 150L
 const val AnimMedium = 200L
 const val AnimSlow = 250L

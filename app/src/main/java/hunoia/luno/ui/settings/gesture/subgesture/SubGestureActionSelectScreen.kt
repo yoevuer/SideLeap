@@ -21,8 +21,6 @@ import androidx.compose.ui.unit.dp
 import hunoia.luno.ui.component.displayNameRes
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
 import hunoia.luno.R
 import hunoia.luno.config.model.Action
 import hunoia.luno.action.api.ActionFacade
@@ -34,7 +32,7 @@ import hunoia.luno.ui.actionselect.UiState.SelectedRecord
 import hunoia.luno.ui.theme.ScrollBottomPadding
 import hunoia.luno.ui.permission.rememberGetInstalledAppsPermissionState
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubGestureActionSelectContent(
     subGestureId: String,
@@ -64,7 +62,7 @@ fun SubGestureActionSelectContent(
             }
         }
         LaunchedEffect(Unit) {
-            if (permissionState.status.isGranted) {
+            if (permissionState.isGranted) {
                 vm.updateAppInfos()
                 vm.updateShortcutInfos()
             }

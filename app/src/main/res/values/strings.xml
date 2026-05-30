@@ -465,4 +465,41 @@
     <string name="action_settings">动作设置</string>
     <string name="mirror_sub_gesture">建立镜像子手势</string>
     <string name="mirror_sub_gesture_desc">将当前子手势方向做镜像复制（左↔右、左上↔右上、左下↔右下）。</string>
+
+    <!-- Home screen -->
+    <string name="gesture_status_running">手势运行中</string>
+    <string name="gesture_status_needs_accessibility">需要无障碍权限</string>
+    <string name="gesture_status_disabled">手势已关闭</string>
+    <string name="gesture_running_desc">底部、侧边和子手势会按当前配置响应。</string>
+    <string name="gesture_needs_accessibility_desc">开启前需要先授予无障碍服务权限。</string>
+    <string name="gesture_disabled_desc">开启后即可使用已配置的所有手势入口。</string>
+    <string name="collapse">收起</string>
+    <string name="expand">展开</string>
+    <string name="manage_exclude">管理排除</string>
+    <string name="pointer_settings">指针设置</string>
+    <string name="freeze_action">冻结</string>
+    <string name="unfreeze_action">解冻</string>
+    <string name="custom_position_size">自定义位置与大小</string>
+    <string name="system_mini_window_bounds">由系统决定小窗边界</string>
+    <string name="position_size">位置大小</string>
+    <string name="tools">工具</string>
+    <string name="backup_restore_default_hint">备份、恢复、恢复默认</string>
+    <string name="default_action">默认</string>
+    <string name="confirm_reset">确认重置</string>
+    <string name="horizontal_offset">水平偏移</string>
+    <string name="vertical_offset">垂直偏移</string>
+    <string name="height">高度</string>
+    <string name="tap_mini_window">短按小窗</string>
+
+    <!-- Gesture settings subtitles -->
+    <string name="slide_actions_subtitle">定义 5 个滑动方向的触发动作</string>
+    <string name="long_slide_subtitle">长滑触发与动作面板样式</string>
+    <string name="tap_long_press_subtitle">点击与长按触发配置</string>
+    <string name="physical_params_subtitle">角度、震动、触发距离与尺寸</string>
+    <string name="physical_params">物理参数</string>
+    <string name="behavior_adaptation">行为适配</string>
+    <string name="keyboard_slide_mode">键盘与滑动模式</string>
+    <string name="display_scenes">显示场景</string>
+    <string name="display_scenes_subtitle">横屏、锁屏与桌面隐藏</string>
+    <string name="direction_actions_subtitle">8 个方向触发动作配置</string>
 </resources>

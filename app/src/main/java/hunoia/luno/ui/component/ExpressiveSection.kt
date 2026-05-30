@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import hunoia.luno.ui.theme.CardShape
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.SectionTitlePadding
 import hunoia.luno.ui.theme.Spacing8
@@ -34,7 +35,7 @@ fun ExpressiveSection(
         }
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
+            shape = CardShape,
             color = MaterialTheme.colorScheme.surfaceContainer,
         ) {
             Column(

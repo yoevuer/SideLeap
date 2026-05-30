@@ -49,7 +49,6 @@ import com.aaron.compose.ktx.onClick
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.R
 import hunoia.luno.quicklaunch.model.AppInfo
-import hunoia.luno.ui.permission.deniedForever
 import hunoia.luno.bridge.intent.gotoAppDetailSettings
 import hunoia.luno.bridge.feedback.showToast
 import hunoia.luno.quicklaunch.model.icon
@@ -64,13 +63,11 @@ import hunoia.luno.ui.theme.ScrollBottomPadding
 import hunoia.luno.ui.theme.TopBarPaddingExtra
 import hunoia.luno.ui.component.AppSearchBar
 import hunoia.luno.ui.component.EmptyState
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.launch
 
 
 
-@OptIn(ExperimentalPermissionsApi::class)
+
 @Composable
 fun FrozenAppBlacklistContent(
     onDismiss: () -> Unit,
@@ -92,14 +89,14 @@ fun FrozenAppBlacklistContent(
             if (granted) vm.reloadApps()
         }
         LaunchedEffect(vm, permissionState) {
-            if (!permissionState.status.isGranted) {
+            if (!permissionState.isGranted) {
                 permissionState.launchPermissionRequest()
             } else {
                 vm.reloadApps()
             }
         }
         Box(modifier = Modifier.fillMaxSize()) {
-            if (permissionState.status.isGranted) {
+            if (permissionState.isGranted) {
                 LoadingComponent(
                     modifier = Modifier.fillMaxSize(),
                     component = vm.loadingComponent
@@ -171,7 +168,7 @@ fun FrozenAppBlacklistContent(
                                             )
                                             Spacer(Modifier.padding(Spacing4))
                                             Text(
-                                                text = "已选",
+                                                text = stringResource(R.string.tab_selected),
                                                 style = MaterialTheme.typography.labelLarge,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
@@ -228,7 +225,7 @@ fun FrozenAppBlacklistContent(
                     val context = LocalContext.current
                     TextButton(
                         onClick = {
-                            if (permissionState.status.deniedForever) {
+                            if (permissionState.deniedForever) {
                                 context.gotoAppDetailSettings()
                             } else {
                                 permissionState.launchPermissionRequest()

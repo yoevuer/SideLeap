@@ -38,14 +38,14 @@ import kotlin.math.roundToInt
 fun HomeExcludeCard(uiState: UiState, onClick: () -> Unit) {
     ExpressiveCard(
         title = stringResource(id = R.string.exclude_app_short),
-        subtitle = "${uiState.excludedAppCount} 个应用已排除",
+        subtitle = stringResource(id = R.string.exclude_app_hint),
         icon = Icons.Default.Block,
         onClick = onClick,
         accent = MaterialTheme.colorScheme.secondaryContainer,
         onAccent = MaterialTheme.colorScheme.onSecondaryContainer,
     ) {
         FilledTonalButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-            Text("管理排除")
+            Text(stringResource(id = R.string.manage_exclude))
         }
     }
 }
@@ -54,12 +54,12 @@ fun HomeExcludeCard(uiState: UiState, onClick: () -> Unit) {
 fun HomePointerCard(onClick: () -> Unit) {
     ExpressiveCard(
         title = stringResource(id = R.string.pointer),
-        subtitle = "灵敏度、轨迹与长按",
+        subtitle = stringResource(id = R.string.pointer_hint),
         icon = Icons.Default.TouchApp,
         onClick = onClick,
     ) {
         FilledTonalButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-            Text("指针设置")
+            Text(stringResource(id = R.string.pointer_settings))
         }
     }
 }
@@ -73,7 +73,7 @@ fun HomeFrozenCard(
 ) {
     ExpressiveCard(
         title = stringResource(id = R.string.frozen_app_manage_short),
-        subtitle = "已冻结 ${uiState.frozenAppCount} / 已选 ${uiState.selectedFrozenAppCount}",
+        subtitle = stringResource(id = R.string.frozen_app_count_info, uiState.selectedFrozenAppCount, uiState.frozenAppCount),
         icon = Icons.Default.AcUnit,
         onClick = onClick,
         accent = MaterialTheme.colorScheme.tertiaryContainer,
@@ -81,10 +81,10 @@ fun HomeFrozenCard(
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing6)) {
             FilledTonalButton(onClick = onFreezeClick, modifier = Modifier.weight(1f)) {
-                Text("冻结")
+                Text(stringResource(id = R.string.freeze_action))
             }
             FilledTonalButton(onClick = onUnfreezeClick, modifier = Modifier.weight(1f)) {
-                Text("解冻")
+                Text(stringResource(id = R.string.unfreeze_action))
             }
         }
     }
@@ -98,7 +98,7 @@ fun HomeMiniWindowCard(
 ) {
     ExpressiveCard(
         title = stringResource(id = R.string.mini_window_position_short),
-        subtitle = if (uiState.miniWindowOverrideBounds) "自定义位置与大小" else "由系统决定小窗边界",
+        subtitle = if (uiState.miniWindowOverrideBounds) stringResource(id = R.string.custom_position_size) else stringResource(id = R.string.system_mini_window_bounds),
         icon = Icons.Default.Widgets,
         onClick = onClick,
         trailing = {
@@ -106,7 +106,7 @@ fun HomeMiniWindowCard(
         },
     ) {
         FilledTonalButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-            Text("位置大小")
+            Text(stringResource(id = R.string.position_size))
         }
     }
 }
@@ -122,20 +122,20 @@ fun HomeToolsCard(
     onCardAreaPosition: (Int) -> Unit,
 ) {
     ExpressiveCard(
-        title = "工具",
-        subtitle = "备份、恢复、恢复默认",
+        title = stringResource(id = R.string.tools),
+        subtitle = stringResource(id = R.string.backup_restore_default_hint),
         icon = Icons.Default.Build,
         onClick = {},
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing6)) {
             FilledTonalButton(onClick = onBackupClick, modifier = Modifier.weight(1f)) {
-                Text("备份")
+                Text(stringResource(id = R.string.backup))
             }
             FilledTonalButton(onClick = onRestoreClick, modifier = Modifier.weight(1f)) {
-                Text("恢复")
+                Text(stringResource(id = R.string.restore))
             }
             FilledTonalButton(onClick = onResetToggle, modifier = Modifier.weight(1f)) {
-                Text("默认")
+                Text(stringResource(id = R.string.default_action))
             }
         }
         AnimatedVisibility(
@@ -168,13 +168,13 @@ fun HomeToolsCard(
                             onClick = onResetDismiss,
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text("取消")
+                            Text(stringResource(id = R.string.cancel))
                         }
                         FilledTonalButton(
                             onClick = onResetConfirm,
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text("确认重置")
+                            Text(stringResource(id = R.string.confirm_reset))
                         }
                     }
                 }

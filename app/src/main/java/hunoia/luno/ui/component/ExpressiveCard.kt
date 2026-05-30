@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
+import hunoia.luno.ui.theme.CardShape
 import hunoia.luno.ui.theme.Spacing12
 import hunoia.luno.ui.theme.Spacing16
 import hunoia.luno.ui.theme.Spacing4
@@ -43,7 +44,7 @@ fun ExpressiveCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         onClick = onClick,
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = CardShape,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(modifier = Modifier.padding(Spacing16)) {

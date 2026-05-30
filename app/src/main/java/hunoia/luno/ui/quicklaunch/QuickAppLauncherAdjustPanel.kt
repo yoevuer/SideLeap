@@ -94,7 +94,7 @@ internal fun QuickAppLauncherAdjustPanel(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = "短按小窗",
+                text = stringResource(R.string.tap_mini_window),
                 style = MaterialTheme.typography.titleMedium,
             )
             Switch(
