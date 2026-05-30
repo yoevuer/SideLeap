@@ -75,10 +75,11 @@
     <string name="hide_gesture_button">隐藏触钮</string>
     <string name="animation_style_short">动画</string>
     <string name="exclude_app_short">排除</string>
+    <string name="excluded_count">已排除 %1$d 个应用</string>
     <string name="frozen_app_manage_short">冻结</string>
     <string name="mini_window_position_short">小窗</string>
     <string name="landscape">横屏模式</string>
-    <string name="frozen_app_manage">冻结应用管理</string>
+    <string name="frozen_app_manage">冻结管理</string>
     <string name="frozen_app_manage_hint">管理已冻结和解冻的应用</string>
     <string name="frozen_app_count_info">已选：%1$d｜已冻结：%2$d</string>
     <string name="one_key_list">一键名单</string>
@@ -172,6 +173,7 @@
     <string name="tab_apps">应用</string>
     <string name="tab_shortcuts">快捷</string>
     <string name="tab_selected">已选</string>
+    <string name="tab_unselected">未选</string>
     <string name="create_shortcut">创建快捷方式</string>
     <string name="launch_shortcut">启动快捷方式</string>
     <string name="background_color">背景色</string>

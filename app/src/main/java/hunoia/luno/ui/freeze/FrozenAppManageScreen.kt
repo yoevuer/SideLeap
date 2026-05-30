@@ -1,36 +1,30 @@
 package hunoia.luno.ui.freeze
-import hunoia.luno.ui.theme.*
 
-import hunoia.luno.ui.component.AppSearchBar
-import hunoia.luno.ui.component.EmptyState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,32 +36,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.imageLoader
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.component.UiBaseEvent
 import hunoia.luno.R
-import hunoia.luno.ui.component.TopBar
+import hunoia.luno.bridge.feedback.showToast
 import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.quicklaunch.model.icon
-import hunoia.luno.bridge.feedback.showToast
-import hunoia.luno.ui.theme.ContentPaddingHorizontal
-import hunoia.luno.ui.theme.ContentPaddingVertical
-import hunoia.luno.ui.theme.IconTextPadding
-import hunoia.luno.ui.theme.ItemPadding
-import hunoia.luno.ui.theme.MinInteractiveSize
-import hunoia.luno.ui.theme.ScrollBottomPadding
-import hunoia.luno.ui.theme.TopBarPaddingExtra
+import hunoia.luno.ui.component.AppSearchBar
+import hunoia.luno.ui.component.EmptyState
+import hunoia.luno.ui.component.TopBar
+import hunoia.luno.ui.theme.*
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FrozenAppManageContent(
     onDismiss: () -> Unit,
@@ -85,28 +71,26 @@ fun FrozenAppManageContent(
             }
         }
     ) { uiState ->
-        var selectedExpanded by remember { mutableStateOf(false) }
-        var showMenu by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) { vm.reloadApps() }
 
-        val context = LocalContext.current
         var searchQuery by remember { mutableStateOf("") }
+        var filterType by remember { mutableStateOf<String?>(null) }
 
-        val selectedFiltered = remember(searchQuery, uiState.oneKeyApps) {
-            if (searchQuery.isBlank()) uiState.oneKeyApps
-            else uiState.oneKeyApps.filter {
+        val allApps = remember(searchQuery, uiState.oneKeyApps, uiState.otherApps) {
+            val combined = uiState.oneKeyApps + uiState.otherApps
+            if (searchQuery.isBlank()) combined
+            else combined.filter {
                 it.label.contains(searchQuery, ignoreCase = true) ||
-                        it.packageName.contains(searchQuery, ignoreCase = true)
+                    it.packageName.contains(searchQuery, ignoreCase = true)
             }
         }
-        val unselectedFiltered = remember(searchQuery, uiState.otherApps) {
-            if (searchQuery.isBlank()) uiState.otherApps
-            else uiState.otherApps.filter {
-                it.label.contains(searchQuery, ignoreCase = true) ||
-                        it.packageName.contains(searchQuery, ignoreCase = true)
-            }
+        val filteredApps = when (filterType) {
+            "one_key" -> allApps.filter { it.packageName in uiState.oneKeyPackageNames }
+            "other" -> allApps.filter { it.packageName !in uiState.oneKeyPackageNames }
+            else -> allApps
         }
-        val hasAnyMatch = selectedFiltered.isNotEmpty() || unselectedFiltered.isNotEmpty()
+        val selectedCount = uiState.oneKeyPackageNames.size
+        val frozenCount = uiState.frozenStateByPackage.count { it.value }
 
         Scaffold(topBar = {
             TopBar(
@@ -116,27 +100,11 @@ fun FrozenAppManageContent(
                     IconButton(onClick = { vm.clearSelections() }) {
                         Icon(Icons.Default.Restore, contentDescription = stringResource(R.string.reset))
                     }
+                    IconButton(onClick = { vm.onOneKeySelectFrozen() }) {
+                        Icon(Icons.Default.SelectAll, contentDescription = stringResource(R.string.frozen_one_key_select_frozen))
+                    }
                     IconButton(onClick = { vm.reloadApps() }) {
                         Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.refresh))
-                    }
-                    Box {
-                        IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more))
-                        }
-                        DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                            DropdownMenuItem(
-                                onClick = { showMenu = false; vm.onOneKeyFreezeAll() },
-                                text = { Text(stringResource(R.string.frozen_one_key_freeze)) }
-                            )
-                            DropdownMenuItem(
-                                onClick = { showMenu = false; vm.onOneKeyUnfreezeAll() },
-                                text = { Text(stringResource(R.string.frozen_one_key_unfreeze)) }
-                            )
-                            DropdownMenuItem(
-                                onClick = { showMenu = false; vm.onOneKeySelectFrozen() },
-                                text = { Text(stringResource(R.string.frozen_one_key_select_frozen)) }
-                            )
-                        }
                     }
                 }
             )
@@ -149,74 +117,75 @@ fun FrozenAppManageContent(
                     placeholder = stringResource(R.string.search_app_hint),
                 )
 
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = ContentPaddingHorizontal, vertical = Spacing4),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing8)
+                ) {
+                    item {
+                        val isAll = filterType == null
+                        FilterChip(
+                            selected = isAll,
+                            onClick = { filterType = null },
+                            label = { Text(stringResource(R.string.all_categories)) },
+                            leadingIcon = if (isAll) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                            } else null
+                        )
+                    }
+                    item {
+                        val isSelected = filterType == "one_key"
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = { filterType = if (isSelected) null else "one_key" },
+                            label = { Text(stringResource(R.string.tab_selected)) },
+                            leadingIcon = if (isSelected) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                            } else null
+                        )
+                    }
+                    item {
+                        val isUnselected = filterType == "other"
+                        FilterChip(
+                            selected = isUnselected,
+                            onClick = { filterType = if (isUnselected) null else "other" },
+                            label = { Text(stringResource(R.string.tab_unselected)) },
+                            leadingIcon = if (isUnselected) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                            } else null
+                        )
+                    }
+                }
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = ContentPaddingHorizontal * 2, vertical = Spacing4),
+                    shape = SheetTopShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    Text(
+                        text = stringResource(R.string.frozen_app_count_info, selectedCount, frozenCount),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = Spacing16, vertical = Spacing10)
+                    )
+                }
+
+                val hasAnyMatch = (searchQuery.isBlank() && filteredApps.isNotEmpty()) || (searchQuery.isNotBlank() && allApps.isNotEmpty())
+
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = ScrollBottomPadding)
                 ) {
-                    if (!hasAnyMatch && searchQuery.isNotBlank()) {
+                    if (!hasAnyMatch && (searchQuery.isNotBlank() || filterType != null)) {
                         item {
                             EmptyState(message = stringResource(R.string.no_matching_results))
                         }
-                    }
-                    if (selectedFiltered.isNotEmpty()) {
-                        item(key = "selected_header") {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { selectedExpanded = !selectedExpanded }
-                                    .padding(horizontal = Spacing16, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowDropDown,
-                                    contentDescription = null,
-                                    modifier = Modifier.graphicsLayer {
-                                        rotationX = if (selectedExpanded) 0f else 180f
-                                    }
-                                )
-                                Spacer(Modifier.padding(Spacing4))
-                                Text(
-                                    text = stringResource(R.string.tab_selected),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(Modifier.weight(1f))
-                                Text(
-                                    text = "${uiState.oneKeyPackageNames.size}",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        if (selectedExpanded) {
-                            items(selectedFiltered, key = { it.packageName }) { app ->
-                                val isFrozen = uiState.frozenStateByPackage[app.packageName] == true
-                                val checked = app.packageName in uiState.pendingOneKeyPackageNames
-                                FrozenAppItem(
-                                    app = app,
-                                    isFrozen = isFrozen,
-                                    checked = checked,
-                                    onCheckedChange = { vm.onOneKeyChecked(app.packageName, it) },
-                                    onLongClick = { vm.onToggleFrozen(app.packageName) }
-                                )
-                            }
-                        }
-                    }
-                    if (unselectedFiltered.isNotEmpty()) {
-                        item(key = "unselected_header") {
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = Spacing16, vertical = 8.dp),
-                                text = "未选",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        items(unselectedFiltered, key = { it.packageName }) { app ->
+                    } else if (filteredApps.isNotEmpty()) {
+                        items(filteredApps, key = { it.packageName }) { app ->
                             val isFrozen = uiState.frozenStateByPackage[app.packageName] == true
                             val checked = app.packageName in uiState.pendingOneKeyPackageNames
-                                FrozenAppItem(
+                            FrozenAppItem(
                                 app = app,
                                 isFrozen = isFrozen,
                                 checked = checked,
@@ -245,7 +214,7 @@ private fun FrozenAppItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing12, vertical = Spacing4),
-        shape = MaterialTheme.shapes.large,
+        shape = CardShape,
         color = if (checked) MaterialTheme.colorScheme.primaryContainer
                 else MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
@@ -262,8 +231,7 @@ private fun FrozenAppItem(
             AsyncImage(
                 modifier = Modifier
                     .padding(start = ContentPaddingHorizontal)
-                    .size(MinInteractiveSize)
-                    .clip(MaterialTheme.shapes.medium),
+                    .size(MinInteractiveSize),
                 model = app.icon,
                 contentDescription = null,
                 imageLoader = context.imageLoader,

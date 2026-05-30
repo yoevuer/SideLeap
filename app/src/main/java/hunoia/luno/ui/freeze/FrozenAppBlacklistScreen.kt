@@ -1,23 +1,25 @@
 package hunoia.luno.ui.freeze
-import hunoia.luno.ui.theme.*
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,40 +35,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.imageLoader
 import com.aaron.compose.component.LoadingComponent
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.component.UiBaseEvent
-import com.aaron.compose.ktx.onClick
-import hunoia.luno.ui.component.TopBar
 import hunoia.luno.R
-import hunoia.luno.quicklaunch.model.AppInfo
-import hunoia.luno.bridge.intent.gotoAppDetailSettings
 import hunoia.luno.bridge.feedback.showToast
+import hunoia.luno.bridge.intent.gotoAppDetailSettings
+import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.quicklaunch.model.icon
 import hunoia.luno.quicklaunch.model.qualifiedName
-import hunoia.luno.ui.permission.rememberGetInstalledAppsPermissionState
-import hunoia.luno.ui.theme.ContentPaddingHorizontal
-import hunoia.luno.ui.theme.ContentPaddingVertical
-import hunoia.luno.ui.theme.IconTextPadding
-import hunoia.luno.ui.theme.ItemPadding
-import hunoia.luno.ui.theme.MinInteractiveSize
-import hunoia.luno.ui.theme.ScrollBottomPadding
-import hunoia.luno.ui.theme.TopBarPaddingExtra
 import hunoia.luno.ui.component.AppSearchBar
 import hunoia.luno.ui.component.EmptyState
-import kotlinx.coroutines.launch
-
-
-
+import hunoia.luno.ui.component.TopBar
+import hunoia.luno.ui.permission.rememberGetInstalledAppsPermissionState
+import hunoia.luno.ui.theme.*
 
 @Composable
 fun FrozenAppBlacklistContent(
@@ -102,29 +91,48 @@ fun FrozenAppBlacklistContent(
                     component = vm.loadingComponent
                 ) {
                     var searchQuery by remember { mutableStateOf("") }
-                    val selectedFiltered = remember(searchQuery, uiState.selectedAppInfos) {
-                        if (searchQuery.isBlank()) uiState.selectedAppInfos
-                        else uiState.selectedAppInfos.filter {
+                    var filterType by remember { mutableStateOf<String?>(null) }
+                    var showResetDialog by remember { mutableStateOf(false) }
+
+                    val allApps = remember(searchQuery, uiState.selectedAppInfos, uiState.unselectedAppInfos) {
+                        val combined = uiState.selectedAppInfos + uiState.unselectedAppInfos
+                        if (searchQuery.isBlank()) combined
+                        else combined.filter {
                             it.label.contains(searchQuery, ignoreCase = true) ||
-                                    it.packageName.contains(searchQuery, ignoreCase = true)
+                                it.packageName.contains(searchQuery, ignoreCase = true)
                         }
                     }
-                    val unselectedFiltered = remember(searchQuery, uiState.unselectedAppInfos) {
-                        if (searchQuery.isBlank()) uiState.unselectedAppInfos
-                        else uiState.unselectedAppInfos.filter {
-                            it.label.contains(searchQuery, ignoreCase = true) ||
-                                    it.packageName.contains(searchQuery, ignoreCase = true)
-                        }
+                    val filteredApps = when (filterType) {
+                        "selected" -> allApps.filter { it.packageName in uiState.excludeApps }
+                        else -> allApps
                     }
-                    val hasAnyMatch = selectedFiltered.isNotEmpty() || unselectedFiltered.isNotEmpty()
-                    var selectedExpanded by remember { mutableStateOf(false) }
+                    val excludedCount = uiState.excludeApps.size
+                    val hasAnyMatch = (searchQuery.isBlank() && filteredApps.isNotEmpty()) || (searchQuery.isNotBlank() && allApps.isNotEmpty())
+
+                    if (showResetDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showResetDialog = false },
+                            title = { Text(stringResource(R.string.reset)) },
+                            text = { Text(stringResource(R.string.reset_exclude_apps_warning_desc)) },
+                            confirmButton = {
+                                TextButton(onClick = { vm.reset(); showResetDialog = false }) {
+                                    Text(stringResource(R.string.confirm))
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showResetDialog = false }) {
+                                    Text(stringResource(R.string.cancel))
+                                }
+                            }
+                        )
+                    }
 
                     Scaffold(topBar = {
                         TopBar(
                             onBack = onDismiss,
                             title = stringResource(R.string.exclude_app),
                             actions = {
-                                IconButton(onClick = { vm.reset() }) {
+                                IconButton(onClick = { showResetDialog = true }) {
                                     Icon(Icons.Default.Restore, contentDescription = stringResource(R.string.reset))
                                 }
                                 IconButton(onClick = { vm.reloadApps() }) {
@@ -141,69 +149,61 @@ fun FrozenAppBlacklistContent(
                                 placeholder = stringResource(R.string.search_app_hint),
                             )
 
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = ContentPaddingHorizontal, vertical = Spacing4),
+                                horizontalArrangement = Arrangement.spacedBy(Spacing8)
+                            ) {
+                                item {
+                                    val isAll = filterType == null
+                                    FilterChip(
+                                        selected = isAll,
+                                        onClick = { filterType = null },
+                                        label = { Text(stringResource(R.string.all_categories)) },
+                                        leadingIcon = if (isAll) {
+                                            { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                                        } else null
+                                    )
+                                }
+                                item {
+                                    val isSelected = filterType == "selected"
+                                    FilterChip(
+                                        selected = isSelected,
+                                        onClick = { filterType = if (isSelected) null else "selected" },
+                                        label = { Text(stringResource(R.string.tab_selected)) },
+                                        leadingIcon = if (isSelected) {
+                                            { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                                        } else null
+                                    )
+                                }
+                            }
+
+                            if (excludedCount > 0) {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = ContentPaddingHorizontal * 2, vertical = Spacing4),
+                                    shape = SheetTopShape,
+                                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.excluded_count, excludedCount),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(horizontal = Spacing16, vertical = Spacing10)
+                                    )
+                                }
+                            }
+
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
                                 contentPadding = PaddingValues(bottom = ScrollBottomPadding)
                             ) {
-                                if (!hasAnyMatch && searchQuery.isNotBlank()) {
+                                if (!hasAnyMatch && (searchQuery.isNotBlank() || filterType != null)) {
                                     item {
                                         EmptyState(message = stringResource(R.string.no_matching_results))
                                     }
-                                }
-                                if (selectedFiltered.isNotEmpty()) {
-                                    item(key = "selected_header") {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable { selectedExpanded = !selectedExpanded }
-                                                .padding(horizontal = Spacing16, vertical = 8.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.ArrowDropDown,
-                                                contentDescription = null,
-                                                modifier = Modifier.graphicsLayer {
-                                                    rotationX = if (selectedExpanded) 0f else 180f
-                                                }
-                                            )
-                                            Spacer(Modifier.padding(Spacing4))
-                                            Text(
-                                                text = stringResource(R.string.tab_selected),
-                                                style = MaterialTheme.typography.labelLarge,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                            Spacer(Modifier.weight(1f))
-                                            Text(
-                                                text = "${uiState.excludeApps.size}",
-                                                style = MaterialTheme.typography.labelLarge,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        }
-                                    }
-                                    if (selectedExpanded) {
-                                        items(selectedFiltered, key = { it.qualifiedName }) { item ->
-                                            AppBlacklistItem(
-                                                appInfo = item,
-                                                selected = item.packageName in uiState.excludeApps,
-                                                onSelect = { selected ->
-                                                    vm.selectApp(item, selected)
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                                if (unselectedFiltered.isNotEmpty()) {
-                                    item(key = "unselected_header") {
-                                        Text(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = Spacing16, vertical = 8.dp),
-                                            text = "未选",
-                                            style = MaterialTheme.typography.labelLarge,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                    items(unselectedFiltered, key = { it.qualifiedName }) { item ->
+                                } else if (filteredApps.isNotEmpty()) {
+                                    items(filteredApps, key = { it.qualifiedName }) { item ->
                                         AppBlacklistItem(
                                             appInfo = item,
                                             selected = item.packageName in uiState.excludeApps,
@@ -218,11 +218,11 @@ fun FrozenAppBlacklistContent(
                     }
                 }
             } else {
+                val context = LocalContext.current
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    val context = LocalContext.current
                     TextButton(
                         onClick = {
                             if (permissionState.deniedForever) {
@@ -251,7 +251,7 @@ private fun AppBlacklistItem(
             .fillMaxWidth()
             .padding(horizontal = Spacing12, vertical = Spacing4),
         onClick = { onSelect(!selected) },
-        shape = MaterialTheme.shapes.large,
+        shape = CardShape,
         color = if (selected) MaterialTheme.colorScheme.primaryContainer
                 else MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
