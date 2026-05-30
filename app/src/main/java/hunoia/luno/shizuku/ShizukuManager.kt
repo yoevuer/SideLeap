@@ -12,6 +12,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -287,27 +289,34 @@ object ShizukuManager {
     suspend fun executeBatch(
         packageNames: List<String>,
         disable: Boolean
-    ): BatchFrozenResult = withContext(Dispatchers.IO) {
+    ): BatchFrozenResult {
         val requestedCount = packageNames.size
-        if (packageNames.isEmpty()) return@withContext BatchFrozenResult(0, 0, 0, 0, false)
+        if (packageNames.isEmpty()) return BatchFrozenResult(0, 0, 0, 0, false)
 
         pmProxy
         amProxy
         setEnabledSetting
 
-        var successCount = 0
-        var failedCount = 0
-        for (pkg in packageNames) {
-            val result = if (disable) disablePackageUnchecked(pkg) else enablePackageUnchecked(pkg)
-            if (result.success) successCount++ else failedCount++
+        return coroutineScope {
+            val deferreds = packageNames.map { pkg ->
+                async(Dispatchers.IO) {
+                    if (disable) disablePackageUnchecked(pkg) else enablePackageUnchecked(pkg)
+                }
+            }
+            var successCount = 0
+            var failedCount = 0
+            deferreds.forEach {
+                val r = it.await()
+                if (r.success) successCount++ else failedCount++
+            }
+            BatchFrozenResult(
+                requestedCount = requestedCount,
+                attemptedCount = packageNames.size,
+                successCount = successCount,
+                failedCount = failedCount,
+                fallbackTriggered = false
+            )
         }
-        BatchFrozenResult(
-            requestedCount = requestedCount,
-            attemptedCount = packageNames.size,
-            successCount = successCount,
-            failedCount = failedCount,
-            fallbackTriggered = false
-        )
     }
 
     // --- Internal (unchecked, no IO wrapper) ---

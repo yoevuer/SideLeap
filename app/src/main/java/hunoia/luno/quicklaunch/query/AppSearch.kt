@@ -3,15 +3,18 @@ package hunoia.luno.quicklaunch.query
 import com.github.promeg.pinyinhelper.Pinyin
 import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.config.model.QuickAppLauncherSettings
+import java.util.Collections
 import java.util.LinkedHashMap
 
 object AppSearch {
 
     data class AppSearchIndex(val raw: String, val pinyin: String, val initials: String)
 
-    private val pinyinIndexCache: MutableMap<String, AppSearchIndex> = object : LinkedHashMap<String, AppSearchIndex>(1024, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, AppSearchIndex>?): Boolean = size > 1024
-    }
+    private val pinyinIndexCache: MutableMap<String, AppSearchIndex> = Collections.synchronizedMap(
+        object : LinkedHashMap<String, AppSearchIndex>(1024, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, AppSearchIndex>?): Boolean = size > 1024
+        }
+    )
 
     fun sortApps(apps: List<AppInfo>, settings: QuickAppLauncherSettings, tokens: List<String>): List<AppInfo> {
         val matched = if (tokens.isEmpty()) apps else apps.filter { app -> matchesApp(app, tokens) }

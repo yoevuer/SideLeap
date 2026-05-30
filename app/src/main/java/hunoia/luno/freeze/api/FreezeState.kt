@@ -6,15 +6,21 @@ import android.content.pm.PackageManager
 import hunoia.luno.core.AppContext
 import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.bridge.PackageChangeReceiver
+import java.util.Collections
+import java.util.LinkedHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 object FreezeState {
 
-    private var frozenCache: List<AppInfo>? = null
+    private var frozenCache: Map<String, AppInfo>? = null
     private var receiverRegistered = false
-    private val frozenResultCache = mutableMapOf<String, Boolean>()
+    private val frozenResultCache: MutableMap<String, Boolean> = Collections.synchronizedMap(
+        object : LinkedHashMap<String, Boolean>(1024, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Boolean>?): Boolean = size > 1024
+        }
+    )
 
     private fun ensureReceiver() {
         if (receiverRegistered) return
@@ -29,6 +35,8 @@ object FreezeState {
             }
         }
     }
+
+    fun isCacheReady(): Boolean = frozenCache != null
 
     fun invalidateFrozenCache() {
         frozenCache = null
@@ -50,8 +58,8 @@ object FreezeState {
     fun markFrozen(packageName: String) {
         frozenResultCache[packageName] = true
         frozenCache?.let { cache ->
-            if (cache.none { it.packageName == packageName }) {
-                frozenCache = cache + AppInfo(packageName, "", packageName)
+            if (packageName !in cache) {
+                frozenCache = cache + (packageName to AppInfo(packageName, "", packageName))
             }
         }
     }
@@ -59,17 +67,16 @@ object FreezeState {
     fun markUnfrozen(packageName: String) {
         frozenResultCache[packageName] = false
         frozenCache?.let { cache ->
-            frozenCache = cache.filter { it.packageName != packageName }
+            frozenCache = cache - packageName
         }
     }
 
     fun markBatchFrozen(packageNames: Collection<String>) {
         packageNames.forEach { frozenResultCache[it] = true }
         frozenCache?.let { cache ->
-            val existing = cache.map { it.packageName }.toSet()
-            val new = packageNames.filter { it !in existing }
+            val new = packageNames.filter { it !in cache }
             if (new.isNotEmpty()) {
-                frozenCache = cache + new.map { AppInfo(it, "", it) }
+                frozenCache = cache + new.associateWith { AppInfo(it, "", it) }
             }
         }
     }
@@ -77,21 +84,21 @@ object FreezeState {
     fun markBatchUnfrozen(packageNames: Collection<String>) {
         packageNames.forEach { frozenResultCache[it] = false }
         frozenCache?.let { cache ->
-            frozenCache = cache.filter { it.packageName !in packageNames }
+            frozenCache = cache - packageNames.toSet()
         }
     }
 
     fun queryFrozenStateByPackage(context: Context, packageNames: Collection<String>): Map<String, Boolean> {
         if (packageNames.isEmpty()) return emptyMap()
-        val frozenSet = frozenCache?.map { it.packageName }?.toSet()
-        if (frozenSet != null) {
-            return packageNames.associateWith { it in frozenSet }
+        val cached = frozenCache
+        if (cached != null) {
+            return packageNames.associateWith { it in cached }
         }
         return packageNames.associateWith { isFrozen(context, it) }
     }
 
     fun queryFrozenApplications(context: Context): List<AppInfo> {
-        frozenCache?.let { return it }
+        frozenCache?.let { cache -> return cache.values.toList() }
         ensureReceiver()
 
         val pm = context.packageManager
@@ -130,7 +137,7 @@ object FreezeState {
                 label = label
             ))
         }
-        frozenCache = result
+        frozenCache = result.associateBy { it.packageName }
         return result
     }
 
@@ -145,4 +152,3 @@ object FreezeState {
             (flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
     }
 }
-

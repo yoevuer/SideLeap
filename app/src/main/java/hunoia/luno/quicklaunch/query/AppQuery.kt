@@ -17,14 +17,14 @@ import kotlinx.coroutines.withContext
 
 object AppQuery {
 
-    private var launcherCache: MutableMap<Boolean, List<AppInfo>>? = null
+    private val launcherCache = mutableMapOf<Boolean, List<AppInfo>>()
     private var receiverRegistered = false
 
     private fun ensureReceiver() {
         if (receiverRegistered) return
         receiverRegistered = true
         PackageChangeReceiver.register(AppContext.get()) {
-            launcherCache?.clear()
+            launcherCache.clear()
             AppContext.applicationScope?.launch {
                 withContext(Dispatchers.IO) {
                     try {
@@ -39,11 +39,11 @@ object AppQuery {
     }
 
     fun invalidateLauncherCache() {
-        launcherCache?.clear()
+        launcherCache.clear()
     }
 
     fun queryLauncherActivities(context: Context, allowRepeatPackage: Boolean = true): List<AppInfo> {
-        launcherCache?.get(allowRepeatPackage)?.let { return it }
+        launcherCache[allowRepeatPackage]?.let { return it }
         ensureReceiver()
 
         val list = mutableListOf<AppInfo>()
@@ -67,8 +67,7 @@ object AppQuery {
             list.add(item)
             pkgList.add(packageName)
         }
-        val cache = launcherCache ?: mutableMapOf<Boolean, List<AppInfo>>().also { launcherCache = it }
-        cache[allowRepeatPackage] = list
+        launcherCache[allowRepeatPackage] = list
         return list
     }
 

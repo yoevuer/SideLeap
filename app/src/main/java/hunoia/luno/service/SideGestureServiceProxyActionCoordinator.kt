@@ -14,6 +14,7 @@ import hunoia.luno.config.model.ActionSettings
 import hunoia.luno.bridge.feedback.showToast
 import hunoia.luno.bridge.feedback.showToastLong
 import hunoia.luno.bridge.feedback.showVersionTooLowToast as showVersionTooLowToastUtil
+import java.util.LinkedHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,8 +30,12 @@ internal class SideGestureServiceProxyActionCoordinator(
 
     private var prevPackageName: String? = null
     private var currPackageName: String? = null
-    private val launchablePackageCache = mutableMapOf<String, Boolean>()
-    private val activityExistsCache = mutableMapOf<String, Boolean>()
+    private val launchablePackageCache = object : LinkedHashMap<String, Boolean>(256, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Boolean>?): Boolean = size > 256
+    }
+    private val activityExistsCache = object : LinkedHashMap<String, Boolean>(512, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Boolean>?): Boolean = size > 512
+    }
 
     private var wakeLock: PowerManager.WakeLock? = null
 
@@ -177,9 +182,6 @@ internal class SideGestureServiceProxyActionCoordinator(
     }
 
     private fun cacheActivityExists(key: String, value: Boolean) {
-        if (activityExistsCache.size > 512) {
-            activityExistsCache.clear()
-        }
         activityExistsCache[key] = value
     }
 

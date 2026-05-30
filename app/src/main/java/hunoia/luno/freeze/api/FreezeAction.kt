@@ -56,8 +56,12 @@ object FreezeAction {
     }
 
     suspend fun batchFreeze(context: Context, packageNames: List<String>): BatchFreezeResult {
-        val frozenState = FreezeState.queryFrozenStateByPackage(context, packageNames)
-        val candidates = packageNames.filter { frozenState[it] != true }
+        val candidates = if (FreezeState.isCacheReady()) {
+            val frozenState = FreezeState.queryFrozenStateByPackage(context, packageNames)
+            packageNames.filter { frozenState[it] != true }
+        } else {
+            packageNames
+        }
         if (candidates.isEmpty()) {
             return BatchFreezeResult(packageNames.size, 0, 0, 0)
         }
@@ -78,8 +82,12 @@ object FreezeAction {
     }
 
     suspend fun batchUnfreeze(context: Context, packageNames: List<String>): BatchFreezeResult {
-        val frozenState = FreezeState.queryFrozenStateByPackage(context, packageNames)
-        val candidates = packageNames.filter { frozenState[it] == true }
+        val candidates = if (FreezeState.isCacheReady()) {
+            val frozenState = FreezeState.queryFrozenStateByPackage(context, packageNames)
+            packageNames.filter { frozenState[it] == true }
+        } else {
+            packageNames
+        }
         if (candidates.isEmpty()) {
             return BatchFreezeResult(packageNames.size, 0, 0, 0)
         }
@@ -103,8 +111,12 @@ object FreezeAction {
         val settings = ConfigProvider.getFrozenAppSettings()
         val oneKeySet = settings.oneKeyPackageNames
 
-        val frozenState = FreezeState.queryFrozenStateByPackage(context, oneKeySet)
-        val candidates = oneKeySet.filter { frozenState[it] != true }
+        val candidates = if (FreezeState.isCacheReady()) {
+            val frozenState = FreezeState.queryFrozenStateByPackage(context, oneKeySet)
+            oneKeySet.filter { frozenState[it] != true }
+        } else {
+            oneKeySet.toList()
+        }
 
         val successCount = if (candidates.isNotEmpty()) {
             val batch = ShizukuManager.executeBatch(candidates, disable = true)
@@ -125,8 +137,12 @@ object FreezeAction {
     }
 
     suspend fun oneKeyUnfreeze(context: Context, targets: List<String>): OneKeyFreezeResult = withContext(Dispatchers.IO) {
-        val frozenState = FreezeState.queryFrozenStateByPackage(context, targets)
-        val candidates = targets.filter { frozenState[it] == true }
+        val candidates = if (FreezeState.isCacheReady()) {
+            val frozenState = FreezeState.queryFrozenStateByPackage(context, targets)
+            targets.filter { frozenState[it] == true }
+        } else {
+            targets
+        }
 
         val successCount = if (candidates.isNotEmpty()) {
             val batch = ShizukuManager.executeBatch(candidates, disable = false)
