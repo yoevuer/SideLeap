@@ -53,7 +53,7 @@ fun HomeCard(
                     maxLines = 1,
                 )
                 if (subtitle.isNotEmpty()) {
-                    Spacer(Modifier.height(Spacing2))
+                    Spacer(Modifier.height(Spacing4))
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodySmall,

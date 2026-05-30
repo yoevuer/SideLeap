@@ -8,7 +8,6 @@ import android.util.Log
 import hunoia.luno.config.ConfigProvider
 import hunoia.luno.shizuku.ShizukuManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 data class FreezeResult(
@@ -44,7 +43,7 @@ object FreezeAction {
         val result = withContext(Dispatchers.IO) {
             ShizukuManager.disablePackage(packageName)
         }
-        delay(100)
+        FreezeState.invalidateFrozenCache()
         val nowFrozen = FreezeState.isFrozen(context, packageName)
         return FreezeResult(result.success, packageName, wasFrozen = false, nowFrozen = nowFrozen)
     }
@@ -57,7 +56,7 @@ object FreezeAction {
         val result = withContext(Dispatchers.IO) {
             ShizukuManager.enablePackage(packageName)
         }
-        delay(100)
+        FreezeState.invalidateFrozenCache()
         val nowFrozen = FreezeState.isFrozen(context, packageName)
         return FreezeResult(result.success, packageName, wasFrozen = true, nowFrozen = nowFrozen)
     }
@@ -140,7 +139,7 @@ object FreezeAction {
             ShizukuManager.executeBatch(candidates, disable = true)
         }
 
-        delay(100)
+        FreezeState.invalidateFrozenCache()
         val latestState = FreezeState.queryFrozenStateByPackage(context, candidates)
         val successCount = candidates.count { latestState[it] == true }
 
@@ -170,7 +169,7 @@ object FreezeAction {
             ShizukuManager.executeBatch(candidates, disable = false)
         }
 
-        delay(100)
+        FreezeState.invalidateFrozenCache()
         val latestState = FreezeState.queryFrozenStateByPackage(context, candidates)
         val successCount = candidates.count { latestState[it] != true }
 

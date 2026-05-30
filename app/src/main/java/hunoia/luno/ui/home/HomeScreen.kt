@@ -42,7 +42,6 @@ import hunoia.luno.config.model.SubGesture
 import hunoia.luno.bridge.intent.gotoAccessibilitySettings
 import hunoia.luno.ui.home.UiEvent
 import hunoia.luno.ui.theme.SectionPadding
-import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.MyColumn
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.ui.component.color.ColorPickerBottomSheet
@@ -50,10 +49,7 @@ import hunoia.luno.ui.component.color.ColorSelection
 import hunoia.luno.ui.theme.resolveColor
 import hunoia.luno.config.model.ThemeColorKey
 import kotlin.math.roundToInt
-import hunoia.luno.ui.freeze.FrozenAppBlacklistContent
-import hunoia.luno.ui.home.sheet.FrozenAppManageSheet
 import hunoia.luno.ui.home.sheet.MiniWindowSettingsSheet
-import hunoia.luno.ui.home.sheet.PointerSettingsSheet
 
 
 
@@ -62,13 +58,13 @@ import hunoia.luno.ui.home.sheet.PointerSettingsSheet
 fun HomeScreen(
     onNavToGestureButtonSettings: (GestureButton) -> Unit,
     onNavToSubGestureEditor: (String) -> Unit,
+    onNavToPointerSettings: () -> Unit = {},
+    onNavToFrozenManage: () -> Unit = {},
+    onNavToAppBlacklist: () -> Unit = {},
     vm: HomeVM = viewModel()
 ) {
         val scrollState = rememberScrollState()
-        var showPointerSettings by remember { mutableStateOf(false) }
-        var showFrozenManage by remember { mutableStateOf(false) }
         var showMiniWindowSettings by remember { mutableStateOf(false) }
-        var showAppBlacklist by remember { mutableStateOf(false) }
         var showResetConfirm by remember { mutableStateOf(false) }
         var colorPickerTarget by remember { mutableStateOf<Any?>(null) }
         var colorPickerColor by remember { mutableStateOf(Color.Transparent) }
@@ -115,29 +111,12 @@ fun HomeScreen(
         }
 
             Box {
-                PointerSettingsSheet(
-                    show = showPointerSettings,
-                    onDismiss = { showPointerSettings = false },
-                    pointer = uiState.pointer,
-                    vm = vm
-                )
-                FrozenAppManageSheet(
-                    show = showFrozenManage,
-                    onDismiss = { showFrozenManage = false }
-                )
                 MiniWindowSettingsSheet(
                     show = showMiniWindowSettings,
                     onDismiss = { showMiniWindowSettings = false },
                     uiState = uiState,
                     vm = vm
                 )
-                if (showAppBlacklist) {
-                    OptimizedBottomSheet(
-                        onDismissRequest = { showAppBlacklist = false }
-                    ) {
-                        FrozenAppBlacklistContent(onDismiss = { showAppBlacklist = false })
-                    }
-                }
                 if (colorPickerTarget != null) {
                     val scheme = MaterialTheme.colorScheme
                     val themeColorArgb = remember(scheme) {
@@ -208,9 +187,9 @@ fun HomeScreen(
 
                         HomeFeatureGrid(
                             uiState = uiState,
-                            onExcludeClick = { showAppBlacklist = true },
-                            onPointerClick = { showPointerSettings = true },
-                            onFrozenClick = { showFrozenManage = true },
+                            onExcludeClick = onNavToAppBlacklist,
+                            onPointerClick = onNavToPointerSettings,
+                            onFrozenClick = onNavToFrozenManage,
                             onFreezeClick = { vm.oneKeyFreeze() },
                             onUnfreezeClick = { vm.oneKeyUnfreeze() },
                             onMiniWindowClick = { showMiniWindowSettings = true },

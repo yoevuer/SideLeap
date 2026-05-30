@@ -79,7 +79,7 @@ fun HomeFrozenCard(
         accent = MaterialTheme.colorScheme.tertiaryContainer,
         onAccent = MaterialTheme.colorScheme.onTertiaryContainer,
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing6)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing12)) {
             FilledTonalButton(onClick = onFreezeClick, modifier = Modifier.weight(1f)) {
                 Text(stringResource(id = R.string.freeze_action))
             }
@@ -127,7 +127,7 @@ fun HomeToolsCard(
         icon = Icons.Default.Build,
         onClick = {},
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing6)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing12)) {
             FilledTonalButton(onClick = onBackupClick, modifier = Modifier.weight(1f)) {
                 Text(stringResource(id = R.string.backup))
             }

@@ -52,7 +52,7 @@ fun HomeHeroCard(
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = if (enabled) MaterialTheme.colorScheme.primaryContainer
-                             else MaterialTheme.colorScheme.surfaceContainerHigh,
+                             else MaterialTheme.colorScheme.surfaceContainer,
         ),
     ) {
         Row(
@@ -68,7 +68,7 @@ fun HomeHeroCard(
                 shape = MaterialTheme.shapes.large,
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = if (enabled) MaterialTheme.colorScheme.primary
-                                     else MaterialTheme.colorScheme.surface,
+                                     else MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = if (enabled) MaterialTheme.colorScheme.onPrimary
                                    else MaterialTheme.colorScheme.onSurfaceVariant,
                 ),

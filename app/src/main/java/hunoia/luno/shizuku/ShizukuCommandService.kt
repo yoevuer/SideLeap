@@ -9,6 +9,42 @@ import java.io.InputStreamReader
 
 private val TAG = "ShizukuSvc"
 
+private val smGetService by lazy {
+    Class.forName("android.os.ServiceManager").getDeclaredMethod("getService", String::class.java)
+}
+private val pmStubAsInterface by lazy {
+    Class.forName("android.content.pm.IPackageManager\$Stub").getDeclaredMethod("asInterface", IBinder::class.java)
+}
+private val pmClass by lazy { Class.forName("android.content.pm.IPackageManager") }
+private val userHandleMyUserId by lazy {
+    Class.forName("android.os.UserHandle").getDeclaredMethod("myUserId")
+}
+private val setEnabledSetting6 by lazy {
+    runCatching {
+        pmClass.getDeclaredMethod(
+            "setApplicationEnabledSetting",
+            String::class.java, Int::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
+            String::class.java
+        )
+    }.getOrNull()
+}
+private val setEnabledSetting5 by lazy {
+    runCatching {
+        pmClass.getDeclaredMethod(
+            "setApplicationEnabledSetting",
+            String::class.java, Int::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType, Int::class.javaPrimitiveType
+        )
+    }.getOrNull()
+}
+private val getEnabledSetting by lazy {
+    pmClass.getDeclaredMethod(
+        "getApplicationEnabledSetting",
+        String::class.java, Int::class.javaPrimitiveType
+    )
+}
+
 class ShizukuCommandService : IShizukuCommandService.Stub() {
 
     override fun executeShellCommand(command: String): String {
@@ -97,33 +133,11 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
 
     private fun enablePackageDirect(packageName: String): String? {
         return try {
-            val smClass = Class.forName("android.os.ServiceManager")
-            val getService = smClass.getDeclaredMethod("getService", String::class.java)
-            val binder = getService.invoke(null, "package") as IBinder
+            val binder = smGetService.invoke(null, "package") as IBinder
+            val pm = pmStubAsInterface.invoke(null, binder)
+            val userId = userHandleMyUserId.invoke(null) as Int
 
-            val pmStubClass = Class.forName("android.content.pm.IPackageManager\$Stub")
-            val asInterface = pmStubClass.getDeclaredMethod("asInterface", IBinder::class.java)
-            val pm = asInterface.invoke(null, binder)
-            val pmClass = Class.forName("android.content.pm.IPackageManager")
-
-            val uhClass = Class.forName("android.os.UserHandle")
-            val myUserId = uhClass.getDeclaredMethod("myUserId")
-            val userId = myUserId.invoke(null) as Int
-
-            val setEnabled = try {
-                pmClass.getDeclaredMethod(
-                    "setApplicationEnabledSetting",
-                    String::class.java, Int::class.javaPrimitiveType,
-                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                    String::class.java
-                )
-            } catch (_: NoSuchMethodException) {
-                pmClass.getDeclaredMethod(
-                    "setApplicationEnabledSetting",
-                    String::class.java, Int::class.javaPrimitiveType,
-                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType
-                )
-            }
+            val setEnabled = setEnabledSetting6 ?: setEnabledSetting5 ?: return null
             val callArgs: Array<Any> = if (setEnabled.parameterCount == 5) {
                 arrayOf(packageName, 0, 0, userId, "com.android.shell")
             } else {
@@ -131,12 +145,7 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
             }
             setEnabled.invoke(pm, *callArgs)
 
-            val getEnabled = pmClass.getDeclaredMethod(
-                "getApplicationEnabledSetting",
-                String::class.java, Int::class.javaPrimitiveType
-            )
-            val newState = getEnabled.invoke(pm, packageName, userId) as Int
-
+            val newState = getEnabledSetting.invoke(pm, packageName, userId) as Int
             if (newState != 3) "success=true" else null
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
@@ -160,33 +169,11 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
 
     private fun disablePackageDirect(packageName: String): String {
         return try {
-            val smClass = Class.forName("android.os.ServiceManager")
-            val getService = smClass.getDeclaredMethod("getService", String::class.java)
-            val binder = getService.invoke(null, "package") as IBinder
+            val binder = smGetService.invoke(null, "package") as IBinder
+            val pm = pmStubAsInterface.invoke(null, binder)
+            val userId = userHandleMyUserId.invoke(null) as Int
 
-            val pmStubClass = Class.forName("android.content.pm.IPackageManager\$Stub")
-            val asInterface = pmStubClass.getDeclaredMethod("asInterface", IBinder::class.java)
-            val pm = asInterface.invoke(null, binder)
-            val pmClass = Class.forName("android.content.pm.IPackageManager")
-
-            val uhClass = Class.forName("android.os.UserHandle")
-            val myUserId = uhClass.getDeclaredMethod("myUserId")
-            val userId = myUserId.invoke(null) as Int
-
-            val setEnabled = try {
-                pmClass.getDeclaredMethod(
-                    "setApplicationEnabledSetting",
-                    String::class.java, Int::class.javaPrimitiveType,
-                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
-                    String::class.java
-                )
-            } catch (_: NoSuchMethodException) {
-                pmClass.getDeclaredMethod(
-                    "setApplicationEnabledSetting",
-                    String::class.java, Int::class.javaPrimitiveType,
-                    Int::class.javaPrimitiveType, Int::class.javaPrimitiveType
-                )
-            }
+            val setEnabled = setEnabledSetting6 ?: setEnabledSetting5 ?: return "error: setApplicationEnabledSetting not found"
             val callArgs: Array<Any> = if (setEnabled.parameterCount == 5) {
                 arrayOf(packageName, 3, 0, userId, "com.android.shell")
             } else {

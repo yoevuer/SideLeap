@@ -8,10 +8,13 @@ import hunoia.luno.BuildConfig
 import hunoia.luno.IShizukuCommandService
 import hunoia.luno.core.AppContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -40,6 +43,8 @@ object ShizukuManager {
     @Volatile
     private var autoPermissionRequested = false
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
     private val userServiceArgs by lazy {
         Shizuku.UserServiceArgs(
             ComponentName(AppContext.get(), ShizukuCommandService::class.java)
@@ -65,6 +70,9 @@ object ShizukuManager {
 
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
         updateStatus()
+        scope.launch {
+            autoRequestPermissionIfNeeded()
+        }
     }
 
     private val binderDeadListener = Shizuku.OnBinderDeadListener {
@@ -76,8 +84,12 @@ object ShizukuManager {
     private val permissionResultListener =
         Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
             if (requestCode != RequestCode) return@OnRequestPermissionResultListener
-            permissionResult?.complete(grantResult == PackageManager.PERMISSION_GRANTED)
+            val granted = grantResult == PackageManager.PERMISSION_GRANTED
+            permissionResult?.complete(granted)
             permissionResult = null
+            if (!granted) {
+                autoPermissionRequested = false
+            }
             updateStatus()
         }
 

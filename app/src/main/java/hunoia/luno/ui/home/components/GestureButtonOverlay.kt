@@ -27,8 +27,8 @@ fun GestureButtonOverlay(
 ) {
     AnimatedVisibility(
         visible = showSide || showBottom,
-        enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)),
-        exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium))
+        enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioMediumBouncy)),
+        exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioMediumBouncy))
     ) {
         val colorScheme = MaterialTheme.colorScheme
         Box(
