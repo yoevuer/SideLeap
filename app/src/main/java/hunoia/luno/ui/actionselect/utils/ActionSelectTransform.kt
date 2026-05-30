@@ -19,7 +19,6 @@ import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.quicklaunch.model.qualifiedName
-import kotlinx.serialization.Serializable
 
 fun Context.selectedItemLabel(item: Any, subGestures: List<SubGesture>): String {
     return when (item) {

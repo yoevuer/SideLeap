@@ -2,7 +2,6 @@ package hunoia.luno.config.model
 
 import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 object GestureActionsDefaults {
 

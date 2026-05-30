@@ -43,17 +43,13 @@ import hunoia.luno.R
 import hunoia.luno.config.model.Action
 import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.TopBar
-import hunoia.luno.ui.component.OptimizedScrollState
 import hunoia.luno.quicklaunch.QuickLaunchFacade
 import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.ui.settings.gesture.icon.IconResizeContent
 import hunoia.luno.ui.settings.ActionSettingsDialogContent
-import hunoia.luno.ui.component.MySnackbarHost
 import hunoia.luno.ui.actionselect.UiEvent
 import hunoia.luno.bridge.feedback.showToast
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -64,7 +60,7 @@ import hunoia.luno.ui.theme.ScrollBottomPadding
 
 
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionSelectContent(
     onDismiss: () -> Unit,
@@ -134,7 +130,7 @@ fun ActionSelectContent(
                         }
                     }
                     LaunchedEffect(Unit) {
-                        if (permissionState.status.isGranted) {
+                        if (permissionState.isGranted) {
                             vm.updateAppInfos()
                             vm.updateShortcutInfos()
                         }

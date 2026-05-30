@@ -3,8 +3,6 @@ package hunoia.luno.pointer
 import android.content.Context
 import androidx.compose.ui.geometry.Offset
 import hunoia.luno.config.model.Action
-import hunoia.luno.config.model.GestureSettings
-import kotlinx.coroutines.CoroutineScope
 
 object PointerFacade {
 

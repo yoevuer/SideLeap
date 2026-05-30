@@ -10,6 +10,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.FrameLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.LifecycleOwner
@@ -17,7 +18,6 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.ui.theme.AnimOverlayFade
-import kotlin.math.roundToInt
 
 interface RuntimePanelOverlayHost : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     val context: Context
@@ -156,13 +156,10 @@ class RuntimePanelOverlay(private val host: RuntimePanelOverlayHost) {
     }
 
     private fun estimatePanelHeightPx(): Int {
-        val density = host.context.resources.displayMetrics.density
-        return 336.dpToPx(density)
+        return DensityProvider.dp2px(336)
     }
 
     private companion object {
         const val BottomMarginPx = 180
     }
 }
-
-private fun Int.dpToPx(density: Float) = (this * density).roundToInt()

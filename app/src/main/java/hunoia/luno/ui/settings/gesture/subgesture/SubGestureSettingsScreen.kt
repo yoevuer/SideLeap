@@ -177,7 +177,7 @@ fun SubGestureSettingsScreen(
                 ExpressiveCard(
                     icon = Icons.Default.TouchApp,
                     title = stringResource(id = R.string.direction_actions),
-                    subtitle = "8 个方向触发动作配置",
+                    subtitle = stringResource(id = R.string.direction_actions_subtitle),
                     onClick = {},
                 ) {
                     val directions = listOf(
@@ -208,7 +208,7 @@ fun SubGestureSettingsScreen(
 
                 ExpressiveCard(
                     icon = Icons.Default.Tune,
-                    title = "物理参数",
+                    title = stringResource(id = R.string.physical_params),
                     subtitle = "角度、震动与触发距离",
                     onClick = {},
                 ) {
@@ -295,68 +295,7 @@ private fun SubGestureVibrationContent(
 }
 
 @Composable
-private fun SubVibrationEffectSelector(
-    effect: VibrationEffects,
-    onEffectChange: (VibrationEffects) -> Unit
-) {
-    var showDropdown by remember { mutableStateOf(false) }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = MinItemHeightNoSecondary)
-            .onSingleClick { showDropdown = true }
-            .padding(horizontal = ContentPaddingHorizontal, vertical = ContentPaddingVerticalWithSection),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(ItemPadding)
-    ) {
-        Text(
-            modifier = Modifier.weight(1f),
-            text = stringResource(R.string.predefined_style),
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1
-        )
-        Box {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = getPredefinedVibrationEffectText(effect),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = stringResource(R.string.vibration_style)
-                )
-            }
-            DropdownMenu(
-                containerColor = MaterialTheme.colorScheme.surface,
-                shape = MaterialTheme.shapes.medium,
-                expanded = showDropdown,
-                onDismissRequest = { showDropdown = false }
-            ) {
-                listOf(
-                    VibrationEffects.Tick,
-                    VibrationEffects.Click,
-                    VibrationEffects.HeavyClick,
-                    VibrationEffects.None
-                ).fastForEach { effectValue ->
-                    key(effectValue) {
-                        DropdownMenuItem(
-                            onClick = {
-                                onEffectChange(effectValue)
-                                showDropdown = false
-                            },
-                            text = { Text(text = getPredefinedVibrationEffectText(effectValue)) }
-                        )
-                    }
-                }
-            }
-        }
-    }
-    }
-
-    @Composable
-    private fun SubGestureTriggerDistanceContent(
+private fun SubGestureTriggerDistanceContent(
     gesture: SubGesture,
     vm: SubGestureSettingsVM
 ) {

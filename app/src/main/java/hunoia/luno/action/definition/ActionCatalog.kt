@@ -17,10 +17,8 @@ import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Gesture
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Mouse
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Settings
 import hunoia.luno.action.definition.PlayPause
 import androidx.compose.material.icons.filled.PowerSettingsNew
@@ -36,7 +34,6 @@ import androidx.compose.material.icons.filled.VerticalAlignBottom
 import androidx.compose.material.icons.filled.VerticalAlignTop
 import androidx.compose.material.icons.filled.ViewCarousel
 import androidx.compose.material.icons.filled.Window
-import androidx.compose.ui.graphics.vector.ImageVector
 import hunoia.luno.R
 import hunoia.luno.config.model.Action
 import hunoia.luno.action.GlobalActions

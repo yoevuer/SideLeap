@@ -19,7 +19,6 @@ import hunoia.luno.shizuku.ShizukuCommand
 import hunoia.luno.shizuku.ShizukuRuntime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit

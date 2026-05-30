@@ -4,7 +4,6 @@ import hunoia.luno.action.api.ActionFacade
 import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.GestureButton
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromJsonElement
 
 object SubGestureCleaner {
 

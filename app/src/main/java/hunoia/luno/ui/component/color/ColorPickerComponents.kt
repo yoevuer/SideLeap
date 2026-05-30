@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import hunoia.luno.ui.theme.Spacing10
 import hunoia.luno.ui.theme.Spacing16
-import hunoia.luno.ui.theme.Spacing2
 
 @Composable
 fun TabChip(

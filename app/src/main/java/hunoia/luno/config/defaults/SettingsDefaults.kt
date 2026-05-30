@@ -2,7 +2,6 @@
 
 package hunoia.luno.config.defaults
 
-import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.config.model.ActionPanelStyles
 
 object AdvancedSettingsDefaults {

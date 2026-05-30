@@ -17,7 +17,6 @@ import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.config.model.InitialSettings
 import hunoia.luno.core.AppContext
 import hunoia.luno.core.Events
-import hunoia.luno.core.Events.SubscribeEvent
 import hunoia.luno.bridge.WallpaperChangedEvent
 import hunoia.luno.quicklaunch.QuickLaunchFacade
 import hunoia.luno.pointer.PointerRuntime
@@ -33,10 +32,8 @@ import hunoia.luno.service.RuntimePanelOverlayHost
 import hunoia.luno.pointer.PointerOverlayHost
 import hunoia.luno.freeze.FrozenPackageEnabler
 import hunoia.luno.config.model.GestureButton
-import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.pointer.PointerAction
 import hunoia.luno.bridge.accessibility.Accessibility
-import hunoia.luno.bridge.copySensitiveText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel

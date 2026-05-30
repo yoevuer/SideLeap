@@ -3,7 +3,6 @@ import hunoia.luno.config.ConfigProvider
 
 import android.content.Context
 import android.net.Uri
-import hunoia.luno.BuildConfig
 import hunoia.luno.core.Paths
 import hunoia.luno.core.JsonSerializer
 import hunoia.luno.config.model.Backup
@@ -13,7 +12,6 @@ import java.io.FileInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import java.util.zip.ZipInputStream
-import kotlinx.coroutines.flow.first
 import android.content.pm.PackageManager
 import android.os.Build
 import java.io.File

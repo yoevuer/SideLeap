@@ -324,5 +324,3 @@ private fun createDismissOnOutsideTouch(
         false
     }
 }
-
-private fun Int.dpToPx(density: Float) = (this * density).roundToInt()

@@ -66,7 +66,6 @@ import hunoia.luno.R
 import hunoia.luno.config.model.ThemeColorKey
 import hunoia.luno.ui.theme.displayNameRes
 import hunoia.luno.ui.theme.resolveColor
-import hunoia.luno.ui.theme.Spacing10
 import hunoia.luno.ui.theme.Spacing12
 import hunoia.luno.ui.theme.Spacing16
 import hunoia.luno.ui.theme.Spacing2
@@ -356,7 +355,7 @@ fun ColorPickerBottomSheet(
                 ) {
                     TabChip(
                         selected = selectedTab == 0,
-                        text = "自定义",
+                        text = stringResource(id = R.string.custom),
                         onClick = { selectedTab = 0 },
                         modifier = Modifier,
                     )

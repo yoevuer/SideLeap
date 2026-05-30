@@ -2,9 +2,7 @@ package hunoia.luno.gesture
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import hunoia.luno.bridge.DensityProvider
 import hunoia.luno.config.model.GESTURE_ANGLE_BASE
-import hunoia.luno.config.model.GestureAngle
 import hunoia.luno.config.model.GestureButton
 import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.config.model.Position

@@ -1,11 +1,9 @@
 package hunoia.luno.ui.actionselect
 
-import hunoia.luno.action.api.ActionFacade
 import hunoia.luno.action.api.appInfo
 import hunoia.luno.action.api.shortcutInfo
 import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.SubGesture
-import hunoia.luno.core.JsonSerializer
 import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.quicklaunch.model.qualifiedName
