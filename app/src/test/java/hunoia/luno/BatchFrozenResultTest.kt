@@ -1,6 +1,6 @@
 package hunoia.luno
 
-import hunoia.luno.system.shizuku.BatchFrozenResult
+import hunoia.luno.shizuku.BatchFrozenResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

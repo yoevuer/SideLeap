@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,13 +37,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextAlign
 import com.aaron.compose.ktx.onClick
-import hunoia.luno.ui.theme.ContentPaddingHorizontal
-import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.luno.ui.theme.ItemPadding
 import hunoia.luno.ui.theme.MinItemHeightNoSecondary
 import hunoia.luno.ui.theme.RootPadding
 import hunoia.luno.ui.theme.ScrollBottomPadding
-import hunoia.luno.ui.theme.SectionTitlePadding
 
 @Composable
 fun MyColumn(
@@ -57,47 +53,12 @@ fun MyColumn(
     Column(
         modifier = modifier
             .verticalScroll(scrollState)
-            .navigationBarsPadding()
             .padding(RootPadding)
             .padding(bottom = ScrollBottomPadding),
         verticalArrangement = verticalArrangement,
         horizontalAlignment = horizontalAlignment,
         content = content
     )
-}
-
-@Composable
-fun SectionCard(
-    modifier: Modifier = Modifier,
-    title: String = "",
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        if (title.isNotEmpty()) {
-            Text(
-                modifier = Modifier
-                    .padding(bottom = SectionTitlePadding)
-                    .padding(horizontal = ContentPaddingHorizontal),
-                text = title,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium,
-                maxLines = 1
-            )
-        }
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surfaceContainer,
-            tonalElevation = Spacing2
-        ) {
-            Column(
-                modifier = Modifier.padding(Spacing8),
-                verticalArrangement = Arrangement.spacedBy(Spacing8)
-            ) {
-                content()
-            }
-        }
-    }
 }
 
 @Composable

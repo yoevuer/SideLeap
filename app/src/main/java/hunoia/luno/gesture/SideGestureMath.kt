@@ -2,11 +2,12 @@ package hunoia.luno.gesture
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import hunoia.luno.core.DensityProvider
-import hunoia.luno.action.Action
-import hunoia.luno.settings.model.AnimationStyles
-import hunoia.luno.settings.model.GestureSettings
-import hunoia.luno.settings.model.WaveStyle
+import hunoia.luno.config.model.GESTURE_ANGLE_BASE
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.GestureSettings
+import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.TriggerDirection
+import hunoia.luno.config.model.getTriggerDirection
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.atan
@@ -123,15 +124,32 @@ fun getStickySlideValue(button: GestureButton, stickySlideValue: Float, isX: Boo
     return stickySlideValue
 }
 
-private val STICKY_SLIDE_DP = DensityProvider.dp2px(36f).toFloat()
+fun stickySlideValue(): Float = 0f
 
-fun stickySlideValue(animationStyles: AnimationStyles): Float {
-    val waveStyle = animationStyles.value as? WaveStyle
-    return if (waveStyle?.stickySlideEnabled == true) {
-        STICKY_SLIDE_DP
-    } else 0f
+fun triggerRotationOffset(triggerDirection: TriggerDirection, position: Position): Float {
+    return when (triggerDirection) {
+        TriggerDirection.Up -> when (position) {
+            Position.Left -> -45f
+            Position.Right -> 45f
+            Position.Bottom -> -45f
+        }
+        TriggerDirection.Center, TriggerDirection.Center2 -> 0f
+        TriggerDirection.Down -> when (position) {
+            Position.Left -> 45f
+            Position.Right -> -45f
+            Position.Bottom -> 45f
+        }
+        TriggerDirection.Up2 -> when (position) {
+            Position.Left -> -90f
+            Position.Right -> 90f
+            Position.Bottom -> -90f
+        }
+        TriggerDirection.Down2 -> when (position) {
+            Position.Left -> 90f
+            Position.Right -> -90f
+            Position.Bottom -> 90f
+        }
+    }
 }
 
-fun hasMoveScreenSelected(list: List<Any>): Boolean {
-    return list.any { (it as? Action)?.value == "move_screen" }
-}
+

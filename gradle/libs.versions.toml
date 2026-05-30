@@ -10,10 +10,10 @@ fastCompose = "dev-SNAPSHOT"
 kotlinSerialization = "1.11.0"
 dataStore = "1.2.1"
 compose-bom = "2026.05.01"
-colorpicker = "1.1.2"
 tinypinyin = "2.0.3.RELEASE"
 freereflection = "3.2.2"
 shizuku = "13.1.5"
+hiddenapibypass = "6.1"
 mockk = "1.14.9"
 
 [libraries]
@@ -29,11 +29,11 @@ androidx-datastore = { group = "androidx.datastore", name = "datastore", version
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
-compose-colorpicker = { group = "com.github.skydoves", name = "colorpicker-compose", version.ref = "colorpicker" }
 tinypinyin = { group = "io.github.biezhi", name = "TinyPinyin", version.ref = "tinypinyin" }
 com-tiann-freereflection = { group = "com.github.tiann", name = "FreeReflection", version.ref = "freereflection" }
 rikka-shizuku-api = { group = "dev.rikka.shizuku", name = "api", version.ref = "shizuku" }
 rikka-shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "shizuku" }
+hiddenapibypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenapibypass" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 
 [plugins]

@@ -21,42 +21,44 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import hunoia.luno.ui.theme.TopBarPaddingExtra
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/22
- */
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     onBack: () -> Unit,
-    title: String,
+    title: String = "",
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
     showBackIcon: Boolean = true,
     onTitleClick: (() -> Unit)? = null,
-    titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
+    titleStyle: TextStyle = MaterialTheme.typography.headlineMedium,
     containerColor: Color = Color.Transparent,
-    postfixTitle: (@Composable () -> Unit)? = null
+    postfixTitle: (@Composable () -> Unit)? = null,
+    titleContent: (@Composable () -> Unit)? = null,
 ) {
     TopAppBar(
         modifier = modifier.fillMaxWidth(),
         colors = TopAppBarDefaults.topAppBarColors(containerColor = containerColor),
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    modifier = Modifier
-                        .let {
-                            if (showBackIcon) it else {
-                                it.padding(start = TopBarPaddingExtra)
+                if (titleContent != null) {
+                    titleContent()
+                } else {
+                    Text(
+                        modifier = Modifier
+                            .let {
+                                if (showBackIcon) it else {
+                                    it.padding(start = TopBarPaddingExtra)
+                                }
                             }
-                        }
-                        .let {
-                            if (onTitleClick == null) it else it.clickable(onClick = onTitleClick)
-                        },
-                    text = title,
-                    style = titleStyle
-                )
+                            .let {
+                                if (onTitleClick == null) it else it.clickable(onClick = onTitleClick)
+                            },
+                        text = title,
+                        style = titleStyle
+                    )
+                }
                 postfixTitle?.invoke()
             }
         },

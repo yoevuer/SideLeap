@@ -8,7 +8,6 @@ internal val allHandlers: List<ActionHandler> = listOf(
     SystemActionHandler,
     RandomNameActionHandler,
     PasswordGeneratorActionHandler,
-    MoveScreenActionHandler,
     AppLaunchActionHandler,
     ShortcutActionHandler,
     FreezeAppsActionHandler,

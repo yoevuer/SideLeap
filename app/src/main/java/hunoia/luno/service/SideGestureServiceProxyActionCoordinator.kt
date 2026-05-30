@@ -6,15 +6,15 @@ import android.content.Intent
 import android.os.PowerManager
 import android.view.accessibility.AccessibilityEvent
 import hunoia.luno.R
-import hunoia.luno.SideGestureService
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.api.ActionRegistry
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.settings.model.ActionSettings
-import hunoia.luno.system.feedback.showToast
-import hunoia.luno.system.feedback.showToastLong
-import hunoia.luno.system.feedback.showVersionTooLowToast as showVersionTooLowToastUtil
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.ActionSettings
+import hunoia.luno.bridge.feedback.showToast
+import hunoia.luno.bridge.feedback.showToastLong
+import hunoia.luno.bridge.feedback.showVersionTooLowToast as showVersionTooLowToastUtil
+import java.util.LinkedHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,14 +26,16 @@ internal class SideGestureServiceProxyActionCoordinator(
 ) {
     private companion object {
         const val KEEP_SCREEN_ON_WAKE_LOCK_TIMEOUT_MS = 2 * 60 * 1000L
-        private val regexThreeVowels = Regex("[aeiou]{3}")
-        private val regexThreeConsonants = Regex("[bcdfghjklmnpqrstvwxz]{3}")
     }
 
     private var prevPackageName: String? = null
     private var currPackageName: String? = null
-    private val launchablePackageCache = mutableMapOf<String, Boolean>()
-    private val activityExistsCache = mutableMapOf<String, Boolean>()
+    private val launchablePackageCache = object : LinkedHashMap<String, Boolean>(256, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Boolean>?): Boolean = size > 256
+    }
+    private val activityExistsCache = object : LinkedHashMap<String, Boolean>(512, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Boolean>?): Boolean = size > 512
+    }
 
     private var wakeLock: PowerManager.WakeLock? = null
 
@@ -79,8 +81,8 @@ internal class SideGestureServiceProxyActionCoordinator(
             appContext = host.applicationContext,
             scope = scopeProvider(),
             actionSettings = host.actionSettings ?: ActionSettings(),
-            advancedSettings = host.advancedSettings ?: hunoia.luno.settings.model.AdvancedSettings(),
-            gestureSettings = host.gestureSettings ?: hunoia.luno.settings.model.GestureSettings(),
+            advancedSettings = host.advancedSettings ?: hunoia.luno.config.model.AdvancedSettings(),
+            gestureSettings = host.gestureSettings ?: hunoia.luno.config.model.GestureSettings(),
             showToast = { showToast(it) },
             showLongToast = { showToastLong(it) },
             currentPackageName = { currPackageName },
@@ -180,9 +182,6 @@ internal class SideGestureServiceProxyActionCoordinator(
     }
 
     private fun cacheActivityExists(key: String, value: Boolean) {
-        if (activityExistsCache.size > 512) {
-            activityExistsCache.clear()
-        }
         activityExistsCache[key] = value
     }
 

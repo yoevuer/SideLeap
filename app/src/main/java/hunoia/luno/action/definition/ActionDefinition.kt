@@ -2,7 +2,7 @@ package hunoia.luno.action.definition
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 
 data class ActionDefinition(
     val actionId: String,

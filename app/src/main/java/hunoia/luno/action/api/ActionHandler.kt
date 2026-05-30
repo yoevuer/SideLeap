@@ -1,6 +1,6 @@
 package hunoia.luno.action.api
 
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 
 interface ActionHandler {
     val supportedActions: Set<String>

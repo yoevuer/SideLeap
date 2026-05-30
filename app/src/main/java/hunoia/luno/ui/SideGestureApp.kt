@@ -6,6 +6,8 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import hunoia.luno.ui.theme.NavExitOffsetDivisor
+import hunoia.luno.ui.theme.AnimNavTransition
 
 import hunoia.luno.ui.navigation.ActionSelect
 
@@ -31,22 +33,25 @@ import hunoia.luno.ui.navigation.GestureButtonSettings
 import hunoia.luno.ui.navigation.Home
 import hunoia.luno.ui.navigation.SubGestureActionSelect
 import hunoia.luno.ui.navigation.SubGestureEditor
+import hunoia.luno.ui.navigation.PointerSettings
+import hunoia.luno.ui.navigation.FrozenManage
+import hunoia.luno.ui.navigation.AppBlacklist
 
-import hunoia.luno.ui.screen.actionselect.ActionSelectContent
+import hunoia.luno.ui.actionselect.ActionSelectContent
 
-import hunoia.luno.ui.screen.settings.gesture.GestureButtonSettingsScreen
+import hunoia.luno.ui.settings.gesture.button.GestureButtonSettingsScreen
 
-import hunoia.luno.ui.screen.settings.gesture.SubGestureActionSelectContent
-import hunoia.luno.ui.screen.settings.gesture.SubGestureSettingsScreen
-import hunoia.luno.ui.screen.home.HomeScreen
+import hunoia.luno.ui.settings.gesture.subgesture.SubGestureActionSelectContent
+import hunoia.luno.ui.settings.gesture.subgesture.SubGestureSettingsScreen
 import hunoia.luno.ui.theme.SideGestureTheme
 import hunoia.luno.ui.navigation.LocalNavController
+import hunoia.luno.ui.home.HomeScreen
+import hunoia.luno.ui.home.sheet.PointerSettingsScreen
+import hunoia.luno.ui.freeze.FrozenAppManageContent
+import hunoia.luno.ui.freeze.FrozenAppBlacklistContent
 import kotlin.reflect.KType
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/22
- */
+
 
 @Composable
 fun SideGestureApp() {
@@ -56,31 +61,44 @@ fun SideGestureApp() {
         CompositionLocalProvider(
             LocalNavController provides navController
         ) {
-            NavHost(
-                modifier = Modifier.fillMaxSize(),
+            Surface(modifier = Modifier.fillMaxSize()) {
+                NavHost(
+                    modifier = Modifier.fillMaxSize(),
                 navController = navController,
                 startDestination = Home,
                 enterTransition = {
-                    slideInHorizontally(animationSpec = tween(durationMs)) { it }
+                    fadeIn(animationSpec = tween(durationMs)) +
+                        slideInHorizontally(animationSpec = tween(durationMs)) { it / 4 }
                 },
                 exitTransition = {
-                    slideOutHorizontally(animationSpec = tween(durationMs)) { -it / NavExitOffsetDivisor }
+                    fadeOut(animationSpec = tween(durationMs)) +
+                        slideOutHorizontally(animationSpec = tween(durationMs)) { -it / 4 }
                 },
                 popEnterTransition = {
-                    slideInHorizontally(animationSpec = tween(durationMs)) { -it / NavExitOffsetDivisor }
+                    fadeIn(animationSpec = tween(durationMs)) +
+                        slideInHorizontally(animationSpec = tween(durationMs)) { -it / 4 }
                 },
                 popExitTransition = {
-                    slideOutHorizontally(animationSpec = tween(durationMs)) { it }
+                    fadeOut(animationSpec = tween(durationMs)) +
+                        slideOutHorizontally(animationSpec = tween(durationMs)) { it / 4 }
                 }
             ) {
                 myComposable<Home> {
                     HomeScreen(
-
                         onNavToGestureButtonSettings = { button ->
                             navController.navigate(GestureButtonSettings(button.id, button.position))
                         },
                         onNavToSubGestureEditor = { subGestureId ->
                             navController.navigate(SubGestureEditor(subGestureId))
+                        },
+                        onNavToPointerSettings = {
+                            navController.navigate(PointerSettings)
+                        },
+                        onNavToFrozenManage = {
+                            navController.navigate(FrozenManage)
+                        },
+                        onNavToAppBlacklist = {
+                            navController.navigate(AppBlacklist)
                         }
                     )
                 }
@@ -109,6 +127,22 @@ fun SideGestureApp() {
                         direction = it.toRoute<SubGestureActionSelect>().direction
                     )
                 }
+                myComposable<PointerSettings> {
+                    PointerSettingsScreen(
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+                myComposable<FrozenManage> {
+                    FrozenAppManageContent(
+                        onDismiss = { navController.popBackStack() }
+                    )
+                }
+                myComposable<AppBlacklist> {
+                    FrozenAppBlacklistContent(
+                        onDismiss = { navController.popBackStack() }
+                    )
+                }
+            }
             }
         }
     }
@@ -154,4 +188,4 @@ private inline fun <reified T : Any> NavGraphBuilder.myComposable(
     }
 }
 
-private const val ANIMATION_DURATION_MS = 400
+private const val ANIMATION_DURATION_MS = AnimNavTransition

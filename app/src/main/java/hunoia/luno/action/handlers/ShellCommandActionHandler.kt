@@ -1,14 +1,14 @@
 package hunoia.luno.action.handlers
 
 import hunoia.luno.R
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 import hunoia.luno.action.GlobalActions
 import hunoia.luno.action.ShellCommandData
 import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
-import hunoia.luno.core.serialization.JsonHelper
-import hunoia.luno.system.shizuku.ShizukuBinderExecutor
+import hunoia.luno.core.JsonSerializer
+import hunoia.luno.shizuku.ShizukuFacade
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -17,7 +17,7 @@ object ShellCommandActionHandler : ActionHandler {
 
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         val data = runCatching {
-            JsonHelper.decodeFromString<ShellCommandData>(action.data)
+            JsonSerializer.decodeFromString<ShellCommandData>(action.data)
         }.getOrDefault(ShellCommandData())
         val command = data.command.trim()
         if (command.isBlank()) {
@@ -26,7 +26,7 @@ object ShellCommandActionHandler : ActionHandler {
         }
 
         val result = withContext(Dispatchers.IO) {
-            ShizukuBinderExecutor.runShellCommand(context.appContext, command)
+            ShizukuFacade.runShellCommand(context.appContext, command)
         }
         if (data.showToast) {
             val message = if (result.success) {

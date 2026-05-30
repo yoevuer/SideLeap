@@ -1,15 +1,12 @@
 package hunoia.luno.ui.navigation
 
 import androidx.annotation.Keep
-import hunoia.luno.gesture.Position
-import hunoia.luno.gesture.SubGestureDirection
-import hunoia.luno.gesture.TriggerDirection
+import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.SubGestureDirection
+import hunoia.luno.config.model.TriggerDirection
 import kotlinx.serialization.Serializable
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/7
- */
+
 
 @Keep
 @Serializable
@@ -52,5 +49,17 @@ data class SubGestureActionSelect(
     val id: String,
     val direction: SubGestureDirection
 )
+
+@Keep
+@Serializable
+data object PointerSettings
+
+@Keep
+@Serializable
+data object FrozenManage
+
+@Keep
+@Serializable
+data object AppBlacklist
 
 

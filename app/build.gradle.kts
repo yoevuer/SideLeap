@@ -21,9 +21,6 @@ android {
             abiFilters += listOf("arm64-v8a")
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
     }
     signingConfigs {
         val localProperties = project.rootProject.file("local.properties")
@@ -95,7 +92,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-        aidl = true
         resValues = true
     }
     androidResources {
@@ -131,9 +127,10 @@ dependencies {
     implementation(libs.jetbrains.kotlin.serialization)
     implementation(libs.androidx.datastore)
     implementation(libs.material3)
-    implementation(libs.compose.colorpicker)
+    // color-picker removed; replaced with in-app HsvRectPicker
     implementation(libs.material.icons.extended)
     implementation(libs.tinypinyin)
     implementation(libs.rikka.shizuku.api)
     implementation(libs.rikka.shizuku.provider)
+    implementation(libs.hiddenapibypass)
 }

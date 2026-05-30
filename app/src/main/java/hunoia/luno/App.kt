@@ -13,22 +13,19 @@ import android.os.Process
 import com.aaron.compose.component.UDFComponentDefaults
 import hunoia.luno.ui.UDFComponentDefaultsImpl
 import hunoia.luno.core.AppContext
-import hunoia.luno.core.DensityProvider
-import hunoia.luno.core.crash.CrashHandler
-import hunoia.luno.core.event.Events
-import hunoia.luno.system.handler.isMainThread
-import hunoia.luno.system.feedback.initToastScope
-import hunoia.luno.system.vibration.initVibrationContext
+import hunoia.luno.bridge.DensityProvider
+import hunoia.luno.core.CrashHandler
+import hunoia.luno.core.Events
+import hunoia.luno.bridge.isMainThread
+import hunoia.luno.bridge.feedback.initToastScope
+import hunoia.luno.bridge.vibration.initVibrationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import me.weishu.reflection.Reflection
 import rikka.shizuku.ShizukuProvider
 
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/11/17
- */
+
 class App : Application(), ImageLoaderFactory {
 
     override fun newImageLoader(): ImageLoader {
@@ -71,8 +68,7 @@ class App : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
         AppContext.init(applicationContext, scope)
-        Events.initScope(AppContext.applicationScope!!)
-        Events.isMainThread = { isMainThread() }
+        Events.initScope(AppContext.applicationScope!!) { isMainThread() }
         initToastScope(AppContext.applicationScope!!)
         initVibrationContext(applicationContext)
         DensityProvider.init(applicationContext)

@@ -1,58 +1,65 @@
-@file:OptIn(ExperimentalPermissionsApi::class)
-
 package hunoia.luno.ui.permission
 
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
-import com.google.accompanist.permissions.PermissionStatus
-import com.google.accompanist.permissions.rememberPermissionState
-
-/**
- * @author aaronzzxup@gmail.com
- * @since 2024/12/1
- */
-
-val PermissionStatus.deniedForever: Boolean
-    get() = this is PermissionStatus.Denied && !shouldShowRationale
+data class PermissionState(
+    val isGranted: Boolean,
+    val deniedForever: Boolean,
+    val launchPermissionRequest: () -> Unit
+)
 
 @Composable
 fun rememberGetInstalledAppsPermissionState(
     onPermissionResult: (Boolean) -> Unit = {}
 ): PermissionState {
     val context = LocalContext.current
-    val delegate = rememberPermissionState(PERMISSION_GET_INSTALLED_APPS, onPermissionResult)
-    return remember(context, delegate) {
-        GetInstalledAppsPermissionState(context, delegate)
+    var isGranted by remember {
+        mutableStateOf(
+            !context.supportsPermission() ||
+            ContextCompat.checkSelfPermission(context, PERMISSION_GET_INSTALLED_APPS) ==
+            PackageManager.PERMISSION_GRANTED
+        )
     }
+    var deniedForever by remember { mutableStateOf(false) }
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        isGranted = granted
+        if (!granted) {
+            deniedForever = context is Activity &&
+                !ActivityCompat.shouldShowRequestPermissionRationale(
+                    context, PERMISSION_GET_INSTALLED_APPS
+                )
+        }
+        onPermissionResult(granted)
+    }
+
+    return PermissionState(
+        isGranted = isGranted,
+        deniedForever = deniedForever,
+        launchPermissionRequest = { launcher.launch(PERMISSION_GET_INSTALLED_APPS) }
+    )
 }
 
-private data class GetInstalledAppsPermissionState(
-    val context: Context,
-    val delegate: PermissionState
-) : PermissionState by delegate {
-
-    override val status: PermissionStatus get() {
-        if (!context.supportGetInstalledAppsPermission()) {
-            return PermissionStatus.Granted
-        }
-        return delegate.status
-    }
-
-    /**
-     * 是否支持com.android.permission.GET_INSTALLED_APPS权限
-     */
-    private fun Context.supportGetInstalledAppsPermission(): Boolean {
-        val permissionInfo = try {
-            packageManager.getPermissionInfo(PERMISSION_GET_INSTALLED_APPS, 0)
-        } catch (e: Exception) {
-            null
-        }
-        return permissionInfo != null
+private fun Context.supportsPermission(): Boolean {
+    return try {
+        packageManager.getPermissionInfo(PERMISSION_GET_INSTALLED_APPS, 0)
+        true
+    } catch (_: Exception) {
+        false
     }
 }
 

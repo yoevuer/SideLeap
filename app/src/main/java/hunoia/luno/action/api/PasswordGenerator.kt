@@ -1,9 +1,9 @@
 package hunoia.luno.action.api
 
-import hunoia.luno.settings.defaults.ActionSettingsDefaults.PasswordDefaultLength
-import hunoia.luno.settings.defaults.ActionSettingsDefaults.PasswordMaxLength
-import hunoia.luno.settings.defaults.ActionSettingsDefaults.PasswordMinLength
-import hunoia.luno.settings.model.ActionSettings
+import hunoia.luno.config.defaults.ActionSettingsDefaults.PasswordDefaultLength
+import hunoia.luno.config.defaults.ActionSettingsDefaults.PasswordMaxLength
+import hunoia.luno.config.defaults.ActionSettingsDefaults.PasswordMinLength
+import hunoia.luno.config.model.ActionSettings
 import java.security.SecureRandom
 import kotlin.math.log2
 import kotlin.math.max

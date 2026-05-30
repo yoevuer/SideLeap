@@ -3,55 +3,102 @@ package hunoia.luno.freeze.api
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.os.Build
-import hunoia.luno.App
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.system.packages.PackageChangeReceiver
+import hunoia.luno.core.AppContext
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.bridge.PackageChangeReceiver
+import java.util.Collections
+import java.util.LinkedHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 object FreezeState {
 
-    private var frozenCache: List<AppInfo>? = null
+    private var frozenCache: Map<String, AppInfo>? = null
     private var receiverRegistered = false
+    private val frozenResultCache: MutableMap<String, Boolean> = Collections.synchronizedMap(
+        object : LinkedHashMap<String, Boolean>(1024, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Boolean>?): Boolean = size > 1024
+        }
+    )
 
     private fun ensureReceiver() {
         if (receiverRegistered) return
         receiverRegistered = true
-        PackageChangeReceiver.register(App.getContext()) {
+        PackageChangeReceiver.register(AppContext.get()) {
             frozenCache = null
-            App.applicationScope.launch {
+            frozenResultCache.clear()
+            AppContext.applicationScope?.launch {
                 withContext(Dispatchers.IO) {
-                    queryFrozenApplications(App.getContext())
+                    queryFrozenApplications(AppContext.get())
                 }
             }
         }
     }
 
+    fun isCacheReady(): Boolean = frozenCache != null
+
     fun invalidateFrozenCache() {
         frozenCache = null
+        frozenResultCache.clear()
     }
 
     fun isFrozen(context: Context, packageName: String): Boolean {
-        val pm = context.packageManager
-        val enabledSetting = runCatching { pm.getApplicationEnabledSetting(packageName) }.getOrNull()
-        return enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+        frozenResultCache[packageName]?.let { return it }
+        val enabledSetting = runCatching {
+            context.packageManager.getApplicationEnabledSetting(packageName)
+        }.getOrNull() ?: return false.also { frozenResultCache[packageName] = false }
+        val result = enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED ||
+            enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER ||
+            enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED
+        frozenResultCache[packageName] = result
+        return result
+    }
+
+    fun markFrozen(packageName: String) {
+        frozenResultCache[packageName] = true
+        frozenCache?.let { cache ->
+            if (packageName !in cache) {
+                frozenCache = cache + (packageName to AppInfo(packageName, "", packageName))
+            }
+        }
+    }
+
+    fun markUnfrozen(packageName: String) {
+        frozenResultCache[packageName] = false
+        frozenCache?.let { cache ->
+            frozenCache = cache - packageName
+        }
+    }
+
+    fun markBatchFrozen(packageNames: Collection<String>) {
+        packageNames.forEach { frozenResultCache[it] = true }
+        frozenCache?.let { cache ->
+            val new = packageNames.filter { it !in cache }
+            if (new.isNotEmpty()) {
+                frozenCache = cache + new.associateWith { AppInfo(it, "", it) }
+            }
+        }
+    }
+
+    fun markBatchUnfrozen(packageNames: Collection<String>) {
+        packageNames.forEach { frozenResultCache[it] = false }
+        frozenCache?.let { cache ->
+            frozenCache = cache - packageNames.toSet()
+        }
     }
 
     fun queryFrozenStateByPackage(context: Context, packageNames: Collection<String>): Map<String, Boolean> {
         if (packageNames.isEmpty()) return emptyMap()
-        val pm = context.packageManager
-        val result = LinkedHashMap<String, Boolean>(packageNames.size)
-        packageNames.forEach { packageName ->
-            val enabledSetting = runCatching { pm.getApplicationEnabledSetting(packageName) }.getOrNull()
-            result[packageName] = enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+        val cached = frozenCache
+        if (cached != null) {
+            return packageNames.associateWith { it in cached }
         }
-        return result
+        return packageNames.associateWith { isFrozen(context, it) }
     }
 
     fun queryFrozenApplications(context: Context): List<AppInfo> {
-        frozenCache?.let { return it }
+        frozenCache?.let { cache -> return cache.values.toList() }
         ensureReceiver()
 
         val pm = context.packageManager
@@ -66,21 +113,17 @@ object FreezeState {
         for (app in allApps) {
             val pkgName = app.packageName
             if (pkgName.isBlank()) continue
+            if (pkgName in pkgNames) continue
 
-            val enabledSetting = try {
-                pm.getApplicationEnabledSetting(pkgName)
-            } catch (e: Exception) {
-                continue
-            }
+            val enabledSetting = runCatching { pm.getApplicationEnabledSetting(pkgName) }.getOrNull()
+            val isDisabled = enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED ||
+                enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER ||
+                enabledSetting == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED
 
-            val suspended = runCatching { pm.isPackageSuspended(pkgName) }.getOrDefault(false)
+            val isSuspended = runCatching { pm.isPackageSuspended(pkgName) }.getOrDefault(false)
 
-            if (enabledSetting != PackageManager.COMPONENT_ENABLED_STATE_DISABLED &&
-                enabledSetting != PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER &&
-                enabledSetting != PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED &&
-                app.enabled &&
-                !suspended
-            ) continue
+            if (!isDisabled && !isSuspended) continue
+            pkgNames.add(pkgName)
 
             val label = try {
                 app.loadLabel(pm).toString()
@@ -88,16 +131,13 @@ object FreezeState {
                 pkgName
             }
 
-            if (pkgName in pkgNames) continue
-            pkgNames.add(pkgName)
-
             result.add(AppInfo(
                 packageName = pkgName,
                 className = "",
                 label = label
             ))
         }
-        frozenCache = result
+        frozenCache = result.associateBy { it.packageName }
         return result
     }
 
@@ -112,4 +152,3 @@ object FreezeState {
             (flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
     }
 }
-

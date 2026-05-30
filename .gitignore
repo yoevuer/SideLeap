@@ -1,63 +1,55 @@
-# Gradle files
-.gradle/
-build/
 
-# Local configuration file (sdk path, etc)
-local.properties
-
-# Log/OS Files
-*.log
-
-# Android Studio generated files and folders
-captures/
-.externalNativeBuild/
-.cxx/
-*.apk
 *.aab
-*.idsig
-output.json
-
-# IntelliJ
-*.iml
-.idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
-
-# Keystore files
-*.jks
-*.keystore
-
-# Google Services (e.g. APIs or Firebase)
-google-services.json
-
+.agents
+AGENTS.md
 # Android Profiling
-*.hprof
-
-# Project-generated files
+# Android Studio generated files and folders
+*.apk
+app/.classpath
 /app/mapping.txt
-/app/src/main/Luno.png
-
-*.p12
-*.pfx
-keystore/
-keystore/*
-signing.properties
-keystore.properties
-
-# Kotlin build cache / error logs
-.kotlin/
-
-# Generated theme files
+app/.project
+app/.settings/
 /app/src/main/java/hunoia/luno/ui/theme/generator/Color.kt
-
+/app/src/main/Luno.png
+build/
+captures/
 # CLI build artifacts
 cli/target/
-
-# Local agent instructions / docs
-AGENTS.md
-REQUIREMENTS.md
-docs/
-.agents
 .codex
-
+.cxx/
+deploymentTargetDropDown.xml
+docs/
+.externalNativeBuild/
+# Generated theme files
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+.gradle/
+# Gradle files
+*.hprof
+.idea/
+*.idsig
+*.iml
+# IntelliJ
+*.jks
+*.keystore
+keystore/
+keystore/*
+# Keystore files
+keystore.properties
+.kotlin/
+# Kotlin build cache / error logs
+# Local agent instructions / docs
+# Local configuration file (sdk path, etc)
+local.properties
+*.log
+# Log/OS Files
+misc.xml
+output.json
+*.p12
+*.pfx
+.project
+# Project-generated files
+render.experimental.xml
+REQUIREMENTS.md
+.settings/
+signing.properties

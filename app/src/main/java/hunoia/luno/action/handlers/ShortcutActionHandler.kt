@@ -4,9 +4,9 @@ import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.GlobalActions
-import hunoia.luno.action.Action
-import hunoia.luno.launcher.launch.Launcher
-import hunoia.luno.action.shortcutInfo
+import hunoia.luno.config.model.Action
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.action.api.shortcutInfo
 
 object ShortcutActionHandler : ActionHandler {
 
@@ -17,7 +17,7 @@ object ShortcutActionHandler : ActionHandler {
             GlobalActions.EXTRA_LAUNCH_SHORTCUT -> {
                 val shortcutInfo = action.shortcutInfo
                 if (shortcutInfo != null) {
-                    Launcher.launchShortcutInfo(context.appContext, shortcutInfo)
+                    QuickLaunchFacade.launchShortcutInfo(context.appContext, shortcutInfo)
                 }
             }
             else -> return ActionExecutionResult.Ignored

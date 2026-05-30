@@ -3,11 +3,13 @@ package hunoia.luno.freeze
 import android.content.Context
 import hunoia.luno.freeze.api.BatchFreezeResult
 import hunoia.luno.freeze.api.FreezeAction
+import hunoia.luno.freeze.api.FreezeLaunch
 import hunoia.luno.freeze.api.FreezeResult
 import hunoia.luno.freeze.api.FreezeState
 import hunoia.luno.freeze.api.OneKeyFreezeResult
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.query.QuickAppLauncherAppList
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.query.QuickAppLauncherAppList
 
 object FreezeFacade {
 
@@ -53,6 +55,41 @@ object FreezeFacade {
         FreezeState.invalidateFrozenCache()
     }
 
-    fun queryQuickAppLauncherApps(context: Context): QuickAppLauncherAppList =
-        FrozenQuickAppLauncherQuery.queryApps(context)
+    fun queryQuickAppLauncherApps(context: Context): QuickAppLauncherAppList {
+        val frozenApps = FreezeState.queryFrozenApplications(context)
+        return QuickLaunchFacade.queryCombinedQuickAppList(context, frozenApps)
+    }
+
+    suspend fun launchWithAutoUnfreeze(
+        context: Context,
+        packageName: String,
+        className: String,
+        miniWindow: Boolean = false,
+        miniWindowHorizontalBias: Float = 0f,
+        miniWindowVerticalBias: Float = 0f,
+        miniWindowVerticalOffsetFraction: Float = 0f,
+        miniWindowWidthFraction: Float = 0.46f,
+        miniWindowHeightFraction: Float = 0.74f,
+        miniWindowOverrideBounds: Boolean = false,
+        unfreezePackage: suspend (Context, String) -> Boolean = { _, _ -> true },
+    ): Boolean {
+        return FreezeLaunch.launchWithAutoUnfreeze(
+            context, packageName, className,
+            miniWindow, miniWindowHorizontalBias,
+            miniWindowVerticalBias, miniWindowVerticalOffsetFraction,
+            miniWindowWidthFraction, miniWindowHeightFraction,
+            miniWindowOverrideBounds, unfreezePackage,
+        )
+    }
+
+    suspend fun launchActivityWithAutoUnfreeze(
+        context: Context,
+        packageName: String,
+        className: String,
+        unfreezePackage: suspend (Context, String) -> Boolean = { _, _ -> true },
+    ): Boolean {
+        return FreezeLaunch.launchActivityWithAutoUnfreeze(
+            context, packageName, className, unfreezePackage,
+        )
+    }
 }

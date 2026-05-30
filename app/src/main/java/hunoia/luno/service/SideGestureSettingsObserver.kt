@@ -1,11 +1,11 @@
 package hunoia.luno.service
 
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.settings.model.ActionSettings
-import hunoia.luno.settings.model.AdvancedSettings
-import hunoia.luno.settings.model.GestureSettings
-import hunoia.luno.settings.model.InitialSettings
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.ConfigProvider
+import hunoia.luno.config.model.ActionSettings
+import hunoia.luno.config.model.AdvancedSettings
+import hunoia.luno.config.model.GestureSettings
+import hunoia.luno.config.model.InitialSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -35,24 +35,24 @@ class SideGestureSettingsObserver(
     }
 
     private fun CoroutineScope.observeLatestSettings() {
-        launch { SettingsProvider.initialSettings.collectLatest(onInitialSettings) }
-        launch { SettingsProvider.advancedSettings.collectLatest(onAdvancedSettings) }
-        launch { SettingsProvider.gestureSettings.collectLatest(onGestureSettings) }
-        launch { SettingsProvider.actionSettings.collectLatest(onActionSettings) }
+        launch { ConfigProvider.initialSettings.collectLatest(onInitialSettings) }
+        launch { ConfigProvider.advancedSettings.collectLatest(onAdvancedSettings) }
+        launch { ConfigProvider.gestureSettings.collectLatest(onGestureSettings) }
+        launch { ConfigProvider.actionSettings.collectLatest(onActionSettings) }
     }
 
     private fun CoroutineScope.observeGestureButtonChanges() {
         launch {
-            SettingsProvider
+            ConfigProvider
                 .sideGestureButtons
-                .combine(SettingsProvider.bottomGestureButtons) { side, bottom -> side + bottom }
+                .combine(ConfigProvider.bottomGestureButtons) { side, bottom -> side + bottom }
                 .collectLatest(onGestureButtons)
         }
     }
 
     private fun CoroutineScope.observeGestureVisibilityChanges() {
         launch {
-            SettingsProvider
+            ConfigProvider
                 .initialSettings
                 .distinctUntilChangedBy { it.gestureEnabled }
                 .collectLatest { onRefreshGestureButtons() }

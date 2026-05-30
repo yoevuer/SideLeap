@@ -5,11 +5,11 @@ import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.GlobalActions
-import hunoia.luno.action.Action
-import hunoia.luno.system.dispatchMediaKeyEvent
-import hunoia.luno.system.toggleMute
-import hunoia.luno.system.volumeDown
-import hunoia.luno.system.volumeUp
+import hunoia.luno.config.model.Action
+import hunoia.luno.bridge.dispatchMediaKeyEvent
+import hunoia.luno.bridge.toggleMute
+import hunoia.luno.bridge.volumeDown
+import hunoia.luno.bridge.volumeUp
 
 object MediaActionHandler : ActionHandler {
 

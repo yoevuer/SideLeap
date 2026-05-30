@@ -8,13 +8,13 @@ import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.GlobalActions
-import hunoia.luno.action.Action
-import hunoia.luno.launcher.model.OpenAppOrUrlData
-import hunoia.luno.freeze.api.FreezeLaunch
-import hunoia.luno.action.appInfo
-import hunoia.luno.launcher.launch.Launcher
-import hunoia.luno.system.packages.queryIntentActivitiesCompat
-import hunoia.luno.core.serialization.JsonHelper
+import hunoia.luno.config.model.Action
+import hunoia.luno.config.model.OpenAppOrUrlData
+import hunoia.luno.freeze.FreezeFacade
+import hunoia.luno.action.api.appInfo
+import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.bridge.queryIntentActivitiesCompat
+import hunoia.luno.core.JsonSerializer
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -58,15 +58,19 @@ object AppLaunchActionHandler : ActionHandler {
             .firstOrNull()
         val className = resolveInfo?.activityInfo?.name
         if (!className.isNullOrEmpty()) {
-            Launcher.launchAppInPopup(
-                context.appContext, pkgName, className,
-                context.advancedSettings.miniWindowHorizontalBias,
-                context.advancedSettings.miniWindowVerticalBias,
-                context.advancedSettings.miniWindowVerticalOffsetFraction,
-                context.advancedSettings.miniWindowWidthFraction,
-                context.advancedSettings.miniWindowHeightFraction,
-                overrideBounds = context.advancedSettings.miniWindowOverrideBounds,
-            )
+            if (context.advancedSettings.miniWindowOverrideBounds) {
+                QuickLaunchFacade.launchAppInPopup(
+                    context.appContext, pkgName, className,
+                    context.advancedSettings.miniWindowHorizontalBias,
+                    context.advancedSettings.miniWindowVerticalBias,
+                    context.advancedSettings.miniWindowVerticalOffsetFraction,
+                    context.advancedSettings.miniWindowWidthFraction,
+                    context.advancedSettings.miniWindowHeightFraction,
+                    overrideBounds = true,
+                )
+            } else {
+                QuickLaunchFacade.launchAppInPopup(context.appContext, pkgName, className)
+            }
         }
     }
 
@@ -77,13 +81,13 @@ object AppLaunchActionHandler : ActionHandler {
 
     private fun handleOpenAppActivity(action: Action, context: ActionHandlerContext) {
         val data = try {
-            JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data)
+            JsonSerializer.decodeFromString<OpenAppOrUrlData>(action.data)
         } catch (e: Exception) {
             null
         }
         if (data != null && data.packageName.isNotBlank() && data.activityClassName.isNotBlank()) {
             context.scope.launch {
-                FreezeLaunch.launchActivityWithAutoUnfreeze(
+                FreezeFacade.launchActivityWithAutoUnfreeze(
                     context = context.appContext,
                     packageName = data.packageName,
                     className = data.activityClassName
@@ -96,7 +100,7 @@ object AppLaunchActionHandler : ActionHandler {
 
     private fun handleOpenUrl(action: Action, context: ActionHandlerContext) {
         val data = try {
-            JsonHelper.decodeFromString<OpenAppOrUrlData>(action.data)
+            JsonSerializer.decodeFromString<OpenAppOrUrlData>(action.data)
         } catch (e: Exception) {
             null
         }
@@ -113,23 +117,34 @@ object AppLaunchActionHandler : ActionHandler {
 
     private fun launchAppWithFrozenSupport(
         context: ActionHandlerContext,
-        appInfo: hunoia.luno.launcher.model.AppInfo,
+        appInfo: hunoia.luno.quicklaunch.model.AppInfo,
         miniWindow: Boolean
     ) {
         context.scope.launch {
-            FreezeLaunch.launchWithAutoUnfreeze(
-                context = context.appContext,
-                packageName = appInfo.packageName,
-                className = appInfo.className,
-                miniWindow = miniWindow,
-                miniWindowHorizontalBias = context.advancedSettings.miniWindowHorizontalBias,
-                miniWindowVerticalBias = context.advancedSettings.miniWindowVerticalBias,
-                miniWindowVerticalOffsetFraction = context.advancedSettings.miniWindowVerticalOffsetFraction,
-                miniWindowWidthFraction = context.advancedSettings.miniWindowWidthFraction,
-                miniWindowHeightFraction = context.advancedSettings.miniWindowHeightFraction,
-                miniWindowOverrideBounds = context.advancedSettings.miniWindowOverrideBounds,
-            ) { _, pkg ->
-                suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
+            if (context.advancedSettings.miniWindowOverrideBounds) {
+                FreezeFacade.launchWithAutoUnfreeze(
+                    context = context.appContext,
+                    packageName = appInfo.packageName,
+                    className = appInfo.className,
+                    miniWindow = miniWindow,
+                    miniWindowHorizontalBias = context.advancedSettings.miniWindowHorizontalBias,
+                    miniWindowVerticalBias = context.advancedSettings.miniWindowVerticalBias,
+                    miniWindowVerticalOffsetFraction = context.advancedSettings.miniWindowVerticalOffsetFraction,
+                    miniWindowWidthFraction = context.advancedSettings.miniWindowWidthFraction,
+                    miniWindowHeightFraction = context.advancedSettings.miniWindowHeightFraction,
+                    miniWindowOverrideBounds = true,
+                ) { _, pkg ->
+                    suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
+                }
+            } else {
+                FreezeFacade.launchWithAutoUnfreeze(
+                    context = context.appContext,
+                    packageName = appInfo.packageName,
+                    className = appInfo.className,
+                    miniWindow = miniWindow,
+                ) { _, pkg ->
+                    suspendEnablePackageViaBridge(context.requestEnableFrozenPackage, pkg)
+                }
             }
         }
     }

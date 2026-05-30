@@ -1,29 +1,10 @@
 package hunoia.luno.freeze.api
 
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
-import android.os.Message
-import android.os.Messenger
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import android.os.Build
-import android.util.Log
-import hunoia.luno.freeze.ShizukuBridgeService
-import hunoia.luno.settings.SettingsProvider
-import hunoia.luno.system.shizuku.ShizukuCommand
-import hunoia.luno.system.shizuku.ShizukuRuntime
+import hunoia.luno.config.ConfigProvider
+import hunoia.luno.shizuku.ShizukuManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
 
 data class FreezeResult(
     val success: Boolean,
@@ -48,11 +29,7 @@ data class BatchFreezeResult(
 
 object FreezeAction {
 
-    fun isShizukuReady(): Boolean {
-        return ShizukuRuntime.isAvailable() &&
-            !ShizukuRuntime.isPreV11OrUnsupported() &&
-            ShizukuRuntime.checkPermission()
-    }
+    fun isShizukuReady(): Boolean = ShizukuManager.currentStatus().isReady
 
     suspend fun checkAndFreeze(context: Context, packageName: String): FreezeResult {
         val wasFrozen = FreezeState.isFrozen(context, packageName)
@@ -60,11 +37,10 @@ object FreezeAction {
             return FreezeResult(true, packageName, wasFrozen = true, nowFrozen = true)
         }
         val result = withContext(Dispatchers.IO) {
-            ShizukuCommand.disablePackage(context, packageName)
+            ShizukuManager.disablePackage(packageName)
         }
-        delay(100)
-        val nowFrozen = FreezeState.isFrozen(context, packageName)
-        return FreezeResult(result.success, packageName, wasFrozen = false, nowFrozen = nowFrozen)
+        if (result.success) FreezeState.markFrozen(packageName)
+        return FreezeResult(result.success, packageName, wasFrozen = false, nowFrozen = result.success)
     }
 
     suspend fun checkAndUnfreeze(context: Context, packageName: String): FreezeResult {
@@ -73,21 +49,24 @@ object FreezeAction {
             return FreezeResult(true, packageName, wasFrozen = false, nowFrozen = false)
         }
         val result = withContext(Dispatchers.IO) {
-            ShizukuCommand.enablePackage(context, packageName)
+            ShizukuManager.enablePackage(packageName)
         }
-        delay(100)
-        val nowFrozen = FreezeState.isFrozen(context, packageName)
-        return FreezeResult(result.success, packageName, wasFrozen = true, nowFrozen = nowFrozen)
+        if (result.success) FreezeState.markUnfrozen(packageName)
+        return FreezeResult(result.success, packageName, wasFrozen = true, nowFrozen = !result.success)
     }
 
     suspend fun batchFreeze(context: Context, packageNames: List<String>): BatchFreezeResult {
-        val frozenState = FreezeState.queryFrozenStateByPackage(context, packageNames)
-        val candidates = packageNames.filter { frozenState[it] != true }
+        val candidates = if (FreezeState.isCacheReady()) {
+            val frozenState = FreezeState.queryFrozenStateByPackage(context, packageNames)
+            packageNames.filter { frozenState[it] != true }
+        } else {
+            packageNames
+        }
         if (candidates.isEmpty()) {
             return BatchFreezeResult(packageNames.size, 0, 0, 0)
         }
         val batchResult = withContext(Dispatchers.IO) {
-            ShizukuCommand.executeBatch(context, candidates, disable = true)
+            ShizukuManager.executeBatch(candidates, disable = true)
         }
         val successCount = if (batchResult.fallbackTriggered) {
             batchResult.fallbackSuccessCount
@@ -103,13 +82,17 @@ object FreezeAction {
     }
 
     suspend fun batchUnfreeze(context: Context, packageNames: List<String>): BatchFreezeResult {
-        val frozenState = FreezeState.queryFrozenStateByPackage(context, packageNames)
-        val candidates = packageNames.filter { frozenState[it] == true }
+        val candidates = if (FreezeState.isCacheReady()) {
+            val frozenState = FreezeState.queryFrozenStateByPackage(context, packageNames)
+            packageNames.filter { frozenState[it] == true }
+        } else {
+            packageNames
+        }
         if (candidates.isEmpty()) {
             return BatchFreezeResult(packageNames.size, 0, 0, 0)
         }
         val batchResult = withContext(Dispatchers.IO) {
-            ShizukuCommand.executeBatch(context, candidates, disable = false)
+            ShizukuManager.executeBatch(candidates, disable = false)
         }
         val successCount = if (batchResult.fallbackTriggered) {
             batchResult.fallbackSuccessCount
@@ -125,122 +108,47 @@ object FreezeAction {
     }
 
     suspend fun oneKeyFreeze(context: Context): OneKeyFreezeResult = withContext(Dispatchers.IO) {
-        val settings = SettingsProvider.getFrozenAppSettings()
+        val settings = ConfigProvider.getFrozenAppSettings()
         val oneKeySet = settings.oneKeyPackageNames
 
-        val rawTargets = oneKeySet
-
-        val pm = context.packageManager
-        val installedTargets = mutableListOf<String>()
-
-        rawTargets.forEach { pkg ->
-            val ai = runCatching {
-                pm.getApplicationInfo(pkg, PackageManager.ApplicationInfoFlags.of(0))
-            }.getOrNull()
-            if (ai == null) return@forEach
-            installedTargets.add(pkg)
+        val candidates = if (FreezeState.isCacheReady()) {
+            val frozenState = FreezeState.queryFrozenStateByPackage(context, oneKeySet)
+            oneKeySet.filter { frozenState[it] != true }
+        } else {
+            oneKeySet.toList()
         }
 
-        Log.i("OneKeyFreeze", "oneKeySet=${oneKeySet.size} " +
-            "rawTargets=${rawTargets.size} installedTargets=${installedTargets.size}")
-
-        val frozenState = FreezeState.queryFrozenStateByPackage(context, installedTargets)
-        val candidates = installedTargets.filter { frozenState[it] != true }
-
-        Log.i("OneKeyFreeze", "frozenCandidates=${candidates.size}")
-
-        if (candidates.isNotEmpty()) {
-            ShizukuCommand.executeBatch(context, candidates, disable = true)
-        }
-
-        delay(100)
-        val latestState = FreezeState.queryFrozenStateByPackage(context, candidates)
-        val successCount = candidates.count { latestState[it] == true }
-
-        if (candidates.isNotEmpty() && successCount == 0) {
-            Log.e("OneKeyFreeze", "candidates=$candidates but all still not frozen after batch")
-        }
-
-        Log.i("OneKeyFreeze", "successCount=$successCount")
+        val successCount = if (candidates.isNotEmpty()) {
+            val batch = ShizukuManager.executeBatch(candidates, disable = true)
+            FreezeState.markBatchFrozen(candidates)
+            batch.successCount
+        } else 0
 
         OneKeyFreezeResult(
             oneKeyCount = oneKeySet.size,
-            targetCount = installedTargets.size,
+            targetCount = oneKeySet.size,
             candidateCount = candidates.size,
             successCount = successCount
         )
     }
 
-    suspend fun oneKeyFreezeForService(context: Context): OneKeyFreezeResult = withContext(Dispatchers.IO) {
-        Log.i("OneKeyFreeze", "using bridge service for action context")
-        val intent = Intent(context, ShizukuBridgeService::class.java)
-        val latch = CountDownLatch(1)
-        val result = AtomicInteger(-1)
-
-        val conn = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-                if (binder == null) { latch.countDown(); return }
-                try {
-                    val messenger = Messenger(binder)
-                    val replyHandler = object : Handler(Looper.getMainLooper()) {
-                        override fun handleMessage(msg: Message) {
-                            if (msg.what == ShizukuBridgeService.MSG_FREEZE_BATCH_RESULT) {
-                                result.set(msg.data.getInt(ShizukuBridgeService.EXTRA_SUCCESS_COUNT, -1))
-                                latch.countDown()
-                            }
-                        }
-                    }
-                    val replyMessenger = Messenger(replyHandler)
-                    val msg = Message.obtain(null, ShizukuBridgeService.MSG_FREEZE_BATCH)
-                    msg.replyTo = replyMessenger
-                    messenger.send(msg)
-                } catch (e: Exception) {
-                    latch.countDown()
-                }
-            }
-
-            override fun onServiceDisconnected(name: ComponentName?) {}
-        }
-
-        try {
-            context.bindService(intent, conn, Context.BIND_AUTO_CREATE)
-            if (!latch.await(2, TimeUnit.SECONDS)) {
-                result.set(-2)
-            }
-        } catch (e: Exception) {
-            result.set(-3)
-        } finally {
-            try { context.unbindService(conn) } catch (_: Exception) {}
-        }
-
-        val successCount = result.get().coerceAtLeast(0)
-        Log.i("OneKeyFreeze", "bridge result successCount=$successCount")
-        if (successCount > 0) {
-            FreezeState.invalidateFrozenCache()
-        }
-        OneKeyFreezeResult(
-            oneKeyCount = successCount,
-            targetCount = successCount,
-            candidateCount = successCount,
-            successCount = successCount
-        )
+    suspend fun oneKeyFreezeForService(context: Context): OneKeyFreezeResult {
+        return oneKeyFreeze(context)
     }
 
     suspend fun oneKeyUnfreeze(context: Context, targets: List<String>): OneKeyFreezeResult = withContext(Dispatchers.IO) {
-        val frozenState = FreezeState.queryFrozenStateByPackage(context, targets)
-        val candidates = targets.filter { frozenState[it] == true }
-
-        if (candidates.isNotEmpty()) {
-            ShizukuCommand.executeBatch(context, candidates, disable = false)
+        val candidates = if (FreezeState.isCacheReady()) {
+            val frozenState = FreezeState.queryFrozenStateByPackage(context, targets)
+            targets.filter { frozenState[it] == true }
+        } else {
+            targets
         }
 
-        delay(100)
-        val latestState = FreezeState.queryFrozenStateByPackage(context, candidates)
-        val successCount = candidates.count { latestState[it] != true }
-
-        if (successCount > 0) {
-            FreezeState.invalidateFrozenCache()
-        }
+        val successCount = if (candidates.isNotEmpty()) {
+            val batch = ShizukuManager.executeBatch(candidates, disable = false)
+            FreezeState.markBatchUnfrozen(candidates)
+            batch.successCount
+        } else 0
 
         OneKeyFreezeResult(
             oneKeyCount = targets.size,
@@ -251,7 +159,7 @@ object FreezeAction {
     }
 
     fun computeOneKeyTargetsInRange(
-        apps: List<hunoia.luno.launcher.model.AppInfo>,
+        apps: List<hunoia.luno.quicklaunch.model.AppInfo>,
         oneKeyPackageNames: Set<String>
     ): List<String> {
         return apps

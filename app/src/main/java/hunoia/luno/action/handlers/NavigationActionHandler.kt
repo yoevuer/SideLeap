@@ -9,7 +9,7 @@ import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.GlobalActions
-import hunoia.luno.action.Action
+import hunoia.luno.config.model.Action
 
 object NavigationActionHandler : ActionHandler {
 
