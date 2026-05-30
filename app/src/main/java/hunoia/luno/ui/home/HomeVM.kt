@@ -81,6 +81,16 @@ class HomeVM : HomeVMBase() {
         saveSettings()
     }
 
+    fun collapseAll() {
+        updateUiState {
+            it.copy(
+                isSubGestureListExpanded = false,
+                isBottomGestureButtonListExpanded = false,
+                isSideGestureButtonListExpanded = false
+            )
+        }
+    }
+
     fun expandSubGestureList(expanded: Boolean, scrollOffset: Int = Int.MAX_VALUE) {
         updateUiState {
             it.copy(

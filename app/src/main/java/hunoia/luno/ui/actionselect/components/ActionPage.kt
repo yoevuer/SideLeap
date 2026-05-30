@@ -3,8 +3,6 @@ package hunoia.luno.ui.actionselect
 import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,7 +17,6 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -83,7 +80,6 @@ internal fun ActionPage(
     val categoryChips = remember(selectSingle) {
         buildList {
             add(null to context.getString(R.string.all_categories))
-            if (!selectSingle) add("selected" to context.getString(R.string.tab_selected))
             add(ActionCategory.NAVIGATION to context.getString(ActionCategory.NAVIGATION.displayNameRes))
             add(ActionCategory.SYSTEM to context.getString(ActionCategory.SYSTEM.displayNameRes))
             add(ActionCategory.TOOL to context.getString(ActionCategory.TOOL.displayNameRes))
@@ -109,7 +105,7 @@ internal fun ActionPage(
                     .contains(query, ignoreCase = true)
             }
             result
-        } else if (selectedType == "app" || selectedType == "shortcut" || (selectedType == "selected" && !selectingLongPress)) emptyList()
+        } else if (selectedType == "app" || selectedType == "shortcut") emptyList()
         else {
             var result = actions
             if (selectedType == "sub_gesture") {
@@ -199,54 +195,6 @@ internal fun ActionPage(
                                 )
                             }
                         } else null
-                    )
-                }
-            }
-        }
-        if (selectedType == "selected" && !selectSingle && selectedItems.isNotEmpty()) {
-            item(key = "selected_action_settings") {
-                SelectedActionSettings(
-                    selectedItems = selectedItems,
-                    longPressTargetIndex = longPressTargetIndex,
-                    subGestures = subGestures,
-                    itemLabel = { context.selectedItemLabel(it, subGestures) },
-                    onSetLongPress = onSetLongPress,
-                    onClearLongPress = onClearLongPress,
-                    onCancelLongPress = onCancelLongPress,
-                    onMoveSelected = onMoveSelected,
-                    onRemoveItem = { item ->
-                        when (item) {
-                            is Action -> onSelect(item, false)
-                            is AppInfo -> onSelectApp(item, false)
-                            is LauncherInfo.ShortcutInfo -> onSelectShortcut(item, false)
-                        }
-                    },
-                    onClearAll = {
-                        selectedItems.toList().forEach { item ->
-                            when (item) {
-                                is Action -> onSelect(item, false)
-                                is AppInfo -> onSelectApp(item, false)
-                                is LauncherInfo.ShortcutInfo -> onSelectShortcut(item, false)
-                            }
-                        }
-                    }
-                )
-            }
-        }
-        if (selectingLongPress && selectedType == "selected" && !selectSingle) {
-            item(key = "long_press_hint") {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = ContentPaddingHorizontal * 2, vertical = Spacing4),
-                    shape = SheetTopShape,
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = stringResource(R.string.choose_long_press_action_hint),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = Spacing16, vertical = Spacing10)
                     )
                 }
             }

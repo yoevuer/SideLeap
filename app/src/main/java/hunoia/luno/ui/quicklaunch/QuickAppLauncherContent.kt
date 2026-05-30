@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -159,7 +158,7 @@ internal fun QuickAppLauncherContent(
                 Card(
                     modifier = Modifier.width(panelWidthDp),
                     shape = MaterialTheme.shapes.extraLarge,
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                 ) {
                     Column(modifier = Modifier.padding(horizontal = Spacing12, vertical = Spacing10)) {
                         val contentHeightFraction = state.launcherSettings.contentHeightFraction
@@ -168,12 +167,12 @@ internal fun QuickAppLauncherContent(
                         val density = LocalDensity.current
                         val screenHeightPx = DensityProvider.screenHeightPx
                         val panelHeightDp = with(density) { (screenHeightPx * contentHeightFraction).toDp() }
-                        val contentDp = (panelHeightDp - Spacing10 * 2).coerceAtLeast(80.dp)
-                        val rowUnit = ((contentDp - Spacing20) / (candidateRows + 2.25f)).coerceIn(24.dp, 80.dp)
-                        val candidateHeight = rowUnit * candidateRows
-                        val keyHeight = rowUnit * 0.75f
-                        val keyboardHeight = keyHeight * 3 + Spacing20
-                        val contentHeight = candidateHeight + keyboardHeight
+                        val keyHeight = state.launcherSettings.keyHeightDp.dp
+                        val keyboardHeight = keyHeight * 3 + Spacing6 * 2
+                        val minCandidateHeight = 40.dp * candidateRows
+                        val contentDp = (panelHeightDp - Spacing10 * 2).coerceAtLeast(keyboardHeight + Spacing6 + minCandidateHeight)
+                        val candidateHeight = contentDp - keyboardHeight - Spacing6
+                        val contentHeight = contentDp
                         AnimatedContent(
                             targetState = currentPage,
                             transitionSpec = {
@@ -209,7 +208,7 @@ internal fun QuickAppLauncherContent(
                                                         state.clearTokens()
                                                     }
                                                 )
-                                                Spacer(modifier = Modifier.height(Spacing8))
+                                                Spacer(modifier = Modifier.height(Spacing6))
                                                 KeyboardRow(
                                                     view,
                                                     listOf("QW" to "qw", "ER" to "er", "TY" to "ty", "UI" to "ui", "OP" to "op"),

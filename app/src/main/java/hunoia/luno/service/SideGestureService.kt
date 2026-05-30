@@ -35,8 +35,10 @@ import hunoia.luno.config.model.GestureButton
 import hunoia.luno.pointer.PointerAction
 import hunoia.luno.bridge.accessibility.Accessibility
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, QuickAppLauncherOverlayHost, RuntimePanelOverlayHost, PointerOverlayHost {
@@ -138,6 +140,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     private var orientation = if (AppContext.get().resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 2 else 1
     private var isNowInLockScreenPage = false
     private var isKeyboardInputActive = false
+    private var refreshJob: Job? = null
 
     var initialSettings: InitialSettings? = null
         private set
@@ -239,7 +242,11 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
     }
 
     private fun updateGestureButtons() {
-        buttonRefreshCoordinator.refresh()
+        refreshJob?.cancel()
+        refreshJob = coroutineScope.launch {
+            delay(100)
+            buttonRefreshCoordinator.refresh()
+        }
     }
 
     private fun updateKeyboardInputState(event: AccessibilityEvent) {

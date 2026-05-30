@@ -44,6 +44,16 @@ class ActionSelectVM(
         loadData()
     }
 
+    fun reloadData() {
+        viewModelScope.launch {
+            loadDataBody(
+                actionSelect = actionSelect,
+                onUpdateState = { transform -> updateUiState(transform) }
+            )
+            assembleData()
+        }
+    }
+
     fun addNewShortcut(launcherInfo: LauncherInfo, shortcutInfo: LauncherInfo.ShortcutInfo) {
         updateUiState {
             val index = it.createShortcuts.indexOfFirst { info ->

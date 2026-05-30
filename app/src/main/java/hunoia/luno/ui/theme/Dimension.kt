@@ -60,6 +60,7 @@ val ShapeExtraLarge = Spacing20
 
 // Semantic shape tokens — override these to update component shapes globally
 val CardCorner = ShapeExtraLarge
+val KeyboardCorner = ShapeMedium
 val DialogCorner = ShapeMedium
 val SheetCorner = ShapeExtraLarge
 val ChipCorner = ShapeSmall

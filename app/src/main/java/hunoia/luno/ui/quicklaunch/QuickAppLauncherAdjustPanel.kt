@@ -37,8 +37,11 @@ internal fun QuickAppLauncherAdjustPanel(
     }
 
     val screenH = LocalConfiguration.current.screenHeightDp
-    val maxPanel = 80.dp * (settings.candidateRows + 2.25f) + Spacing20 + Spacing10 * 2
-    val heightMax = (maxPanel / screenH.dp).coerceIn(0.35f, 0.85f)
+    val kd = settings.keyHeightDp.dp
+    val minPanel = kd * 3 + Spacing6 * 2 + 40.dp * settings.candidateRows + Spacing6 + Spacing10 * 2
+    val maxPanel = kd * 3 + Spacing6 * 2 + 96.dp * settings.candidateRows + Spacing6 + Spacing10 * 2
+    val heightMin = (minPanel / screenH.dp).coerceIn(0.25f, 0.95f)
+    val heightMax = (maxPanel / screenH.dp).coerceIn(0.25f, 0.95f)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         MyTextSlider(
@@ -46,7 +49,7 @@ internal fun QuickAppLauncherAdjustPanel(
             onValueChange = { updateLayout(settings.copy(contentHeightFraction = it)) },
             text = stringResource(R.string.quick_app_launcher_content_height),
             valueDisplay = "${(settings.contentHeightFraction * 100).roundToInt()}%",
-            valueRange = 0.35f..heightMax,
+            valueRange = heightMin..heightMax,
         )
         MyTextSlider(
             value = settings.panelWidthFraction,
@@ -82,6 +85,13 @@ internal fun QuickAppLauncherAdjustPanel(
             text = stringResource(R.string.quick_app_launcher_grid_columns),
             valueDisplay = settings.gridColumns.toString(),
             valueRange = 3f..5f,
+        )
+        MyTextSlider(
+            value = settings.keyHeightDp.toFloat(),
+            onValueChange = { updateLayout(settings.copy(keyHeightDp = it.roundToInt().coerceIn(36, 80))) },
+            text = stringResource(R.string.quick_app_launcher_key_height),
+            valueDisplay = "${settings.keyHeightDp}dp",
+            valueRange = 36f..80f,
         )
         Row(
             modifier = Modifier

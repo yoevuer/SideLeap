@@ -153,6 +153,9 @@
     <string name="custom">自定义</string>
     <string name="cancel">取消</string>
     <string name="confirm">确认</string>
+    <string name="done">完成</string>
+    <string name="reorder">排序</string>
+    <string name="done_reorder">完成排序</string>
     <string name="reset">重置</string>
     <string name="save_success">保存成功</string>
     <string name="save_failure">保存失败</string>
@@ -273,6 +276,7 @@
     <string name="quick_app_launcher_adjust">调整面板</string>
     <string name="quick_app_launcher_delete_input">删除输入</string>
     <string name="quick_app_launcher_grid_columns">搜索列数</string>
+    <string name="quick_app_launcher_key_height">按键高度</string>
 
     <!-- Gesture settings -->
     <string name="sub_gesture_timeout_label">子手势超时</string>

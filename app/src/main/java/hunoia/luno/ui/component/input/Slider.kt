@@ -205,7 +205,7 @@ fun MySlider(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val interactionSource = remember { MutableInteractionSource() }
-    val colors = SliderDefaults.colors(thumbColor = colorScheme.primary)
+    val colors = SliderDefaults.colors(thumbColor = colorScheme.tertiary)
     var isDragging by remember { mutableStateOf(false) }
     val safeOnValueChange by rememberUpdatedState(onValueChange)
     val safeOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)

@@ -28,12 +28,7 @@ data class UiState(
         val size: Int get() = list.size
 
         fun selectAll(actions: List<Action>): SelectedRecord {
-            val newList = list.toMutableList().apply {
-                actions.forEach { action ->
-                    add(action)
-                }
-            }
-            return this.copy(list = newList)
+            return this.copy(list = actions.toList())
         }
 
         fun selectAction(action: Action, selected: Boolean): SelectedRecord {

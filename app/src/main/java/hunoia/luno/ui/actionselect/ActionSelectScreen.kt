@@ -7,22 +7,35 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,6 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -44,6 +58,7 @@ import hunoia.luno.config.model.Action
 import hunoia.luno.ui.component.OptimizedBottomSheet
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.quicklaunch.QuickLaunchFacade
+import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.ui.settings.gesture.icon.IconResizeContent
@@ -55,7 +70,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.os.Build
 import hunoia.luno.ui.permission.rememberGetInstalledAppsPermissionState
-import hunoia.luno.ui.theme.ScrollBottomPadding
+import hunoia.luno.ui.theme.*
 
 
 
@@ -77,6 +92,8 @@ fun ActionSelectContent(
 ) {
     var showIconResize by remember { mutableStateOf(false) }
     var iconResizeIds by remember { mutableStateOf<List<String>>(emptyList()) }
+    var isExpanded by remember { mutableStateOf(false) }
+    var reorderMode by remember { mutableStateOf(false) }
 
     UDFComponent(
         component = vm.udfComponent,
@@ -113,16 +130,13 @@ fun ActionSelectContent(
                 TopBar(
                     onBack = onDismiss,
                     title = uiState.title,
-                    actions = {
-                        if (!uiState.selectSingle) {
-                            IconButton(onClick = { vm.done() }) {
-                                Icon(imageVector = Icons.Default.Done, contentDescription = null)
-                            }
-                        }
-                    }
                 )
             }) { padding ->
-                Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
                     val permissionState = rememberGetInstalledAppsPermissionState { granted ->
                         if (granted) {
                             vm.updateAppInfos()
@@ -133,6 +147,9 @@ fun ActionSelectContent(
                         if (permissionState.isGranted) {
                             vm.updateAppInfos()
                             vm.updateShortcutInfos()
+                        }
+                        if (uiState.selectedRecord.list.isEmpty()) {
+                            vm.reloadData()
                         }
                     }
                     val context = LocalContext.current
@@ -165,37 +182,84 @@ fun ActionSelectContent(
                             currentLauncherInfo = null
                         }
                     }
-                    ActionPage(
-                        modifier = Modifier.weight(1f).fillMaxWidth(),
-                        contentPadding = PaddingValues(bottom = ScrollBottomPadding),
-                        actions = uiState.actions,
-                        subGestures = uiState.subGestures,
-                        appInfos = uiState.apps,
-                        createShortcuts = uiState.createShortcuts,
-                        launchShortcuts = uiState.launchShortcuts,
-                        selectedRecord = uiState.selectedRecord,
-                        maxSelectCount = uiState.maxSelectCount,
-                        longPressTargetIndex = uiState.longPressTargetIndex,
-                        selectSingle = uiState.selectSingle,
-                        snackbarHostState = snackbarHostState,
-                        permissionState = permissionState,
-                        onSelect = { action, selected -> vm.select(action, selected) },
-                        onSelectLongPress = { obj -> vm.selectLongPressAction(obj) },
-                        onSetLongPress = { index -> vm.startSetLongPressAction(index) },
-                        onClearLongPress = { index -> vm.clearLongPressAction(index) },
-                        onCancelLongPress = { vm.cancelSetLongPressAction() },
-                        onMoveSelected = { from, to -> vm.moveSelectedAction(from, to) },
-                        onSettingsClick = { action -> vm.showDialog(true, action) },
-                        onSelectApp = { appInfo, selected -> vm.select(appInfo, selected) },
-                        onSelectShortcut = { shortcutInfo, selected -> vm.select(shortcutInfo, selected) },
-                        onAppLongClick = { appInfo -> vm.toggleMiniWindow(appInfo) },
-                        onShortcutClick = { launcherInfo ->
-                            try {
-                                currentLauncherInfo = launcherInfo
-                                shortcutLauncher.launch(Intent().apply { setClassName(launcherInfo.packageName, launcherInfo.className) })
-                            } catch (ignored: Exception) { currentLauncherInfo = null }
-                        }
-                    )
+
+                    Box(modifier = Modifier.weight(1f)) {
+                        ActionPage(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = ScrollBottomPadding),
+                            actions = uiState.actions,
+                            subGestures = uiState.subGestures,
+                            appInfos = uiState.apps,
+                            createShortcuts = uiState.createShortcuts,
+                            launchShortcuts = uiState.launchShortcuts,
+                            selectedRecord = uiState.selectedRecord,
+                            maxSelectCount = uiState.maxSelectCount,
+                            longPressTargetIndex = uiState.longPressTargetIndex,
+                            selectSingle = uiState.selectSingle,
+                            snackbarHostState = snackbarHostState,
+                            permissionState = permissionState,
+                            onSelect = { action, selected -> vm.select(action, selected) },
+                            onSelectLongPress = { obj -> vm.selectLongPressAction(obj) },
+                            onSetLongPress = { index -> vm.startSetLongPressAction(index) },
+                            onClearLongPress = { index -> vm.clearLongPressAction(index) },
+                            onCancelLongPress = { vm.cancelSetLongPressAction() },
+                            onMoveSelected = { from, to -> vm.moveSelectedAction(from, to) },
+                            onSettingsClick = { action -> vm.showDialog(true, action) },
+                            onSelectApp = { appInfo, selected -> vm.select(appInfo, selected) },
+                            onSelectShortcut = { shortcutInfo, selected -> vm.select(shortcutInfo, selected) },
+                            onAppLongClick = { appInfo -> vm.toggleMiniWindow(appInfo) },
+                            onShortcutClick = { launcherInfo ->
+                                try {
+                                    currentLauncherInfo = launcherInfo
+                                    shortcutLauncher.launch(Intent().apply { setClassName(launcherInfo.packageName, launcherInfo.className) })
+                                } catch (ignored: Exception) { currentLauncherInfo = null }
+                            }
+                        )
+                    }
+
+                    AnimatedVisibility(
+                        visible = !uiState.selectSingle && uiState.selectedRecord.size > 0 && isExpanded,
+                        enter = expandVertically(animationSpec = tween(AnimMedium.toInt())) +
+                                fadeIn(animationSpec = tween(AnimMedium.toInt())),
+                        exit = shrinkVertically(animationSpec = tween(AnimMedium.toInt())) +
+                               fadeOut(animationSpec = tween(AnimMedium.toInt())),
+                    ) {
+                        SelectedActionSettings(
+                            selectedItems = uiState.selectedRecord.list,
+                            longPressTargetIndex = uiState.longPressTargetIndex,
+                            itemLabel = { context.selectedItemLabel(it, uiState.subGestures) },
+                            reorderMode = reorderMode,
+                            onReorderModeToggle = { reorderMode = !reorderMode },
+                            onSetLongPress = { index -> vm.startSetLongPressAction(index) },
+                            onCancelLongPress = { vm.cancelSetLongPressAction() },
+                            onMoveSelected = { from, to -> vm.moveSelectedAction(from, to) },
+                            onRemoveItem = { item ->
+                                when (item) {
+                                    is Action -> vm.select(item, false)
+                                    is AppInfo -> vm.select(item, false)
+                                    is LauncherInfo.ShortcutInfo -> vm.select(item, false)
+                                }
+                            },
+                            onClearAll = {
+                                uiState.selectedRecord.list.toList().forEach { item ->
+                                    when (item) {
+                                        is Action -> vm.select(item, false)
+                                        is AppInfo -> vm.select(item, false)
+                                        is LauncherInfo.ShortcutInfo -> vm.select(item, false)
+                                    }
+                                }
+                            }
+                        )
+                    }
+
+                    if (!uiState.selectSingle && uiState.selectedRecord.size > 0) {
+                        SelectedBottomBar(
+                            count = uiState.selectedRecord.size,
+                            expanded = isExpanded,
+                            onToggleExpand = { isExpanded = !isExpanded },
+                            onDone = { vm.done() },
+                        )
+                    }
                 }
             }
 
@@ -213,6 +277,45 @@ fun ActionSelectContent(
     }
 }
 
+
+@Composable
+private fun SelectedBottomBar(
+    count: Int,
+    expanded: Boolean,
+    onToggleExpand: () -> Unit,
+    onDone: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shadowElevation = 8.dp,
+        color = MaterialTheme.colorScheme.surfaceContainer,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = ContentPaddingHorizontal * 2, vertical = Spacing8),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(R.string.selected_count_no_limit, count),
+                style = MaterialTheme.typography.titleSmall,
+            )
+            Spacer(Modifier.weight(1f))
+            TextButton(onClick = onToggleExpand) {
+                Text(if (expanded) stringResource(R.string.collapse) else stringResource(R.string.expand))
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    modifier = Modifier.size(Spacing20),
+                )
+            }
+            Spacer(Modifier.width(Spacing4))
+            FilledTonalButton(onClick = onDone) {
+                Text(stringResource(R.string.done))
+            }
+        }
+    }
+}
 
 @Suppress("DEPRECATION")
 private fun shortcutIconExtraKey(): String = Intent.EXTRA_SHORTCUT_ICON

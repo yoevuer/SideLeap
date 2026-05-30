@@ -18,10 +18,12 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -139,7 +141,11 @@ fun PasswordGeneratorPanel(
                                 regenerate(normalized)
                             },
                             valueRange = PasswordMinLength.toFloat()..PasswordMaxLength.toFloat(),
-                            steps = PasswordMaxLength - PasswordMinLength - 1
+                            steps = PasswordMaxLength - PasswordMinLength - 1,
+                            colors = SliderDefaults.colors(
+                                thumbColor = MaterialTheme.colorScheme.tertiary,
+                                activeTrackColor = MaterialTheme.colorScheme.tertiary,
+                            )
                         )
                         Spacer(modifier = Modifier.width(Spacing12))
                         Text(
@@ -164,11 +170,11 @@ fun PasswordGeneratorPanel(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(onClick = { regenerate() }) {
+                        FilledTonalIconButton(onClick = { regenerate() }) {
                             Icon(imageVector = Icons.Default.Refresh, contentDescription = null)
                         }
                         Spacer(modifier = Modifier.width(Spacing24))
-                        IconButton(
+                        FilledTonalIconButton(
                             enabled = password.isNotEmpty(),
                             onClick = {
                                 val copied = onCopyPassword(password)

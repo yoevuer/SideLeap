@@ -60,8 +60,8 @@ internal fun PageMatchIcon(
         Box(
             modifier = Modifier
                 .let { if (iconHeight != null) it.height(iconHeight).fillMaxWidth() else it.fillMaxWidth().aspectRatio(1f) }
-                .clip(MaterialTheme.shapes.small)
-                .background(MaterialTheme.colorScheme.secondaryContainer),
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.tertiaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -70,7 +70,7 @@ internal fun PageMatchIcon(
                     else -> Icons.Default.Settings
                 },
                 contentDescription = name,
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                tint = MaterialTheme.colorScheme.onTertiaryContainer,
                 modifier = Modifier.width(28.dp).height(28.dp)
             )
         }

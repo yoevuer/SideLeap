@@ -21,9 +21,6 @@ import hunoia.luno.ui.navigation.ActionSelect
 import java.io.File
 import java.io.FileOutputStream
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.withContext
 
 class EventHandler(
@@ -371,51 +368,44 @@ internal suspend fun loadDataBody(
     onUpdateState: (update: (UiState) -> UiState) -> Unit
 ) {
     val buttons = if (actionSelect.isSideButton) {
-        ConfigProvider.sideGestureButtons
+        ConfigProvider.getSideGestureButtons()
     } else {
-        ConfigProvider.bottomGestureButtons
+        ConfigProvider.getBottomGestureButtons()
     }
-    ConfigProvider
-        .gestureSettings
-        .combine(buttons) { f1, f2 ->
-            f1 to f2
+    val gestureSettings = ConfigProvider.getGestureSettings()
+    val subGestures = ConfigProvider.getSubGestureSettings().subGestures
+    val button = buttons.find {
+        it.id == actionSelect.gestureButtonId && it.position == actionSelect.position
+    }
+    onUpdateState { state ->
+        val selectSingle = !actionSelect.isLongSlide || (button != null && !button.longSlideTriggerImmediately)
+        state.copy(
+            selectSingle = selectSingle,
+            maxSelectCount = if (selectSingle) 1 else LONG_SLIDE_SOFT_MAX_SELECT_COUNT,
+            subGestures = subGestures
+        )
+    }
+    if (button != null) {
+        val gestureActions = when {
+            actionSelect.isTap -> button.tapActions
+            actionSelect.isLongSlide -> button.longSlideActions
+            else -> button.slideActions
         }
-        .take(1)
-        .collectLatest { (gestureSettings, gestureButtons) ->
-            val subGestures = ConfigProvider.getSubGestureSettings().subGestures
-            val button = gestureButtons.find {
-                it.id == actionSelect.gestureButtonId && it.position == actionSelect.position
-            }
-            onUpdateState { state ->
-                val selectSingle = !actionSelect.isLongSlide || (button != null && !button.longSlideTriggerImmediately)
-                state.copy(
-                    selectSingle = selectSingle,
-                    maxSelectCount = if (selectSingle) 1 else LONG_SLIDE_SOFT_MAX_SELECT_COUNT,
-                    subGestures = subGestures
-                )
-            }
-            if (button != null) {
-                val gestureActions = when {
-                    actionSelect.isTap -> button.tapActions
-                    actionSelect.isLongSlide -> button.longSlideActions
-                    else -> button.slideActions
-                }
-                val actions = when (actionSelect.direction) {
-                    TriggerDirection.Center -> gestureActions.center
-                    TriggerDirection.Up -> gestureActions.up
-                    TriggerDirection.Down -> gestureActions.down
-                    TriggerDirection.Center2 -> gestureActions.center2
-                    TriggerDirection.Up2 -> gestureActions.up2
-                    TriggerDirection.Down2 -> gestureActions.down2
-                }
-                onUpdateState { state ->
-                    val selectedActions = when (state.selectSingle) {
-                        true -> emptyList()
-                        else -> actions
-                    }
-                    val newSelectedRecord = state.selectedRecord.selectAll(selectedActions)
-                    state.copy(selectedRecord = newSelectedRecord)
-                }
-            }
+        val actions = when (actionSelect.direction) {
+            TriggerDirection.Center -> gestureActions.center
+            TriggerDirection.Up -> gestureActions.up
+            TriggerDirection.Down -> gestureActions.down
+            TriggerDirection.Center2 -> gestureActions.center2
+            TriggerDirection.Up2 -> gestureActions.up2
+            TriggerDirection.Down2 -> gestureActions.down2
         }
+        onUpdateState { state ->
+            val selectedActions = when (state.selectSingle) {
+                true -> emptyList()
+                else -> actions
+            }
+            val newSelectedRecord = state.selectedRecord.selectAll(selectedActions)
+            state.copy(selectedRecord = newSelectedRecord)
+        }
+    }
 }

@@ -100,6 +100,7 @@ object ConfigProvider {
                 panelWidthFraction = layout.panelWidthFraction,
                 panelHorizontalBias = layout.panelHorizontalBias,
                 gridColumns = layout.gridColumns,
+                keyHeightDp = layout.keyHeightDp,
             )
         }
     }
@@ -112,6 +113,7 @@ object ConfigProvider {
                 panelWidthFraction = QuickAppLauncherSettings().panelWidthFraction,
                 panelHorizontalBias = QuickAppLauncherSettings().panelHorizontalBias,
                 gridColumns = QuickAppLauncherSettings().gridColumns,
+                keyHeightDp = QuickAppLauncherSettings().keyHeightDp,
             )
         }
     }

@@ -61,8 +61,9 @@ fun SideGestureApp() {
         CompositionLocalProvider(
             LocalNavController provides navController
         ) {
-            NavHost(
-                modifier = Modifier.fillMaxSize(),
+            Surface(modifier = Modifier.fillMaxSize()) {
+                NavHost(
+                    modifier = Modifier.fillMaxSize(),
                 navController = navController,
                 startDestination = Home,
                 enterTransition = {
@@ -141,6 +142,7 @@ fun SideGestureApp() {
                         onDismiss = { navController.popBackStack() }
                     )
                 }
+            }
             }
         }
     }

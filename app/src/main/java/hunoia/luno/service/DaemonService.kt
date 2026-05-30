@@ -53,6 +53,9 @@ class DaemonService : Service() {
             return START_NOT_STICKY
         }
 
+        contentObserver?.let { contentResolver.unregisterContentObserver(it) }
+        screenReceiver?.let { unregisterReceiver(it) }
+
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         startForegroundNotification(notificationManager)
 

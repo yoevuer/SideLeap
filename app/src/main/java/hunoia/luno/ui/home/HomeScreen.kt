@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -71,6 +72,11 @@ fun HomeScreen(
         var colorPickerColor by remember { mutableStateOf(Color.Transparent) }
         var myColumnWindowY by remember { mutableIntStateOf(0) }
         var cardAreaWindowY by remember { mutableIntStateOf(0) }
+    DisposableEffect(Unit) {
+        onDispose {
+            vm.collapseAll()
+        }
+    }
     val context = LocalContext.current
     UDFComponent(
         component = vm.udfComponent,

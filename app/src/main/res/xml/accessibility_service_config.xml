@@ -6,7 +6,7 @@
     android:accessibilityEventTypes="typeWindowStateChanged|typeViewFocused|typeViewTextChanged|typeViewTextSelectionChanged|typeWindowContentChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagDefault|flagRequestFilterKeyEvents"
-    android:notificationTimeout="0"
+    android:notificationTimeout="100"
     android:canPerformGestures="true"
     android:canTakeScreenshot="true"
     android:canRetrieveWindowContent="true"

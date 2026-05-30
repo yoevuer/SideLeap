@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +45,8 @@ object ShizukuManager {
 
     private var installedShizuku: Boolean? = null
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    @Volatile
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val isRoot get() = runCatching { Shizuku.getUid() }.getOrDefault(-1) == 0
     private val callerPackage get() = if (isRoot) "com.android.shell" else BuildConfig.APPLICATION_ID
@@ -138,6 +140,11 @@ object ShizukuManager {
     fun updateStatus() {
         installedShizuku = null
         statusMutableStateFlow.value = snapshot()
+    }
+
+    internal fun release() {
+        scope.cancel()
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     }
 
     // --- Permission ---

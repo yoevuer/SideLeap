@@ -15,7 +15,7 @@ object PackageChangeReceiver {
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            listeners.forEach { it() }
+            listeners.toList().forEach { it() }
         }
     }
 
@@ -31,6 +31,14 @@ object PackageChangeReceiver {
             addDataScheme("package")
         }
         context.registerReceiver(receiver, filter)
+    }
+
+    fun unregister(context: Context, onPackageChanged: () -> Unit) {
+        listeners.remove(onPackageChanged)
+        if (listeners.isEmpty() && registered) {
+            runCatching { context.unregisterReceiver(receiver) }
+            registered = false
+        }
     }
 }
 

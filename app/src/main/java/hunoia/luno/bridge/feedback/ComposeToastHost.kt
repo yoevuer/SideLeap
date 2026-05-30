@@ -46,7 +46,7 @@ class ToastData(
     val isEmpty: Boolean = resId == 0 && text.isEmpty()
 }
 
-internal val channel = Channel<ToastData>()
+internal val channel = Channel<ToastData>(Channel.CONFLATED)
 
 private const val TOAST_SHORT = 2000L
 private const val TOAST_LONG = 3500L

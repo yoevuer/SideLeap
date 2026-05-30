@@ -8,6 +8,8 @@ import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -36,16 +38,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import hunoia.luno.R
 import coil.compose.AsyncImage
 import hunoia.luno.quicklaunch.QuickLaunchFacade
 import hunoia.luno.quicklaunch.model.AppInfo
-import hunoia.luno.ui.theme.ShapeSmall
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -64,12 +70,25 @@ internal fun KeyboardRow(
         val cellWidth = (maxWidth - Spacing6 * (keys.size - 1)) / keys.size
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing6), modifier = Modifier.fillMaxWidth()) {
             keys.forEach { (label, token) ->
+                val interactionSource = remember { MutableInteractionSource() }
+                val isPressed by interactionSource.collectIsPressedAsState()
+                val scale by animateFloatAsState(
+                    if (isPressed) 0.93f else 1f,
+                    animationSpec = spring(stiffness = Spring.StiffnessHigh),
+                    label = "keyScale"
+                )
+                val isFunction = label == "删除" || label == "调整"
                 Surface(
                     modifier = Modifier
                         .width(cellWidth)
                         .height(keyHeight)
-                        .clip(MaterialTheme.shapes.small)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                        }
+                        .clip(MaterialTheme.shapes.medium)
                         .combinedClickable(
+                            interactionSource = interactionSource,
                             onClick = {
                                 view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                                 when (label) {
@@ -95,13 +114,16 @@ internal fun KeyboardRow(
                                 }
                             }
                         ),
-                    color = MaterialTheme.colorScheme.surfaceVariant
+                    color = if (isFunction) MaterialTheme.colorScheme.tertiaryContainer
+                    else MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = if (isFunction) MaterialTheme.colorScheme.onTertiaryContainer
+                    else MaterialTheme.colorScheme.onSecondaryContainer,
                 ) {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         when (label) {
                             "调整" -> Icon(Icons.Outlined.Tune, contentDescription = stringResource(R.string.quick_app_launcher_adjust))
                             "删除" -> Icon(Icons.Outlined.DeleteOutline, contentDescription = stringResource(R.string.quick_app_launcher_delete_input))
-                            else -> Text(label)
+                            else -> Text(label, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -127,10 +149,25 @@ internal fun rememberAppIconAsync(context: Context, packageName: String): Drawab
 @Composable
 internal fun AppItem(app: AppInfo, iconHeight: Dp? = null, onClick: () -> Unit, onLongPress: () -> Unit) {
     val context = LocalContext.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        if (isPressed) 0.92f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessHigh),
+        label = "appScale"
+    )
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .combinedClickable(onClick = { onClick() }, onLongClick = { onLongPress() })
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .combinedClickable(
+                interactionSource = interactionSource,
+                onClick = { onClick() },
+                onLongClick = { onLongPress() }
+            )
             .padding(Spacing4),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -138,7 +175,7 @@ internal fun AppItem(app: AppInfo, iconHeight: Dp? = null, onClick: () -> Unit, 
             Modifier.height(iconHeight).fillMaxWidth()
         } else {
             Modifier.fillMaxWidth().aspectRatio(1f)
-        }.clip(MaterialTheme.shapes.small)
+        }.clip(MaterialTheme.shapes.medium)
         val icon = rememberAppIconAsync(context, app.packageName)
         if (icon != null) {
             AsyncImage(
@@ -149,7 +186,7 @@ internal fun AppItem(app: AppInfo, iconHeight: Dp? = null, onClick: () -> Unit, 
             )
         } else {
             Box(
-                modifier = iconMod.background(MaterialTheme.colorScheme.surfaceVariant)
+                modifier = iconMod.background(MaterialTheme.colorScheme.surfaceContainer)
             )
         }
     }
