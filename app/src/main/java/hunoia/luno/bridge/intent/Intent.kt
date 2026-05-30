@@ -30,20 +30,6 @@ fun Context.launchAssist(): Boolean {
     }
 }
 
-fun Context.gotoIgnoreBatteryOptimizations(): Boolean {
-    return try {
-        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-            data = Uri.parse("package:$packageName")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        startActivity(intent)
-        true
-    } catch (ignored: ActivityNotFoundException) {
-        showToast(R.string.please_enable_ignoring_battery_optimizations_by_yourself)
-        false
-    }
-}
-
 fun Context.gotoAccessibilitySettings() {
     val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
     try {

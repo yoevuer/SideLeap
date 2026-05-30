@@ -7,3 +7,8 @@ data class ShellCommandResult(
     val elapsedMs: Long,
     val error: String? = null,
 )
+
+data class ShellOutputLine(
+    val text: String,
+    val isError: Boolean,
+)

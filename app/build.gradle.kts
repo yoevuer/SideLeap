@@ -92,7 +92,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-        aidl = true
         resValues = true
     }
     androidResources {
@@ -133,4 +132,5 @@ dependencies {
     implementation(libs.tinypinyin)
     implementation(libs.rikka.shizuku.api)
     implementation(libs.rikka.shizuku.provider)
+    implementation(libs.hiddenapibypass)
 }

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.FilledTonalButton
@@ -181,4 +182,22 @@ fun HomeToolsCard(
             }
         }
     }
+}
+
+@Composable
+fun HomeKeepAliveCard(
+    enabled: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    HomeCard(
+        title = stringResource(id = R.string.keep_alive),
+        subtitle = stringResource(id = R.string.keep_alive_hint),
+        leading = {
+            HomeCardIcon(Icons.Default.Security)
+        },
+        onClick = { onCheckedChange(!enabled) },
+        trailing = {
+            Switch(checked = enabled, onCheckedChange = onCheckedChange)
+        },
+    )
 }

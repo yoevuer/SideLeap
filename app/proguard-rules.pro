@@ -21,7 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class hunoia.luno.shizuku.** { *; }
--keep class hunoia.luno.IShizukuCommandService { *; }
+-keep class org.lsposed.hiddenapibypass.** { *; }
 
 
 

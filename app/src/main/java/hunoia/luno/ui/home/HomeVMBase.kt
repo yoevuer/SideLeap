@@ -1,5 +1,7 @@
 package hunoia.luno.ui.home
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.viewModelScope
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.R
@@ -12,12 +14,15 @@ import hunoia.luno.config.model.GestureSettings.PointerTrailStyle
 import hunoia.luno.config.model.InitialSettings
 import hunoia.luno.freeze.FreezeUseCase
 import hunoia.luno.bridge.isAccessibilitySettingsOn
-import hunoia.luno.bridge.isIgnoringBatteryOptimizations
 import hunoia.luno.bridge.feedback.showToast
+import hunoia.luno.bridge.hasWriteSecureSettingsPermission
+import hunoia.luno.service.DaemonService
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 abstract class HomeVMBase : BaseComposeVM<UiState, UiEvent>() {
 
@@ -123,19 +128,46 @@ abstract class HomeVMBase : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
+    fun onKeepAliveChange(enabled: Boolean) {
+        if (enabled) {
+            val context = AppContext.get()
+            if (!context.hasWriteSecureSettingsPermission()) {
+                showToast(R.string.keep_alive_need_permission)
+                return
+            }
+        }
+        updateUiState { it.copy(isKeepAliveEnabled = enabled) }
+        viewModelScope.launch {
+            ConfigProvider.updateAdvancedSettings { it.copy(keepAliveEnabled = enabled) }
+            withContext(Dispatchers.IO) {
+                AppContext.get().getSharedPreferences("daemon", Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("keep_alive", enabled)
+                    .apply()
+            }
+            if (enabled) {
+                val intent = Intent(AppContext.get(), DaemonService::class.java)
+                AppContext.get().startForegroundService(intent)
+            } else {
+                val intent = Intent(AppContext.get(), DaemonService::class.java)
+                AppContext.get().stopService(intent)
+            }
+        }
+    }
+
     fun updatePermissionState() {
         viewModelScope.launch {
             val app = AppContext.get()
             val isGestureEnabled = ConfigProvider.getInitialSettings().gestureEnabled
-            @Suppress("UNCHECKED_CAST")
-            val clazz = Class.forName("hunoia.luno.service.SideGestureService") as Class<out android.accessibilityservice.AccessibilityService?>
+            val clazz = Class.forName("hunoia.luno.service.SideGestureService")
             val isAccessibilityEnabled = app.isAccessibilitySettingsOn(clazz)
-            val isIgnoringBatteryOptimizations = app.isIgnoringBatteryOptimizations()
+            val hasWriteSecureSettings = app.hasWriteSecureSettingsPermission()
+            val keepAliveSettings = ConfigProvider.getAdvancedSettings().keepAliveEnabled
             updateUiState {
                 it.copy(
                     isGestureEnabled = isAccessibilityEnabled && isGestureEnabled,
                     isAccessibilityEnabled = isAccessibilityEnabled,
-                    isIgnoringBatteryOptimizations = isIgnoringBatteryOptimizations
+                    isKeepAliveEnabled = keepAliveSettings && hasWriteSecureSettings,
                 )
             }
         }
@@ -209,6 +241,7 @@ abstract class HomeVMBase : BaseComposeVM<UiState, UiEvent>() {
                     miniWindowOverrideBounds = advancedSettings.miniWindowOverrideBounds,
                     excludedAppCount = advancedSettings.excludeApps.size,
                     selectedFrozenAppCount = frozenAppSettings.oneKeyPackageNames.size,
+                    isKeepAliveEnabled = advancedSettings.keepAliveEnabled,
                 )
             }.collectLatest { state ->
                 updateUiState { state }

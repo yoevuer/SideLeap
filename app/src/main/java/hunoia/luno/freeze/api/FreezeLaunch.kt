@@ -4,7 +4,6 @@ import android.content.Context
 import hunoia.luno.R
 import hunoia.luno.quicklaunch.QuickLaunchFacade
 import hunoia.luno.bridge.feedback.showToast
-import kotlinx.coroutines.delay
 
 object FreezeLaunch {
 
@@ -27,9 +26,8 @@ object FreezeLaunch {
                 showToast(R.string.enable_frozen_app_failed)
                 return false
             }
-            FreezeState.invalidateFrozenCache()
+            FreezeState.markUnfrozen(packageName)
             QuickLaunchFacade.invalidateLauncherCache()
-            delay(100)
         }
         return QuickLaunchFacade.launchAppDirect(
             context, packageName, className, miniWindow,
@@ -52,9 +50,8 @@ object FreezeLaunch {
                 showToast(R.string.enable_frozen_app_failed)
                 return false
             }
-            FreezeState.invalidateFrozenCache()
+            FreezeState.markUnfrozen(packageName)
             QuickLaunchFacade.invalidateLauncherCache()
-            delay(100)
         }
         return QuickLaunchFacade.launchAppActivityDirect(context, packageName, className)
     }

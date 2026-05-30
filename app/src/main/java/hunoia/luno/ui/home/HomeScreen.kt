@@ -42,6 +42,7 @@ import hunoia.luno.config.model.SubGesture
 import hunoia.luno.bridge.intent.gotoAccessibilitySettings
 import hunoia.luno.ui.home.UiEvent
 import hunoia.luno.ui.theme.SectionPadding
+import hunoia.luno.ui.theme.Spacing12
 import hunoia.luno.ui.component.MyColumn
 import hunoia.luno.ui.component.TopBar
 import hunoia.luno.ui.component.color.ColorPickerBottomSheet
@@ -184,6 +185,13 @@ fun HomeScreen(
                         )
 
                         Spacer(Modifier.height(SectionPadding))
+
+                        HomeKeepAliveCard(
+                            enabled = uiState.isKeepAliveEnabled,
+                            onCheckedChange = { vm.onKeepAliveChange(it) },
+                        )
+
+                        Spacer(Modifier.height(Spacing12))
 
                         HomeFeatureGrid(
                             uiState = uiState,

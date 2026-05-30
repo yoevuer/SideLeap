@@ -29,6 +29,7 @@ class HomeVM : HomeVMBase() {
         loadFrozenCount()
         viewModelScope.launch {
             ShizukuManager.autoRequestPermissionIfNeeded()
+            ShizukuManager.ensureWriteSecureSettings()
         }
     }
 

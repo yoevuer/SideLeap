@@ -75,6 +75,9 @@
     <string name="hide_gesture_button">隐藏触钮</string>
     <string name="animation_style_short">动画</string>
     <string name="exclude_app_short">排除</string>
+    <string name="keep_alive">保活</string>
+    <string name="keep_alive_hint">无障碍服务被关闭时自动恢复</string>
+    <string name="keep_alive_need_permission">保活需要授予「修改系统设置」权限，请先在 Shizuku 中授权或通过 ADB 执行：adb shell pm grant hunoia.luno android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="excluded_count">已排除 %1$d 个应用</string>
     <string name="frozen_app_manage_short">冻结</string>
     <string name="mini_window_position_short">小窗</string>
@@ -188,10 +191,6 @@
     <string name="flashlight_failed">无法使用手电筒，请检查设备是否支持。</string>
     <string name="os_version_too_low">系统版本不支持</string>
     <string name="os_version_too_low_placeholder">系统版本不支持：%1$s</string>
-    <string name="ignoring_battery_optimizations">电池优化</string>
-    <string name="launch_self_permission">应用自启动</string>
-    <string name="please_enable_launch_self_permission_by_yourself">请手动前往开启自启动权限</string>
-    <string name="please_enable_ignoring_battery_optimizations_by_yourself">请手动前往启用电池优化白名单</string>
     <string name="invalid_color_value">非法色值，请重新输入</string>
 
     <string name="slide_to_right">向右滑动</string>

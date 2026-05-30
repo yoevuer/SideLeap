@@ -14,6 +14,7 @@ object AdvancedSettingsDefaults {
     const val MiniWindowWidthFraction = 0.46f
     const val MiniWindowHeightFraction = 0.74f
     const val MiniWindowOverrideBounds = false
+    const val KeepAliveEnabled = false
     val ClipApps = emptyMap<String, Float>()
     val ClipShortcuts = emptyMap<String, Float>()
 }

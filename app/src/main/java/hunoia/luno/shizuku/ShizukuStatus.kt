@@ -4,7 +4,6 @@ data class ShizukuStatus(
     val installed: Boolean,
     val binderAlive: Boolean,
     val permissionGranted: Boolean,
-    val serviceBound: Boolean,
     val uid: Int?
 ) {
     val executorLabel: String

@@ -25,7 +25,6 @@ data class UiState(
     val subGestures: List<SubGesture> = emptyList(),
     val isGestureEnabled: Boolean = false,
     val isAccessibilityEnabled: Boolean = false,
-    val isIgnoringBatteryOptimizations: Boolean = false,
     val isSubGestureListExpanded: Boolean = false,
     val isBottomGestureButtonListExpanded: Boolean = false,
     val isSideGestureButtonListExpanded: Boolean = false,
@@ -39,5 +38,6 @@ data class UiState(
     val excludedAppCount: Int = 0,
     val frozenAppCount: Int = 0,
     val selectedFrozenAppCount: Int = 0,
+    val isKeepAliveEnabled: Boolean = false,
     val renameDialogTarget: RenameTarget? = null,
 )

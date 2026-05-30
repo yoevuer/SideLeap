@@ -1,11 +1,12 @@
 package hunoia.luno.shizuku
 
-import android.content.ComponentName
-import android.content.ServiceConnection
+import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.IBinder
+import android.os.ParcelFileDescriptor
 import hunoia.luno.BuildConfig
-import hunoia.luno.IShizukuCommandService
+import hunoia.luno.bridge.accessibility.AccessibilitySettings
 import hunoia.luno.core.AppContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -18,24 +19,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import moe.shizuku.server.IShizukuService
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 import rikka.shizuku.Shizuku
+import rikka.shizuku.ShizukuBinderWrapper
+import rikka.shizuku.SystemServiceHelper
 
 object ShizukuManager {
 
     private const val RequestCode = 41051
-    private const val ServiceTag = "luno_shizuku"
     private const val ShizukuPackageName = "moe.shizuku.privileged.api"
 
-    private val bindMutex = Mutex()
     private val autoPermissionMutex = Mutex()
     private val permissionMutex = Mutex()
     private val statusMutableStateFlow = MutableStateFlow(snapshot())
-
-    @Volatile
-    private var service: IShizukuCommandService? = null
-
-    @Volatile
-    private var serviceReady: CompletableDeferred<IShizukuCommandService>? = null
 
     @Volatile
     private var permissionResult: CompletableDeferred<Boolean>? = null
@@ -43,41 +40,22 @@ object ShizukuManager {
     @Volatile
     private var autoPermissionRequested = false
 
+    private var installedShizuku: Boolean? = null
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-    private val userServiceArgs by lazy {
-        Shizuku.UserServiceArgs(
-            ComponentName(AppContext.get(), ShizukuCommandService::class.java)
-        ).processNameSuffix("shizuku_shell")
-            .tag(ServiceTag)
-            .version(BuildConfig.VERSION_CODE)
-    }
-
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-            val target = IShizukuCommandService.Stub.asInterface(binder)
-            service = target
-            serviceReady?.complete(target)
-            updateStatus()
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            service = null
-            serviceReady = null
-            updateStatus()
-        }
-    }
+    private val isRoot get() = runCatching { Shizuku.getUid() }.getOrDefault(-1) == 0
+    private val callerPackage get() = if (isRoot) "com.android.shell" else BuildConfig.APPLICATION_ID
 
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
         updateStatus()
         scope.launch {
             autoRequestPermissionIfNeeded()
+            ensureWriteSecureSettings()
         }
     }
 
     private val binderDeadListener = Shizuku.OnBinderDeadListener {
-        service = null
-        serviceReady = null
         updateStatus()
     }
 
@@ -89,6 +67,8 @@ object ShizukuManager {
             permissionResult = null
             if (!granted) {
                 autoPermissionRequested = false
+            } else {
+                scope.launch { grantWriteSecureSettings() }
             }
             updateStatus()
         }
@@ -100,6 +80,53 @@ object ShizukuManager {
         updateStatus()
     }
 
+    // --- Hidden API proxies ---
+
+    private val pmClass by lazy { Class.forName("android.content.pm.IPackageManager") }
+
+    private val pmProxy by lazy {
+        val stubClass = Class.forName("android.content.pm.IPackageManager\$Stub")
+        val binder = SystemServiceHelper.getSystemService("package")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            HiddenApiBypass.invoke(stubClass, null, "asInterface", ShizukuBinderWrapper(binder))
+        } else {
+            stubClass.getMethod("asInterface", IBinder::class.java)
+                .invoke(null, ShizukuBinderWrapper(binder))
+        }
+    }
+
+    private val amProxy by lazy {
+        val stubClass = Class.forName("android.app.IActivityManager\$Stub")
+        val binder = SystemServiceHelper.getSystemService(Context.ACTIVITY_SERVICE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            HiddenApiBypass.invoke(stubClass, null, "asInterface", ShizukuBinderWrapper(binder))
+        } else {
+            stubClass.getMethod("asInterface", IBinder::class.java)
+                .invoke(null, ShizukuBinderWrapper(binder))
+        }
+    }
+
+    private val userId by lazy {
+        Class.forName("android.os.UserHandle").getMethod("myUserId").invoke(null) as Int
+    }
+
+    private val setEnabledSetting by lazy {
+        runCatching {
+            pmClass.getMethod(
+                "setApplicationEnabledSetting",
+                String::class.java, Int::class.javaPrimitiveType,
+                Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
+                String::class.java
+            )
+        }.getOrElse {
+            pmClass.getMethod(
+                "setApplicationEnabledSetting",
+                String::class.java, Int::class.javaPrimitiveType,
+                Int::class.javaPrimitiveType, Int::class.javaPrimitiveType
+            )
+        }
+    }
+
     // --- Status ---
 
     val statusFlow: StateFlow<ShizukuStatus> = statusMutableStateFlow.asStateFlow()
@@ -107,6 +134,7 @@ object ShizukuManager {
     fun currentStatus(): ShizukuStatus = statusMutableStateFlow.value
 
     fun updateStatus() {
+        installedShizuku = null
         statusMutableStateFlow.value = snapshot()
     }
 
@@ -119,12 +147,15 @@ object ShizukuManager {
             updateStatus()
             val status = currentStatus()
             if (!shouldAutoRequest(status)) return@withLock false
+            if (Shizuku.isPreV11()) return@withLock false
+            if (Shizuku.shouldShowRequestPermissionRationale()) return@withLock false
             autoPermissionRequested = true
             requestPermission()
         }
     }
 
     suspend fun requestPermission(): Boolean {
+        if (Shizuku.isPreV11()) return false
         return permissionMutex.withLock {
             if (!isBinderAlive()) {
                 updateStatus()
@@ -145,6 +176,27 @@ object ShizukuManager {
 
     // --- Shell Execution ---
 
+    private suspend fun grantWriteSecureSettings() = withContext(Dispatchers.IO) {
+        runCatching {
+            val svc = IShizukuService.Stub.asInterface(Shizuku.getBinder())
+            val proc = svc.newProcess(arrayOf("sh"), null, null)
+            val pkg = AppContext.get().packageName
+            ParcelFileDescriptor.AutoCloseOutputStream(proc.outputStream).use { out ->
+                out.write("pm grant $pkg android.permission.WRITE_SECURE_SETTINGS\nexit\n".toByteArray())
+                out.flush()
+            }
+            proc.waitFor()
+            proc.destroy()
+        }
+    }
+
+    internal suspend fun ensureWriteSecureSettings() {
+        val context = AppContext.get()
+        if (!AccessibilitySettings.hasWriteSecureSettings(context)) {
+            grantWriteSecureSettings()
+        }
+    }
+
     suspend fun executeShell(command: String): ShellResult = withContext(Dispatchers.IO) {
         if (command.isBlank()) {
             return@withContext ShellResult(-1, "", "", false, "Command is blank")
@@ -155,35 +207,61 @@ object ShizukuManager {
         if (!hasPermission()) {
             return@withContext ShellResult(-1, "", "", false, "Shizuku permission denied")
         }
-        val raw = runCatching {
-            ensureService().executeShellCommand(command)
+        runCatching {
+            val svc = IShizukuService.Stub.asInterface(Shizuku.getBinder())
+            val proc = svc.newProcess(arrayOf(if (isRoot) "su" else "sh"), null, null)
+            ParcelFileDescriptor.AutoCloseOutputStream(proc.outputStream).use { out ->
+                out.write((command + "\nexit\n").toByteArray())
+                out.flush()
+            }
+            val stdoutResult = StringBuilder()
+            val stderrResult = StringBuilder()
+            val maxChars = 4096
+            val stdoutJob = launch {
+                runCatching {
+                    ParcelFileDescriptor.AutoCloseInputStream(proc.inputStream).use { input ->
+                        input.bufferedReader().use { reader ->
+                            var line = reader.readLine()
+                            while (line != null && stdoutResult.length <= maxChars) {
+                                if (stdoutResult.isNotEmpty()) stdoutResult.append('\n')
+                                stdoutResult.append(line)
+                                line = reader.readLine()
+                            }
+                        }
+                    }
+                }
+            }
+            val stderrJob = launch {
+                runCatching {
+                    ParcelFileDescriptor.AutoCloseInputStream(proc.errorStream).use { input ->
+                        input.bufferedReader().use { reader ->
+                            var line = reader.readLine()
+                            while (line != null && stderrResult.length <= maxChars) {
+                                if (stderrResult.isNotEmpty()) stderrResult.append('\n')
+                                stderrResult.append(line)
+                                line = reader.readLine()
+                            }
+                        }
+                    }
+                }
+            }
+            val exitCode = proc.waitFor()
+            stdoutJob.join()
+            stderrJob.join()
+            proc.destroy()
+            val stdout = stdoutResult.toString().take(maxChars)
+            val stderr = stderrResult.toString().take(maxChars)
+            val output = stdout.ifBlank { stderr }
+            ShellResult(exitCode, output, stderr, false, "")
         }.getOrElse { t ->
-            service = null
-            serviceReady = null
-            updateStatus()
-            return@withContext ShellResult(-1, "", "", false, t.message ?: t.javaClass.simpleName)
+            ShellResult(-1, "", "", false, t.message ?: t.javaClass.simpleName)
         }
-        parseShellResult(raw)
     }
 
-    // --- Package Operations ---
+    // --- Package Operations (public, with checks) ---
 
-    suspend fun enablePackage(packageName: String): PackageResult = withContext(Dispatchers.IO) {
-        if (!isBinderAlive()) {
-            return@withContext PackageResult(false, packageName, "Shizuku binder unavailable")
-        }
-        if (!hasPermission()) {
-            return@withContext PackageResult(false, packageName, "Shizuku permission denied")
-        }
-        val raw = runCatching {
-            ensureService().enablePackage(packageName)
-        }.getOrElse { t ->
-            service = null
-            serviceReady = null
-            updateStatus()
-            return@withContext PackageResult(false, packageName, t.message ?: t.javaClass.simpleName)
-        }
-        parsePackageResult(packageName, raw)
+    suspend fun forceStopApp(packageName: String): Boolean = withContext(Dispatchers.IO) {
+        forceStopAppUnchecked(packageName)
     }
 
     suspend fun disablePackage(packageName: String): PackageResult = withContext(Dispatchers.IO) {
@@ -193,15 +271,17 @@ object ShizukuManager {
         if (!hasPermission()) {
             return@withContext PackageResult(false, packageName, "Shizuku permission denied")
         }
-        val raw = runCatching {
-            ensureService().disablePackage(packageName)
-        }.getOrElse { t ->
-            service = null
-            serviceReady = null
-            updateStatus()
-            return@withContext PackageResult(false, packageName, t.message ?: t.javaClass.simpleName)
+        disablePackageUnchecked(packageName)
+    }
+
+    suspend fun enablePackage(packageName: String): PackageResult = withContext(Dispatchers.IO) {
+        if (!isBinderAlive()) {
+            return@withContext PackageResult(false, packageName, "Shizuku binder unavailable")
         }
-        parsePackageResult(packageName, raw)
+        if (!hasPermission()) {
+            return@withContext PackageResult(false, packageName, "Shizuku permission denied")
+        }
+        enablePackageUnchecked(packageName)
     }
 
     suspend fun executeBatch(
@@ -211,124 +291,84 @@ object ShizukuManager {
         val requestedCount = packageNames.size
         if (packageNames.isEmpty()) return@withContext BatchFrozenResult(0, 0, 0, 0, false)
 
-        if (!isBinderAlive()) {
-            return@withContext BatchFrozenResult(
-                requestedCount = requestedCount, attemptedCount = 0,
-                successCount = 0, failedCount = requestedCount,
-                fallbackTriggered = false, errorSummary = "shizuku binder unavailable"
-            )
-        }
-        if (!hasPermission()) {
-            return@withContext BatchFrozenResult(
-                requestedCount = requestedCount, attemptedCount = 0,
-                successCount = 0, failedCount = requestedCount,
-                fallbackTriggered = false, errorSummary = "permission denied"
-            )
-        }
+        pmProxy
+        amProxy
+        setEnabledSetting
 
-        try {
-            val svc = ensureService()
-            val rawResults = if (disable) {
-                svc.disablePackages(packageNames)
-            } else {
-                svc.enablePackages(packageNames)
-            }
-            val results = packageNames.zip(rawResults) { pkg, raw ->
-                parsePackageResult(pkg, raw)
-            }
-            val successCount = results.count { it.success }
-            val failedCount = results.count { !it.success }
-            if (failedCount == 0) {
-                return@withContext BatchFrozenResult(
-                    requestedCount = requestedCount,
-                    attemptedCount = results.size,
-                    successCount = successCount,
-                    failedCount = 0,
-                    fallbackTriggered = false
-                )
-            }
-            executeSingleFallback(packageNames, disable, "batch failed: $failedCount/$requestedCount")
-        } catch (e: Exception) {
-            service = null
-            serviceReady = null
-            updateStatus()
-            executeSingleFallback(packageNames, disable, e.message ?: e.javaClass.simpleName)
-        }
-    }
-
-    private suspend fun executeSingleFallback(
-        packageNames: List<String>, disable: Boolean, reason: String
-    ): BatchFrozenResult {
-        var fallbackAttempted = 0
-        var fallbackSuccess = 0
-        var fallbackFailed = 0
+        var successCount = 0
+        var failedCount = 0
         for (pkg in packageNames) {
-            val result = if (disable) disablePackage(pkg) else enablePackage(pkg)
-            fallbackAttempted++
-            if (result.success) fallbackSuccess++ else fallbackFailed++
+            val result = if (disable) disablePackageUnchecked(pkg) else enablePackageUnchecked(pkg)
+            if (result.success) successCount++ else failedCount++
         }
-        return BatchFrozenResult(
-            requestedCount = packageNames.size,
-            attemptedCount = 0,
-            successCount = 0,
-            failedCount = packageNames.size,
-            fallbackTriggered = true,
-            fallbackAttemptedCount = fallbackAttempted,
-            fallbackSuccessCount = fallbackSuccess,
-            fallbackFailedCount = fallbackFailed,
-            errorSummary = reason
+        BatchFrozenResult(
+            requestedCount = requestedCount,
+            attemptedCount = packageNames.size,
+            successCount = successCount,
+            failedCount = failedCount,
+            fallbackTriggered = false
         )
     }
 
-    // --- Lifecycle ---
+    // --- Internal (unchecked, no IO wrapper) ---
 
-    suspend fun releaseService() {
-        bindMutex.withLock {
-            runCatching { service?.destroy() }
-            runCatching { Shizuku.unbindUserService(userServiceArgs, serviceConnection, true) }
-            service = null
-            serviceReady = null
-            updateStatus()
-        }
-    }
-
-    // --- Parser ---
-
-    private fun parseShellResult(raw: String): ShellResult {
-        if (raw.startsWith("error:")) {
-            return ShellResult(-1, "", "", false, raw.removePrefix("error:").trim())
-        }
-        val lines = raw.lines()
-        val timedOut = lines.any { it == "timedOut=true" }
-        val exitCode = lines.firstOrNull { it.startsWith("exitCode=") }
-            ?.removePrefix("exitCode=")?.toIntOrNull() ?: -1
-        val stdout = lines.firstOrNull { it.startsWith("stdout=") }
-            ?.removePrefix("stdout=") ?: ""
-        val stderr = lines.firstOrNull { it.startsWith("stderr=") }
-            ?.removePrefix("stderr=") ?: ""
-        return ShellResult(exitCode, stdout, stderr, timedOut, "")
-    }
-
-    private fun parsePackageResult(packageName: String, raw: String): PackageResult {
-        if (raw.startsWith("error:")) {
-            return PackageResult(false, packageName, raw.removePrefix("error:").trim())
-        }
-        val success = raw.contains("success=true")
-        return PackageResult(success, packageName, if (success) "" else raw)
-    }
-
-    // --- Internal ---
-
-    private suspend fun ensureService(): IShizukuCommandService {
-        service?.let { return it }
-        return bindMutex.withLock {
-            val currentService = service
-            if (currentService != null) return@withLock currentService
-            val waiter = serviceReady ?: CompletableDeferred<IShizukuCommandService>().also { deferred ->
-                serviceReady = deferred
-                Shizuku.bindUserService(userServiceArgs, serviceConnection)
+    private fun forceStopAppUnchecked(packageName: String): Boolean {
+        return runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                HiddenApiBypass.invoke(amProxy::class.java, amProxy, "forceStopPackage", packageName, userId)
+            } else {
+                amProxy::class.java.getMethod("forceStopPackage", String::class.java, Int::class.java)
+                    .invoke(amProxy, packageName, userId)
             }
-            waiter.await()
+            true
+        }.getOrElse { false }
+    }
+
+    private fun disablePackageUnchecked(packageName: String): PackageResult {
+        forceStopAppUnchecked(packageName)
+        return runCatching {
+            val state = PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+            if (setEnabledSetting.parameterCount == 5) {
+                setEnabledSetting.invoke(pmProxy, packageName, state, 0, userId, callerPackage)
+            } else {
+                setEnabledSetting.invoke(pmProxy, packageName, state, 0, userId)
+            }
+            PackageResult(true, packageName)
+        }.getOrElse { t ->
+            PackageResult(false, packageName, t.message ?: t.javaClass.simpleName)
+        }
+    }
+
+    private fun enablePackageUnchecked(packageName: String): PackageResult {
+        return runCatching {
+            val state = PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+            if (setEnabledSetting.parameterCount == 5) {
+                setEnabledSetting.invoke(pmProxy, packageName, state, 0, userId, callerPackage)
+            } else {
+                setEnabledSetting.invoke(pmProxy, packageName, state, 0, userId)
+            }
+            PackageResult(true, packageName)
+        }.getOrElse {
+            enablePackageShell(packageName)
+        }
+    }
+
+    private fun enablePackageShell(packageName: String): PackageResult {
+        return runCatching {
+            val svc = IShizukuService.Stub.asInterface(Shizuku.getBinder())
+            val proc = svc.newProcess(arrayOf(if (isRoot) "su" else "sh"), null, null)
+            ParcelFileDescriptor.AutoCloseOutputStream(proc.outputStream).use {
+                it.write("pm enable $packageName\n".toByteArray())
+            }
+            val exitCode = proc.waitFor()
+            proc.destroy()
+            if (exitCode == 0) {
+                PackageResult(true, packageName)
+            } else {
+                PackageResult(false, packageName, "pm enable exit=$exitCode")
+            }
+        }.getOrElse { t ->
+            PackageResult(false, packageName, t.message ?: t.javaClass.simpleName)
         }
     }
 
@@ -337,22 +377,21 @@ object ShizukuManager {
         if (context == null) {
             return ShizukuStatus(
                 installed = false, binderAlive = false,
-                permissionGranted = false, serviceBound = false,
-                uid = null
+                permissionGranted = false, uid = null
             )
         }
         val binderAlive = isBinderAlive()
         val permissionGranted = binderAlive && hasPermission()
         val uid = if (binderAlive) runCatching { Shizuku.getUid() }.getOrNull() else null
-        val installed = runCatching {
+        val installed = installedShizuku ?: runCatching {
             context.packageManager.getPackageInfo(ShizukuPackageName, 0)
             true
-        }.getOrDefault(false)
+        }.getOrDefault(false).also { installedShizuku = it }
+
         return ShizukuStatus(
             installed = installed,
             binderAlive = binderAlive,
             permissionGranted = permissionGranted,
-            serviceBound = service != null,
             uid = uid
         )
     }

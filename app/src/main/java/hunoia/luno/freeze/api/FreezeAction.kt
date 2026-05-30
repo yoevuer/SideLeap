@@ -1,10 +1,6 @@
 package hunoia.luno.freeze.api
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import android.os.Build
-import android.util.Log
 import hunoia.luno.config.ConfigProvider
 import hunoia.luno.shizuku.ShizukuManager
 import kotlinx.coroutines.Dispatchers
@@ -43,9 +39,8 @@ object FreezeAction {
         val result = withContext(Dispatchers.IO) {
             ShizukuManager.disablePackage(packageName)
         }
-        FreezeState.invalidateFrozenCache()
-        val nowFrozen = FreezeState.isFrozen(context, packageName)
-        return FreezeResult(result.success, packageName, wasFrozen = false, nowFrozen = nowFrozen)
+        if (result.success) FreezeState.markFrozen(packageName)
+        return FreezeResult(result.success, packageName, wasFrozen = false, nowFrozen = result.success)
     }
 
     suspend fun checkAndUnfreeze(context: Context, packageName: String): FreezeResult {
@@ -56,9 +51,8 @@ object FreezeAction {
         val result = withContext(Dispatchers.IO) {
             ShizukuManager.enablePackage(packageName)
         }
-        FreezeState.invalidateFrozenCache()
-        val nowFrozen = FreezeState.isFrozen(context, packageName)
-        return FreezeResult(result.success, packageName, wasFrozen = true, nowFrozen = nowFrozen)
+        if (result.success) FreezeState.markUnfrozen(packageName)
+        return FreezeResult(result.success, packageName, wasFrozen = true, nowFrozen = !result.success)
     }
 
     suspend fun batchFreeze(context: Context, packageNames: List<String>): BatchFreezeResult {
@@ -109,49 +103,18 @@ object FreezeAction {
         val settings = ConfigProvider.getFrozenAppSettings()
         val oneKeySet = settings.oneKeyPackageNames
 
-        val rawTargets = oneKeySet
+        val frozenState = FreezeState.queryFrozenStateByPackage(context, oneKeySet)
+        val candidates = oneKeySet.filter { frozenState[it] != true }
 
-        val pm = context.packageManager
-        val installedTargets = mutableListOf<String>()
-
-        rawTargets.forEach { pkg ->
-            val ai = runCatching {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    pm.getApplicationInfo(pkg, PackageManager.ApplicationInfoFlags.of(0))
-                } else {
-                    @Suppress("DEPRECATION")
-                    pm.getApplicationInfo(pkg, 0)
-                }
-            }.getOrNull()
-            if (ai == null) return@forEach
-            installedTargets.add(pkg)
-        }
-
-        Log.i("OneKeyFreeze", "oneKeySet=${oneKeySet.size} " +
-            "rawTargets=${rawTargets.size} installedTargets=${installedTargets.size}")
-
-        val frozenState = FreezeState.queryFrozenStateByPackage(context, installedTargets)
-        val candidates = installedTargets.filter { frozenState[it] != true }
-
-        Log.i("OneKeyFreeze", "frozenCandidates=${candidates.size}")
-
-        if (candidates.isNotEmpty()) {
-            ShizukuManager.executeBatch(candidates, disable = true)
-        }
-
-        FreezeState.invalidateFrozenCache()
-        val latestState = FreezeState.queryFrozenStateByPackage(context, candidates)
-        val successCount = candidates.count { latestState[it] == true }
-
-        if (candidates.isNotEmpty() && successCount == 0) {
-            Log.e("OneKeyFreeze", "candidates=$candidates but all still not frozen after batch")
-        }
-
-        Log.i("OneKeyFreeze", "successCount=$successCount")
+        val successCount = if (candidates.isNotEmpty()) {
+            val batch = ShizukuManager.executeBatch(candidates, disable = true)
+            FreezeState.markBatchFrozen(candidates)
+            batch.successCount
+        } else 0
 
         OneKeyFreezeResult(
             oneKeyCount = oneKeySet.size,
-            targetCount = installedTargets.size,
+            targetCount = oneKeySet.size,
             candidateCount = candidates.size,
             successCount = successCount
         )
@@ -165,17 +128,11 @@ object FreezeAction {
         val frozenState = FreezeState.queryFrozenStateByPackage(context, targets)
         val candidates = targets.filter { frozenState[it] == true }
 
-        if (candidates.isNotEmpty()) {
-            ShizukuManager.executeBatch(candidates, disable = false)
-        }
-
-        FreezeState.invalidateFrozenCache()
-        val latestState = FreezeState.queryFrozenStateByPackage(context, candidates)
-        val successCount = candidates.count { latestState[it] != true }
-
-        if (successCount > 0) {
-            FreezeState.invalidateFrozenCache()
-        }
+        val successCount = if (candidates.isNotEmpty()) {
+            val batch = ShizukuManager.executeBatch(candidates, disable = false)
+            FreezeState.markBatchUnfrozen(candidates)
+            batch.successCount
+        } else 0
 
         OneKeyFreezeResult(
             oneKeyCount = targets.size,

@@ -1,40 +1,16 @@
 package hunoia.luno.bridge
 
 import android.accessibilityservice.AccessibilityService
+import android.Manifest
 import android.content.Context
-import android.os.PowerManager
-import android.provider.Settings
-import android.text.TextUtils
+import android.content.pm.PackageManager
+import hunoia.luno.bridge.accessibility.AccessibilitySettings
 
-fun Context.isIgnoringBatteryOptimizations(): Boolean {
-    val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-    return pm.isIgnoringBatteryOptimizations(packageName)
+@Suppress("UNCHECKED_CAST")
+fun Context.isAccessibilitySettingsOn(clazz: Class<*>): Boolean {
+    return AccessibilitySettings.isEnabled(this, clazz as Class<out AccessibilityService>)
 }
 
-fun Context.isAccessibilitySettingsOn(clazz: Class<out AccessibilityService?>): Boolean {
-    var accessibilityEnabled = false
-    try {
-        accessibilityEnabled = Settings.Secure.getInt(
-            applicationContext.contentResolver,
-            Settings.Secure.ACCESSIBILITY_ENABLED
-        ) == 1
-    } catch (_: Settings.SettingNotFoundException) {
-    }
-    val splitter = TextUtils.SimpleStringSplitter(':')
-    if (accessibilityEnabled) {
-        val settingValue: String? = Settings.Secure.getString(
-            applicationContext.contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        )
-        if (settingValue != null) {
-            splitter.setString(settingValue)
-            while (splitter.hasNext()) {
-                val accessibilityService = splitter.next()
-                if (accessibilityService.equals("${packageName}/${clazz.canonicalName}", ignoreCase = true)) {
-                    return true
-                }
-            }
-        }
-    }
-    return false
+fun Context.hasWriteSecureSettingsPermission(): Boolean {
+    return AccessibilitySettings.hasWriteSecureSettings(this)
 }
