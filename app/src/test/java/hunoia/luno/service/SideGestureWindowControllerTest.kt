@@ -2,10 +2,10 @@ package hunoia.luno.service
 
 import android.view.Gravity
 import android.view.WindowManager
-import hunoia.luno.action.GestureActions
-import hunoia.luno.gesture.GestureButton
-import hunoia.luno.gesture.Position
-import hunoia.luno.gesture.defaultGestureAngleFor
+import hunoia.luno.config.model.GestureActions
+import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.defaultGestureAngleFor
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

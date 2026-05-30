@@ -3,92 +3,100 @@ package hunoia.luno.shizuku
 import android.os.IBinder
 import hunoia.luno.BuildConfig
 import hunoia.luno.IShizukuCommandService
+import java.io.BufferedReader
+import java.io.InputStream
+import java.io.InputStreamReader
+
+private val TAG = "ShizukuSvc"
 
 class ShizukuCommandService : IShizukuCommandService.Stub() {
 
-    private val startTime = System.currentTimeMillis()
-
-    override fun listDisabledPackages(): String {
+    override fun executeShellCommand(command: String): String {
+        if (command.isBlank()) {
+            return "error: Command is blank"
+        }
+        if (command.length > MAX_COMMAND_LENGTH) {
+            return "error: Command too long (max $MAX_COMMAND_LENGTH)"
+        }
         return try {
-            val process = ProcessBuilder("pm", "list", "packages", "-d")
-                .redirectErrorStream(true)
-                .start()
-            val output = process.inputStream.bufferedReader().readText()
-            val exitCode = process.waitFor()
-            val elapsed = System.currentTimeMillis() - startTime
-            "service: elapsed=${elapsed}ms\ncommand=pm list packages -d\nexitCode=$exitCode\nstdout=$output"
-        } catch (e: Exception) {
-            val elapsed = System.currentTimeMillis() - startTime
-            "service: elapsed=${elapsed}ms\nerror: ${e::class.simpleName} ${e.message}"
+            val process = ProcessBuilder("sh", "-c", command).start()
+            val stdoutCollector = StreamCollector(process.inputStream)
+            val stderrCollector = StreamCollector(process.errorStream)
+            val stdoutThread = stdoutCollector.start()
+            val stderrThread = stderrCollector.start()
+            val finished = waitFor(process, CMD_TIMEOUT_MS)
+            if (!finished) {
+                process.destroy()
+            }
+            stdoutThread.join(STREAM_TIMEOUT_MS)
+            stderrThread.join(STREAM_TIMEOUT_MS)
+            val stdout = stdoutCollector.content()
+            val stderr = stderrCollector.content()
+            if (!finished) {
+                return "timedOut=true\nexitCode=-1\nstdout=$stdout\nstderr=$stderr"
+            }
+            "timedOut=false\nexitCode=${process.exitValue()}\nstdout=$stdout\nstderr=$stderr"
+        } catch (t: Throwable) {
+            "error: ${t.message ?: t.javaClass.simpleName}"
         }
     }
 
-    override fun listDisabledPackageNames(): List<String> {
+    override fun enablePackage(packageName: String): String {
+        if (!isValidPackageName(packageName)) {
+            return "error: invalid packageName=$packageName"
+        }
+        val direct = enablePackageDirect(packageName)
+        if (direct != null) return "success=true"
+        return enablePackageShell(packageName)
+    }
+
+    override fun disablePackage(packageName: String): String {
+        if (!isValidPackageName(packageName)) {
+            return "error: invalid packageName=$packageName"
+        }
+        return disablePackageDirect(packageName)
+    }
+
+    override fun enablePackageApi(packageName: String): String {
+        if (!isValidPackageName(packageName)) {
+            return "error: invalid packageName=$packageName"
+        }
+        val result = enablePackageDirect(packageName)
+        return result ?: "error: enablePackageDirect failed"
+    }
+
+    override fun disablePackageApi(packageName: String): String {
+        if (!isValidPackageName(packageName)) {
+            return "error: invalid packageName=$packageName"
+        }
+        return disablePackageDirect(packageName)
+    }
+
+    override fun listDisabledPackageNames(): MutableList<String> {
         return try {
             val process = ProcessBuilder("pm", "list", "packages", "-d")
                 .redirectErrorStream(true)
                 .start()
             val output = process.inputStream.bufferedReader().readText()
             val exitCode = process.waitFor()
-            if (exitCode != 0) return emptyList()
+            if (exitCode != 0) return mutableListOf()
             output.lines()
                 .filter { it.startsWith("package:") }
                 .map { it.removePrefix("package:") }
                 .filter { it.isNotBlank() }
                 .sorted()
-        } catch (e: Exception) {
-            emptyList()
+                .toMutableList()
+        } catch (_: Exception) {
+            mutableListOf()
         }
     }
 
-    override fun enablePackage(packageName: String): String {
-        val startTime = System.currentTimeMillis()
-        if (!Regex("^[A-Za-z0-9_.]+$").matches(packageName)) {
-            val elapsed = System.currentTimeMillis() - startTime
-            return "service: elapsed=${elapsed}ms\nerror: invalid packageName=$packageName"
-        }
-
-        val directResult = enablePackageDirect(packageName, startTime)
-        if (directResult != null) return directResult
-
-        return enablePackageShell(packageName, startTime)
+    override fun destroy() {
+        android.os.Process.killProcess(android.os.Process.myPid())
     }
 
-    override fun disablePackage(packageName: String): String {
-        val startTime = System.currentTimeMillis()
-        if (!Regex("^[A-Za-z0-9_.]+$").matches(packageName)) {
-            val elapsed = System.currentTimeMillis() - startTime
-            return "service: elapsed=${elapsed}ms\nerror: invalid packageName=$packageName"
-        }
-        return disablePackageDirect(packageName, startTime)
-    }
-
-    override fun enablePackageApi(packageName: String): String {
-        val startTime = System.currentTimeMillis()
-        if (!Regex("^[A-Za-z0-9_.]+$").matches(packageName)) {
-            val elapsed = System.currentTimeMillis() - startTime
-            return "service: elapsed=${elapsed}ms\nerror: invalid packageName=$packageName"
-        }
-        return enablePackageDirect(packageName, startTime)
-            ?: "service: elapsed=${System.currentTimeMillis() - startTime}ms\nerror: enablePackageDirect failed"
-    }
-
-    override fun disablePackageApi(packageName: String): String {
-        val startTime = System.currentTimeMillis()
-        if (!Regex("^[A-Za-z0-9_.]+$").matches(packageName)) {
-            val elapsed = System.currentTimeMillis() - startTime
-            return "service: elapsed=${elapsed}ms\nerror: invalid packageName=$packageName"
-        }
-        return disablePackageDirect(packageName, startTime)
-    }
-
-    private fun enablePackageDirect(packageName: String, overallStart: Long): String? {
-        val apiStart = System.currentTimeMillis()
-        try {
-            if (BuildConfig.DEBUG) {
-                android.util.Log.d("LauncherPerf", "enable_package: api_start pkg=$packageName")
-            }
-
+    private fun enablePackageDirect(packageName: String): String? {
+        return try {
             val smClass = Class.forName("android.os.ServiceManager")
             val getService = smClass.getDeclaredMethod("getService", String::class.java)
             val binder = getService.invoke(null, "package") as IBinder
@@ -129,73 +137,28 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
             )
             val newState = getEnabled.invoke(pm, packageName, userId) as Int
 
-            val apiElapsed = System.currentTimeMillis() - apiStart
-            if (BuildConfig.DEBUG) {
-                android.util.Log.d("LauncherPerf",
-                    "enable_package: api_done pkg=$packageName newState=$newState elapsed=${apiElapsed}ms")
-            }
-
-            if (newState != 3) {
-                return "service: elapsed=${apiElapsed}ms\ndirect_api=true\n" +
-                       "command=android enable $packageName\n" +
-                       "exitCode=0\n" +
-                       "output=Package $packageName new state=$newState"
-            }
+            if (newState != 3) "success=true" else null
         } catch (e: Exception) {
-            val apiElapsed = System.currentTimeMillis() - apiStart
             if (BuildConfig.DEBUG) {
-                android.util.Log.d("LauncherPerf",
-                    "enable_package: api_fail pkg=$packageName " +
-                    "error=${e::class.simpleName} ${e.message} elapsed=${apiElapsed}ms")
+                android.util.Log.d(TAG, "enablePackageDirect failed: ${e.message}")
             }
+            null
         }
-        return null
     }
 
-    private fun enablePackageShell(packageName: String, overallStart: Long): String {
-        val shellStart = System.currentTimeMillis()
-        if (BuildConfig.DEBUG) {
-            android.util.Log.d("LauncherPerf", "enable_package: shell_start pkg=$packageName")
-        }
-        try {
+    private fun enablePackageShell(packageName: String): String {
+        return try {
             val process = ProcessBuilder("pm", "enable", packageName)
                 .redirectErrorStream(true)
                 .start()
-            val output = process.inputStream.bufferedReader().readText()
             val exitCode = process.waitFor()
-            val shellElapsed = System.currentTimeMillis() - shellStart
-            val totalElapsed = System.currentTimeMillis() - overallStart
-            if (BuildConfig.DEBUG) {
-                android.util.Log.d("LauncherPerf",
-                    "enable_package: shell_done pkg=$packageName " +
-                    "exitCode=$exitCode elapsed=${shellElapsed}ms total=${totalElapsed}ms")
-            }
-            return "service: elapsed=${totalElapsed}ms\ndirect_api=false\n" +
-                   "command=pm enable $packageName\nexitCode=$exitCode\noutput=$output"
+            "success=${exitCode == 0}"
         } catch (e: Exception) {
-            val elapsed = System.currentTimeMillis() - overallStart
-            return "service: elapsed=${elapsed}ms\nerror: ${e::class.simpleName} ${e.message}"
+            "error: ${e.message ?: e.javaClass.simpleName}"
         }
     }
 
-    private fun disablePackageShell(packageName: String, overallStart: Long): String {
-        try {
-            val process = ProcessBuilder("pm", "disable-user", "--user", "0", packageName)
-                .redirectErrorStream(true)
-                .start()
-            val output = process.inputStream.bufferedReader().readText()
-            val exitCode = process.waitFor()
-            val elapsed = System.currentTimeMillis() - overallStart
-            return "service: elapsed=${elapsed}ms\n" +
-                "command=pm disable-user --user 0 $packageName\nexitCode=$exitCode\noutput=$output"
-        } catch (e: Exception) {
-            val elapsed = System.currentTimeMillis() - overallStart
-            return "service: elapsed=${elapsed}ms\nerror: ${e::class.simpleName} ${e.message}"
-        }
-    }
-
-    private fun disablePackageDirect(packageName: String, overallStart: Long): String {
-        val apiStart = System.currentTimeMillis()
+    private fun disablePackageDirect(packageName: String): String {
         return try {
             val smClass = Class.forName("android.os.ServiceManager")
             val getService = smClass.getDeclaredMethod("getService", String::class.java)
@@ -230,49 +193,59 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
                 arrayOf(packageName, 3, 0, userId)
             }
             setEnabled.invoke(pm, *callArgs)
-
-            val getEnabled = pmClass.getDeclaredMethod(
-                "getApplicationEnabledSetting",
-                String::class.java, Int::class.javaPrimitiveType
-            )
-            val newState = getEnabled.invoke(pm, packageName, userId) as Int
-            val totalElapsed = System.currentTimeMillis() - overallStart
-            "service: elapsed=${totalElapsed}ms\ndirect_api=true\ncommand=android disable-user $packageName\nexitCode=0\noutput=Package $packageName new state=$newState"
+            "success=true"
         } catch (e: Exception) {
-            val elapsed = System.currentTimeMillis() - overallStart
-            "service: elapsed=${elapsed}ms\nerror: ${e::class.simpleName} ${e.message}"
+            "error: ${e.message ?: e.javaClass.simpleName}"
         }
     }
 
-    override fun executeShellCommand(command: String): String {
-        val startTime = System.currentTimeMillis()
-        if (command.isBlank()) {
-            return "elapsed=0ms\nerror: command is empty"
-        }
-        if (command.length > 2000) {
-            return "elapsed=0ms\nerror: command is too long"
-        }
-        return try {
-            val process = ProcessBuilder("sh", "-c", command)
-                .redirectErrorStream(true)
-                .start()
-            val output = process.inputStream.bufferedReader().readText()
-            val exitCode = process.waitFor()
-            val elapsed = System.currentTimeMillis() - startTime
-            if (BuildConfig.DEBUG) {
-                android.util.Log.d("ShellExec", "exitCode=$exitCode elapsed=${elapsed}ms")
+    private fun isValidPackageName(name: String): Boolean {
+        return Regex("^[A-Za-z0-9_.]+$").matches(name)
+    }
+
+    private fun waitFor(process: Process, timeoutMs: Long): Boolean {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < deadline) {
+            try {
+                process.exitValue()
+                return true
+            } catch (_: IllegalThreadStateException) {
+                Thread.sleep(50L)
             }
-            "elapsed=${elapsed}ms\nexitCode=$exitCode\nstdout=$output"
-        } catch (e: Exception) {
-            val elapsed = System.currentTimeMillis() - startTime
-            "elapsed=${elapsed}ms\nerror: ${e::class.simpleName} ${e.message}"
+        }
+        return false
+    }
+
+    private class StreamCollector(inputStream: InputStream) {
+        private val reader = BufferedReader(InputStreamReader(inputStream))
+        private val output = StringBuilder()
+
+        fun start(): Thread {
+            return Thread {
+                reader.useLines { lines ->
+                    lines.forEach { line ->
+                        if (output.isNotEmpty()) {
+                            output.append("\n")
+                        }
+                        append(line)
+                    }
+                }
+            }.apply { start() }
+        }
+
+        fun content(): String = output.toString()
+
+        private fun append(value: String) {
+            if (output.length >= MAX_OUTPUT_LENGTH) return
+            val remaining = MAX_OUTPUT_LENGTH - output.length
+            output.append(value.take(remaining))
         }
     }
 
-    override fun destroy() {
-        Thread {
-            Thread.sleep(100)
-            kotlin.system.exitProcess(0)
-        }.start()
+    companion object {
+        private const val CMD_TIMEOUT_MS = 10_000L
+        private const val STREAM_TIMEOUT_MS = 300L
+        private const val MAX_OUTPUT_LENGTH = 4096
+        private const val MAX_COMMAND_LENGTH = 2000
     }
 }

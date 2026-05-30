@@ -11,6 +11,7 @@ import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.freeze.FreezeFacade
 import hunoia.luno.config.model.FrozenAppSettings
 import hunoia.luno.config.ConfigProvider
+import hunoia.luno.shizuku.ShizukuManager
 import hunoia.luno.bridge.feedback.showComposeToast
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,17 @@ class FrozenAppManageVM : BaseComposeVM<FrozenAppManageVM.UiState, FrozenAppMana
     override val initialState: UiState = UiState()
 
     init {
+        viewModelScope.launch {
+            ShizukuManager.statusFlow.collectLatest { status ->
+                updateUiState { it.copy(shizukuReady = status.isReady) }
+                if (status.isReady) {
+                    recompute()
+                }
+            }
+        }
+        viewModelScope.launch {
+            ShizukuManager.autoRequestPermissionIfNeeded()
+        }
         viewModelScope.launch {
             ConfigProvider.frozenAppSettings.collectLatest { settings ->
                 updateUiState {

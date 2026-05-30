@@ -13,6 +13,7 @@ import hunoia.luno.config.model.SubGesture
 import hunoia.luno.config.SubGestureCleaner
 import hunoia.luno.core.AppContext
 import hunoia.luno.R
+import hunoia.luno.shizuku.ShizukuManager
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,9 @@ class HomeVM : HomeVMBase() {
     init {
         loadData()
         loadFrozenCount()
+        viewModelScope.launch {
+            ShizukuManager.autoRequestPermissionIfNeeded()
+        }
     }
 
     fun backup(context: Context, saveTo: Uri) {

@@ -1,98 +1,69 @@
 package hunoia.luno
 
-import hunoia.luno.system.shizuku.ShizukuBinderExecutor
+import hunoia.luno.shizuku.ShellResult
+import hunoia.luno.shizuku.PackageResult
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ShizukuBinderExecutorTest {
 
     @Test
-    fun parseFrozenActionResult_exitCodeZero_isSuccess() {
-        val result = ShizukuBinderExecutor.parseFrozenActionResult("com.example.app", "exitCode=0")
+    fun shellResult_success() {
+        val result = ShellResult(exitCode = 0, stdout = "ok")
+        assertTrue(result.isSuccess)
+    }
+
+    @Test
+    fun shellResult_failure_nonZeroExit() {
+        val result = ShellResult(exitCode = 1, stderr = "error")
+        assertFalse(result.isSuccess)
+    }
+
+    @Test
+    fun shellResult_failure_timeout() {
+        val result = ShellResult(timedOut = true)
+        assertFalse(result.isSuccess)
+    }
+
+    @Test
+    fun shellResult_failure_errorMessage() {
+        val result = ShellResult(errorMessage = "something went wrong")
+        assertFalse(result.isSuccess)
+    }
+
+    @Test
+    fun shellResult_defaults() {
+        val result = ShellResult()
+        assertFalse(result.isSuccess)
+        assertEquals(-1, result.exitCode)
+        assertEquals("", result.stdout)
+        assertEquals("", result.stderr)
+        assertFalse(result.timedOut)
+        assertEquals("", result.errorMessage)
+    }
+
+    @Test
+    fun packageResult_success() {
+        val result = PackageResult(success = true, packageName = "com.example.app")
         assertTrue(result.success)
         assertEquals("com.example.app", result.packageName)
-        assertEquals(0, result.exitCode)
-        assertNull(result.error)
+        assertEquals("", result.errorMessage)
     }
 
     @Test
-    fun parseFrozenActionResult_exitCodeNonZero_isFailure() {
-        val result = ShizukuBinderExecutor.parseFrozenActionResult("com.example.app", "exitCode=1")
-        assertEquals(false, result.success)
-        assertEquals(1, result.exitCode)
+    fun packageResult_failure() {
+        val result = PackageResult(success = false, packageName = "com.example.app", errorMessage = "permission denied")
+        assertFalse(result.success)
+        assertEquals("permission denied", result.errorMessage)
     }
 
     @Test
-    fun parseFrozenActionResult_errorPrefix_setsError() {
-        val result = ShizukuBinderExecutor.parseFrozenActionResult("com.example.app", "error: binder timeout")
-        assertEquals(false, result.success)
-        assertEquals("binder timeout", result.error)
-    }
-
-    @Test
-    fun parseFrozenActionResult_errorPrefixTrimmed() {
-        val result = ShizukuBinderExecutor.parseFrozenActionResult("com.example.app", "error:  ")
-        assertEquals(false, result.success)
-        assertEquals("", result.error)
-    }
-
-    @Test
-    fun parseFrozenActionResult_noExitCode_defaultsToMinusOne() {
-        val result = ShizukuBinderExecutor.parseFrozenActionResult("com.example.app", "output=ok")
-        assertEquals(false, result.success)
-        assertEquals(-1, result.exitCode)
-    }
-
-    @Test
-    fun parseFrozenActionResult_multipleLines_exitCodeParsed() {
-        val result = ShizukuBinderExecutor.parseFrozenActionResult("com.example.app", "output=success\nexitCode=0\n")
-        assertTrue(result.success)
-        assertEquals(0, result.exitCode)
-    }
-
-    @Test
-    fun parseFrozenActionResult_emptyString_defaultsFailure() {
-        val result = ShizukuBinderExecutor.parseFrozenActionResult("com.example.app", "")
-        assertEquals(false, result.success)
-        assertEquals(-1, result.exitCode)
-    }
-
-    @Test
-    fun parseFrozenActionResult_invalidExitCode_defaultsFailure() {
-        val result = ShizukuBinderExecutor.parseFrozenActionResult("com.example.app", "exitCode=abc")
-        assertEquals(false, result.success)
-        assertEquals(-1, result.exitCode)
-    }
-
-    @Test
-    fun parseLauncherResult_exitCodeZero_isSuccess() {
-        val result = ShizukuBinderExecutor.parseLauncherResult("exitCode=0", "com.example.app")
-        assertTrue(result.success)
-        assertEquals("com.example.app", result.packageName)
-        assertEquals(0, result.exitCode)
-        assertEquals("", result.output)
-    }
-
-    @Test
-    fun parseLauncherResult_withOutput() {
-        val result = ShizukuBinderExecutor.parseLauncherResult("exitCode=0\noutput=Package com.example.app enabled", "com.example.app")
-        assertTrue(result.success)
-        assertEquals("Package com.example.app enabled", result.output)
-    }
-
-    @Test
-    fun parseLauncherResult_exitCodeNonZero_isFailure() {
-        val result = ShizukuBinderExecutor.parseLauncherResult("exitCode=1", "com.example.app")
-        assertEquals(false, result.success)
-        assertEquals(1, result.exitCode)
-    }
-
-    @Test
-    fun parseLauncherResult_noExitCode_defaultsMinusOne() {
-        val result = ShizukuBinderExecutor.parseLauncherResult("", "com.example.app")
-        assertEquals(false, result.success)
-        assertEquals(-1, result.exitCode)
+    fun packageResult_defaults() {
+        val result = PackageResult(success = false)
+        assertFalse(result.success)
+        assertEquals("", result.packageName)
+        assertEquals("", result.errorMessage)
     }
 }

@@ -20,8 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class hunoia.luno.system.shizuku.ShizukuCommandService { *; }
--keep class hunoia.luno.freeze.ShizukuBridgeService { *; }
+-keep class hunoia.luno.shizuku.** { *; }
 -keep class hunoia.luno.IShizukuCommandService { *; }
 
 

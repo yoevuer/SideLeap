@@ -1,12 +1,11 @@
 package hunoia.luno;
 
 interface IShizukuCommandService {
-    String listDisabledPackages();
-    List<String> listDisabledPackageNames();
+    String executeShellCommand(String command);
     String enablePackage(String packageName);
     String disablePackage(String packageName);
     String enablePackageApi(String packageName);
     String disablePackageApi(String packageName);
-    String executeShellCommand(String command);
+    List<String> listDisabledPackageNames();
     void destroy();
 }

@@ -7,7 +7,7 @@ import android.os.IBinder
 import rikka.shizuku.Shizuku
 import rikka.shizuku.Shizuku.UserServiceArgs
 import hunoia.luno.IShizukuCommandService
-import hunoia.luno.shizuku.ShizukuCommandService
+import kotlinx.coroutines.runBlocking
 
 data class PackageCommandResult(
     val success: Boolean,
@@ -24,6 +24,7 @@ data class EnablePackageResult(
     val error: String? = null
 )
 
+@Deprecated("Use ShizukuManager directly. Will be removed in a future release.")
 object ShizukuBinderExecutor {
 
     fun createArgs(context: Context, suffix: String) = UserServiceArgs(
@@ -38,16 +39,16 @@ object ShizukuBinderExecutor {
         val args = createArgs(context, suffix)
         val latch = java.util.concurrent.CountDownLatch(1)
         val timedOut = java.util.concurrent.atomic.AtomicBoolean(false)
-        var result = ""
+        var rawResult = ""
 
         val conn = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
                 try {
                     val service = IShizukuCommandService.Stub.asInterface(binder)
-                    result = call(service)
+                    rawResult = call(service)
                     try { service.destroy() } catch (_: Exception) {}
                 } catch (e: Exception) {
-                    result = "error: ${e::class.simpleName} ${e.message}"
+                    rawResult = "error: ${e::class.simpleName} ${e.message}"
                 } finally { latch.countDown() }
             }
             override fun onServiceDisconnected(name: ComponentName?) {}
@@ -59,100 +60,38 @@ object ShizukuBinderExecutor {
             Shizuku.bindUserService(args, conn)
             if (!latch.await(8, java.util.concurrent.TimeUnit.SECONDS)) timedOut.set(true)
         } catch (e: Exception) {
-            result = "error: ${e::class.simpleName} ${e.message}"
+            rawResult = "error: ${e::class.simpleName} ${e.message}"
         } finally {
             try { Shizuku.unbindUserService(args, conn, true) } catch (_: Exception) {}
         }
 
         if (timedOut.get()) return PackageCommandResult(false, packageName, error = "timeout")
-        return parseFrozenActionResult(packageName, result)
+        val error = if (rawResult.startsWith("error:")) rawResult.removePrefix("error:").trim() else null
+        val success = error == null && rawResult.contains("success=true")
+        return PackageCommandResult(success = success, packageName = packageName, error = error)
     }
 
+    @Deprecated("No longer needed with typed AIDL")
     fun parseFrozenActionResult(packageName: String, result: String): PackageCommandResult {
-        if (result.startsWith("error:")) {
-            return PackageCommandResult(false, packageName, error = result.removePrefix("error:").trim())
-        }
-        val exitCode = result.lines()
-            .firstOrNull { it.startsWith("exitCode=") }
-            ?.removePrefix("exitCode=")
-            ?.toIntOrNull() ?: -1
-        return PackageCommandResult(
-            success = exitCode == 0,
-            packageName = packageName,
-            exitCode = exitCode
-        )
+        return PackageCommandResult(result.startsWith("success"), packageName)
+    }
+
+    @Deprecated("No longer needed with typed AIDL")
+    fun parseLauncherResult(result: String, packageName: String): EnablePackageResult {
+        return EnablePackageResult(result.startsWith("success"), packageName)
     }
 
     fun runShellCommand(context: Context, command: String): ShellCommandResult {
         if (command.isBlank()) {
             return ShellCommandResult(false, -1, "", 0, error = "command is empty")
         }
-        if (!ShizukuRuntime.awaitBinderReady(context)) {
-            return ShellCommandResult(false, -1, "", 0, error = "shizuku binder not ready")
-        }
-        if (ShizukuRuntime.isPreV11OrUnsupported()) {
-            return ShellCommandResult(false, -1, "", 0, error = "shizuku unsupported")
-        }
-        if (!ShizukuRuntime.checkPermission()) {
-            return ShellCommandResult(false, -1, "", 0, error = "permission denied")
-        }
-
-        val args = createArgs(context, "shell_command")
-        val latch = java.util.concurrent.CountDownLatch(1)
-        val timedOut = java.util.concurrent.atomic.AtomicBoolean(false)
-        var raw = ""
-
-        val conn = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-                try {
-                    if (binder == null) {
-                        raw = "error: null binder"
-                        return
-                    }
-                    val service = IShizukuCommandService.Stub.asInterface(binder)
-                    raw = service.executeShellCommand(command)
-                } catch (e: Exception) {
-                    raw = "error: ${e::class.simpleName} ${e.message}"
-                } finally {
-                    latch.countDown()
-                }
-            }
-            override fun onServiceDisconnected(name: ComponentName?) {}
-            override fun onBindingDied(name: ComponentName?) { latch.countDown() }
-            override fun onNullBinding(name: ComponentName?) { latch.countDown() }
-        }
-
-        try {
-            Shizuku.bindUserService(args, conn)
-            if (!latch.await(30, java.util.concurrent.TimeUnit.SECONDS)) timedOut.set(true)
-        } catch (e: Exception) {
-            raw = "error: ${e::class.simpleName} ${e.message}"
-        } finally {
-            try { Shizuku.unbindUserService(args, conn, true) } catch (_: Exception) {}
-        }
-
-        if (timedOut.get()) {
-            return ShellCommandResult(false, -1, "", 0, error = "timeout")
-        }
-        if (raw.isBlank()) {
-            return ShellCommandResult(false, -1, "", 0, error = "no response from shizuku service")
-        }
-        return parseShellCommandResult(raw)
-    }
-
-    fun parseLauncherResult(result: String, packageName: String): EnablePackageResult {
-        val exitCode = result.lines()
-            .firstOrNull { it.startsWith("exitCode=") }
-            ?.removePrefix("exitCode=")
-            ?.toIntOrNull() ?: -1
-        val output = result.lines()
-            .firstOrNull { it.startsWith("output=") }
-            ?.removePrefix("output=") ?: ""
-        return EnablePackageResult(
-            success = exitCode == 0,
-            packageName = packageName,
-            exitCode = exitCode,
-            output = output
+        val result = runBlocking { ShizukuManager.executeShell(command) }
+        return ShellCommandResult(
+            success = result.isSuccess,
+            exitCode = result.exitCode,
+            output = result.stdout,
+            elapsedMs = 0,
+            error = result.errorMessage.ifBlank { null }
         )
     }
 }

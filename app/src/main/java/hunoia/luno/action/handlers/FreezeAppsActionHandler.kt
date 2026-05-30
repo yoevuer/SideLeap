@@ -15,7 +15,7 @@ object FreezeAppsActionHandler : ActionHandler {
     override suspend fun handle(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         when (action.value) {
             GlobalActions.ONE_KEY_FREEZE_APPS -> {
-                val result = FreezeFacade.oneKeyFreezeForService(context.appContext)
+                val result = FreezeFacade.oneKeyFreeze(context.appContext)
                 val msg = context.appContext.getString(R.string.bulk_frozen_count, result.successCount)
                 context.showToast(msg)
             }

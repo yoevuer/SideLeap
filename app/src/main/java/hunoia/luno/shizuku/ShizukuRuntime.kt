@@ -1,10 +1,10 @@
 package hunoia.luno.shizuku
 
 import android.content.Context
-import android.content.pm.PackageManager
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuProvider
 
+@Deprecated("Use ShizukuManager instead. Will be removed in a future release.")
 object ShizukuRuntime {
 
     fun isAvailable(): Boolean {
@@ -30,46 +30,25 @@ object ShizukuRuntime {
 
     fun checkPermission(): Boolean {
         return try {
-            Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+            Shizuku.checkSelfPermission() == android.content.pm.PackageManager.PERMISSION_GRANTED
         } catch (e: Exception) {
             false
         }
     }
 
     fun requestPermissionIfNeeded(requestCode: Int = 0): Boolean {
-        return try {
-            if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-                true
-            } else {
-                if (Shizuku.shouldShowRequestPermissionRationale()) {
-                    return false
-                }
-                Shizuku.requestPermission(requestCode)
-                false
+        return ShizukuManager.runCatching {
+            kotlinx.coroutines.runBlocking {
+                ShizukuManager.requestPermission()
             }
-        } catch (e: Exception) {
-            false
-        }
+        }.getOrDefault(false)
     }
 
     fun awaitBinderReady(timeoutMs: Long = 5000): Boolean {
-        if (Shizuku.pingBinder()) return true
-        val latch = java.util.concurrent.CountDownLatch(1)
-        val listener = Shizuku.OnBinderReceivedListener {
-            latch.countDown()
-        }
-        @Suppress("DEPRECATION")
-        Shizuku.addBinderReceivedListenerSticky(listener)
-        try {
-            return latch.await(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS)
-        } finally {
-            Shizuku.removeBinderReceivedListener(listener)
-        }
+        return ShizukuManager.currentStatus().binderAlive
     }
 
     fun awaitBinderReady(context: Context, timeoutMs: Long = 5000): Boolean {
-        if (Shizuku.pingBinder()) return true
-        runCatching { ShizukuProvider.requestBinderForNonProviderProcess(context.applicationContext) }
-        return awaitBinderReady(timeoutMs)
+        return ShizukuManager.currentStatus().binderAlive
     }
 }
