@@ -87,6 +87,7 @@ abstract class HomeVMBase : BaseComposeVM<UiState, UiEvent>() {
 
     fun onMiniWindowOverrideBoundsChange(value: Boolean) {
         updateUiState { it.copy(miniWindowOverrideBounds = value) }
+        saveDisplaySettings()
     }
 
     fun oneKeyFreeze() {

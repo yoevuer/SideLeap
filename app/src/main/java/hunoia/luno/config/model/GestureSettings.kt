@@ -1,7 +1,6 @@
 package hunoia.luno.config.model
 
 import androidx.annotation.Keep
-import hunoia.luno.config.defaults.GestureSettingsDefaults.SubGestureTimeoutMs
 import hunoia.luno.config.defaults.GestureSettingsDefaults.PointerAcceleration
 import hunoia.luno.config.defaults.GestureSettingsDefaults.PointerClickAnimationEnabled
 import hunoia.luno.config.defaults.GestureSettingsDefaults.PointerContinuousMode
@@ -23,7 +22,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Keep
 data class GestureSettings(
-    val subGestureTimeoutMs: Long = SubGestureTimeoutMs,
     val actionPanelVibrate: Boolean = true,
     val pointer: Pointer = Pointer()
 ) {

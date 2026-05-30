@@ -8,7 +8,6 @@ import androidx.compose.ui.geometry.Offset
 import hunoia.luno.action.api.ActionFacade
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.config.model.Action
-import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.config.model.SubGesture
 import hunoia.luno.config.model.SubGestureSettings
 import hunoia.luno.core.JsonSerializer
@@ -21,7 +20,6 @@ private const val MAX_SUB_GESTURE_DEPTH = 3
 
 class SubGestureState(
     private val scope: CoroutineScope,
-    private val gestureSettings: GestureSettings,
     private val subGestureSettings: SubGestureSettings,
     private val onModeChanged: (Boolean) -> Unit,
 ) {
@@ -30,8 +28,6 @@ class SubGestureState(
     var subGestureAccum by mutableStateOf(Offset.Zero)
         private set
     var subGestureDepth by mutableIntStateOf(0)
-        private set
-    var subGestureTouchCount by mutableIntStateOf(0)
         private set
     private var timeoutJob by mutableStateOf<Job?>(null)
 
@@ -47,7 +43,6 @@ class SubGestureState(
         if (subGestureDepth >= MAX_SUB_GESTURE_DEPTH) return false
         activeSubGesture = target
         subGestureAccum = Offset.Zero
-        subGestureTouchCount = 0
         subGestureDepth += 1
         scheduleTimeout()
         onModeChanged(true)
@@ -68,6 +63,7 @@ class SubGestureState(
         if (kotlin.math.hypot(subGestureAccum.x, subGestureAccum.y) >= sg.triggerDistance) {
             val direction = sg.angle.directionOf(subGestureAccum)
             val actionId = sg.actionFor(direction)
+            activeSubGesture = null
             subGestureAccum = Offset.Zero
             sg.tryVibrate()
             return actionId
@@ -78,8 +74,6 @@ class SubGestureState(
     fun onDragEnd() {
         if (!isActive) return
         subGestureAccum = Offset.Zero
-        subGestureTouchCount += 1
-        if (subGestureTouchCount >= 5) clear()
     }
 
     fun onDragCancel() {
@@ -91,7 +85,6 @@ class SubGestureState(
         activeSubGesture = null
         subGestureAccum = Offset.Zero
         subGestureDepth = 0
-        subGestureTouchCount = 0
         timeoutJob?.cancel()
         timeoutJob = null
         if (notifyService) onModeChanged(false)
@@ -99,8 +92,9 @@ class SubGestureState(
 
     private fun scheduleTimeout() {
         timeoutJob?.cancel()
+        val ms = activeSubGesture?.timeoutMs ?: return
         timeoutJob = scope.launch {
-            delay(gestureSettings.subGestureTimeoutMs)
+            delay(ms)
             clear()
         }
     }

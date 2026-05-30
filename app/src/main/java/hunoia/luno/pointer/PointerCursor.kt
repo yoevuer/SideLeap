@@ -187,6 +187,9 @@ internal fun rememberPointerHandle(
                 s.continuousMode,
                 PointerAction.LongPress,
             )
+            if (s.continuousMode) {
+                onPointerStart()
+            }
         }
     }
 
@@ -211,6 +214,9 @@ internal fun rememberPointerHandle(
         leftCancelEdge.value = false
         longPressTriggered.value = false
         longPressAnchor.value = Offset.Unspecified
+        if (pSettings.value.continuousMode) {
+            onPointerStart()
+        }
     }
 
     if (isActive.value) {

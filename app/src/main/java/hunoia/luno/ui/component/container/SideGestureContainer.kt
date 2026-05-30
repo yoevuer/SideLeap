@@ -73,8 +73,8 @@ fun SideGestureContainer(
             curOnPointerActionAtPosition(x, y, keepActive, action)
         },
     )
-    val subGestureState = remember(subGestureSettings, gestureSettings, coroutineScope) {
-        SubGestureState(coroutineScope, gestureSettings, subGestureSettings, curOnSubGestureModeChanged)
+    val subGestureState = remember(subGestureSettings, coroutineScope) {
+        SubGestureState(coroutineScope, subGestureSettings, curOnSubGestureModeChanged)
     }
     val volumeScrubState = remember(actionSettings, context) {
         VolumeScrubState(context, actionSettings, curOnSubGestureModeChanged)
@@ -122,8 +122,11 @@ fun SideGestureContainer(
                         }
                         resolvedActionId != ActionFacade.NONE -> {
                             handleResolvedAction(Action(resolvedActionId), sideGestureState.button, sideGestureState.finger)
+                            sideGestureState.cancel()
+                            subGestureState.clear()
                         }
                         else -> {
+                            sideGestureState.cancel()
                             subGestureState.clear()
                         }
                     }

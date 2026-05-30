@@ -64,6 +64,8 @@ import com.aaron.compose.ktx.onSingleClick
 import hunoia.luno.config.defaults.SettingsUiDefaults.getPredefinedVibrationEffectText
 import hunoia.luno.config.defaults.SettingsUiDefaults.MinSubGestureTriggerDistance
 import hunoia.luno.config.defaults.SettingsUiDefaults.MaxSubGestureTriggerDistance
+import hunoia.luno.config.defaults.SettingsUiDefaults.MinSubGestureTimeoutMs
+import hunoia.luno.config.defaults.SettingsUiDefaults.MaxSubGestureTimeoutMs
 import hunoia.luno.bridge.vibration.MaxCustomVibrationMs
 import hunoia.luno.bridge.vibration.MinCustomVibrationMs
 import hunoia.luno.bridge.vibration.VibrationEffects
@@ -306,6 +308,13 @@ private fun SubGestureTriggerDistanceContent(
             text = stringResource(R.string.trigger_sub_gesture_distance),
             valueDisplay = "${gesture.triggerDistance}px",
             valueRange = MinSubGestureTriggerDistance.toFloat()..MaxSubGestureTriggerDistance.toFloat()
+        )
+        MyTextSlider(
+            value = gesture.timeoutMs.toFloat(),
+            onValueChange = { vm.onSubTimeoutMsChange(it) },
+            text = stringResource(R.string.sub_gesture_timeout_label),
+            valueDisplay = stringResource(R.string.sub_gesture_timeout_value, gesture.timeoutMs / 1000),
+            valueRange = MinSubGestureTimeoutMs.toFloat()..MaxSubGestureTimeoutMs.toFloat()
         )
     }
 }

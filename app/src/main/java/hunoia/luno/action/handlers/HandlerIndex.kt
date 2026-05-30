@@ -14,4 +14,5 @@ internal val allHandlers: List<ActionHandler> = listOf(
     PointerActionHandler,
     VolumeScrubActionHandler,
     ShellCommandActionHandler,
+    ClickCurrentPositionActionHandler,
 )

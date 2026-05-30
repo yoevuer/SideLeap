@@ -141,6 +141,7 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<S
     fun onSubVibrationEffectChange(value: VibrationEffects) = updateSubGesture { copy(vibrationEffect = value) }
     fun onSubCustomVibrationMsChange(value: Float) = updateSubGesture { copy(customVibrationMs = value.toLong()) }
     fun onSubTriggerDistanceChange(value: Float) = updateSubGesture { copy(triggerDistance = value.toInt()) }
+    fun onSubTimeoutMsChange(value: Float) = updateSubGesture { copy(timeoutMs = value.toLong()) }
 
     private fun loadData() {
         viewModelScope.launch {

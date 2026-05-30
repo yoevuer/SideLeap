@@ -254,12 +254,22 @@ private object MiniWindow {
         runCatching {
             opts.javaClass.getMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType).invoke(opts, 5)
         }
+        val winW: Int
+        val winH: Int
+        val left: Int
+        val top: Int
         if (overrideBounds) {
-            val winW = (realSw * widthFraction.coerceIn(0.2f, 1.5f)).roundToInt()
-            val winH = (realSh * heightFraction.coerceIn(0.2f, 1.5f)).roundToInt()
-            val left = ((realSw - winW) / 2f + realSw * horizontalBias.coerceIn(-1f, 1f)).roundToInt()
-            val top = ((realSh - winH) / 2f + realSh * verticalBias.coerceIn(-1f, 1f)).roundToInt()
-            opts.setLaunchBounds(Rect(left, top, left + winW, top + winH))
+            winW = (realSw * widthFraction.coerceIn(0.2f, 1.5f)).roundToInt()
+            winH = (realSh * heightFraction.coerceIn(0.2f, 1.5f)).roundToInt()
+            left = ((realSw - winW) / 2f + realSw * horizontalBias.coerceIn(-1f, 1f)).roundToInt()
+            top = ((realSh - winH) / 2f + realSh * verticalBias.coerceIn(-1f, 1f)).roundToInt()
+        } else {
+            val scaledW = (realSw * 0.7f).roundToInt()
+            winW = realSw
+            winH = (realSw / 0.625f).roundToInt()
+            left = ((realSw - scaledW) / 2f).roundToInt()
+            top = ((realSh - winH) / 2f).roundToInt()
         }
+        opts.setLaunchBounds(Rect(left, top, left + winW, top + winH))
     }
 }
