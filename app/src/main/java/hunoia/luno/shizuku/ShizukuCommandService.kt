@@ -108,6 +108,20 @@ class ShizukuCommandService : IShizukuCommandService.Stub() {
         return disablePackageDirect(packageName)
     }
 
+    override fun disablePackages(packageNames: MutableList<String>): MutableList<String> {
+        return packageNames.map { pkg ->
+            if (!isValidPackageName(pkg)) "error: invalid packageName=$pkg"
+            else disablePackageDirect(pkg)
+        }.toMutableList()
+    }
+
+    override fun enablePackages(packageNames: MutableList<String>): MutableList<String> {
+        return packageNames.map { pkg ->
+            if (!isValidPackageName(pkg)) "error: invalid packageName=$pkg"
+            else enablePackageDirect(pkg) ?: enablePackageShell(pkg)
+        }.toMutableList()
+    }
+
     override fun listDisabledPackageNames(): MutableList<String> {
         return try {
             val process = ProcessBuilder("pm", "list", "packages", "-d")

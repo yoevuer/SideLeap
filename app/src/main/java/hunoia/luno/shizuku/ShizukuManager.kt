@@ -228,14 +228,13 @@ object ShizukuManager {
 
         try {
             val svc = ensureService()
-            val results = mutableListOf<PackageResult>()
-            for (pkg in packageNames) {
-                val raw = if (disable) {
-                    svc.disablePackageApi(pkg)
-                } else {
-                    svc.enablePackageApi(pkg)
-                }
-                results += parsePackageResult(pkg, raw)
+            val rawResults = if (disable) {
+                svc.disablePackages(packageNames)
+            } else {
+                svc.enablePackages(packageNames)
+            }
+            val results = packageNames.zip(rawResults) { pkg, raw ->
+                parsePackageResult(pkg, raw)
             }
             val successCount = results.count { it.success }
             val failedCount = results.count { !it.success }
@@ -248,7 +247,6 @@ object ShizukuManager {
                     fallbackTriggered = false
                 )
             }
-            runCatching { svc.destroy() }
             executeSingleFallback(packageNames, disable, "batch failed: $failedCount/$requestedCount")
         } catch (e: Exception) {
             service = null
