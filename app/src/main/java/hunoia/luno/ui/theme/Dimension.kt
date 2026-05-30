@@ -27,6 +27,8 @@ val SubMinInteractiveSize = 36.dp
 val MinIconSize = 24.dp
 val DialogTitlePadding = RootPadding * 2
 val DialogHexTextWidth = 120.dp
+val LongPressHintStartPadding = 34.dp
+val CloseIconSize = 18.dp
 
 // Gesture / interaction thresholds
 val MiniWindowWidth = 200.dp
@@ -69,6 +71,7 @@ val SliderCorner = ShapeExtraSmall
 val CardShape = RoundedCornerShape(CardCorner)
 val DialogShape = RoundedCornerShape(DialogCorner)
 val SheetTopShape = RoundedCornerShape(topStart = SheetCorner, topEnd = SheetCorner)
+val IconBoxShape = RoundedCornerShape(ShapeSmall)
 
 // Animation durations (ms)
 const val AnimRipple = 300L

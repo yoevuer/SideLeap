@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
@@ -33,10 +32,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalContext
 import hunoia.luno.R
 import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.SubGesture
@@ -131,7 +130,7 @@ fun SelectedActionSettings(
                             }
                         )
                     },
-                shape = MaterialTheme.shapes.medium,
+                shape = CardShape,
                 color = if (longPressTargetIndex == index) {
                     MaterialTheme.colorScheme.primaryContainer
                 } else {
@@ -180,7 +179,7 @@ fun SelectedActionSettings(
                         Icon(
                             Icons.Default.Close,
                             contentDescription = stringResource(R.string.delete),
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(CloseIconSize)
                         )
                     }
                 }
@@ -190,7 +189,7 @@ fun SelectedActionSettings(
                     text = stringResource(R.string.choose_long_press_action_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 34.dp)
+                    modifier = Modifier.padding(start = LongPressHintStartPadding)
                 )
             }
         }

@@ -117,7 +117,8 @@ internal fun AppPage(
                             },
                             onLongClick = {
                                 onLongClick(item)
-                            }
+                            },
+                            modifier = Modifier.animateItem()
                         )
                     }
                 }
@@ -139,14 +140,15 @@ internal fun AppItem(
     selected: Boolean,
     appInfo: AppInfo,
     selectSingle: Boolean,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .alpha(if (enabled) 1f else SettingsUiDefaults.DisabledAlpha)
             .fillMaxWidth()
             .padding(horizontal = Spacing12, vertical = Spacing4),
-        shape = MaterialTheme.shapes.large,
+        shape = CardShape,
         color = if (selected) MaterialTheme.colorScheme.primaryContainer
                 else MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {

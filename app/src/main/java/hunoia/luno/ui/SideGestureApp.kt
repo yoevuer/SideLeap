@@ -33,6 +33,9 @@ import hunoia.luno.ui.navigation.GestureButtonSettings
 import hunoia.luno.ui.navigation.Home
 import hunoia.luno.ui.navigation.SubGestureActionSelect
 import hunoia.luno.ui.navigation.SubGestureEditor
+import hunoia.luno.ui.navigation.PointerSettings
+import hunoia.luno.ui.navigation.FrozenManage
+import hunoia.luno.ui.navigation.AppBlacklist
 
 import hunoia.luno.ui.actionselect.ActionSelectContent
 
@@ -43,6 +46,9 @@ import hunoia.luno.ui.settings.gesture.subgesture.SubGestureSettingsScreen
 import hunoia.luno.ui.theme.SideGestureTheme
 import hunoia.luno.ui.navigation.LocalNavController
 import hunoia.luno.ui.home.HomeScreen
+import hunoia.luno.ui.home.sheet.PointerSettingsScreen
+import hunoia.luno.ui.freeze.FrozenAppManageContent
+import hunoia.luno.ui.freeze.FrozenAppBlacklistContent
 import kotlin.reflect.KType
 
 
@@ -83,6 +89,15 @@ fun SideGestureApp() {
                         },
                         onNavToSubGestureEditor = { subGestureId ->
                             navController.navigate(SubGestureEditor(subGestureId))
+                        },
+                        onNavToPointerSettings = {
+                            navController.navigate(PointerSettings)
+                        },
+                        onNavToFrozenManage = {
+                            navController.navigate(FrozenManage)
+                        },
+                        onNavToAppBlacklist = {
+                            navController.navigate(AppBlacklist)
                         }
                     )
                 }
@@ -109,6 +124,21 @@ fun SideGestureApp() {
                         onDismiss = { navController.popBackStack() },
                         subGestureId = it.toRoute<SubGestureActionSelect>().id,
                         direction = it.toRoute<SubGestureActionSelect>().direction
+                    )
+                }
+                myComposable<PointerSettings> {
+                    PointerSettingsScreen(
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+                myComposable<FrozenManage> {
+                    FrozenAppManageContent(
+                        onDismiss = { navController.popBackStack() }
+                    )
+                }
+                myComposable<AppBlacklist> {
+                    FrozenAppBlacklistContent(
+                        onDismiss = { navController.popBackStack() }
                     )
                 }
             }

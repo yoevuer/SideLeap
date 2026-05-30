@@ -50,4 +50,16 @@ data class SubGestureActionSelect(
     val direction: SubGestureDirection
 )
 
+@Keep
+@Serializable
+data object PointerSettings
+
+@Keep
+@Serializable
+data object FrozenManage
+
+@Keep
+@Serializable
+data object AppBlacklist
+
 

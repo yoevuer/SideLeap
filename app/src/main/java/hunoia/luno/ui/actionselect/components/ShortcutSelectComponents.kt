@@ -132,7 +132,8 @@ internal fun ShortcutPage(
                             },
                             onClick = {
                                 onClick(item)
-                            }
+                            },
+                            modifier = Modifier.animateItem()
                         )
                     }
                     if (launchShortcuts.isNotEmpty()) {
@@ -165,7 +166,8 @@ internal fun ShortcutPage(
                                 onSelect(shortcutInfo, selected)
                             },
                             onClick = {
-                            }
+                            },
+                            modifier = Modifier.animateItem()
                         )
                     }
                 }
@@ -187,14 +189,15 @@ internal fun LauncherInfoItem(
     onClick: () -> Unit,
     onSelect: (LauncherInfo.ShortcutInfo, Boolean) -> Unit,
     launcherInfo: LauncherInfo,
-    selectSingle: Boolean
+    selectSingle: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .alpha(if (canLauncherInfoEnabled(launcherInfo)) 1f else SettingsUiDefaults.DisabledAlpha)
             .fillMaxWidth()
             .padding(horizontal = Spacing12, vertical = Spacing4),
-        shape = MaterialTheme.shapes.large,
+        shape = CardShape,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -247,7 +250,7 @@ internal fun LauncherInfoItem(
                                 .padding(top = Spacing4),
                             onClick = { onSelect(shortcutInfo, !selected) },
                             enabled = canShortcutInfoEnabled(shortcutInfo),
-                            shape = MaterialTheme.shapes.medium,
+                            shape = IconBoxShape,
                             color = if (selected) MaterialTheme.colorScheme.primaryContainer
                                     else MaterialTheme.colorScheme.surfaceContainer,
                         ) {
