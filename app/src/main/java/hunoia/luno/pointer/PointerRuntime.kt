@@ -79,6 +79,40 @@ class PointerRuntime(
                     PointerAction.LongPress -> Accessibility.longPress(service, x, y)
                 }
             }
+            if (action == PointerAction.LongPress) {
+                delay(1000)
+            }
+            if (keepActive) {
+                showOverlay(
+                    sessionSettings ?: gestureSettingsProvider()?.pointer ?: GestureSettings.Pointer(),
+                    actionPosition,
+                )
+            } else {
+                end()
+            }
+        }
+    }
+
+    fun performBridgeActionAt(
+        x: Int, y: Int, keepActive: Boolean, action: PointerAction,
+    ) {
+        val actionPosition = clampPointerPosition(Offset(x.toFloat(), y.toFloat()))
+        if (!isActive) {
+            isActive = true
+            onStateChanged()
+        }
+        scope.launch {
+            delay(80)
+            val service = host as? android.accessibilityservice.AccessibilityService
+            if (service != null) {
+                when (action) {
+                    PointerAction.Click -> Accessibility.click(service, x, y)
+                    PointerAction.LongPress -> Accessibility.longPress(service, x, y)
+                }
+            }
+            if (action == PointerAction.LongPress) {
+                delay(1000)
+            }
             if (keepActive) {
                 showOverlay(
                     sessionSettings ?: gestureSettingsProvider()?.pointer ?: GestureSettings.Pointer(),

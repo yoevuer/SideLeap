@@ -146,6 +146,9 @@ internal fun rememberPointerHandle(
     modifier: Modifier = Modifier,
     onPointerStart: (GestureSettings.Pointer) -> Boolean,
     onPointerEnd: () -> Unit,
+    onPointerActionBefore: (PointerAction) -> Unit = {},
+    shouldDeferPointerAction: (PointerAction) -> Boolean = { false },
+    shouldPreservePointerCancel: () -> Boolean = { false },
     onPointerActionAtPosition: (Int, Int, Boolean, PointerAction) -> Unit,
 ): PointerHandle {
     val coroutineScope = rememberCoroutineScope()
@@ -157,6 +160,9 @@ internal fun rememberPointerHandle(
     val longPressJob = remember { mutableStateOf<Job?>(null) }
     val longPressTriggered = remember { mutableStateOf(false) }
     val longPressAnchor = remember { mutableStateOf(Offset.Unspecified) }
+    val pendingAction = remember { mutableStateOf<PointerAction?>(null) }
+    val pendingKeepActive = remember { mutableStateOf(false) }
+    val pendingActionPosition = remember { mutableStateOf(Offset.Unspecified) }
     val pSettings = remember { mutableStateOf(gestureSettings.pointer) }
 
     LaunchedEffect(gestureSettings.pointer) {
@@ -170,12 +176,13 @@ internal fun rememberPointerHandle(
         leftCancelEdge.value = false
         longPressTriggered.value = false
         longPressAnchor.value = Offset.Unspecified
+        pendingAction.value = null
+        pendingKeepActive.value = false
+        pendingActionPosition.value = Offset.Unspecified
     }
 
-    fun finishWithAction(action: PointerAction, keepActive: Boolean) {
-        val target = cursorPosition.value
-        isActive.value = false
-        clearTouchState()
+    fun dispatchAction(action: PointerAction, keepActive: Boolean, target: Offset) {
+        onPointerActionBefore(action)
         clickPulseKey.value += 1
         onPointerActionAtPosition(
             target.x.roundToInt(),
@@ -183,6 +190,13 @@ internal fun rememberPointerHandle(
             keepActive,
             action,
         )
+    }
+
+    fun finishWithAction(action: PointerAction, keepActive: Boolean) {
+        val target = cursorPosition.value
+        isActive.value = false
+        clearTouchState()
+        dispatchAction(action, keepActive, target)
     }
 
     fun scheduleLongPress() {
@@ -196,12 +210,28 @@ internal fun rememberPointerHandle(
             if (!isActive.value || longPressTriggered.value) return@launch
             if (!isPointerWithinLongPressTolerance(longPressAnchor.value, touchPosition.value, s)) return@launch
             longPressTriggered.value = true
+            if (shouldDeferPointerAction(PointerAction.LongPress)) {
+                pendingAction.value = PointerAction.LongPress
+                pendingKeepActive.value = s.continuousMode
+                pendingActionPosition.value = cursorPosition.value
+                return@launch
+            }
             finishWithAction(PointerAction.LongPress, s.continuousMode)
         }
     }
 
     fun finish(click: Boolean) {
         if (!isActive.value) return
+        if (!click && shouldPreservePointerCancel()) return
+        val action = pendingAction.value
+        if (action != null && click) {
+            val target = pendingActionPosition.value
+            val keepActive = pendingKeepActive.value
+            isActive.value = false
+            clearTouchState()
+            dispatchAction(action, keepActive, target)
+            return
+        }
         if (click && !longPressTriggered.value) {
             finishWithAction(PointerAction.Click, pSettings.value.continuousMode)
         } else {

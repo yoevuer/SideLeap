@@ -218,7 +218,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             onPointerStart = { settings -> pointerRuntime.beginBridge(settings) },
             onPointerEnd = { pointerRuntime.end() },
             onPointerActionAtPosition = { x, y, keepActive, action ->
-                pointerRuntime.performActionAt(x, y, keepActive, action)
+                pointerRuntime.performBridgeActionAt(x, y, keepActive, action)
             },
             windowController = windowController,
         )

@@ -61,6 +61,18 @@ fun SideGestureContainer(
     val pointerHandle = rememberPointerHandle(
         gestureSettings = gestureSettings,
         onPointerStart = onPointerStart,
+        onPointerActionBefore = { action ->
+            if (pointerStartedFromSubGesture && action == PointerAction.LongPress) {
+                pointerStartedFromSubGesture = false
+                curOnSubGestureModeChanged(false)
+            }
+        },
+        shouldDeferPointerAction = { action ->
+            pointerStartedFromSubGesture && action == PointerAction.LongPress
+        },
+        shouldPreservePointerCancel = {
+            pointerStartedFromSubGesture
+        },
         onPointerActionAtPosition = onPointerActionAtPosition,
         onPointerEnd = onPointerEnd,
     )
@@ -127,6 +139,10 @@ fun SideGestureContainer(
                             subGestureState.clear()
                         }
                     }
+                }
+                if (resolvedAction == null && !subGestureState.isActive) {
+                    sideGestureState.cancel()
+                    subGestureState.clear()
                 }
                 return@onDrag
             }
@@ -220,6 +236,7 @@ fun SideGestureContainer(
                 return@onDragCancel
             }
             if (pointerHandle.isActive) {
+                if (pointerStartedFromSubGesture) return@onDragCancel
                 pointerStartedFromSubGesture = false
                 curOnSubGestureModeChanged(false)
                 pointerHandle.onDragCancel()
