@@ -51,8 +51,6 @@ object GlobalActions {
     const val KEEP_SCREEN_ON = "46"
     /** 快速回顶部 */
     const val BACK_TO_TOP = "47"
-    /** 快速到底部 */
-    const val GOTO_BOTTOM = "48"
     /** 打开 Activity */
     const val OPEN_APP_ACTIVITY = "49"
     /** 打开链接 */

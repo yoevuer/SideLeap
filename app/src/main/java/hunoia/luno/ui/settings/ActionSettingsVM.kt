@@ -37,16 +37,6 @@ class ActionSettingsVM : BaseComposeVM<UiState, UiEvent>() {
         saveSettings()
     }
 
-    fun onGotoBottomStrengthChange(strength: Float) {
-        updateUiState {
-            it.copy(
-                actionSettings = it.actionSettings.copy(
-                    gotoBottom = it.actionSettings.gotoBottom.copy(strength = strength.roundToInt())
-                )
-            )
-        }
-    }
-
     fun onHideGestureButtonDelayChange(delayMs: Float) {
         updateUiState {
             it.copy(

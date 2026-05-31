@@ -26,7 +26,6 @@ fun ActionSettingsDialogContent(
         text = {
             when (action.value) {
                 ActionFacade.PREVIOUS_APP -> PreviousAppSettingsContent()
-                ActionFacade.GOTO_BOTTOM -> GotoBottomSettingsContent()
                 ActionFacade.OPEN_APP_ACTIVITY -> ActivitySettingsContent(
                     action = action,
                     onConfirm = {

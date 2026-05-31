@@ -39,8 +39,6 @@ import com.aaron.compose.component.LoadingComponent
 import com.aaron.compose.component.UDFComponent
 import com.aaron.compose.ktx.onSingleClick
 import hunoia.luno.R
-import hunoia.luno.config.defaults.SettingsUiDefaults.MaxGotoBottomStrength
-import hunoia.luno.config.defaults.SettingsUiDefaults.MinGotoBottomStrength
 import hunoia.luno.ui.component.ExpressiveSwitchItem
 import hunoia.luno.ui.component.input.MyTextSlider
 
@@ -124,37 +122,6 @@ fun PreviousAppSettingsContent(vm: ActionSettingsVM = viewModel()) {
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun GotoBottomSettingsContent(vm: ActionSettingsVM = viewModel()) {
-    UDFComponent(
-        component = vm.udfComponent,
-        onEvent = {}
-    ) { uiState ->
-        LoadingComponent(
-            modifier = Modifier.fillMaxWidth(),
-            component = vm.loadingComponent
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(ItemPadding)
-            ) {
-                var localStrength by remember(uiState.actionSettings.gotoBottom.strength) { mutableStateOf(uiState.actionSettings.gotoBottom.strength.toFloat()) }
-                MyTextSlider(
-                    value = localStrength,
-                    onValueChange = { localStrength = it },
-                    onValueChangeFinished = {
-                        vm.onGotoBottomStrengthChange(localStrength)
-                        vm.saveSettings()
-                    },
-                    text = stringResource(id = R.string.strength),
-                    valueDisplay = String.format("%.1f", localStrength),
-                    valueRange = MinGotoBottomStrength..MaxGotoBottomStrength
-                )
             }
         }
     }

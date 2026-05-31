@@ -48,7 +48,6 @@ object InitialSettingsDefaults {
 
 object ActionSettingsDefaults {
 
-    const val GotoBottomStrength = 10
     const val PasswordMinLength = 4
     const val PasswordMaxLength = 32
     const val PasswordDefaultLength = 16

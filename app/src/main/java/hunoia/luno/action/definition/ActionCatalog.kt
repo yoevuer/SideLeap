@@ -85,8 +85,6 @@ object ActionCatalog {
             R.string.action_popup_screen, Icons.Default.Window),
         ActionDefinition(GlobalActions.BACK_TO_TOP, ActionCategory.NAVIGATION, ActionConfigKind.NONE,
             R.string.action_back_to_top, Icons.Default.VerticalAlignTop),
-        ActionDefinition(GlobalActions.GOTO_BOTTOM, ActionCategory.NAVIGATION, ActionConfigKind.GOTO_BOTTOM,
-            R.string.action_goto_bottom, Icons.Default.VerticalAlignBottom),
         ActionDefinition(GlobalActions.CLICK_CURRENT_POSITION, ActionCategory.NAVIGATION, ActionConfigKind.NONE,
             R.string.action_click_current_position, Icons.Default.TouchApp),
         ActionDefinition(GlobalActions.POINTER, ActionCategory.TOOL, ActionConfigKind.POINTER,

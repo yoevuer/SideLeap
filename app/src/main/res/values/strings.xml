@@ -321,7 +321,6 @@
     <string name="action_hide_gesture_button">隐藏触钮</string>
     <string name="action_keep_screen_on">屏幕常亮</string>
     <string name="action_back_to_top">快速回顶部</string>
-    <string name="action_goto_bottom">快速到底部</string>
     <string name="action_click_current_position">模拟点击当前位置</string>
     <string name="action_pointer">指针</string>
     <string name="action_shell_command">执行 Shell 命令</string>
@@ -349,7 +348,6 @@
     <string name="action_permission_hint_screenshot">需要系统截图能力或无障碍支持</string>
     <string name="action_permission_hint_power_button">需要无障碍服务支持</string>
     <string name="action_setting_hint_previous_app">配置应用切换行为</string>
-    <string name="action_setting_hint_goto_bottom">配置滚动行为</string>
     <string name="action_setting_hint_open_activity">选择目标 Activity</string>
     <string name="action_setting_hint_shell_command">输入 adb shell 后面的命令，例如 pm list packages</string>
     <string name="search_app_hint">搜索应用</string>

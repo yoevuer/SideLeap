@@ -49,27 +49,21 @@ object Accessibility {
     fun fastVerticalScroll(
         service: AccessibilityService?,
         toTop: Boolean,
-        gotoBottomStrength: Int = 10
     ): Boolean {
         service ?: return false
         val screenWidth = DensityProvider.screenWidthPx
         val screenHeight = DensityProvider.screenHeightPx
         val point = Point(screenWidth / 2, screenHeight / 2)
         val builder = GestureDescription.Builder()
+        val path = Path()
         if (toTop) {
-            val path = Path()
             path.moveTo(point.x.toFloat(), point.y.toFloat())
             path.lineTo(point.x.toFloat(), point.y.toFloat() + Int.MAX_VALUE)
-            builder.addStroke(StrokeDescription(path, 0L, 100L))
         } else {
-            repeat(gotoBottomStrength.coerceIn(1, GestureDescription.getMaxStrokeCount())) { index ->
-                val delay = index * 100L
-                val path = Path()
-                path.moveTo(point.x.toFloat(), point.y.toFloat())
-                path.lineTo(point.x.toFloat(), 0f)
-                builder.addStroke(StrokeDescription(path, delay, 10L))
-            }
+            path.moveTo(point.x.toFloat(), point.y.toFloat())
+            path.lineTo(point.x.toFloat(), point.y.toFloat() - Int.MAX_VALUE)
         }
+        builder.addStroke(StrokeDescription(path, 0L, 100L))
         return service.dispatchGesture(builder.build(), null, null)
     }
 }

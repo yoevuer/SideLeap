@@ -3,7 +3,6 @@ package hunoia.luno.action.definition
 enum class ActionConfigKind {
     NONE,
     PREVIOUS_APP,
-    GOTO_BOTTOM,
     OPEN_APP_OR_URL,
     SHELL_COMMAND,
     POINTER,

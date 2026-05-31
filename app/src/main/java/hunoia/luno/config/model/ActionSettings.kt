@@ -1,7 +1,6 @@
 package hunoia.luno.config.model
 
 import androidx.annotation.Keep
-import hunoia.luno.config.defaults.ActionSettingsDefaults.GotoBottomStrength
 import hunoia.luno.config.defaults.ActionSettingsDefaults.HideGestureButtonDelayMs
 import hunoia.luno.config.defaults.ActionSettingsDefaults.VolumeScrubHorizontalEnabled
 import hunoia.luno.config.defaults.ActionSettingsDefaults.VolumeScrubStepThresholdDp
@@ -16,7 +15,6 @@ import kotlinx.serialization.Serializable
 @Keep
 data class ActionSettings(
     val previousApp: PreviousApp = PreviousApp(),
-    val gotoBottom: GotoBottom = GotoBottom(),
     val passwordGenerator: PasswordGenerator = PasswordGenerator(),
     val hideGestureButton: HideGestureButton = HideGestureButton(),
     val volumeScrub: VolumeScrub = VolumeScrub()
@@ -24,10 +22,6 @@ data class ActionSettings(
     @Serializable
     @Keep
     data class PreviousApp(val packageNames: List<String> = emptyList())
-
-    @Serializable
-    @Keep
-    data class GotoBottom(val strength: Int = GotoBottomStrength)
 
     @Serializable
     @Keep
