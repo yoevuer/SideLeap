@@ -57,6 +57,7 @@ fun SideGestureContainer(
     val coroutineScope = rememberCoroutineScope()
     val sideGestureState = rememberSideGestureState(buttons, advancedSettings, gestureSettings)
     val actionPanelState = rememberActionPanelState()
+    var pointerStartedFromSubGesture by remember { mutableStateOf(false) }
     val pointerHandle = rememberPointerHandle(
         gestureSettings = gestureSettings,
         onPointerStart = onPointerStart,
@@ -94,28 +95,34 @@ fun SideGestureContainer(
         },
         onDrag = onDrag@{ dragAmount ->
             if (subGestureState.isActive) {
-                val resolvedActionId = subGestureState.onDrag(dragAmount)
-                if (resolvedActionId != null) {
-                    when {
-                        resolvedActionId == ActionFacade.VOLUME_SCRUB -> {
+                val resolvedAction = subGestureState.onDrag(dragAmount)
+                if (resolvedAction != null) {
+                    when (resolvedAction.value) {
+                        ActionFacade.VOLUME_SCRUB -> {
                             volumeScrubState.activate()
                             sideGestureState.cancel()
                             subGestureState.clear(notifyService = false)
                         }
-                        resolvedActionId == ActionFacade.POINTER -> {
-                            pointerHandle.start(Action(resolvedActionId), sideGestureState.finger)
+                        ActionFacade.POINTER -> {
+                            val started = pointerHandle.start(resolvedAction, sideGestureState.finger)
                             sideGestureState.cancel()
-                            subGestureState.clear(notifyService = false)
+                            if (started) {
+                                pointerStartedFromSubGesture = true
+                                subGestureState.clear(notifyService = false)
+                            } else {
+                                pointerStartedFromSubGesture = false
+                                subGestureState.clear()
+                            }
                         }
-                        resolvedActionId == ActionFacade.SUB_GESTURE -> {
-                            handleResolvedAction(Action(resolvedActionId), sideGestureState.button, sideGestureState.finger)
+                        ActionFacade.SUB_GESTURE -> {
+                            handleResolvedAction(resolvedAction, sideGestureState.button, sideGestureState.finger)
                         }
-                        resolvedActionId != ActionFacade.NONE -> {
-                            handleResolvedAction(Action(resolvedActionId), sideGestureState.button, sideGestureState.finger)
+                        ActionFacade.NONE -> {
                             sideGestureState.cancel()
                             subGestureState.clear()
                         }
                         else -> {
+                            handleResolvedAction(resolvedAction, sideGestureState.button, sideGestureState.finger)
                             sideGestureState.cancel()
                             subGestureState.clear()
                         }
@@ -174,9 +181,20 @@ fun SideGestureContainer(
                 subGestureState.onDragEnd()
                 return@onDragEnd
             }
-            if (pointerHandle.isActive) {
+            if (pointerStartedFromSubGesture && !pointerHandle.isActive) {
+                pointerStartedFromSubGesture = false
                 curOnSubGestureModeChanged(false)
+                return@onDragEnd
+            }
+            if (pointerHandle.isActive) {
+                val fromSubGesture = pointerStartedFromSubGesture
                 pointerHandle.onDragEnd()
+                if (fromSubGesture) {
+                    pointerStartedFromSubGesture = false
+                    curOnSubGestureModeChanged(false)
+                } else {
+                    curOnSubGestureModeChanged(false)
+                }
                 return@onDragEnd
             }
             if (volumeScrubState.isActive) {
@@ -202,6 +220,7 @@ fun SideGestureContainer(
                 return@onDragCancel
             }
             if (pointerHandle.isActive) {
+                pointerStartedFromSubGesture = false
                 curOnSubGestureModeChanged(false)
                 pointerHandle.onDragCancel()
                 return@onDragCancel

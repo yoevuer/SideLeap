@@ -195,15 +195,8 @@ internal fun rememberPointerHandle(
             delay(s.longPressDelayMs)
             if (!isActive.value || longPressTriggered.value) return@launch
             if (!isPointerWithinLongPressTolerance(longPressAnchor.value, touchPosition.value, s)) return@launch
-            val target = cursorPosition.value
             longPressTriggered.value = true
-            clickPulseKey.value += 1
-            onPointerActionAtPosition(
-                target.x.roundToInt(),
-                target.y.roundToInt(),
-                s.continuousMode,
-                PointerAction.LongPress,
-            )
+            finishWithAction(PointerAction.LongPress, s.continuousMode)
         }
     }
 

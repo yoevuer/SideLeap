@@ -59,12 +59,12 @@ class SubGestureSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeVM<S
                     R.string.mirror_sub_gesture_name,
                     original.name.ifEmpty { AppContext.get().getString(R.string.sub_gesture) }
                 ),
-                leftActionId = original.rightActionId,
-                rightActionId = original.leftActionId,
-                upRightActionId = original.upLeftActionId,
-                upLeftActionId = original.upRightActionId,
-                downRightActionId = original.downLeftActionId,
-                downLeftActionId = original.downRightActionId,
+                leftAction = original.rightAction,
+                rightAction = original.leftAction,
+                upRightAction = original.upLeftAction,
+                upLeftAction = original.upRightAction,
+                downRightAction = original.downLeftAction,
+                downLeftAction = original.downRightAction,
                 angle = original.angle.copy(
                     boundaries = original.angle.boundaries.let { b ->
                         listOf(3, 2, 1, 0, 7, 6, 5, 4).map { i -> ((0.5f - b[i]) + 1f) % 1f }

@@ -112,13 +112,15 @@ object FreezeAction {
         val settings = ConfigProvider.getFrozenAppSettings()
         val oneKeySet = settings.oneKeyPackageNames
 
+        val beforeCount = FreezeState.queryFrozenApplications(context).size
         val batchResult = batchFreeze(context, oneKeySet.toList())
+        val afterCount = FreezeState.queryFrozenApplications(context).size
 
         OneKeyFreezeResult(
             oneKeyCount = oneKeySet.size,
             targetCount = oneKeySet.size,
             candidateCount = batchResult.attemptedCount,
-            successCount = batchResult.successCount
+            successCount = maxOf(0, afterCount - beforeCount)
         )
     }
 

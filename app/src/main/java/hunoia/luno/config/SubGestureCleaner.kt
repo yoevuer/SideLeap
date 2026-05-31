@@ -49,17 +49,17 @@ object SubGestureCleaner {
         ConfigProvider.updateSideGestureButtons { cleanActions(it) }
         ConfigProvider.updateBottomGestureButtons { cleanActions(it) }
         ConfigProvider.updateSubGestureSettings { settings ->
-            fun clean(id: String?) = if (id == deletedId || id == ActionFacade.SUB_GESTURE) null else id
+            fun clean(action: Action?) = action?.takeUnless(shouldRemove)
             val cleanedSubGestures = settings.subGestures.map { gesture ->
                 gesture.copy(
-                    upActionId = clean(gesture.upActionId),
-                    downActionId = clean(gesture.downActionId),
-                    leftActionId = clean(gesture.leftActionId),
-                    rightActionId = clean(gesture.rightActionId),
-                    upRightActionId = clean(gesture.upRightActionId),
-                    downRightActionId = clean(gesture.downRightActionId),
-                    downLeftActionId = clean(gesture.downLeftActionId),
-                    upLeftActionId = clean(gesture.upLeftActionId),
+                    upAction = clean(gesture.upAction),
+                    downAction = clean(gesture.downAction),
+                    leftAction = clean(gesture.leftAction),
+                    rightAction = clean(gesture.rightAction),
+                    upRightAction = clean(gesture.upRightAction),
+                    downRightAction = clean(gesture.downRightAction),
+                    downLeftAction = clean(gesture.downLeftAction),
+                    upLeftAction = clean(gesture.upLeftAction),
                 )
             }
             settings.copy(subGestures = cleanedSubGestures)

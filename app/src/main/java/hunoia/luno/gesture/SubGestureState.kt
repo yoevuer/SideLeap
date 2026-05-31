@@ -56,17 +56,17 @@ class SubGestureState(
         return true
     }
 
-    fun onDrag(dragAmount: Offset): String? {
+    fun onDrag(dragAmount: Offset): Action? {
         if (!isActive) return null
         subGestureAccum += dragAmount
         val sg = activeSubGesture!!
         if (kotlin.math.hypot(subGestureAccum.x, subGestureAccum.y) >= sg.triggerDistance) {
             val direction = sg.angle.directionOf(subGestureAccum)
-            val actionId = sg.actionFor(direction)
+            val action = sg.actionFor(direction)
             activeSubGesture = null
             subGestureAccum = Offset.Zero
             sg.tryVibrate()
-            return actionId
+            return action
         }
         return null
     }

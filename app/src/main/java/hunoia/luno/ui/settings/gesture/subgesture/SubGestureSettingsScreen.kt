@@ -38,6 +38,7 @@ import com.aaron.compose.component.UDFComponent
 import hunoia.luno.R
 import hunoia.luno.ui.component.actionText
 import hunoia.luno.action.payload.SubGestureActionData
+import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.SubGestureDirection
 import hunoia.luno.ui.component.displayNameRes
 import hunoia.luno.config.defaults.SettingsUiDefaults.GestureButtonColorAlpha
@@ -190,7 +191,7 @@ fun SubGestureSettingsScreen(
                     )
                     directions.fastForEach { direction ->
                         val action = gesture.actionFor(direction)
-                        val text = actionDisplayText(action, uiState.allSubGestures)
+                        val text = actionDisplayText(action)
                         ExpressiveRow(
                             onClick = {
                                 onNavToSubGestureActionSelect(SubGestureActionSelect(gesture.id, direction))
@@ -256,10 +257,10 @@ fun SubGestureSettingsScreen(
 }
 
 @Composable
-private fun actionDisplayText(actionId: String?, allSubGestures: List<SubGesture>?): String {
-    if (actionId == null || actionId.isEmpty()) return ""
+private fun actionDisplayText(action: Action?): String {
+    val actionId = action?.value ?: return ""
     if (actionId != hunoia.luno.action.GlobalActions.SUB_GESTURE) {
-        return actionText(hunoia.luno.config.model.Action(actionId))
+        return actionText(action)
     }
     return stringResource(id = R.string.action_sub_gesture)
 }
