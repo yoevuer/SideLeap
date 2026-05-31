@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Swipe
@@ -53,29 +52,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aaron.compose.component.UDFComponent
 import hunoia.luno.R
 import hunoia.luno.config.defaults.SettingsUiDefaults.GestureButtonColorAlpha
-import hunoia.luno.config.defaults.SettingsUiDefaults.MaxGestureButtonPosition
-import hunoia.luno.config.defaults.SettingsUiDefaults.MaxGestureButtonWidth
-import hunoia.luno.config.defaults.SettingsUiDefaults.MinGestureButtonPosition
-import hunoia.luno.config.defaults.SettingsUiDefaults.MinGestureButtonWidth
 import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.config.model.GestureButton
 import hunoia.luno.ui.component.OptimizedBottomSheet
-import hunoia.luno.config.model.Position
 import hunoia.luno.ui.settings.gesture.button.GestureButtonSettingsUiEvent
 import hunoia.luno.ui.settings.gesture.button.GestureButtonSettingsUiState
-import hunoia.luno.config.model.TriggerDirection
-import hunoia.luno.config.model.TriggerDirection.Center
-import hunoia.luno.config.model.TriggerDirection.Center2
-import hunoia.luno.config.model.TriggerDirection.Down
-import hunoia.luno.config.model.TriggerDirection.Down2
-import hunoia.luno.config.model.TriggerDirection.Up
-import hunoia.luno.config.model.TriggerDirection.Up2
+import hunoia.luno.config.model.GestureDirection
 import hunoia.luno.ui.component.actionTextCompose
 import hunoia.luno.gesture.GestureFacade
+import hunoia.luno.gesture.mirroredButton
 import hunoia.luno.config.model.ActionPanelStyles
 import hunoia.luno.config.model.LongSlideActionPanelStyles
 import hunoia.luno.ui.settings.gesture.style.ActionPanelStyleSelectContent
-import hunoia.luno.ui.settings.gesture.angle.GestureButtonAngleContent
+import hunoia.luno.ui.settings.gesture.subgesture.GestureButtonAngleContent
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVerticalWithSection
 import hunoia.luno.ui.theme.IconTextPadding
@@ -123,28 +112,17 @@ fun GestureButtonSettingsScreen(
     onNavToActionSelect: (ActionSelect) -> Unit = {},
     vm: GestureButtonSettingsVM = viewModel()
 ) {
-    var showGestureAngles by remember { mutableStateOf(false) }
     var showVibrationSettings by remember { mutableStateOf(false) }
     var showTriggerDistanceSettings by remember { mutableStateOf(false) }
-    var showStyleSelectFor by remember { mutableStateOf<TriggerDirection?>(null) }
+    var showGestureAngles by remember { mutableStateOf(false) }
+    var showStyleSelectFor by remember { mutableStateOf<GestureDirection?>(null) }
     UDFComponent<GestureButtonSettingsUiState, GestureButtonSettingsUiEvent>(component = vm.udfComponent, onEvent = { }) { uiState ->
         if (uiState.showDeleteWarningDialog) {
             MyAlertDialog(
                 onDismissRequest = { vm.showDeleteWarningDialog(false) },
                 title = stringResource(id = R.string.delete_gesture_button_warning),
-                text = when (uiState.gestureButtonSettings.isSideButton) {
-                    true -> stringResource(id = R.string.delete_side_gesture_button_warning_desc)
-                    else -> stringResource(id = R.string.delete_gesture_button_warning_desc)
-                },
+                text = stringResource(id = R.string.delete_gesture_button_warning_desc),
                 onConfirmClick = { vm.deleteGestureButton() }
-            )
-        }
-        if (uiState.showCopyAnotherSideGestureButtonDialog) {
-            MyAlertDialog(
-                onDismissRequest = { vm.showCopyAnotherSideGestureButtonDialog(false) },
-                title = stringResource(id = R.string.copy_another_side_button),
-                text = stringResource(R.string.copy_another_side_button_tips),
-                onConfirmClick = { vm.copyAnotherSideGestureButton() }
             )
         }
         Box {
@@ -153,13 +131,7 @@ fun GestureButtonSettingsScreen(
                     onBack = onBack,
                     title = uiState.gestureButton.let {
                         if (it == null) return@let ""
-                        it.name.ifEmpty {
-                            when (it.position) {
-                                Position.Left -> stringResource(id = R.string.left_gesture_button)
-                                Position.Right -> stringResource(id = R.string.right_gesture_button)
-                                Position.Bottom -> stringResource(id = R.string.bottom_gesture_button)
-                            }
-                        }
+                        it.name.ifEmpty { stringResource(id = R.string.gesture_button) }
                     },
                     postfixTitle = {
                         if (uiState.gestureButton != null) {
@@ -178,14 +150,6 @@ fun GestureButtonSettingsScreen(
                         }
                     },
                     actions = {
-                        if (uiState.gestureButtonSettings.isSideButton) {
-                            IconButton(onClick = { vm.showCopyAnotherSideGestureButtonDialog(true) }) {
-                                Icon(
-                                    imageVector = Icons.Default.ContentCopy,
-                                    contentDescription = null
-                                )
-                            }
-                        }
                         if (uiState.gestureButton != null && !uiState.gestureButton.isDefault) {
                             IconButton(onClick = { vm.showDeleteWarningDialog(true) }) {
                                 Icon(
@@ -205,29 +169,25 @@ fun GestureButtonSettingsScreen(
                     ) {
                         GestureButtonSlideActionsCard(
                             gestureButton = gestureButton,
-                            isSideButton = uiState.gestureButtonSettings.isSideButton,
                             onNavToActionSelect = onNavToActionSelect,
                         )
 
                         GestureButtonLongSlideActionsCard(
                             gestureButton = gestureButton,
-                            isSideButton = uiState.gestureButtonSettings.isSideButton,
                             onNavToActionSelect = onNavToActionSelect,
                             onStyleSelect = { showStyleSelectFor = it },
                         )
 
                         GestureButtonTapActionsCard(
                             gestureButton = gestureButton,
-                            isSideButton = uiState.gestureButtonSettings.isSideButton,
                             onNavToActionSelect = onNavToActionSelect,
                         )
 
                         GestureButtonPhysicalParamsCard(
                             gestureButton = gestureButton,
-                            isSideButton = uiState.gestureButtonSettings.isSideButton,
-                            alignRegion = uiState.alignRegion,
+                            mirrorHorizontal = uiState.mirrorHorizontal,
                             vm = vm,
-                            onGestureAnglesClick = { showGestureAngles = true },
+                            onAngleClick = { showGestureAngles = true },
                             onVibrationClick = { showVibrationSettings = true },
                             onTriggerDistanceClick = { showTriggerDistanceSettings = true },
                         )
@@ -251,46 +211,34 @@ fun GestureButtonSettingsScreen(
                     .fillMaxSize()
                     .drawBehind {
                         uiState.gestureButtons.fastForEach { button ->
-                            val bounds = GestureFacade.bounds(button)
-                            val color = when (button.color == android.graphics.Color.TRANSPARENT) {
-                                true -> colorScheme.primary
-                                else -> Color(
-                                    red = button.color.red,
-                                    green = button.color.green,
-                                    blue = button.color.blue
+                            fun drawTarget(targetButton: GestureButton) {
+                                val bounds = GestureFacade.bounds(targetButton)
+                                val color = when (targetButton.color == android.graphics.Color.TRANSPARENT) {
+                                    true -> colorScheme.primary
+                                    else -> Color(
+                                        red = targetButton.color.red,
+                                        green = targetButton.color.green,
+                                        blue = targetButton.color.blue
+                                    )
+                                }
+                                val highlight = uiState.isGestureButtonAdjusting &&
+                                        button.id == uiState.gestureButton?.id
+                                drawRect(
+                                    color = when (highlight) {
+                                        true -> color
+                                        else -> color.copy(alpha = GestureButtonColorAlpha)
+                                    },
+                                    topLeft = bounds.topLeft,
+                                    size = bounds.size
                                 )
                             }
-                            val highlight = uiState.isGestureButtonAdjusting &&
-                                    button.id == uiState.gestureButton?.id
-                            drawRect(
-                                color = when (highlight) {
-                                    true -> color
-                                    else -> color.copy(alpha = GestureButtonColorAlpha)
-                                },
-                                topLeft = bounds.topLeft,
-                                size = bounds.size
-                            )
+                            drawTarget(button)
+                            if (button.mirrorHorizontal) {
+                                button.mirroredButton()?.let { drawTarget(it) }
+                            }
                         }
                     }
             )
-        }
-
-        if (showGestureAngles) {
-            val currentGestureButton = uiState.gestureButton
-            if (currentGestureButton != null) {
-                OptimizedBottomSheet(
-                    onDismissRequest = { showGestureAngles = false }
-                ) {
-                    GestureButtonAngleContent(
-                        gestureButton = currentGestureButton,
-                        onDismiss = { showGestureAngles = false },
-                        onSave = { angle ->
-                            vm.updateGestureButtonAngle(angle)
-                            showGestureAngles = false
-                        }
-                    )
-                }
-            }
         }
 
         if (showVibrationSettings) {
@@ -301,6 +249,22 @@ fun GestureButtonSettingsScreen(
                 GestureButtonVibrationContent(
                     button = button,
                     vm = vm
+                )
+            }
+        }
+
+        if (showGestureAngles) {
+            val button = uiState.gestureButton ?: return@UDFComponent
+            OptimizedBottomSheet(
+                onDismissRequest = { showGestureAngles = false }
+            ) {
+                GestureButtonAngleContent(
+                    angle = button.angle,
+                    onDismiss = { showGestureAngles = false },
+                    onSave = {
+                        vm.updateGestureButtonAngle(it)
+                        showGestureAngles = false
+                    }
                 )
             }
         }
@@ -337,4 +301,3 @@ fun GestureButtonSettingsScreen(
 
     }
 }
-

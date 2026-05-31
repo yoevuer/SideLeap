@@ -44,8 +44,7 @@ class SideGestureSettingsObserver(
     private fun CoroutineScope.observeGestureButtonChanges() {
         launch {
             ConfigProvider
-                .sideGestureButtons
-                .combine(ConfigProvider.bottomGestureButtons) { side, bottom -> side + bottom }
+                .gestureButtons
                 .collectLatest(onGestureButtons)
         }
     }

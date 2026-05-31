@@ -28,9 +28,9 @@ internal class SideGestureButtonRefreshCoordinator(
                 runtimeState = runtimeStateProvider(),
             )
             buttonViewsProvider()?.forEach { view ->
-                val button = view.tag as? GestureButton ?: return@forEach
+                val target = view.tag as? GestureButtonWindowTarget ?: return@forEach
                 val lp = (view.layoutParams as WindowManager.LayoutParams).apply {
-                    updateGestureButtonState(this, view, button, refreshState)
+                    updateGestureButtonState(this, target, refreshState)
                 }
                 host.updateWindowLayout(view, lp)
             }
@@ -39,11 +39,10 @@ internal class SideGestureButtonRefreshCoordinator(
 
     private fun updateGestureButtonState(
         lp: WindowManager.LayoutParams,
-        view: View,
-        button: GestureButton,
+        target: GestureButtonWindowTarget,
         state: GestureButtonRefreshState,
     ) {
-        lp.updateGestureButton(button)
-        lp.setFlags(state.shouldShow(button))
+        lp.updateGestureButton(target.windowButton)
+        lp.setFlags(state.shouldShow(target.sourceButton))
     }
 }

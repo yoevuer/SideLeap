@@ -13,7 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import hunoia.luno.action.TriggerType
 import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.ActionPanelStyle
-import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.GestureDirection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -33,7 +33,7 @@ class ActionPanelState(private val coroutineScope: CoroutineScope) : LongSlideSt
         private set
     var actions: List<Action> by mutableStateOf(emptyList())
         private set
-    var position: Position by mutableStateOf(Position.Left)
+    var direction: GestureDirection by mutableStateOf(GestureDirection.Right)
         private set
     var actionPanelStyle: ActionPanelStyle? by mutableStateOf(null)
         private set
@@ -57,8 +57,8 @@ class ActionPanelState(private val coroutineScope: CoroutineScope) : LongSlideSt
         visible = true
     }
 
-    fun ready(position: Position, actions: List<Action>, actionPanelStyle: ActionPanelStyle) {
-        this.position = position
+    fun ready(direction: GestureDirection, actions: List<Action>, actionPanelStyle: ActionPanelStyle) {
+        this.direction = direction
         this.actions = actions
         this.actionPanelStyle = actionPanelStyle
     }

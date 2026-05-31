@@ -11,43 +11,22 @@ object SubGestureCleaner {
         deletedId: String,
         shouldRemove: (Action) -> Boolean,
     ) {
-        val sideButtons = ConfigProvider.getSideGestureButtons()
-        val bottomButtons = ConfigProvider.getBottomGestureButtons()
-        val subSettings = ConfigProvider.getSubGestureSettings()
-
         fun cleanActions(buttons: List<GestureButton>): List<GestureButton> {
             return buttons.map { button ->
                 button.copy(
                     slideActions = button.slideActions.copy(
-                        center = button.slideActions.center.filterNot { shouldRemove(it) },
-                        up = button.slideActions.up.filterNot { shouldRemove(it) },
-                        down = button.slideActions.down.filterNot { shouldRemove(it) },
-                        center2 = button.slideActions.center2.filterNot { shouldRemove(it) },
-                        up2 = button.slideActions.up2.filterNot { shouldRemove(it) },
-                        down2 = button.slideActions.down2.filterNot { shouldRemove(it) },
+                        actions = button.slideActions.actions.mapValues { (_, actions) -> actions.filterNot(shouldRemove) }
                     ),
                     longSlideActions = button.longSlideActions.copy(
-                        center = button.longSlideActions.center.filterNot { shouldRemove(it) },
-                        up = button.longSlideActions.up.filterNot { shouldRemove(it) },
-                        down = button.longSlideActions.down.filterNot { shouldRemove(it) },
-                        center2 = button.longSlideActions.center2.filterNot { shouldRemove(it) },
-                        up2 = button.longSlideActions.up2.filterNot { shouldRemove(it) },
-                        down2 = button.longSlideActions.down2.filterNot { shouldRemove(it) },
+                        actions = button.longSlideActions.actions.mapValues { (_, actions) -> actions.filterNot(shouldRemove) }
                     ),
-                    tapActions = button.tapActions.copy(
-                        center = button.tapActions.center.filterNot { shouldRemove(it) },
-                        up = button.tapActions.up.filterNot { shouldRemove(it) },
-                        down = button.tapActions.down.filterNot { shouldRemove(it) },
-                        center2 = button.tapActions.center2.filterNot { shouldRemove(it) },
-                        up2 = button.tapActions.up2.filterNot { shouldRemove(it) },
-                        down2 = button.tapActions.down2.filterNot { shouldRemove(it) },
-                    )
+                    tapActions = button.tapActions.filterNot(shouldRemove),
+                    longPressActions = button.longPressActions.filterNot(shouldRemove),
                 )
             }
         }
 
-        ConfigProvider.updateSideGestureButtons { cleanActions(it) }
-        ConfigProvider.updateBottomGestureButtons { cleanActions(it) }
+        ConfigProvider.updateGestureButtons { cleanActions(it) }
         ConfigProvider.updateSubGestureSettings { settings ->
             fun clean(action: Action?) = action?.takeUnless(shouldRemove)
             val cleanedSubGestures = settings.subGestures.map { gesture ->

@@ -1,14 +1,14 @@
 package hunoia.luno.ui.settings.gesture.button
 
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.config.defaults.SettingsUiDefaults.MinGestureButtonLength
-import hunoia.luno.config.model.GestureAngle
+import hunoia.luno.config.defaults.SettingsUiDefaults.MaxGestureButtonArea
 import hunoia.luno.config.model.GestureButton
-import hunoia.luno.config.model.TriggerDirection
+import hunoia.luno.config.model.GestureButtonAngle
+import hunoia.luno.config.model.GestureDirection
 import hunoia.luno.ui.navigation.GestureButtonSettings
 import hunoia.luno.config.model.ActionPanelStyles
 import hunoia.luno.bridge.vibration.VibrationEffects
@@ -22,15 +22,11 @@ import kotlinx.coroutines.launch
 data class GestureButtonSettingsUiState(
     val gestureButtonSettings: GestureButtonSettings,
     val gestureButtons: List<GestureButton> = emptyList(),
-    val alignRegion: Boolean = true,
+    val mirrorHorizontal: Boolean = true,
     val showDeleteWarningDialog: Boolean = false,
     val isGestureButtonAdjusting: Boolean = false,
-    val showCopyAnotherSideGestureButtonDialog: Boolean = false,
 ) {
-    val gestureButton: GestureButton? = gestureButtons.find {
-        it.id == gestureButtonSettings.buttonId &&
-                it.position == gestureButtonSettings.position
-    }
+    val gestureButton: GestureButton? = gestureButtons.find { it.id == gestureButtonSettings.buttonId }
 }
 
 sealed interface GestureButtonSettingsUiEvent
@@ -53,29 +49,13 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         }
     }
 
-    fun showCopyAnotherSideGestureButtonDialog(show: Boolean) {
-        updateUiState {
-            it.copy(showCopyAnotherSideGestureButtonDialog = show)
-        }
-    }
-
     fun deleteGestureButton() {
         viewModelScope.launch {
             loadDataJob?.cancel()
-            if (gestureButtonSettings.isSideButton) {
-                ConfigProvider.updateSideGestureButtons {
-                    it.toMutableList().apply {
-                        removeAll { item ->
-                            item.id == uiState.gestureButton?.id
-                        }
-                    }
-                }
-            } else {
-                ConfigProvider.updateBottomGestureButtons {
-                    it.toMutableList().apply {
-                        removeAll { item ->
-                            item.id == uiState.gestureButton?.id
-                        }
+            ConfigProvider.updateGestureButtons {
+                it.toMutableList().apply {
+                    removeAll { item ->
+                        item.id == uiState.gestureButton?.id
                     }
                 }
             }
@@ -84,32 +64,13 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         }
     }
 
-    fun copyAnotherSideGestureButton() {
-        updateUiState {
-            val curButton = it.gestureButton ?: return@updateUiState it
-            val l = it.gestureButtons.toMutableList().also { list ->
-                val anotherSideButton = list.find { b ->
-                    b.id == curButton.id && b.position != curButton.position
-                }
-                if (anotherSideButton != null) {
-                    val index = list.indexOf(anotherSideButton)
-                    list[index] = curButton.copy(position = anotherSideButton.position)
-                }
-            }
-            it.copy(gestureButtons = l)
-        }
-        saveSettings()
-    }
-
     fun onGestureButtonWidthChange(width: Float) {
         updateUiState {
             val l = it.gestureButtons.toMutableList().also { list ->
                 list.forEachIndexed { index, b ->
-                    if (b.id != gestureButtonSettings.buttonId) {
-                        return@forEachIndexed
-                    }
-                    if (b.position == gestureButtonSettings.position || it.alignRegion) {
-                        list[index] = b.copy(width = width.toInt())
+                    if (b.id == gestureButtonSettings.buttonId) {
+                        val maxWidth = maxGestureButtonWidth(b)
+                        list[index] = b.copy(bounds = b.bounds.copy(width = width.coerceIn(MinGestureButtonLength, maxWidth)))
                     }
                 }
             }
@@ -120,22 +81,45 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         }
     }
 
-    fun onGestureButtonPositionChange(start: Float, end: Float) {
-        val fraction = end - start
-        if (fraction < MinGestureButtonLength) {
-            return
-        }
+    fun onGestureButtonHeightChange(height: Float) {
         updateUiState {
             val l = it.gestureButtons.toMutableList().also { list ->
                 list.forEachIndexed { index, b ->
-                    if (b.id != gestureButtonSettings.buttonId) {
-                        return@forEachIndexed
+                    if (b.id == gestureButtonSettings.buttonId) {
+                        val maxHeight = maxGestureButtonHeight(b)
+                        list[index] = b.copy(bounds = b.bounds.copy(height = height.coerceIn(MinGestureButtonLength, maxHeight)))
                     }
-                    if (b.position == gestureButtonSettings.position || it.alignRegion) {
-                        list[index] = b.copy(
-                            start = start,
-                            end = end
-                        )
+                }
+            }
+            it.copy(
+                gestureButtons = l,
+                isGestureButtonAdjusting = true
+            )
+        }
+    }
+
+    fun onGestureButtonXChange(x: Float) {
+        updateUiState {
+            val l = it.gestureButtons.toMutableList().also { list ->
+                list.forEachIndexed { index, b ->
+                    if (b.id == gestureButtonSettings.buttonId) {
+                        list[index] = b.copy(bounds = b.bounds.copy(x = x.coerceIn(0f, (1f - b.bounds.width).coerceAtLeast(0f))))
+                    }
+                }
+            }
+            it.copy(
+                gestureButtons = l,
+                isGestureButtonAdjusting = true
+            )
+        }
+    }
+
+    fun onGestureButtonYChange(y: Float) {
+        updateUiState {
+            val l = it.gestureButtons.toMutableList().also { list ->
+                list.forEachIndexed { index, b ->
+                    if (b.id == gestureButtonSettings.buttonId) {
+                        list[index] = b.copy(bounds = b.bounds.copy(y = y.coerceIn(0f, (1f - b.bounds.height).coerceAtLeast(0f))))
                     }
                 }
             }
@@ -153,34 +137,12 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         saveSettings()
     }
 
-    fun updateGestureButtonAngle(angle: GestureAngle) {
+    fun updateLongSlideActionPanelStyle(direction: GestureDirection, style: ActionPanelStyles) {
         updateUiState {
             val l = it.gestureButtons.toMutableList().also { list ->
                 list.forEachIndexed { index, b ->
-                    if (b.id == gestureButtonSettings.buttonId && b.position == gestureButtonSettings.position) {
-                        list[index] = b.copy(angle = angle)
-                    }
-                }
-            }
-            it.copy(gestureButtons = l)
-        }
-        saveSettings()
-    }
-
-    fun updateLongSlideActionPanelStyle(direction: TriggerDirection, style: ActionPanelStyles) {
-        updateUiState {
-            val l = it.gestureButtons.toMutableList().also { list ->
-                list.forEachIndexed { index, b ->
-                    if (b.id == gestureButtonSettings.buttonId && b.position == gestureButtonSettings.position) {
-                        val styles = b.longSlideActionPanelStyles
-                        val newStyles = when (direction) {
-                            TriggerDirection.Center -> styles.copy(center = style)
-                            TriggerDirection.Up -> styles.copy(up = style)
-                            TriggerDirection.Down -> styles.copy(down = style)
-                            TriggerDirection.Up2 -> styles.copy(up2 = style)
-                            TriggerDirection.Down2 -> styles.copy(down2 = style)
-                            TriggerDirection.Center2 -> styles
-                        }
+                    if (b.id == gestureButtonSettings.buttonId) {
+                        val newStyles = b.longSlideActionPanelStyles.withStyle(direction, style)
                         list[index] = b.copy(longSlideActionPanelStyles = newStyles)
                     }
                 }
@@ -190,11 +152,13 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
         saveSettings()
     }
 
+    fun updateGestureButtonAngle(angle: GestureButtonAngle) = updateButton { copy(angle = angle) }
+
     private fun updateButton(fieldUpdate: GestureButton.() -> GestureButton) {
         updateUiState {
             val l = it.gestureButtons.toMutableList().also { list ->
                 list.forEachIndexed { index, b ->
-                    if (b.id == gestureButtonSettings.buttonId && b.position == gestureButtonSettings.position) {
+                    if (b.id == gestureButtonSettings.buttonId) {
                         list[index] = b.fieldUpdate()
                     }
                 }
@@ -223,25 +187,14 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
     fun onLongSlideTriggerImmediatelyChange(value: Boolean) = updateButton { copy(longSlideTriggerImmediately = value) }
     fun onLongSlideTriggerDelayMsChange(value: Float) = updateButton { copy(longSlideTriggerDelayMs = value.toLong()) }
 
-    fun onGestureButtonAlignChange(value: Boolean) {
+    fun onGestureButtonMirrorHorizontalChange(value: Boolean) {
         updateUiState {
             val button = it.gestureButton
             val list = if (button == null) it.gestureButtons else {
                 it.gestureButtons.toMutableList().apply {
                     forEachIndexed { index, b ->
                         if (button.id == b.id) {
-                            if (value) {
-                                val newB = b.copy(
-                                    width = button.width,
-                                    start = button.start,
-                                    end = button.end,
-                                    alignRegion = true
-                                )
-                                set(index, newB)
-                            } else {
-                                val newB = b.copy(alignRegion = false)
-                                set(index, newB)
-                            }
+                            set(index, b.copy(mirrorHorizontal = value))
                         }
                     }
                 }
@@ -254,53 +207,38 @@ class GestureButtonSettingsVM(savedStateHandle: SavedStateHandle) : BaseComposeV
     fun saveSettings() {
         viewModelScope.launch {
             launch {
-                if (gestureButtonSettings.isSideButton) {
-                    ConfigProvider.updateSideGestureButtons {
-                        uiState.gestureButtons
-                    }
-                } else {
-                    ConfigProvider.updateBottomGestureButtons {
-                        uiState.gestureButtons
-                    }
-                }
+                ConfigProvider.updateGestureButtons { uiState.gestureButtons }
             }
         }
+    }
+
+    private fun maxGestureButtonWidth(button: GestureButton): Float {
+        val byBounds = (1f - button.bounds.x).coerceAtLeast(MinGestureButtonLength)
+        val byArea = MaxGestureButtonArea / button.bounds.height.coerceAtLeast(MinGestureButtonLength)
+        return minOf(byBounds, byArea).coerceAtLeast(MinGestureButtonLength)
+    }
+
+    private fun maxGestureButtonHeight(button: GestureButton): Float {
+        val byBounds = (1f - button.bounds.y).coerceAtLeast(MinGestureButtonLength)
+        val byArea = MaxGestureButtonArea / button.bounds.width.coerceAtLeast(MinGestureButtonLength)
+        return minOf(byBounds, byArea).coerceAtLeast(MinGestureButtonLength)
     }
 
     private fun loadData() {
         val gestureButtonSettings = gestureButtonSettings
         loadDataJob = viewModelScope.launch {
             launch {
-                if (gestureButtonSettings.isSideButton) {
-                    ConfigProvider
-                        .sideGestureButtons
-                        .collectLatest { items ->
-                            val button = items.find {
-                                it.id == gestureButtonSettings.buttonId &&
-                                        it.position == gestureButtonSettings.position
-                            }
-                            updateUiState {
-                                it.copy(
-                                    gestureButtons = items,
-                                    alignRegion = button?.alignRegion ?: true,
-                                )
-                            }
+                ConfigProvider
+                    .gestureButtons
+                    .collectLatest { items ->
+                        val button = items.find { it.id == gestureButtonSettings.buttonId }
+                        updateUiState {
+                            it.copy(
+                                gestureButtons = items,
+                                mirrorHorizontal = button?.mirrorHorizontal ?: true,
+                            )
                         }
-                } else {
-                    ConfigProvider
-                        .bottomGestureButtons
-                        .collectLatest { items ->
-                            val button = items.find {
-                                it.id == gestureButtonSettings.buttonId &&
-                                        it.position == gestureButtonSettings.position
-                            }
-                            updateUiState {
-                                it.copy(
-                                    gestureButtons = items,
-                                )
-                            }
-                        }
-                }
+                    }
             }
         }
     }

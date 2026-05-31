@@ -11,8 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AllInclusive
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,17 +20,13 @@ import androidx.compose.ui.res.stringResource
 @Composable
 fun HomeGestureSections(
     uiState: UiState,
-    onBottomHeaderClick: () -> Unit,
-    onSideHeaderClick: () -> Unit,
+    onGestureHeaderClick: () -> Unit,
     onSubHeaderClick: () -> Unit,
-    onBottomButtonClick: (GestureButton) -> Unit,
-    onSideButtonClick: (GestureButton) -> Unit,
+    onGestureButtonClick: (GestureButton) -> Unit,
     onSubGestureClick: (String) -> Unit,
-    onBottomCheckedChange: (GestureButton, Boolean) -> Unit,
-    onSideCheckedChange: (GestureButton, Boolean) -> Unit,
+    onGestureCheckedChange: (GestureButton, Boolean) -> Unit,
     onSubCheckedChange: (SubGesture, Boolean) -> Unit,
-    onAddBottom: () -> Unit,
-    onAddSide: () -> Unit,
+    onAddGesture: () -> Unit,
     onAddSub: () -> Unit,
     onMarkColorClick: (Any) -> Unit,
     onGestureButtonRename: (GestureButton) -> Unit = {},
@@ -40,39 +35,20 @@ fun HomeGestureSections(
     Column(modifier = Modifier.fillMaxWidth()) {
         Column {
             GestureEntryCard(
-                title = stringResource(id = R.string.bottom_gesture_button_list_short),
-                subtitle = "${uiState.bottomGestureButtons.count { it.enabled }} / ${uiState.bottomGestureButtons.size} 个已启用",
-                icon = Icons.Default.ArrowUpward,
-                expanded = uiState.isBottomGestureButtonListExpanded,
-                onClick = onBottomHeaderClick,
-            )
-            GestureButtonList(
-                visible = uiState.isBottomGestureButtonListExpanded,
-                buttons = uiState.bottomGestureButtons,
-                onItemClick = onBottomButtonClick,
-                onCheckedChange = onBottomCheckedChange,
-                onAddClick = onAddBottom,
-                onMarkColorClick = onMarkColorClick,
-                onRenameClick = onGestureButtonRename,
-            )
-        }
-        Spacer(Modifier.height(Spacing12))
-        Column {
-            GestureEntryCard(
-                title = stringResource(id = R.string.side_gesture_button_list_short),
-                subtitle = "${uiState.sideGestureButtons.count { it.enabled }} / ${uiState.sideGestureButtons.size} 个已启用",
-                icon = Icons.Default.SwapHoriz,
-                expanded = uiState.isSideGestureButtonListExpanded,
-                onClick = onSideHeaderClick,
+                title = stringResource(id = R.string.gesture_button),
+                subtitle = "${uiState.gestureButtons.count { it.enabled }} / ${uiState.gestureButtons.size} 个已启用",
+                icon = Icons.Default.TouchApp,
+                expanded = uiState.isGestureButtonListExpanded,
+                onClick = onGestureHeaderClick,
                 accent = MaterialTheme.colorScheme.secondaryContainer,
                 onAccent = MaterialTheme.colorScheme.onSecondaryContainer,
             )
             GestureButtonList(
-                visible = uiState.isSideGestureButtonListExpanded,
-                buttons = uiState.sideGestureButtons,
-                onItemClick = onSideButtonClick,
-                onCheckedChange = onSideCheckedChange,
-                onAddClick = onAddSide,
+                visible = uiState.isGestureButtonListExpanded,
+                buttons = uiState.gestureButtons,
+                onItemClick = onGestureButtonClick,
+                onCheckedChange = onGestureCheckedChange,
+                onAddClick = onAddGesture,
                 onMarkColorClick = onMarkColorClick,
                 onRenameClick = onGestureButtonRename,
             )

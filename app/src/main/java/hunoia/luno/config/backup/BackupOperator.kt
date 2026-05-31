@@ -130,7 +130,7 @@ object BackupOperator {
         val backup = JsonSerializer.decodeFromString<Backup>(String(decoded))
         if (backup.initialSettings == null && backup.advancedSettings == null &&
             backup.gestureSettings == null && backup.actionSettings == null &&
-            backup.gestureButtons == null && backup.bottomGestureButtons == null &&
+            backup.gestureButtons == null &&
             backup.quickAppLauncherSettings == null && backup.frozenAppSettings == null &&
             backup.subGestureSettings == null
         ) {

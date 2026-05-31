@@ -1,9 +1,8 @@
 package hunoia.luno.ui.navigation
 
 import androidx.annotation.Keep
-import hunoia.luno.config.model.Position
 import hunoia.luno.config.model.SubGestureDirection
-import hunoia.luno.config.model.TriggerDirection
+import hunoia.luno.config.model.GestureDirection
 import kotlinx.serialization.Serializable
 
 
@@ -12,11 +11,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ActionSelect(
     val gestureButtonId: String,
-    val position: Position,
-    val direction: TriggerDirection,
+    val direction: GestureDirection,
     val isLongSlide: Boolean,
-    val isSideButton: Boolean,
-    val isTap: Boolean = false
+    val isTap: Boolean = false,
+    val isLongPress: Boolean = false,
 )
 
 @Keep
@@ -27,11 +25,7 @@ data class IconResize(val ids: List<String>)
 @Keep
 data class GestureButtonSettings(
     val buttonId: String,
-    val position: Position
-) {
-    val isSideButton: Boolean
-        get() = position == Position.Left || position == Position.Right
-}
+)
 
 @Keep
 @Serializable
@@ -61,5 +55,3 @@ data object FrozenManage
 @Keep
 @Serializable
 data object AppBlacklist
-
-

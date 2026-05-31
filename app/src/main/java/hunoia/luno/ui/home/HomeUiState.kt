@@ -20,14 +20,12 @@ sealed interface UiEvent {
 }
 
 data class UiState(
-    val sideGestureButtons: List<GestureButton> = emptyList(),
-    val bottomGestureButtons: List<GestureButton> = emptyList(),
+    val gestureButtons: List<GestureButton> = emptyList(),
     val subGestures: List<SubGesture> = emptyList(),
     val isGestureEnabled: Boolean = false,
     val isAccessibilityEnabled: Boolean = false,
     val isSubGestureListExpanded: Boolean = false,
-    val isBottomGestureButtonListExpanded: Boolean = false,
-    val isSideGestureButtonListExpanded: Boolean = false,
+    val isGestureButtonListExpanded: Boolean = false,
     val pointer: GestureSettings.Pointer = GestureSettings.Pointer(),
     val miniWindowHorizontalBias: Float = 0f,
     val miniWindowVerticalBias: Float = 0f,

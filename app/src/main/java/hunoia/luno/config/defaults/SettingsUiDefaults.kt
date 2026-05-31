@@ -18,7 +18,8 @@ object SettingsUiDefaults {
     val MaxLongSlideTriggerDistance = DensityProvider.dp2px(100f)
     const val MinGestureButtonPosition = 0f
     const val MaxGestureButtonPosition = 1f
-    const val MinGestureButtonLength = 0.1f
+    const val MinGestureButtonLength = 0.01f
+    const val MaxGestureButtonArea = 0.20f
     const val MinLongSlideTriggerDelayMs = 0L
     const val MaxLongSlideTriggerDelayMs = 250L
     const val MinLongPressTriggerDelayMs = 100L

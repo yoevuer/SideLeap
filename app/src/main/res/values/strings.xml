@@ -32,10 +32,6 @@
     <string name="restore_success">恢复成功</string>
     <string name="restore_failed">恢复失败</string>
     <string name="gesture_button_list">触钮集合</string>
-    <string name="side_gesture_button_list">侧边触钮</string>
-    <string name="bottom_gesture_button_list">底部触钮</string>
-    <string name="side_gesture_button_list_short">侧边</string>
-    <string name="bottom_gesture_button_list_short">底部</string>
     <string name="app_management">应用管理</string>
     <string name="gesture_behavior">触钮行为</string>
     <string name="display">显示</string>
@@ -161,14 +157,10 @@
     <string name="save_failure">保存失败</string>
     <string name="reset_success">重置成功</string>
     <string name="reset_failure">重置失败</string>
-    <string name="left_gesture_button">左侧触钮</string>
     <string name="left">左</string>
     <string name="right">右</string>
-    <string name="right_gesture_button">右侧触钮</string>
-    <string name="bottom_gesture_button">底部触钮</string>
-    <string name="bottom_gesture_button_name">底部触钮 %1$d</string>
-    <string name="left_gesture_button_name">左侧触钮 %1$d</string>
-    <string name="right_gesture_button_name">右侧触钮 %1$d</string>
+    <string name="gesture_button">触钮</string>
+    <string name="gesture_button_name">触钮 %1$d</string>
     <string name="gesture_button_size_max">已达到最大触钮数量</string>
     <string name="request_get_apps_permission">获取应用列表</string>
     <string name="goto_grant_get_apps_permission">开启"获取应用列表权限"</string>
@@ -184,7 +176,6 @@
     <string name="launch_shortcut">启动快捷方式</string>
     <string name="background_color">背景色</string>
     <string name="delete_gesture_button_warning">删除触钮</string>
-    <string name="delete_side_gesture_button_warning_desc">将会同步删除对侧触钮，是否继续？</string>
     <string name="delete_gesture_button_warning_desc">将删除触钮，是否继续？</string>
     <string name="rename">重命名</string>
     <string name="launch_mini_window_failed">无法启动应用小窗。</string>
@@ -205,10 +196,12 @@
     <string name="slide_to_top">向上滑动</string>
     <string name="slide_to_bottom">向下滑动</string>
     <string name="gesture_button_width">触钮宽度</string>
-    <string name="gesture_button_length">触钮长度</string>
+    <string name="gesture_button_height">触钮高度</string>
+    <string name="gesture_button_x">触钮横向位置</string>
+    <string name="gesture_button_y">触钮纵向位置</string>
     <string name="gesture_button_color">触钮颜色</string>
-    <string name="gesture_button_align">对齐触钮</string>
-    <string name="gesture_button_align_hint">两侧保持相同尺寸和位置</string>
+    <string name="gesture_button_mirror">镜像触钮</string>
+    <string name="gesture_button_mirror_hint">在另一侧生成镜像触发区域</string>
     <string name="enable_mini_window">已标记为小窗启动</string>
     <string name="disable_mini_window">已取消小窗启动</string>
     <string name="enable_keep_screen_on">已启用屏幕常亮</string>
@@ -230,12 +223,6 @@
     <string name="theme_color_surface_container_low">低层表面</string>
     <string name="theme_color_surface_container">中层表面</string>
     <string name="theme_color_surface_container_high">高层表面</string>
-
-    <!-- Gesture angle sector labels -->
-    <string name="gesture_angle_left2">左2</string>
-    <string name="gesture_angle_right2">右2</string>
-    <string name="gesture_angle_top2">上2</string>
-    <string name="gesture_angle_bottom2">下2</string>
 
     <!-- Directions (diagonal + center) -->
     <string name="direction_up_left">左上</string>
@@ -446,8 +433,6 @@
     <string name="intercept_system_back_gesture_hint">使用系统接口拦截，可能有兼容性问题</string>
     <string name="limit_max_intercept_length">限制最大拦截长度</string>
     <string name="limit_max_intercept_length_hint">跟随系统接口限制为200dp</string>
-    <string name="copy_another_side_button">复制到对侧</string>
-    <string name="copy_another_side_button_tips">将当前触钮设置复制到对侧触钮。</string>
     <string name="action_random_name">生成随机名称</string>
     <string name="action_one_key_freeze_apps">一键冻结应用</string>
     <string name="action_generate_password_copy">生成密码并复制</string>

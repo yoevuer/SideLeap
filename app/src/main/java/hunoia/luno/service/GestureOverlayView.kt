@@ -41,11 +41,8 @@ fun GestureOverlayView(
     val themeKey = lastWallpaperChangeMs.toString()
     SideGestureTheme(wallpaperChangeTrigger = themeKey) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val sideButtons by ConfigProvider
-                .sideGestureButtons
-                .collectAsStateWithLifecycle(initialValue = emptyList())
-            val bottomButtons by ConfigProvider
-                .bottomGestureButtons
+            val gestureButtons by ConfigProvider
+                .gestureButtons
                 .collectAsStateWithLifecycle(initialValue = emptyList())
             val advancedSettings by ConfigProvider
                 .advancedSettings
@@ -61,7 +58,7 @@ fun GestureOverlayView(
                 .collectAsStateWithLifecycle(initialValue = SubGestureSettings())
             SideGestureContainer(
                 modifier = Modifier.matchParentSize(),
-                buttons = sideButtons + bottomButtons,
+                buttons = gestureButtons,
                 onSubGestureModeChanged = onSubGestureModeChanged,
                 onAction = onAction,
                 onPointerStart = onPointerStart,

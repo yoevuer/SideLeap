@@ -2,29 +2,43 @@ package hunoia.luno.ui.component.panel
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import hunoia.luno.config.model.Position
+import hunoia.luno.config.model.GestureDirection
+import kotlin.math.sqrt
 
 internal fun actionPanelOrigin(
     parentSize: Size,
     origin: Offset,
-    position: Position,
+    direction: GestureDirection,
     itemSizePx: Float
 ): Offset {
     if (parentSize.isEmpty()) return origin
     val safePadding = itemSizePx * 1.5f
-    val x = when (position) {
-        Position.Left -> origin.x.coerceAtMost(parentSize.width / 2f)
-        Position.Right -> origin.x.coerceAtLeast(parentSize.width / 2f)
-        Position.Bottom -> origin.x.coerceIn(safePadding, parentSize.width - safePadding)
+    val vector = direction.unitVector()
+    val x = when {
+        vector.x > 0f -> origin.x.coerceAtMost(parentSize.width / 2f)
+        vector.x < 0f -> origin.x.coerceAtLeast(parentSize.width / 2f)
+        else -> origin.x.coerceIn(safePadding, parentSize.width - safePadding)
     }
-    val y = when (position) {
-        Position.Left, Position.Right -> origin.y.coerceIn(safePadding, parentSize.height - safePadding)
-        Position.Bottom -> (origin.y - itemSizePx * 2f).coerceIn(
-            parentSize.height * 0.35f,
-            parentSize.height - safePadding
-        )
+    val y = when {
+        vector.y > 0f -> origin.y.coerceAtMost(parentSize.height / 2f)
+        vector.y < 0f -> origin.y.coerceAtLeast(parentSize.height / 2f)
+        else -> origin.y.coerceIn(safePadding, parentSize.height - safePadding)
     }
     return Offset(x, y)
+}
+
+internal fun GestureDirection.unitVector(): Offset {
+    val diagonal = 1f / sqrt(2f)
+    return when (this) {
+        GestureDirection.Left -> Offset(-1f, 0f)
+        GestureDirection.UpLeft -> Offset(-diagonal, -diagonal)
+        GestureDirection.Up -> Offset(0f, -1f)
+        GestureDirection.UpRight -> Offset(diagonal, -diagonal)
+        GestureDirection.Right -> Offset(1f, 0f)
+        GestureDirection.DownRight -> Offset(diagonal, diagonal)
+        GestureDirection.Down -> Offset(0f, 1f)
+        GestureDirection.DownLeft -> Offset(-diagonal, diagonal)
+    }
 }
 
 internal fun Offset.coerceInside(parentSize: Size, itemSizePx: Float): Offset {

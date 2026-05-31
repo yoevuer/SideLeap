@@ -2,93 +2,34 @@ package hunoia.luno.service
 
 import android.view.Gravity
 import android.view.WindowManager
-import hunoia.luno.config.model.GestureActions
 import hunoia.luno.config.model.GestureButton
-import hunoia.luno.config.model.Position
-import hunoia.luno.config.model.defaultGestureAngleFor
+import hunoia.luno.config.model.GestureButtonBounds
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class SideGestureWindowControllerTest {
 
     @Test
-    fun updateGestureButton_leftRightBottom_matchesExpectedLayout() {
-        val left = WindowManager.LayoutParams().apply {
+    fun updateGestureButton_bounds_matchesExpectedLayout() {
+        val layout = WindowManager.LayoutParams().apply {
             updateGestureButton(
                 button = GestureButton(
-                    id = "left",
-                    position = Position.Left,
-                    angle = defaultGestureAngleFor(Position.Left),
-                    enabled = true,
-                    start = 0.25f,
-                    end = 0.75f,
-                    width = 18,
-                    slideActions = GestureActions(),
-                    longSlideActions = GestureActions(),
-                    tapActions = GestureActions(),
-                    color = 0,
-                    alignRegion = true,
+                    id = "button",
+                    bounds = GestureButtonBounds(
+                        x = 0.25f,
+                        y = 0.1f,
+                        width = 0.5f,
+                        height = 0.75f,
+                    ),
                 ),
                 rootWidth = 1080,
                 rootHeight = 2400,
             )
         }
-        assertEquals(18, left.width)
-        assertEquals(1200, left.height)
-        assertEquals(600, left.y)
-        assertEquals(0, left.x)
-        assertEquals(Gravity.LEFT or Gravity.TOP, left.gravity)
-
-        val right = WindowManager.LayoutParams().apply {
-            updateGestureButton(
-                button = GestureButton(
-                    id = "right",
-                    position = Position.Right,
-                    angle = defaultGestureAngleFor(Position.Right),
-                    enabled = true,
-                    start = 0.25f,
-                    end = 0.75f,
-                    width = 18,
-                    slideActions = GestureActions(),
-                    longSlideActions = GestureActions(),
-                    tapActions = GestureActions(),
-                    color = 0,
-                    alignRegion = true,
-                ),
-                rootWidth = 1080,
-                rootHeight = 2400,
-            )
-        }
-        assertEquals(18, right.width)
-        assertEquals(1200, right.height)
-        assertEquals(600, right.y)
-        assertEquals(0, right.x)
-        assertEquals(Gravity.RIGHT or Gravity.TOP, right.gravity)
-
-        val bottom = WindowManager.LayoutParams().apply {
-            updateGestureButton(
-                button = GestureButton(
-                    id = "bottom",
-                    position = Position.Bottom,
-                    angle = defaultGestureAngleFor(Position.Bottom),
-                    enabled = true,
-                    start = 0.25f,
-                    end = 0.75f,
-                    width = 18,
-                    slideActions = GestureActions(),
-                    longSlideActions = GestureActions(),
-                    tapActions = GestureActions(),
-                    color = 0,
-                    alignRegion = true,
-                ),
-                rootWidth = 1080,
-                rootHeight = 2400,
-            )
-        }
-        assertEquals(540, bottom.width)
-        assertEquals(18, bottom.height)
-        assertEquals(270, bottom.x)
-        assertEquals(2382, bottom.y)
-        assertEquals(Gravity.LEFT or Gravity.TOP, bottom.gravity)
+        assertEquals(540, layout.width)
+        assertEquals(1800, layout.height)
+        assertEquals(270, layout.x)
+        assertEquals(240, layout.y)
+        assertEquals(Gravity.LEFT or Gravity.TOP, layout.gravity)
     }
 }

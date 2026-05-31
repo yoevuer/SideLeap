@@ -5,10 +5,39 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import hunoia.luno.bridge.window.rootSize
 import hunoia.luno.config.model.GestureButton
-import hunoia.luno.config.model.Position
+
+data class GestureTouchTarget(
+    val sourceButton: GestureButton,
+    val effectiveButton: GestureButton,
+    val bounds: Rect,
+    val isMirror: Boolean,
+)
 
 fun List<GestureButton>.find(offset: Offset, imePadding: Int = 0): GestureButton? {
     return find { it.contains(offset, imePadding) }
+}
+
+fun List<GestureButton>.findTouchTarget(offset: Offset, imePadding: Int = 0): GestureTouchTarget? {
+    for (button in this) {
+        if (button.contains(offset, imePadding)) {
+            return GestureTouchTarget(
+                sourceButton = button,
+                effectiveButton = button,
+                bounds = button.bounds(imePadding),
+                isMirror = false,
+            )
+        }
+        val mirroredButton = button.mirroredButton() ?: continue
+        if (button.mirrorHorizontal && mirroredButton.contains(offset, imePadding)) {
+            return GestureTouchTarget(
+                sourceButton = button,
+                effectiveButton = mirroredButton,
+                bounds = mirroredButton.bounds(imePadding),
+                isMirror = true,
+            )
+        }
+    }
+    return null
 }
 
 fun GestureButton.contains(offset: Offset, imePadding: Int = 0): Boolean {
@@ -17,34 +46,27 @@ fun GestureButton.contains(offset: Offset, imePadding: Int = 0): Boolean {
 }
 
 fun GestureButton.bounds(imePadding: Int = 0): Rect {
-    val y = rootSize.height * start
-    val topLeft = when (position) {
-        Position.Left -> Offset(0f, y - imePadding)
-        Position.Right -> Offset((rootSize.width - width).toFloat(), y - imePadding)
-        Position.Bottom -> Offset(rootSize.width * start, (rootSize.height - width).toFloat())
-    }
-    val boundsSize = when (position) {
-        Position.Left, Position.Right -> Size(width.toFloat(), rootSize.height * fraction)
-        Position.Bottom -> Size(rootSize.width * fraction, width.toFloat())
-    }
+    val topLeft = Offset(
+        x = rootSize.width * this.bounds.x,
+        y = rootSize.height * this.bounds.y - imePadding,
+    )
+    val boundsSize = Size(
+        width = rootSize.width * this.bounds.width,
+        height = rootSize.height * this.bounds.height,
+    )
     return Rect(topLeft, boundsSize)
 }
 
-val GestureButton.fraction: Float get() = end - start
-val GestureButton.isVertical: Boolean get() = position != Position.Bottom
+val GestureButton.fraction: Float get() = bounds.height
+val GestureButton.isVertical: Boolean get() = bounds.height >= bounds.width
 
-fun <T> GestureButton.whenVertical(vertical: T, horizontal: T): T = when (position) {
-    Position.Left, Position.Right -> vertical
-    Position.Bottom -> horizontal
-}
+fun <T> GestureButton.whenVertical(vertical: T, horizontal: T): T = if (isVertical) vertical else horizontal
 
-fun GestureButton.whenVerticalFloat(vertical: () -> Float, horizontal: () -> Float): Float = when (position) {
-    Position.Left, Position.Right -> vertical()
-    Position.Bottom -> horizontal()
-}
+fun GestureButton.whenVerticalFloat(vertical: () -> Float, horizontal: () -> Float): Float = if (isVertical) vertical() else horizontal()
 
-fun GestureButton.horizontalMirror(pos: Float, neg: Float): Float = when (position) {
-    Position.Left -> pos
-    Position.Right -> neg
-    Position.Bottom -> pos
+fun GestureButton.horizontalMirror(pos: Float, neg: Float): Float = pos
+
+fun GestureButton.mirroredButton(): GestureButton? {
+    if (!mirrorHorizontal) return null
+    return copy(bounds = bounds.copy(x = 1f - bounds.x - bounds.width), mirrorHorizontal = false)
 }

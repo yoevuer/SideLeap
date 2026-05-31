@@ -39,13 +39,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import hunoia.luno.R
+import hunoia.luno.config.model.GestureButtonAngle
 import hunoia.luno.config.model.SubGestureDirection
-import hunoia.luno.config.defaults.SettingsUiDefaults
 import hunoia.luno.ui.component.displayNameRes
 import hunoia.luno.config.model.SubGestureAngle
-import hunoia.luno.config.model.copyNewNoGap
+import hunoia.luno.config.model.copyDirectionAngleBoundary
 import hunoia.luno.ui.theme.ContentPaddingHorizontal
 import hunoia.luno.ui.theme.ContentPaddingVertical
 import hunoia.luno.ui.theme.ItemPadding
@@ -64,7 +63,6 @@ fun SubGestureAngleContent(
     onSave: (SubGestureAngle) -> Unit,
     color: Color = MaterialTheme.colorScheme.primary
 ) {
-    var draftAngle by remember(angle) { mutableStateOf(angle) }
     val names = listOf(
         stringResource(id = SubGestureDirection.UpRight.displayNameRes),
         stringResource(id = SubGestureDirection.Up.displayNameRes),
@@ -75,6 +73,56 @@ fun SubGestureAngleContent(
         stringResource(id = SubGestureDirection.DownRight.displayNameRes),
         stringResource(id = SubGestureDirection.Right.displayNameRes)
     )
+    DirectionAngleContent(
+        title = stringResource(id = R.string.sub_gesture_angles),
+        boundaries = angle.boundaries,
+        resetBoundaries = SubGestureAngle().boundaries,
+        names = names,
+        onDismiss = onDismiss,
+        onSave = { onSave(SubGestureAngle(boundaries = it)) },
+        color = color,
+    )
+}
+
+@Composable
+fun GestureButtonAngleContent(
+    angle: GestureButtonAngle,
+    onDismiss: () -> Unit,
+    onSave: (GestureButtonAngle) -> Unit,
+    color: Color = MaterialTheme.colorScheme.primary
+) {
+    val names = listOf(
+        stringResource(R.string.direction_up_right),
+        stringResource(R.string.top),
+        stringResource(R.string.direction_up_left),
+        stringResource(R.string.left),
+        stringResource(R.string.direction_down_left),
+        stringResource(R.string.bottom),
+        stringResource(R.string.direction_down_right),
+        stringResource(R.string.right),
+    )
+    DirectionAngleContent(
+        title = stringResource(id = R.string.gesture_angles),
+        boundaries = angle.boundaries,
+        resetBoundaries = GestureButtonAngle().boundaries,
+        names = names,
+        onDismiss = onDismiss,
+        onSave = { onSave(GestureButtonAngle(boundaries = it)) },
+        color = color,
+    )
+}
+
+@Composable
+private fun DirectionAngleContent(
+    title: String,
+    boundaries: List<Float>,
+    resetBoundaries: List<Float>,
+    names: List<String>,
+    onDismiss: () -> Unit,
+    onSave: (List<Float>) -> Unit,
+    color: Color = MaterialTheme.colorScheme.primary
+) {
+    var draftBoundaries by remember(boundaries) { mutableStateOf(boundaries) }
 
     Column(
         modifier = Modifier
@@ -86,10 +134,10 @@ fun SubGestureAngleContent(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = stringResource(id = R.string.sub_gesture_angles),
+                text = title,
                 style = MaterialTheme.typography.titleLarge
             )
-            TextButton(onClick = { draftAngle = SubGestureAngle() }) {
+            TextButton(onClick = { draftBoundaries = resetBoundaries }) {
                 Icon(Icons.Default.Restore, contentDescription = null)
                 Text(text = stringResource(id = R.string.reset))
             }
@@ -117,8 +165,8 @@ fun SubGestureAngleContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(220.dp),
-                    angle = draftAngle,
-                    onAngleChange = { draftAngle = it },
+                    boundaries = draftBoundaries,
+                    onBoundariesChange = { draftBoundaries = it },
                     color = color
                 )
                 Spacer(modifier = Modifier.height(Spacing12))
@@ -134,7 +182,7 @@ fun SubGestureAngleContent(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = "${draftAngle.sectorWidth(index).roundToInt()}°",
+                                text = "${sectorWidth(draftBoundaries, index).roundToInt()}°",
                                 color = color,
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.titleSmall
@@ -159,7 +207,7 @@ fun SubGestureAngleContent(
             }
             Button(
                 modifier = Modifier.weight(1f),
-                onClick = { onSave(draftAngle) }
+                onClick = { onSave(draftBoundaries) }
             ) {
                 Text(text = stringResource(id = R.string.confirm))
             }
@@ -169,8 +217,8 @@ fun SubGestureAngleContent(
 
 @Composable
 private fun SubGestureAngleDial(
-    onAngleChange: (SubGestureAngle) -> Unit,
-    angle: SubGestureAngle,
+    onBoundariesChange: (List<Float>) -> Unit,
+    boundaries: List<Float>,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary
 ) {
@@ -182,8 +230,8 @@ private fun SubGestureAngleDial(
 
     Canvas(
         modifier = modifier.let {
-            val curOnAngleChange by rememberUpdatedState(newValue = onAngleChange)
-            val curAngle by rememberUpdatedState(newValue = angle)
+            val curOnBoundariesChange by rememberUpdatedState(newValue = onBoundariesChange)
+            val curBoundaries by rememberUpdatedState(newValue = boundaries)
             it.pointerInput(dragHitRadius) {
                 var dragOffset = Offset.Zero
                 var candidates = emptyList<Int>()
@@ -191,8 +239,8 @@ private fun SubGestureAngleDial(
                 detectDragGestures(
                     onDragStart = { offset ->
                         dragOffset = offset
-                        candidates = curAngle.boundaries.indices.filter { i ->
-                            val degree = curAngle.boundaries[i] * 360f
+                        candidates = curBoundaries.indices.filter { i ->
+                            val degree = curBoundaries[i] * 360f
                             val rad = Math.toRadians(degree.toDouble())
                             val pOffset = Offset(
                                 x = circleCenter.x + circleRadius * cos(rad).toFloat(),
@@ -207,11 +255,11 @@ private fun SubGestureAngleDial(
                         if (!viewBounds.contains(dragOffset)) return@onDrag
                         val curNorm = normalizedAngle(dragOffset, circleCenter)
                         if (candidateIndex == null) {
-                            candidateIndex = selectDragTarget(curAngle, candidates, curNorm)
+                            candidateIndex = selectDragTarget(curBoundaries, candidates, curNorm)
                         }
                         val target = candidateIndex ?: return@onDrag
-                        val newAngle = curAngle.copyNewNoGap(target, curNorm)
-                        curOnAngleChange(newAngle)
+                        val newBoundaries = copyDirectionAngleBoundary(curBoundaries, target, curNorm)
+                        curOnBoundariesChange(newBoundaries)
                     },
                     onDragEnd = {
                         dragOffset = Offset.Zero
@@ -252,7 +300,7 @@ private fun SubGestureAngleDial(
             style = Stroke(width = Spacing1.toPx())
         )
 
-        angle.boundaries.forEachIndexed { index, bound ->
+        boundaries.forEachIndexed { index, bound ->
             val angleRad = bound * 2f * PI.toFloat()
             val offset = Offset(
                 x = myCenter.x + lineRadius * cos(angleRad),
@@ -283,7 +331,7 @@ private fun normalizedDiff(a: Float, b: Float): Float {
 }
 
 private fun selectDragTarget(
-    angle: SubGestureAngle,
+    boundaries: List<Float>,
     candidates: List<Int>,
     newP: Float
 ): Int? {
@@ -291,8 +339,8 @@ private fun selectDragTarget(
     if (candidates.size == 1) return candidates.first()
 
     val inRange = candidates.filter { i ->
-        val prev = angle.boundaries[(i + 7) % 8]
-        val next = angle.boundaries[(i + 1) % 8]
+        val prev = boundaries[(i + 7) % 8]
+        val next = boundaries[(i + 1) % 8]
         if (prev < next) newP in prev..next
         else newP >= prev || newP <= next
     }
@@ -300,13 +348,19 @@ private fun selectDragTarget(
     when (inRange.size) {
         1 -> return inRange.first()
         0 -> { /* fall through to baseline heuristic */ }
-        else -> return inRange.minBy { normalizedDiff(newP, angle.boundaries[it]) }
+        else -> return inRange.minBy { normalizedDiff(newP, boundaries[it]) }
     }
 
-    val baseline = candidates.map { angle.boundaries[it] }.average().toFloat()
+    val baseline = candidates.map { boundaries[it] }.average().toFloat()
     return if (newP >= baseline) {
-        candidates.maxBy { angle.boundaries[it] }
+        candidates.maxBy { boundaries[it] }
     } else {
-        candidates.minBy { angle.boundaries[it] }
+        candidates.minBy { boundaries[it] }
     }
+}
+
+private fun sectorWidth(boundaries: List<Float>, index: Int): Float {
+    val start = boundaries[index]
+    val end = boundaries[(index + 1) % 8]
+    return if (end >= start) (end - start) * 360f else (end + 1f - start) * 360f
 }

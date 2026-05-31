@@ -6,7 +6,7 @@ import hunoia.luno.config.model.ActionPanelStyles
 import hunoia.luno.config.model.GestureButton
 import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.config.model.LongSlideActionPanelStyles
-import hunoia.luno.config.model.TriggerDirection
+import hunoia.luno.config.model.GestureDirection
 
 object GestureFacade {
 
@@ -16,7 +16,10 @@ object GestureFacade {
     fun find(buttons: List<GestureButton>, offset: Offset, imePadding: Int = 0): GestureButton? =
         buttons.find(offset, imePadding)
 
-    fun styleBy(styles: LongSlideActionPanelStyles, direction: TriggerDirection): ActionPanelStyles =
+    fun findTouchTarget(buttons: List<GestureButton>, offset: Offset, imePadding: Int = 0): GestureTouchTarget? =
+        buttons.findTouchTarget(offset, imePadding)
+
+    fun styleBy(styles: LongSlideActionPanelStyles, direction: GestureDirection): ActionPanelStyles =
         styles.styleBy(direction)
 
     fun vibrateForActionPanel(gestureSettings: GestureSettings) {

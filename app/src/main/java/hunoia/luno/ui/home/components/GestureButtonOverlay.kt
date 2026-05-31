@@ -20,13 +20,11 @@ import androidx.compose.ui.util.fastForEach
 
 @Composable
 fun GestureButtonOverlay(
-    showSide: Boolean,
-    showBottom: Boolean,
-    sideGestureButtons: List<hunoia.luno.config.model.GestureButton>,
-    bottomGestureButtons: List<hunoia.luno.config.model.GestureButton>,
+    visible: Boolean,
+    gestureButtons: List<hunoia.luno.config.model.GestureButton>,
 ) {
     AnimatedVisibility(
-        visible = showSide || showBottom,
+        visible = visible,
         enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioMediumBouncy)),
         exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioMediumBouncy))
     ) {
@@ -35,12 +33,7 @@ fun GestureButtonOverlay(
             modifier = Modifier
                 .fillMaxSize()
                 .drawBehind {
-                    val buttons = if (showSide) {
-                        sideGestureButtons
-                    } else {
-                        bottomGestureButtons
-                    }
-                    buttons.fastForEach { button ->
+                    gestureButtons.fastForEach { button ->
                         if (!button.enabled) {
                             return@fastForEach
                         }

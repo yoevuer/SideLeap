@@ -7,7 +7,6 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.bridge.feedback.showToast
 import hunoia.luno.config.ConfigProvider
 import hunoia.luno.config.model.GestureButton
-import hunoia.luno.config.model.Position
 import hunoia.luno.config.model.resolveDisplayName
 import hunoia.luno.config.model.SubGesture
 import hunoia.luno.config.SubGestureCleaner
@@ -85,8 +84,7 @@ class HomeVM : HomeVMBase() {
         updateUiState {
             it.copy(
                 isSubGestureListExpanded = false,
-                isBottomGestureButtonListExpanded = false,
-                isSideGestureButtonListExpanded = false
+                isGestureButtonListExpanded = false
             )
         }
     }
@@ -95,8 +93,7 @@ class HomeVM : HomeVMBase() {
         updateUiState {
             it.copy(
                 isSubGestureListExpanded = expanded,
-                isBottomGestureButtonListExpanded = it.isBottomGestureButtonListExpanded && !expanded,
-                isSideGestureButtonListExpanded = it.isSideGestureButtonListExpanded && !expanded
+                isGestureButtonListExpanded = it.isGestureButtonListExpanded && !expanded
             )
         }
         if (expanded && scrollOffset != Int.MAX_VALUE) {
@@ -104,61 +101,28 @@ class HomeVM : HomeVMBase() {
         }
     }
 
-    fun addBottomGestureButton() {
-        if (uiState.bottomGestureButtons.size >= 10) {
+    fun addGestureButton() {
+        if (uiState.gestureButtons.size >= 20) {
             toast(R.string.gesture_button_size_max)
             return
         }
         viewModelScope.launch {
-            val maxNum = uiState.bottomGestureButtons.maxOfOrNull {
-                parseNumberSuffix(it.name.ifEmpty { it.resolveDisplayName() })
+            val maxNum = uiState.gestureButtons.maxOfOrNull { button ->
+                parseNumberSuffix(button.name.ifEmpty { button.resolveDisplayName() })
             } ?: 0
-            val name = AppContext.get().getString(R.string.bottom_gesture_button_name, maxNum + 1)
-            ConfigProvider.updateBottomGestureButtons {
-                it + GestureButton.createBottom(name = name)
+            val name = AppContext.get().getString(R.string.gesture_button_name, maxNum + 1)
+            ConfigProvider.updateGestureButtons {
+                it + GestureButton.create(name = name)
             }
             delay(50)
             sendUiEvent(UiEvent.ScrollToBottom)
         }
     }
 
-    fun addSideGestureButton() {
-        if (uiState.sideGestureButtons.size >= 20) {
-            toast(R.string.gesture_button_size_max)
-            return
-        }
-        viewModelScope.launch {
-            val maxNum = uiState.sideGestureButtons.chunked(2).maxOfOrNull { pair ->
-                parseNumberSuffix(pair.first().name.ifEmpty { pair.first().resolveDisplayName() })
-            } ?: 0
-            val leftName = AppContext.get().getString(R.string.left_gesture_button_name, maxNum + 1)
-            val rightName = AppContext.get().getString(R.string.right_gesture_button_name, maxNum + 1)
-            ConfigProvider.updateSideGestureButtons {
-                it + GestureButton.createSidePair(leftName = leftName, rightName = rightName)
-            }
-            delay(50)
-            sendUiEvent(UiEvent.ScrollToBottom)
-        }
-    }
-
-    fun expandBottomGestureButtonList(expanded: Boolean, scrollOffset: Int = Int.MAX_VALUE) {
+    fun expandGestureButtonList(expanded: Boolean, scrollOffset: Int = Int.MAX_VALUE) {
         updateUiState {
             it.copy(
-                isBottomGestureButtonListExpanded = expanded,
-                isSideGestureButtonListExpanded = it.isSideGestureButtonListExpanded && !expanded,
-                isSubGestureListExpanded = it.isSubGestureListExpanded && !expanded
-            )
-        }
-        if (expanded && scrollOffset != Int.MAX_VALUE) {
-            sendUiEvent(UiEvent.ScrollToEvent(scrollOffset))
-        }
-    }
-
-    fun expandSideGestureButtonList(expanded: Boolean, scrollOffset: Int = Int.MAX_VALUE) {
-        updateUiState {
-            it.copy(
-                isSideGestureButtonListExpanded = expanded,
-                isBottomGestureButtonListExpanded = it.isBottomGestureButtonListExpanded && !expanded,
+                isGestureButtonListExpanded = expanded,
                 isSubGestureListExpanded = it.isSubGestureListExpanded && !expanded
             )
         }
@@ -169,19 +133,10 @@ class HomeVM : HomeVMBase() {
 
     fun updateGestureButtonColor(button: GestureButton, color: Int) {
         viewModelScope.launch {
-            if (button.position == Position.Bottom) {
-                ConfigProvider.updateBottomGestureButtons { buttons ->
-                    buttons.map {
-                        if (it.id == button.id && it.position == button.position) it.copy(color = color)
-                        else it
-                    }
-                }
-            } else {
-                ConfigProvider.updateSideGestureButtons { buttons ->
-                    buttons.map {
-                        if (it.id == button.id && it.position == button.position) it.copy(color = color)
-                        else it
-                    }
+            ConfigProvider.updateGestureButtons { buttons ->
+                buttons.map {
+                    if (it.id == button.id) it.copy(color = color)
+                    else it
                 }
             }
         }
@@ -206,25 +161,12 @@ class HomeVM : HomeVMBase() {
         saveSettings()
     }
 
-    fun onBottomGestureButtonEnabledChange(button: GestureButton, enabled: Boolean) {
+    fun onGestureButtonEnabledChange(button: GestureButton, enabled: Boolean) {
         updateUiState {
-            val buttons = it.bottomGestureButtons
+            val buttons = it.gestureButtons
             val index = buttons.indexOf(button)
             if (index < 0) it else {
-                it.copy(bottomGestureButtons = buttons.mapIndexed { i, b ->
-                    if (i == index) b.copy(enabled = enabled) else b
-                })
-            }
-        }
-        saveSettings()
-    }
-
-    fun onSideGestureButtonEnabledChange(button: GestureButton, enabled: Boolean) {
-        updateUiState {
-            val buttons = it.sideGestureButtons
-            val index = buttons.indexOf(button)
-            if (index < 0) it else {
-                it.copy(sideGestureButtons = buttons.mapIndexed { i, b ->
+                it.copy(gestureButtons = buttons.mapIndexed { i, b ->
                     if (i == index) b.copy(enabled = enabled) else b
                 })
             }
@@ -260,19 +202,10 @@ class HomeVM : HomeVMBase() {
             when (target) {
                 is RenameTarget.GestureButton -> {
                     val button = target.button
-                    if (button.position == Position.Bottom) {
-                        ConfigProvider.updateBottomGestureButtons { buttons ->
-                            buttons.map {
-                                if (it.id == button.id && it.position == button.position) it.copy(name = newName)
-                                else it
-                            }
-                        }
-                    } else {
-                        ConfigProvider.updateSideGestureButtons { buttons ->
-                            buttons.map {
-                                if (it.id == button.id && it.position == button.position) it.copy(name = newName)
-                                else it
-                            }
+                    ConfigProvider.updateGestureButtons { buttons ->
+                        buttons.map {
+                            if (it.id == button.id) it.copy(name = newName)
+                            else it
                         }
                     }
                 }

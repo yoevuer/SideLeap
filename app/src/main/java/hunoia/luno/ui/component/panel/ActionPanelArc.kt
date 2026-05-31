@@ -28,11 +28,9 @@ import androidx.compose.ui.util.fastForEachIndexed
 import com.aaron.compose.ktx.toDp
 import com.aaron.compose.ktx.toPx
 import hunoia.luno.config.model.Action
-import hunoia.luno.config.model.Position
 import hunoia.luno.config.model.ArcStyle
+import hunoia.luno.config.model.GestureDirection
 import hunoia.luno.config.model.GestureSettings
-import hunoia.luno.gesture.GestureFacade
-import kotlinx.coroutines.flow.filter
 import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.min
@@ -65,7 +63,7 @@ internal fun AnimatedVisibilityScope.ArcActionPanel(
                     graphicsLayer {
                         if (parentSize.isEmpty()) return@graphicsLayer
                         val itemSizeHalf = itemSize.toPx() / 2f
-                        val panelOrigin = actionPanelOrigin(parentSize, origin, actionPanelState.position, itemSize.toPx())
+                        val panelOrigin = actionPanelOrigin(parentSize, origin, actionPanelState.direction, itemSize.toPx())
                         val ox = panelOrigin.x
                         val oy = panelOrigin.y
                         translationX = ox - itemSizeHalf
@@ -77,18 +75,18 @@ internal fun AnimatedVisibilityScope.ArcActionPanel(
             val transition = transition
             actionPanelState.actions.fastForEachIndexed { index, action ->
                 key(index) {
-                    val targetAnimOffset = remember(parentSize, actionPanelState.position, actionPanelState.actions.size, index, actionPanelStyle.arcLength) {
+                    val targetAnimOffset = remember(parentSize, actionPanelState.direction, actionPanelState.actions.size, index, actionPanelStyle.arcLength) {
                         arcActionOffset(
                             parentSize = parentSize,
-                            origin = actionPanelOrigin(parentSize, actionPanelState.origin, actionPanelState.position, itemSizePx),
-                            position = actionPanelState.position,
+                            origin = actionPanelOrigin(parentSize, actionPanelState.origin, actionPanelState.direction, itemSizePx),
+                            direction = actionPanelState.direction,
                             actionCount = actionCount,
                             index = index,
                             itemSizePx = itemSizePx,
                             arcLength = actionPanelStyle.arcLength
                         )
                     }
-                    val panelOrigin = actionPanelOrigin(parentSize, actionPanelState.origin, actionPanelState.position, itemSizePx)
+                    val panelOrigin = actionPanelOrigin(parentSize, actionPanelState.origin, actionPanelState.direction, itemSizePx)
                     ActionPanelSelectableItem(
                         actionPanelState = actionPanelState,
                         index = index,
@@ -125,7 +123,7 @@ internal fun AnimatedVisibilityScope.ArcActionPanel(
 private fun arcActionOffset(
     parentSize: Size,
     origin: Offset,
-    position: Position,
+    direction: GestureDirection,
     actionCount: Int,
     index: Int,
     itemSizePx: Float,
@@ -146,11 +144,18 @@ private fun arcActionOffset(
     val firstIndexInLayer = layer * itemsPerLayer
     val countInLayer = min(itemsPerLayer, actionCount - firstIndexInLayer).coerceAtLeast(1)
     val radius = itemSizePx * (2.0f + layer * 1.25f)
-    val maxRadius = when (position) {
-        Position.Left -> parentSize.width - origin.x - itemSizePx
-        Position.Right -> origin.x - itemSizePx
-        Position.Bottom -> origin.y - itemSizePx
-    }.coerceAtLeast(itemSizePx * 1.5f)
+    val vector = direction.unitVector()
+    val maxX = when {
+        vector.x > 0f -> parentSize.width - origin.x - itemSizePx
+        vector.x < 0f -> origin.x - itemSizePx
+        else -> Float.POSITIVE_INFINITY
+    }
+    val maxY = when {
+        vector.y > 0f -> parentSize.height - origin.y - itemSizePx
+        vector.y < 0f -> origin.y - itemSizePx
+        else -> Float.POSITIVE_INFINITY
+    }
+    val maxRadius = min(maxX, maxY).coerceAtLeast(itemSizePx * 1.5f)
     val resolvedRadius = min(radius, maxRadius)
     val arcDegrees = arcLength.toFloat()
     val sweepDegree = if (countInLayer == 1) 0f else min(arcDegrees, 35f * (countInLayer - 1))
@@ -158,12 +163,12 @@ private fun arcActionOffset(
         -sweepDegree / 2f + sweepDegree * indexInLayer / (countInLayer - 1)
     }
     val radians = Math.toRadians(angleDegree.toDouble())
-    val x = cos(radians).toFloat() * resolvedRadius
-    val y = sin(radians).toFloat() * resolvedRadius
-    val targetCenter = when (position) {
-        Position.Left -> Offset(origin.x + x, origin.y + y)
-        Position.Right -> Offset(origin.x - x, origin.y + y)
-        Position.Bottom -> Offset(origin.x + y, origin.y - x)
-    }.coerceInside(parentSize, itemSizePx)
+    val forward = cos(radians).toFloat() * resolvedRadius
+    val lateral = sin(radians).toFloat() * resolvedRadius
+    val perpendicular = Offset(-vector.y, vector.x)
+    val targetCenter = Offset(
+        x = origin.x + vector.x * forward + perpendicular.x * lateral,
+        y = origin.y + vector.y * forward + perpendicular.y * lateral
+    ).coerceInside(parentSize, itemSizePx)
     return targetCenter - origin
 }

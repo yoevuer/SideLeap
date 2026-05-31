@@ -195,10 +195,7 @@ abstract class HomeVMBase : BaseComposeVM<UiState, UiEvent>() {
                 }
             }
             launch {
-                ConfigProvider.updateSideGestureButtons { uiState.sideGestureButtons }
-            }
-            launch {
-                ConfigProvider.updateBottomGestureButtons { uiState.bottomGestureButtons }
+                ConfigProvider.updateGestureButtons { uiState.gestureButtons }
             }
             launch {
                 ConfigProvider.updateSubGestureSettings {
@@ -212,8 +209,7 @@ abstract class HomeVMBase : BaseComposeVM<UiState, UiEvent>() {
         viewModelScope.launch {
             combine(
                 ConfigProvider.initialSettings,
-                ConfigProvider.sideGestureButtons,
-                ConfigProvider.bottomGestureButtons,
+                ConfigProvider.gestureButtons,
                 ConfigProvider.subGestureSettings,
                 ConfigProvider.gestureSettings,
                 ConfigProvider.advancedSettings,
@@ -221,17 +217,14 @@ abstract class HomeVMBase : BaseComposeVM<UiState, UiEvent>() {
             ) { values ->
                 val initial = values[0] as InitialSettings
                 @Suppress("UNCHECKED_CAST")
-                val sideButtons = values[1] as List<hunoia.luno.config.model.GestureButton>
-                @Suppress("UNCHECKED_CAST")
-                val bottomButtons = values[2] as List<hunoia.luno.config.model.GestureButton>
-                val subGestureSettings = values[3] as hunoia.luno.config.model.SubGestureSettings
-                val gestureSettings = values[4] as GestureSettings
-                val advancedSettings = values[5] as AdvancedSettings
-                val frozenAppSettings = values[6] as FrozenAppSettings
+                val buttons = values[1] as List<hunoia.luno.config.model.GestureButton>
+                val subGestureSettings = values[2] as hunoia.luno.config.model.SubGestureSettings
+                val gestureSettings = values[3] as GestureSettings
+                val advancedSettings = values[4] as AdvancedSettings
+                val frozenAppSettings = values[5] as FrozenAppSettings
                 uiState.copy(
                     isGestureEnabled = initial.gestureEnabled,
-                    sideGestureButtons = sideButtons.sortedBy { it.id },
-                    bottomGestureButtons = bottomButtons.sortedBy { it.id },
+                    gestureButtons = buttons.sortedBy { it.id },
                     subGestures = subGestureSettings.subGestures,
                     pointer = gestureSettings.pointer,
                     miniWindowHorizontalBias = advancedSettings.miniWindowHorizontalBias,

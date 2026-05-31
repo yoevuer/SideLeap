@@ -21,8 +21,6 @@ import hunoia.luno.config.model.AdvancedSettings
 import hunoia.luno.config.model.ArcStyle
 import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.config.model.GestureButton
-import hunoia.luno.config.model.Position
-import hunoia.luno.config.model.TriggerDirection
 import hunoia.luno.config.model.SubGestureSettings
 import hunoia.luno.gesture.DragGestureHandler
 import hunoia.luno.gesture.GestureFacade
@@ -165,9 +163,9 @@ fun SideGestureContainer(
                     if (actions.size > 1) {
                         actionPanelState.onDragStart(sideGestureState.finger)
                         actionPanelState.ready(
-                            button.position,
+                            sideGestureState.triggerDirection,
                             actions,
-                            button.longSlideActionPanelStyles.let { GestureFacade.styleBy(it, sideGestureState.triggerDirection) }.value
+                            button.longSlideActionPanelStyles.let { GestureFacade.styleBy(it, sideGestureState.actionDirection) }.value
                         )
                         sideGestureState.cancel()
                     } else if (actions.isNotEmpty()) {

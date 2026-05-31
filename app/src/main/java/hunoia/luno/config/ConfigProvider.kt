@@ -34,11 +34,8 @@ object ConfigProvider {
     private val _actionSettings: DataStore<ActionSettings> by lazy {
         AppContext.get().dataStore(DataStoreFiles.ACTION_SETTINGS, ActionSettings())
     }
-    private val _sideGestureButtons: DataStore<List<GestureButton>> by lazy {
-        AppContext.get().dataStore(DataStoreFiles.SIDE_GESTURE_BUTTONS, GestureButton.SideDefaults)
-    }
-    private val _bottomGestureButtons: DataStore<List<GestureButton>> by lazy {
-        AppContext.get().dataStore(DataStoreFiles.BOTTOM_GESTURE_BUTTONS, GestureButton.BottomDefaults)
+    private val _gestureButtons: DataStore<List<GestureButton>> by lazy {
+        AppContext.get().dataStore(DataStoreFiles.GESTURE_BUTTONS, GestureButton.Defaults)
     }
     private val _quickAppLauncherSettings: DataStore<QuickAppLauncherSettings> by lazy {
         AppContext.get().dataStore(DataStoreFiles.QUICK_APP_LAUNCHER, QuickAppLauncherSettings())
@@ -54,8 +51,7 @@ object ConfigProvider {
     val advancedSettings: Flow<AdvancedSettings> = _advancedSettings.data
     val gestureSettings: Flow<GestureSettings> = _gestureSettings.data
     val actionSettings: Flow<ActionSettings> = _actionSettings.data
-    val sideGestureButtons: Flow<List<GestureButton>> = _sideGestureButtons.data
-    val bottomGestureButtons: Flow<List<GestureButton>> = _bottomGestureButtons.data
+    val gestureButtons: Flow<List<GestureButton>> = _gestureButtons.data
     val quickAppLauncherSettings: Flow<QuickAppLauncherSettings> = _quickAppLauncherSettings.data
     val frozenAppSettings: Flow<FrozenAppSettings> = _frozenAppSettings.data
     val subGestureSettings: Flow<SubGestureSettings> = _subGestureSettings.data
@@ -64,8 +60,7 @@ object ConfigProvider {
     suspend fun getAdvancedSettings(): AdvancedSettings = _advancedSettings.data.first()
     suspend fun getGestureSettings(): GestureSettings = _gestureSettings.data.first()
     suspend fun getActionSettings(): ActionSettings = _actionSettings.data.first()
-    suspend fun getSideGestureButtons(): List<GestureButton> = _sideGestureButtons.data.first()
-    suspend fun getBottomGestureButtons(): List<GestureButton> = _bottomGestureButtons.data.first()
+    suspend fun getGestureButtons(): List<GestureButton> = _gestureButtons.data.first()
     suspend fun getQuickAppLauncherSettings(): QuickAppLauncherSettings = _quickAppLauncherSettings.data.first()
     suspend fun getFrozenAppSettings(): FrozenAppSettings = _frozenAppSettings.data.first()
     suspend fun getSubGestureSettings(): SubGestureSettings = _subGestureSettings.data.first()
@@ -82,11 +77,8 @@ object ConfigProvider {
     suspend fun updateActionSettings(transform: suspend (ActionSettings) -> ActionSettings) {
         _actionSettings.updateData(transform)
     }
-    suspend fun updateSideGestureButtons(transform: suspend (List<GestureButton>) -> List<GestureButton>) {
-        _sideGestureButtons.updateData(transform)
-    }
-    suspend fun updateBottomGestureButtons(transform: suspend (List<GestureButton>) -> List<GestureButton>) {
-        _bottomGestureButtons.updateData(transform)
+    suspend fun updateGestureButtons(transform: suspend (List<GestureButton>) -> List<GestureButton>) {
+        _gestureButtons.updateData(transform)
     }
     suspend fun updateQuickAppLauncherSettings(transform: suspend (QuickAppLauncherSettings) -> QuickAppLauncherSettings) {
         _quickAppLauncherSettings.updateData(transform)
@@ -137,8 +129,7 @@ object ConfigProvider {
         val advancedDeferred = async { getAdvancedSettings() }
         val gestureDeferred = async { getGestureSettings() }
         val actionDeferred = async { getActionSettings() }
-        val buttonsDeferred = async { getSideGestureButtons() }
-        val bottomButtonsDeferred = async { getBottomGestureButtons() }
+        val buttonsDeferred = async { getGestureButtons() }
         val qlaDeferred = async { getQuickAppLauncherSettings() }
         val frozenDeferred = async { getFrozenAppSettings() }
         val subGestureDeferred = async { getSubGestureSettings() }
@@ -148,7 +139,6 @@ object ConfigProvider {
             gestureSettings = gestureDeferred.await(),
             actionSettings = actionDeferred.await(),
             gestureButtons = buttonsDeferred.await(),
-            bottomGestureButtons = bottomButtonsDeferred.await(),
             quickAppLauncherSettings = qlaDeferred.await(),
             frozenAppSettings = frozenDeferred.await(),
             subGestureSettings = subGestureDeferred.await(),
@@ -162,8 +152,7 @@ object ConfigProvider {
         launch { backup.advancedSettings?.let { v -> _advancedSettings.updateData { v } } }
         launch { backup.gestureSettings?.let { v -> _gestureSettings.updateData { v } } }
         launch { backup.actionSettings?.let { v -> _actionSettings.updateData { v } } }
-        launch { backup.gestureButtons?.let { v -> _sideGestureButtons.updateData { v } } }
-        launch { backup.bottomGestureButtons?.let { v -> _bottomGestureButtons.updateData { v } } }
+        launch { backup.gestureButtons?.let { v -> _gestureButtons.updateData { v } } }
         launch { backup.quickAppLauncherSettings?.let { v -> _quickAppLauncherSettings.updateData { v } } }
         launch { backup.frozenAppSettings?.let { v -> _frozenAppSettings.updateData { v } } }
         launch { backup.subGestureSettings?.let { v -> _subGestureSettings.updateData { v } } }
@@ -174,8 +163,7 @@ object ConfigProvider {
         launch { _advancedSettings.updateData { AdvancedSettings() } }
         launch { _gestureSettings.updateData { GestureSettings() } }
         launch { _actionSettings.updateData { ActionSettings() } }
-        launch { _sideGestureButtons.updateData { GestureButton.SideDefaults } }
-        launch { _bottomGestureButtons.updateData { GestureButton.BottomDefaults } }
+        launch { _gestureButtons.updateData { GestureButton.Defaults } }
         launch { _quickAppLauncherSettings.updateData { QuickAppLauncherSettings() } }
         launch { _frozenAppSettings.updateData { FrozenAppSettings() } }
         launch { _subGestureSettings.updateData { SubGestureSettings() } }

@@ -5,8 +5,8 @@ import hunoia.luno.action.api.appInfo
 import hunoia.luno.action.api.shortcutInfo
 import hunoia.luno.config.ConfigProvider
 import hunoia.luno.config.model.Action
+import hunoia.luno.config.model.DirectionActions
 import hunoia.luno.config.model.GestureButton
-import hunoia.luno.config.model.TriggerDirection
 import hunoia.luno.core.AppContext
 import hunoia.luno.core.JsonSerializer
 import hunoia.luno.core.Paths
@@ -108,11 +108,7 @@ internal suspend fun saveSettingsAction(
     getUiState: () -> UiState,
     updateUiState: ((UiState) -> UiState) -> Unit
 ) {
-    val buttonsUpdater = if (actionSelect.isSideButton) {
-        ConfigProvider::updateSideGestureButtons
-    } else {
-        ConfigProvider::updateBottomGestureButtons
-    }
+    val buttonsUpdater = ConfigProvider::updateGestureButtons
     buttonsUpdater { list ->
         val mutableList = list.toMutableList()
         var button: GestureButton? = null
@@ -120,9 +116,7 @@ internal suspend fun saveSettingsAction(
         for (i in mutableList.indices) {
             index = i
             val b = mutableList[i]
-            if (b.id == actionSelect.gestureButtonId &&
-                b.position == actionSelect.position
-            ) {
+            if (b.id == actionSelect.gestureButtonId) {
                 button = b
                 break
             }
@@ -137,7 +131,7 @@ internal suspend fun saveSettingsAction(
             else -> selectedList
         }
         val gestureActions = when {
-            actionSelect.isTap -> button.tapActions
+            actionSelect.isTap || actionSelect.isLongPress -> DirectionActions()
             actionSelect.isLongSlide -> button.longSlideActions
             else -> button.slideActions
         }
@@ -159,40 +153,16 @@ internal suspend fun saveSettingsAction(
                 }
             }
         }
-        val newGestureActions = when (actionSelect.direction) {
-            TriggerDirection.Center -> {
-                val oldActions = gestureActions.center
-                tryDeleteShortcutIcons(oldActions, newActions)
-                gestureActions.copy(center = newActions)
-            }
-            TriggerDirection.Up -> {
-                val oldActions = gestureActions.up
-                tryDeleteShortcutIcons(oldActions, newActions)
-                gestureActions.copy(up = newActions)
-            }
-            TriggerDirection.Down -> {
-                val oldActions = gestureActions.down
-                tryDeleteShortcutIcons(oldActions, newActions)
-                gestureActions.copy(down = newActions)
-            }
-            TriggerDirection.Center2 -> {
-                val oldActions = gestureActions.center2
-                tryDeleteShortcutIcons(oldActions, newActions)
-                gestureActions.copy(center2 = newActions)
-            }
-            TriggerDirection.Up2 -> {
-                val oldActions = gestureActions.up2
-                tryDeleteShortcutIcons(oldActions, newActions)
-                gestureActions.copy(up2 = newActions)
-            }
-            TriggerDirection.Down2 -> {
-                val oldActions = gestureActions.down2
-                tryDeleteShortcutIcons(oldActions, newActions)
-                gestureActions.copy(down2 = newActions)
-            }
+        val oldActions = when {
+            actionSelect.isTap -> button.tapActions
+            actionSelect.isLongPress -> button.longPressActions
+            else -> gestureActions.actionsBy(actionSelect.direction)
         }
+        tryDeleteShortcutIcons(oldActions, newActions)
+        val newGestureActions = gestureActions.withActions(actionSelect.direction, newActions)
         button = when {
-            actionSelect.isTap -> button.copy(tapActions = newGestureActions)
+            actionSelect.isTap -> button.copy(tapActions = newActions)
+            actionSelect.isLongPress -> button.copy(longPressActions = newActions)
             actionSelect.isLongSlide -> button.copy(longSlideActions = newGestureActions)
             else -> button.copy(slideActions = newGestureActions)
         }
@@ -367,15 +337,11 @@ internal suspend fun loadDataBody(
     actionSelect: ActionSelect,
     onUpdateState: (update: (UiState) -> UiState) -> Unit
 ) {
-    val buttons = if (actionSelect.isSideButton) {
-        ConfigProvider.getSideGestureButtons()
-    } else {
-        ConfigProvider.getBottomGestureButtons()
-    }
+    val buttons = ConfigProvider.getGestureButtons()
     val gestureSettings = ConfigProvider.getGestureSettings()
     val subGestures = ConfigProvider.getSubGestureSettings().subGestures
     val button = buttons.find {
-        it.id == actionSelect.gestureButtonId && it.position == actionSelect.position
+        it.id == actionSelect.gestureButtonId
     }
     onUpdateState { state ->
         val selectSingle = !actionSelect.isLongSlide || (button != null && !button.longSlideTriggerImmediately)
@@ -387,17 +353,14 @@ internal suspend fun loadDataBody(
     }
     if (button != null) {
         val gestureActions = when {
-            actionSelect.isTap -> button.tapActions
+            actionSelect.isTap || actionSelect.isLongPress -> DirectionActions()
             actionSelect.isLongSlide -> button.longSlideActions
             else -> button.slideActions
         }
-        val actions = when (actionSelect.direction) {
-            TriggerDirection.Center -> gestureActions.center
-            TriggerDirection.Up -> gestureActions.up
-            TriggerDirection.Down -> gestureActions.down
-            TriggerDirection.Center2 -> gestureActions.center2
-            TriggerDirection.Up2 -> gestureActions.up2
-            TriggerDirection.Down2 -> gestureActions.down2
+        val actions = when {
+            actionSelect.isTap -> button.tapActions
+            actionSelect.isLongPress -> button.longPressActions
+            else -> gestureActions.actionsBy(actionSelect.direction)
         }
         onUpdateState { state ->
             val selectedActions = when (state.selectSingle) {

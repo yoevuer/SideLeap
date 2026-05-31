@@ -226,13 +226,11 @@ fun HomeScreen(
 
                         Spacer(Modifier.height(SectionPadding))
 
-                        LaunchedEffect(
-                            uiState.isBottomGestureButtonListExpanded,
-                            uiState.isSideGestureButtonListExpanded,
+        LaunchedEffect(
+                            uiState.isGestureButtonListExpanded,
                             uiState.isSubGestureListExpanded,
                         ) {
-                            if (uiState.isBottomGestureButtonListExpanded ||
-                                uiState.isSideGestureButtonListExpanded ||
+                            if (uiState.isGestureButtonListExpanded ||
                                 uiState.isSubGestureListExpanded
                             ) {
                                 kotlinx.coroutines.delay(120)
@@ -266,41 +264,27 @@ fun HomeScreen(
 
                         HomeGestureSections(
                             uiState = uiState,
-                            onBottomHeaderClick = {
-                                if (uiState.isBottomGestureButtonListExpanded) {
-                                    vm.expandBottomGestureButtonList(false)
+                            onGestureHeaderClick = {
+                                if (uiState.isGestureButtonListExpanded) {
+                                    vm.expandGestureButtonList(false)
                                 } else {
-                                    vm.expandSideGestureButtonList(false)
                                     vm.expandSubGestureList(false)
-                                    vm.expandBottomGestureButtonList(true)
-                                }
-                            },
-                            onSideHeaderClick = {
-                                if (uiState.isSideGestureButtonListExpanded) {
-                                    vm.expandSideGestureButtonList(false)
-                                } else {
-                                    vm.expandBottomGestureButtonList(false)
-                                    vm.expandSubGestureList(false)
-                                    vm.expandSideGestureButtonList(true)
+                                    vm.expandGestureButtonList(true)
                                 }
                             },
                             onSubHeaderClick = {
                                 if (uiState.isSubGestureListExpanded) {
                                     vm.expandSubGestureList(false)
                                 } else {
-                                    vm.expandBottomGestureButtonList(false)
-                                    vm.expandSideGestureButtonList(false)
+                                    vm.expandGestureButtonList(false)
                                     vm.expandSubGestureList(true)
                                 }
                             },
-                            onBottomButtonClick = onNavToGestureButtonSettings,
-                            onSideButtonClick = onNavToGestureButtonSettings,
+                            onGestureButtonClick = onNavToGestureButtonSettings,
                             onSubGestureClick = onNavToSubGestureEditor,
-                            onBottomCheckedChange = { button, enabled -> vm.onBottomGestureButtonEnabledChange(button, enabled) },
-                            onSideCheckedChange = { button, enabled -> vm.onSideGestureButtonEnabledChange(button, enabled) },
+                            onGestureCheckedChange = { button, enabled -> vm.onGestureButtonEnabledChange(button, enabled) },
                             onSubCheckedChange = { gesture, enabled -> vm.onSubGestureEnabledChange(gesture, enabled) },
-                            onAddBottom = { vm.addBottomGestureButton() },
-                            onAddSide = { vm.addSideGestureButton() },
+                            onAddGesture = { vm.addGestureButton() },
                             onAddSub = {
                                 val id = java.util.UUID.randomUUID().toString()
                                 vm.addSubGesture(id)
@@ -330,13 +314,9 @@ fun HomeScreen(
                 }
 
                 GestureButtonOverlay(
-                    showSide = uiState.isSideGestureButtonListExpanded,
-                    showBottom = uiState.isBottomGestureButtonListExpanded,
-                    sideGestureButtons = uiState.sideGestureButtons,
-                    bottomGestureButtons = uiState.bottomGestureButtons,
+                    visible = uiState.isGestureButtonListExpanded,
+                    gestureButtons = uiState.gestureButtons,
                 )
             }
     }
 }
-
-

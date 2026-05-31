@@ -12,7 +12,6 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import hunoia.luno.config.model.GestureButton
-import hunoia.luno.config.model.Position
 import hunoia.luno.gesture.input.MotionEventDispatcher
 import hunoia.luno.bridge.window.removeWindow
 import hunoia.luno.bridge.window.removeWindows
@@ -20,6 +19,12 @@ import hunoia.luno.bridge.window.setBasic
 import hunoia.luno.bridge.window.updateLayout
 import hunoia.luno.bridge.window.updateMainView
 import hunoia.luno.bridge.DensityProvider
+import hunoia.luno.gesture.mirroredButton
+
+internal data class GestureButtonWindowTarget(
+    val sourceButton: GestureButton,
+    val windowButton: GestureButton,
+)
 
 class SideGestureWindowController(private val host: SideGestureService) {
     var mainView: View? = null
@@ -38,7 +43,16 @@ class SideGestureWindowController(private val host: SideGestureService) {
 
     fun replaceGestureButtons(buttons: Collection<GestureButton>) {
         buttonViews?.let { host.removeWindows(it) }
-        buttonViews = buttons.map { attachGestureButton(it) }
+        buttonViews = buttons.flatMap { button ->
+            buildList {
+                add(attachGestureButton(GestureButtonWindowTarget(button, button)))
+                button.mirroredButton()?.let { mirroredButton ->
+                    if (mirroredButton.bounds != button.bounds) {
+                        add(attachGestureButton(GestureButtonWindowTarget(button, mirroredButton)))
+                    }
+                }
+            }
+        }
     }
 
     fun updateMainLayout() {
@@ -97,18 +111,18 @@ class SideGestureWindowController(private val host: SideGestureService) {
         return composeView
     }
 
-    private fun attachGestureButton(button: GestureButton): View {
+    private fun attachGestureButton(target: GestureButtonWindowTarget): View {
         val wm = ContextCompat.getSystemService(host, WindowManager::class.java)!!
         val lp = WindowManager.LayoutParams().apply {
-            setBasic(button.enabled)
-            updateGestureButton(button)
+            setBasic(target.sourceButton.enabled)
+            updateGestureButton(target.windowButton)
         }
         val view = View(host).apply {
-            tag = button
+            tag = target
             setOnTouchListener { v, event ->
                 MotionEventDispatcher.dispatch(event)
                 if (event.action == MotionEvent.ACTION_UP) v.performClick()
-                false
+                true
             }
         }
         wm.addView(view, lp)
@@ -129,23 +143,10 @@ internal fun WindowManager.LayoutParams.updateGestureButton(
     rootWidth: Int,
     rootHeight: Int,
 ) {
-    when (button.position) {
-        Position.Left, Position.Right -> {
-            width = button.width
-            height = (rootHeight * (button.end - button.start)).toInt()
-            y = (rootHeight * button.start).toInt()
-        }
-        Position.Bottom -> {
-            width = (rootWidth * (button.end - button.start)).toInt()
-            height = button.width
-            x = (rootWidth * button.start).toInt()
-            y = rootHeight - button.width
-        }
-    }
+    width = (rootWidth * button.bounds.width).toInt()
+    height = (rootHeight * button.bounds.height).toInt()
+    x = (rootWidth * button.bounds.x).toInt()
+    y = (rootHeight * button.bounds.y).toInt()
     @android.annotation.SuppressLint("RtlHardcoded")
-    gravity = when (button.position) {
-        Position.Left -> android.view.Gravity.LEFT or android.view.Gravity.TOP
-        Position.Right -> android.view.Gravity.RIGHT or android.view.Gravity.TOP
-        Position.Bottom -> android.view.Gravity.LEFT or android.view.Gravity.TOP
-    }
+    gravity = android.view.Gravity.LEFT or android.view.Gravity.TOP
 }

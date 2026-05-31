@@ -1,31 +1,40 @@
 package hunoia.luno.config.model
 
-import android.os.SystemClock
 import android.graphics.Color as AndroidColor
+import android.os.SystemClock
 import androidx.annotation.Keep
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import hunoia.luno.action.GlobalActions
 import hunoia.luno.bridge.DensityProvider
-import hunoia.luno.config.model.GestureActions
 import hunoia.luno.bridge.vibration.VibrationEffects
-import kotlin.random.Random
 import kotlinx.serialization.Serializable
+import kotlin.random.Random
 
 private fun randomColor(): Int = AndroidColor.argb(255, Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
 
-object GestureButtonDefaults {
+@Serializable
+@Keep
+data class GestureButtonBounds(
+    val x: Float = 0f,
+    val y: Float = 0f,
+    val width: Float = 0.06f,
+    val height: Float = 1f,
+)
 
+object GestureButtonDefaults {
     const val ID_DEFAULT = "1"
     const val Enabled = true
-    const val Start = 0.0f
-    const val End = 0.1f
-    val Width = DensityProvider.dp2px(16f)
-    val SlideActions = GestureActions()
-    val LongSlideActions = GestureActions()
+    val Bounds = GestureButtonBounds()
+    val SlideActions = DirectionActions(
+        mapOf(GestureDirection.Right to Action.toList(GlobalActions.BACK))
+    )
+    val LongSlideActions = DirectionActions()
     val LongSlideActionPanelStyles = LongSlideActionPanelStyles()
-    val TapActions = GestureActions()
+    val TapActions = listOf(GestureActionsDefaults.ActionNone)
+    val LongPressActions = listOf(GestureActionsDefaults.ActionNone)
     const val Color = android.graphics.Color.TRANSPARENT
-    const val AlignRegion = true
+    const val MirrorHorizontal = true
     val SlideTriggerDistance = DensityProvider.dp2px(30f)
     val LongSlideTriggerDistance = DensityProvider.dp2px(100f)
     const val LongPressTriggerDelayMs = 250L
@@ -42,36 +51,7 @@ object GestureButtonDefaults {
     const val HideLandscape = false
     const val HideScreenLock = false
     const val HideHomeScreen = false
-    val SideDefaults = listOf(
-        GestureButton(
-            id = ID_DEFAULT,
-            position = Position.Left,
-            angle = defaultGestureAngleFor(Position.Left),
-            start = 0.0f,
-            end = 1.0f,
-            slideActions = GestureActions(center = hunoia.luno.config.model.Action.toList(hunoia.luno.action.GlobalActions.BACK))
-        ),
-        GestureButton(
-            id = ID_DEFAULT,
-            position = Position.Right,
-            angle = defaultGestureAngleFor(Position.Right),
-            start = 0.0f,
-            end = 1.0f,
-            slideActions = GestureActions(center = hunoia.luno.config.model.Action.toList(hunoia.luno.action.GlobalActions.BACK))
-        )
-    )
-    val BottomDefaults = listOf(
-        GestureButton(
-            id = ID_DEFAULT,
-            position = Position.Bottom,
-            angle = defaultGestureAngleFor(Position.Bottom),
-            enabled = false,
-            start = 0.0f,
-            end = 1.0f,
-            slideActions = GestureActions(center = hunoia.luno.config.model.Action.toList(hunoia.luno.action.GlobalActions.HOME)),
-            longSlideActions = GestureActions(center = hunoia.luno.config.model.Action.toList(hunoia.luno.action.GlobalActions.RECENT))
-        )
-    )
+    val Defaults = listOf(GestureButton(id = ID_DEFAULT))
 }
 
 @Serializable
@@ -79,18 +59,16 @@ object GestureButtonDefaults {
 data class GestureButton(
     val id: String,
     val name: String = "",
-    val position: Position,
-    val angle: GestureAngle,
+    val bounds: GestureButtonBounds = GestureButtonDefaults.Bounds,
     val enabled: Boolean = GestureButtonDefaults.Enabled,
-    val start: Float = GestureButtonDefaults.Start,
-    val end: Float = GestureButtonDefaults.End,
-    val width: Int = GestureButtonDefaults.Width,
-    val slideActions: GestureActions = GestureButtonDefaults.SlideActions,
-    val longSlideActions: GestureActions = GestureButtonDefaults.LongSlideActions,
+    val slideActions: DirectionActions = GestureButtonDefaults.SlideActions,
+    val longSlideActions: DirectionActions = GestureButtonDefaults.LongSlideActions,
     val longSlideActionPanelStyles: LongSlideActionPanelStyles = GestureButtonDefaults.LongSlideActionPanelStyles,
-    val tapActions: GestureActions = GestureButtonDefaults.TapActions,
+    val angle: GestureButtonAngle = GestureButtonAngle(),
+    val tapActions: List<Action> = GestureButtonDefaults.TapActions,
+    val longPressActions: List<Action> = GestureButtonDefaults.LongPressActions,
     val color: Int = GestureButtonDefaults.Color,
-    val alignRegion: Boolean = GestureButtonDefaults.AlignRegion,
+    val mirrorHorizontal: Boolean = GestureButtonDefaults.MirrorHorizontal,
     val slideVibrate: Boolean = GestureButtonDefaults.SlideVibrate,
     val longSlideVibrate: Boolean = GestureButtonDefaults.LongSlideVibrate,
     val tapVibrate: Boolean = GestureButtonDefaults.TapVibrate,
@@ -112,52 +90,20 @@ data class GestureButton(
 
     companion object {
         const val ID_DEFAULT = GestureButtonDefaults.ID_DEFAULT
+        val Defaults: List<GestureButton> get() = GestureButtonDefaults.Defaults
 
-        val SideDefaults: List<GestureButton> get() = GestureButtonDefaults.SideDefaults
-        val BottomDefaults: List<GestureButton> get() = GestureButtonDefaults.BottomDefaults
-
-        fun createSidePair(leftName: String = "", rightName: String = ""): List<GestureButton> {
-            val id = SystemClock.uptimeMillis().toString()
+        fun create(name: String = ""): GestureButton {
             val colorInt = randomColor()
-            val color = Color(colorInt).toArgb()
-            val b1 = GestureButton(
-                id = id,
-                name = leftName,
-                position = Position.Left,
-                angle = defaultGestureAngleFor(Position.Left),
-                color = color
-            )
-            val b2 = GestureButton(
-                id = id,
-                name = rightName,
-                position = Position.Right,
-                angle = defaultGestureAngleFor(Position.Right),
-                color = color
-            )
-            return listOf(b1, b2)
-        }
-
-        fun createBottom(name: String = ""): GestureButton {
-            val id = SystemClock.uptimeMillis().toString()
-            val colorInt = randomColor()
-            val color = Color(colorInt).toArgb()
             return GestureButton(
-                id = id,
+                id = SystemClock.uptimeMillis().toString(),
                 name = name,
-                position = Position.Bottom,
-                angle = defaultGestureAngleFor(Position.Bottom),
-                color = color
+                color = Color(colorInt).toArgb(),
             )
         }
+
     }
 
     val isDefault: Boolean = id == ID_DEFAULT
 
-    override fun compareTo(other: GestureButton): Int {
-        val idCompared = id.compareTo(other.id)
-        if (idCompared == 0) {
-            return position.compareTo(other.position)
-        }
-        return idCompared
-    }
+    override fun compareTo(other: GestureButton): Int = id.compareTo(other.id)
 }

@@ -44,7 +44,7 @@ fun actionIcon(action: Action): Any? = when (action.value) {
 
 @Composable
 fun GestureActions.actionTextCompose(): String =
-    listOfNotNull(center, up, down)
+    actions.values
         .map { it.actionTextCompose(true) }
         .filter { it.isNotEmpty() }
         .joinToString(separator = ",")

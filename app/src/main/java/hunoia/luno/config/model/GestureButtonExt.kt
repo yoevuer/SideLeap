@@ -5,11 +5,5 @@ import hunoia.luno.core.AppContext
 
 internal fun GestureButton.resolveDisplayName(): String {
     if (name.isNotEmpty()) return name
-    return AppContext.get().getString(
-        when (position) {
-            Position.Left -> R.string.left_gesture_button
-            Position.Right -> R.string.right_gesture_button
-            Position.Bottom -> R.string.bottom_gesture_button
-        }
-    )
+    return AppContext.get().getString(R.string.gesture_button)
 }

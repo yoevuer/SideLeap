@@ -6,17 +6,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.AdvancedSettings
 import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.GestureDirection
 import hunoia.luno.config.model.GestureSettings
-import hunoia.luno.config.model.Position
-import hunoia.luno.config.model.TriggerDirection
-import hunoia.luno.config.model.TriggerDirection.Center
-import hunoia.luno.config.model.TriggerDirection.Center2
-import hunoia.luno.config.model.TriggerDirection.Down2
-import hunoia.luno.config.model.TriggerDirection.Up2
 import hunoia.luno.core.AppContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -37,14 +31,17 @@ class SideGestureState(
 
     var button: GestureButton? by mutableStateOf(null)
         private set
-    var triggerDirection: TriggerDirection by mutableStateOf(Center2)
+    var effectiveButton: GestureButton? by mutableStateOf(null)
+        private set
+    var triggerDirection: GestureDirection by mutableStateOf(GestureDirection.Right)
+        private set
+    var actionDirection: GestureDirection by mutableStateOf(GestureDirection.Right)
         private set
 
     var origin = Offset.Unspecified
         private set
     var finger = Offset.Unspecified
         private set
-    private var buttonBounds: Rect? = null
 
     data class AnimState(
         val originX: Float = Float.NaN,
@@ -71,6 +68,7 @@ class SideGestureState(
     private var isOhoGestureEverCanTriggered = false
 
     private var slideVibrationFlags = false
+    private var isMirrorTouchTarget = false
 
     private val viewConfiguration = ViewConfiguration.get(AppContext.get())
 
@@ -78,15 +76,17 @@ class SideGestureState(
         isCanceled = false
         origin = offset
         finger = offset
-        button = buttons.find(offset, imePadding)
-        buttonBounds = button?.bounds(imePadding)
+        val touchTarget = buttons.findTouchTarget(offset, imePadding)
+        button = touchTarget?.sourceButton
+        effectiveButton = touchTarget?.effectiveButton
+        isMirrorTouchTarget = touchTarget?.isMirror == true
 
         val button = button ?: run {
+            effectiveButton = null
             animState = AnimState()
             return
         }
-
-        val longPressAction = button.slideActions.center2.firstOrNull()
+        val longPressAction = button.longPressActions.firstOrNull()
         if (longPressAction != null && longPressAction != Action.NONE) {
             calcLongPressJob = coroutineScope.launch {
                 delay(button.longPressTriggerDelayMs)
@@ -95,11 +95,7 @@ class SideGestureState(
             }
         }
 
-        val (fx, fy) = when (button.position) {
-            Position.Left, Position.Right -> getStickySlideValue(button, curStickySlideValue, true) to offset.y
-            Position.Bottom -> offset.x to getStickySlideValue(button, curStickySlideValue, false)
-        }
-        animState = AnimState(originX = offset.x, originY = offset.y, fingerX = fx, fingerY = fy)
+        animState = AnimState(originX = offset.x, originY = offset.y, fingerX = offset.x, fingerY = offset.y)
     }
 
     fun onDrag(dragAmount: Offset): List<Action>? {
@@ -115,32 +111,24 @@ class SideGestureState(
         }
 
         val button = button ?: return null
-        val newDirection = calcDirection(button, origin, finger, buttonBounds, gestureSettings) ?: return null
-        triggerDirection = newDirection
-
-        if (button.isPreciseSlideType) {
-            if (newDirection == Center) {
-                if (!isOhoGestureEverCanTriggered) {
-                    isOhoGestureEverCanTriggered = canDistanceTriggered(button, origin, finger, newDirection, false, curStickySlideValue, judgeAction = false)
-                }
-            } else if (isOhoGestureEverCanTriggered &&
-                (newDirection == Up2 || newDirection == Down2)
-            ) {
-                return null
-            }
-        }
+        val resolvedEffectiveButton = this.effectiveButton ?: button
+        val physicalDirection = calcDirection(button, origin, finger) ?: return null
+        val mappedActionDirection = calcDirection(button, origin, finger, mirrorHorizontal = isMirrorTouchTarget)
+            ?: physicalDirection
+        triggerDirection = physicalDirection
+        actionDirection = mappedActionDirection
 
         val prev = animState
         animState = prev.copy(fingerX = prev.fingerX + dragAmount.x, fingerY = prev.fingerY + dragAmount.y)
 
-        val canTriggerLong = canDistanceTriggered(button, origin, finger, triggerDirection, true, curStickySlideValue)
+        val canTriggerLong = canDistanceTriggered(resolvedEffectiveButton, origin, finger, actionDirection, true, curStickySlideValue, configButton = button)
         if (canTriggerLong) {
             val longSlideDelayMs = button.longSlideTriggerDelayMs
             val timeMs = SystemClock.uptimeMillis()
             if (longSlideFirstTriggerMs == 0L) {
                 longSlideFirstTriggerMs = timeMs
             } else if (timeMs - longSlideFirstTriggerMs >= longSlideDelayMs) {
-                val actions = button.longSlideActions.actionsBy(newDirection)
+                val actions = button.longSlideActions.actionsBy(actionDirection)
                 if (button.longSlideTriggerImmediately) {
                     button.tryVibrateForLongSlide()
                     return actions
@@ -151,7 +139,7 @@ class SideGestureState(
         }
 
         if (button.vibrateImmediately &&
-            !slideVibrationFlags && canDistanceTriggered(button, origin, finger, triggerDirection, false, curStickySlideValue)
+            !slideVibrationFlags && canDistanceTriggered(resolvedEffectiveButton, origin, finger, actionDirection, false, curStickySlideValue, configButton = button)
         ) {
             slideVibrationFlags = true
             button.tryVibrateForSlide()
@@ -163,21 +151,22 @@ class SideGestureState(
     fun onDragEnd(): Action {
         calcLongPressJob?.cancel()
         val button = button ?: return Action.NONE
-        val triggerDirection = triggerDirection
+        val actionDirection = actionDirection
         val longSlideDelayMs = button.longSlideTriggerDelayMs
         var returnAction = Action.NONE
+        val resolvedEffectiveButton = this.effectiveButton ?: button
         if (!button.longSlideTriggerImmediately &&
-            canDistanceTriggered(button, origin, finger, triggerDirection, true, curStickySlideValue) &&
+            canDistanceTriggered(resolvedEffectiveButton, origin, finger, actionDirection, true, curStickySlideValue, configButton = button) &&
             SystemClock.uptimeMillis() - longSlideFirstTriggerMs >= longSlideDelayMs
         ) {
-            val actions = button.longSlideActions.actionsBy(triggerDirection)
+            val actions = button.longSlideActions.actionsBy(actionDirection)
             val action = actions.firstOrNull()
             if (action != null && action != Action.NONE) {
                 button.tryVibrateForLongSlide()
                 returnAction = action
             }
-        } else if (canDistanceTriggered(button, origin, finger, triggerDirection, false, curStickySlideValue)) {
-            val actions = button.slideActions.actionsBy(triggerDirection)
+        } else if (canDistanceTriggered(resolvedEffectiveButton, origin, finger, actionDirection, false, curStickySlideValue, configButton = button)) {
+            val actions = button.slideActions.actionsBy(actionDirection)
             val action = actions.firstOrNull()
             if (action != null && action != Action.NONE) {
                 if (!slideVibrationFlags) {
@@ -190,7 +179,7 @@ class SideGestureState(
         if (returnAction == Action.NONE) {
             val distance = hypot(finger.x - origin.x, finger.y - origin.y)
             if (distance <= viewConfiguration.scaledTouchSlop) {
-                val tapAction = button.tapActions.center.firstOrNull()
+                val tapAction = button.tapActions.firstOrNull()
                 if (tapAction != null && tapAction != Action.NONE) {
                     if (!slideVibrationFlags) {
                         button.tryVibrateForTap()
@@ -220,10 +209,14 @@ class SideGestureState(
         isCanceled = false
         origin = Offset.Unspecified
         finger = Offset.Unspecified
+        button = null
+        effectiveButton = null
+        isMirrorTouchTarget = false
         animState = AnimState()
         longSlideFirstTriggerMs = 0L
         isOhoGestureEverCanTriggered = false
         slideVibrationFlags = false
+        actionDirection = GestureDirection.Right
     }
 
     fun canDistanceTriggered(button: GestureButton, isLongSlide: Boolean, judgeAction: Boolean = true): Boolean {

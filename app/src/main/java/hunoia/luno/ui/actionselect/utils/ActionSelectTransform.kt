@@ -7,9 +7,8 @@ import hunoia.luno.action.api.appInfo
 import hunoia.luno.action.api.shortcutInfo
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.config.model.Action
-import hunoia.luno.config.model.Position
 import hunoia.luno.config.model.SubGesture
-import hunoia.luno.config.model.TriggerDirection
+import hunoia.luno.config.model.GestureDirection
 import hunoia.luno.core.AppContext
 import hunoia.luno.core.JsonSerializer
 import hunoia.luno.ui.actionselect.UiState
@@ -85,40 +84,18 @@ internal fun canShortcutInfoEnabled(
 internal fun createTitle(actionSelect: ActionSelect): String {
     val context = AppContext.get()
     if (actionSelect.isTap) {
-        return when (actionSelect.direction) {
-            TriggerDirection.Center -> context.getString(R.string.tap_action)
-            TriggerDirection.Center2 -> context.getString(R.string.long_press)
-            else -> ""
-        }
+        return context.getString(R.string.tap_action)
     }
+    if (actionSelect.isLongPress) return context.getString(R.string.long_press)
     val str1 = when (actionSelect.direction) {
-        TriggerDirection.Center -> when (actionSelect.position) {
-            Position.Left -> context.getString(R.string.slide_to_right)
-            Position.Right -> context.getString(R.string.slide_to_left)
-            Position.Bottom -> context.getString(R.string.slide_to_top)
-        }
-        TriggerDirection.Up -> when (actionSelect.position) {
-            Position.Left -> context.getString(R.string.slide_to_top_right)
-            Position.Right -> context.getString(R.string.slide_to_top_left)
-            Position.Bottom -> context.getString(R.string.slide_to_top_left)
-        }
-        TriggerDirection.Down -> when (actionSelect.position) {
-            Position.Left -> context.getString(R.string.slide_to_bottom_right)
-            Position.Right -> context.getString(R.string.slide_to_bottom_left)
-            Position.Bottom -> context.getString(R.string.slide_to_top_right)
-        }
-        TriggerDirection.Center2 -> context.getString(R.string.long_press)
-        TriggerDirection.Up2 -> when (actionSelect.position) {
-            Position.Left, Position.Right -> context.getString(R.string.slide_to_top)
-            Position.Bottom -> context.getString(R.string.slide_to_left)
-        }
-        TriggerDirection.Down2 -> when (actionSelect.position) {
-            Position.Left, Position.Right -> context.getString(R.string.slide_to_bottom)
-            Position.Bottom -> context.getString(R.string.slide_to_right)
-        }
-    }
-    if (actionSelect.direction == TriggerDirection.Center2) {
-        return str1
+        GestureDirection.Left -> context.getString(R.string.slide_to_left)
+        GestureDirection.UpLeft -> context.getString(R.string.slide_to_top_left)
+        GestureDirection.Up -> context.getString(R.string.slide_to_top)
+        GestureDirection.UpRight -> context.getString(R.string.slide_to_top_right)
+        GestureDirection.Right -> context.getString(R.string.slide_to_right)
+        GestureDirection.DownRight -> context.getString(R.string.slide_to_bottom_right)
+        GestureDirection.Down -> context.getString(R.string.slide_to_bottom)
+        GestureDirection.DownLeft -> context.getString(R.string.slide_to_bottom_left)
     }
     val str2 = when (actionSelect.isLongSlide) {
         true -> context.getString(R.string.long1)

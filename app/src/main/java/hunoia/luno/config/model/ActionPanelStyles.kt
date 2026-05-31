@@ -52,9 +52,11 @@ data class ArcStyle(
 @Serializable
 @Keep
 data class LongSlideActionPanelStyles(
-    val center: ActionPanelStyles = ActionPanelStyles(),
-    val up: ActionPanelStyles = ActionPanelStyles(),
-    val down: ActionPanelStyles = ActionPanelStyles(),
-    val up2: ActionPanelStyles = ActionPanelStyles(),
-    val down2: ActionPanelStyles = ActionPanelStyles()
-)
+    val styles: Map<GestureDirection, ActionPanelStyles> = emptyMap()
+) {
+    fun styleBy(direction: GestureDirection): ActionPanelStyles = styles[direction] ?: ActionPanelStyles()
+
+    fun withStyle(direction: GestureDirection, style: ActionPanelStyles): LongSlideActionPanelStyles {
+        return copy(styles = styles + (direction to style))
+    }
+}

@@ -86,7 +86,7 @@ fun SideGestureApp() {
                 myComposable<Home> {
                     HomeScreen(
                         onNavToGestureButtonSettings = { button ->
-                            navController.navigate(GestureButtonSettings(button.id, button.position))
+                            navController.navigate(GestureButtonSettings(button.id))
                         },
                         onNavToSubGestureEditor = { subGestureId ->
                             navController.navigate(SubGestureEditor(subGestureId))

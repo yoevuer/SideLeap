@@ -38,4 +38,4 @@ internal data class GestureButtonRefreshState(
     }
 }
 
-internal fun GestureButton.hiddenKey(): String = "${position.name}:$id"
+internal fun GestureButton.hiddenKey(): String = id
