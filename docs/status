@@ -1,0 +1,38 @@
+# 当前状态
+
+## 最近修改
+
+- **Unified arbitrary-rectangle gesture button model is active**
+  - Gesture buttons now use normalized `GestureButtonBounds(x, y, width, height)` and a unified `ConfigProvider.gestureButtons` store.
+  - Removed the old side/bottom button storage split and old gesture-button `position` / `angle` model.
+  - Runtime hit testing, mirror targets, overlay previews, window layout, action selection, backup, and settings persistence now use the unified gesture button list.
+  - Slide and long-slide actions use 8-way `GestureDirection`; tap and long press remain independent action lists.
+  - Removed the `TriggerDirection` compatibility alias and renamed the model file to `GestureDirection.kt`.
+  - Long-slide action panels now receive `GestureDirection` directly instead of a legacy `Position` shell.
+  - Gesture button settings can edit rectangle `x`, `y`, `width`, and `height` separately.
+  - Old side/bottom UI parameters and unused side/bottom strings were removed.
+  - Updated `SideGestureWindowControllerTest` for rectangle layout.
+
+- **Gesture button angle adjustment and mirror touch capture are active**
+  - Added shared direction-angle boundary logic used by both `SubGestureAngle` and new `GestureButtonAngle`.
+  - Gesture buttons now persist adjustable 8-direction angle boundaries and runtime slide direction uses `button.angle.directionOf(...)`.
+  - Gesture button settings now expose a reusable angle-adjustment bottom sheet based on the sub-gesture dial UI.
+  - Mirror targets now create their own accessibility overlay touch windows, so mirrored regions can capture touch instead of passing through to apps below.
+  - Gesture button touch windows now consume dispatched touch events after forwarding them to the gesture dispatcher.
+  - Mirror gesture targets now mirror action direction and angle lookup while keeping the physical direction for panel expansion.
+  - Gesture button angle adjustment uses short direction labels matching the sub-gesture angle display.
+  - Gesture button rectangle sliders now update previews live during dragging.
+  - Gesture button minimum width/height is 1%, and rectangle area is capped at 20% of the screen to avoid blocking too much touchable area.
+  - Added direction-angle unit tests for default and customized boundaries.
+
+- **Build/dependency status**
+  - Excluded transitive `org.jetbrains.kotlin:kotlin-android-extensions-runtime` from app configurations to avoid duplicate parcel classes with `kotlin-parcelize-runtime`.
+  - Current app version: `1.6.2` (`versionCode` 10602).
+  - 验证：通过 `./gradlew :app:compileDebugKotlin :app:compileDebugUnitTestKotlin`。
+  - 验证：通过 `./gradlew :app:testDebugUnitTest`。
+  - 验证：通过 `./gradlew :app:compileDebugKotlin :app:compileDebugUnitTestKotlin :app:testDebugUnitTest`。
+  - 验证：通过 `./gradlew :app:installRelease`，已安装到设备。
+
+## 当前分支
+
+- 工作区有未提交的统一矩形触钮重构、指针修复和依赖冲突修复修改。
