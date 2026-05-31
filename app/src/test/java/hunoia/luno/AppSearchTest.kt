@@ -1,7 +1,7 @@
 package hunoia.luno
 
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.query.AppSearch.key
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.query.AppSearch.key
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

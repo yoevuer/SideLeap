@@ -1,6 +1,6 @@
 package hunoia.luno
 
-import hunoia.luno.core.event.Events
+import hunoia.luno.core.Events
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

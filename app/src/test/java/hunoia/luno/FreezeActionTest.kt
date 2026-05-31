@@ -1,7 +1,7 @@
 package hunoia.luno
 
 import hunoia.luno.freeze.api.FreezeAction
-import hunoia.luno.launcher.model.AppInfo
+import hunoia.luno.quicklaunch.model.AppInfo
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

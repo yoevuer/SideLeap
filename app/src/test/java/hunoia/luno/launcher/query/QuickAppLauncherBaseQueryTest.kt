@@ -1,7 +1,9 @@
 package hunoia.luno.launcher.query
 
 import android.content.Context
-import hunoia.luno.launcher.model.AppInfo
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.query.AppQuery
+import hunoia.luno.quicklaunch.query.QuickAppLauncherBaseQuery
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk

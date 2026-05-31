@@ -1,9 +1,10 @@
 package hunoia.luno.freeze
 
 import android.content.Context
+import hunoia.luno.freeze.FreezeFacade
 import hunoia.luno.freeze.api.FreezeState
-import hunoia.luno.launcher.model.AppInfo
-import hunoia.luno.launcher.query.AppQuery
+import hunoia.luno.quicklaunch.model.AppInfo
+import hunoia.luno.quicklaunch.query.AppQuery
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -42,7 +43,7 @@ class FrozenQuickAppLauncherQueryTest {
             FreezeState.queryFrozenApplications(context)
         } returns frozenApps
 
-        val result = FrozenQuickAppLauncherQuery.queryApps(context)
+        val result = FreezeFacade.queryQuickAppLauncherApps(context)
 
         assertEquals(listOf(launcherApps[0], launcherApps[1], frozenApps[1]), result.apps)
         assertEquals(setOf("pkg.shared", "pkg.frozen"), result.frozenPkgs)

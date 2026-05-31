@@ -1,7 +1,7 @@
 package hunoia.luno
 
 import hunoia.luno.action.api.PasswordGenerator
-import hunoia.luno.settings.model.ActionSettings
+import hunoia.luno.config.model.ActionSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
