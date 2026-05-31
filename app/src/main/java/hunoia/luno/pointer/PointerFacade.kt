@@ -1,6 +1,5 @@
 package hunoia.luno.pointer
 
-import android.content.Context
 import androidx.compose.ui.geometry.Offset
 import hunoia.luno.config.model.Action
 

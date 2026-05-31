@@ -32,8 +32,6 @@ import hunoia.luno.service.RuntimePanelOverlayHost
 import hunoia.luno.pointer.PointerOverlayHost
 import hunoia.luno.freeze.FrozenPackageEnabler
 import hunoia.luno.config.model.GestureButton
-import hunoia.luno.pointer.PointerAction
-import hunoia.luno.bridge.accessibility.Accessibility
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -125,7 +123,7 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         host = this,
         scope = coroutineScope,
         gestureSettingsProvider = { gestureSettings },
-        onStateChanged = { updateGestureButtons() },
+        onStateChanged = { updateGestureButtons(delayMs = 0L) },
     ).also { PointerFacade.runtimeProvider = { it } }
     private val volumeScrubRuntime = VolumeScrubRuntime(
         context = this,
@@ -217,16 +215,10 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
             onAction = { action, sourceButton ->
                 proxy.onAction(action, sourceButton)
             },
-            onPointerStart = { pointerRuntime.show() },
+            onPointerStart = { settings -> pointerRuntime.beginBridge(settings) },
             onPointerEnd = { pointerRuntime.end() },
-            onPointerSettingsUpdate = { settings -> pointerRuntime.onSettingsUpdate(settings) },
-            pointerPreviousPosition = { pointerRuntime.getLastPosition() },
             onPointerActionAtPosition = { x, y, keepActive, action ->
-                when (action) {
-                    PointerAction.Click -> Accessibility.click(this, x, y)
-                    PointerAction.LongPress -> Accessibility.longPress(this, x, y)
-                }
-                if (!keepActive) pointerRuntime.end()
+                pointerRuntime.performActionAt(x, y, keepActive, action)
             },
             windowController = windowController,
         )
@@ -241,10 +233,10 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
         windowController.updateWindowLayout(view, lp)
     }
 
-    private fun updateGestureButtons() {
+    private fun updateGestureButtons(delayMs: Long = 100L) {
         refreshJob?.cancel()
         refreshJob = coroutineScope.launch {
-            delay(100)
+            if (delayMs > 0L) delay(delayMs)
             buttonRefreshCoordinator.refresh()
         }
     }

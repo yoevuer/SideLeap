@@ -45,33 +45,23 @@ fun SideGestureContainer(
     actionSettings: ActionSettings = ActionSettings(),
     advancedSettings: AdvancedSettings = AdvancedSettings(),
     gestureSettings: GestureSettings = GestureSettings(),
-    onPointerStart: () -> Boolean = { false },
+    onPointerStart: (GestureSettings.Pointer) -> Boolean = { false },
     onPointerEnd: () -> Unit = {},
-    onPointerSettingsUpdate: (GestureSettings.Pointer) -> Unit = {},
-    pointerPreviousPosition: () -> Offset = { Offset.Unspecified },
     onPointerActionAtPosition: (Int, Int, Boolean, PointerAction) -> Unit = { _, _, _, _ -> },
     subGestureSettings: SubGestureSettings = SubGestureSettings(),
     onSubGestureModeChanged: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     val curOnAction by rememberUpdatedState(newValue = onAction)
-    val curOnPointerStart by rememberUpdatedState(newValue = onPointerStart)
-    val curOnPointerEnd by rememberUpdatedState(newValue = onPointerEnd)
-    val curOnPointerSettingsUpdate by rememberUpdatedState(newValue = onPointerSettingsUpdate)
-    val curOnPointerActionAtPosition by rememberUpdatedState(newValue = onPointerActionAtPosition)
     val curOnSubGestureModeChanged by rememberUpdatedState(newValue = onSubGestureModeChanged)
     val coroutineScope = rememberCoroutineScope()
     val sideGestureState = rememberSideGestureState(buttons, advancedSettings, gestureSettings)
     val actionPanelState = rememberActionPanelState()
     val pointerHandle = rememberPointerHandle(
         gestureSettings = gestureSettings,
-        onPointerStart = { curOnPointerStart() },
-        onPointerEnd = { curOnPointerEnd() },
-        onPointerSettingsUpdate = { settings -> curOnPointerSettingsUpdate(settings) },
-        pointerPreviousPosition = { pointerPreviousPosition() },
-        onPointerActionAtPosition = { x, y, keepActive, action ->
-            curOnPointerActionAtPosition(x, y, keepActive, action)
-        },
+        onPointerStart = onPointerStart,
+        onPointerActionAtPosition = onPointerActionAtPosition,
+        onPointerEnd = onPointerEnd,
     )
     val subGestureState = remember(subGestureSettings, coroutineScope) {
         SubGestureState(coroutineScope, subGestureSettings, curOnSubGestureModeChanged)
@@ -113,7 +103,7 @@ fun SideGestureContainer(
                             subGestureState.clear(notifyService = false)
                         }
                         resolvedActionId == ActionFacade.POINTER -> {
-                            pointerHandle.start(Action(resolvedActionId), sideGestureState.finger, pointerPreviousPosition())
+                            pointerHandle.start(Action(resolvedActionId), sideGestureState.finger)
                             sideGestureState.cancel()
                             subGestureState.clear(notifyService = false)
                         }
@@ -165,7 +155,7 @@ fun SideGestureContainer(
                                 sideGestureState.cancel()
                             }
                             ActionFacade.POINTER -> {
-                                pointerHandle.start(action, sideGestureState.finger, pointerPreviousPosition())
+                                pointerHandle.start(action, sideGestureState.finger)
                                 sideGestureState.cancel()
                             }
                             else -> {

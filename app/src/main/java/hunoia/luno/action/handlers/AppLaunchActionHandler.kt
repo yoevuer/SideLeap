@@ -3,6 +3,7 @@ package hunoia.luno.action.handlers
 import android.content.Intent
 import android.content.ActivityNotFoundException
 import android.content.pm.PackageManager
+import android.net.Uri
 import hunoia.luno.R
 import hunoia.luno.action.api.ActionExecutionResult
 import hunoia.luno.action.api.ActionHandler
@@ -33,7 +34,7 @@ object AppLaunchActionHandler : ActionHandler {
         when (action.value) {
             GlobalActions.EXTRA_LAUNCH_APP -> handleExtraLaunchApp(action, context)
             GlobalActions.OPEN_APP_ACTIVITY -> handleOpenAppActivity(action, context)
-            GlobalActions.OPEN_URL -> handleOpenUrl(action, context)
+            GlobalActions.OPEN_URL -> return handleOpenUrl(action, context)
             GlobalActions.QUICK_APP_LAUNCHER -> context.toggleQuickAppLauncher()
             GlobalActions.POPUP_SCREEN -> handlePopupScreen(context)
             else -> return ActionExecutionResult.Ignored
@@ -98,20 +99,32 @@ object AppLaunchActionHandler : ActionHandler {
         }
     }
 
-    private fun handleOpenUrl(action: Action, context: ActionHandlerContext) {
+    private fun handleOpenUrl(action: Action, context: ActionHandlerContext): ActionExecutionResult {
         val data = try {
             JsonSerializer.decodeFromString<OpenAppOrUrlData>(action.data)
         } catch (e: Exception) {
             null
         }
-        if (data != null && data.url.isNotBlank()) {
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(data.url)).apply {
-                    addCategory(Intent.CATEGORY_BROWSABLE)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                context.appContext.startActivity(intent)
-            } catch (_: ActivityNotFoundException) { }
+        val raw = data?.url?.trim() ?: return ActionExecutionResult.Ignored
+        if (raw.isBlank()) return ActionExecutionResult.Ignored
+        return try {
+            val intent = when {
+                raw.startsWith("intent:") ->
+                    Intent.parseUri(raw, Intent.URI_INTENT_SCHEME)
+                raw.startsWith("android-app:") ->
+                    Intent.parseUri(raw, Intent.URI_ANDROID_APP_SCHEME)
+                else ->
+                    Intent(Intent.ACTION_VIEW, Uri.parse(raw).normalizeScheme())
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.appContext.startActivity(intent)
+            ActionExecutionResult.Success
+        } catch (e: ActivityNotFoundException) {
+            ActionExecutionResult.Failed("Activity not found")
+        } catch (e: IllegalArgumentException) {
+            ActionExecutionResult.Failed("Invalid URI")
+        } catch (e: SecurityException) {
+            ActionExecutionResult.Failed("Security denied")
         }
     }
 

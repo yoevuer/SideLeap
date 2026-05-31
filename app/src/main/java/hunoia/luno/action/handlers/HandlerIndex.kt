@@ -15,4 +15,5 @@ internal val allHandlers: List<ActionHandler> = listOf(
     VolumeScrubActionHandler,
     ShellCommandActionHandler,
     ClickCurrentPositionActionHandler,
+    ScrollActionHandler,
 )

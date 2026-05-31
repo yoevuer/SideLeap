@@ -6,7 +6,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import hunoia.luno.ui.theme.AnimRipple
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -25,10 +24,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import hunoia.luno.config.model.Action
-import hunoia.luno.pointer.pointerSettings
 import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.config.model.GestureSettings.PointerTrailStyle
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -135,7 +132,7 @@ fun PointerCursor(
 
 class PointerHandle(
     internal val isActiveState: MutableState<Boolean>,
-    internal val start: (Action, Offset, Offset) -> Boolean,
+    internal val start: (Action, Offset) -> Boolean,
     internal val onDrag: (Offset) -> Boolean,
     internal val onDragEnd: () -> Unit,
     internal val onDragCancel: () -> Unit,
@@ -147,10 +144,8 @@ class PointerHandle(
 internal fun rememberPointerHandle(
     gestureSettings: GestureSettings,
     modifier: Modifier = Modifier,
-    onPointerStart: () -> Boolean,
+    onPointerStart: (GestureSettings.Pointer) -> Boolean,
     onPointerEnd: () -> Unit,
-    onPointerSettingsUpdate: (GestureSettings.Pointer) -> Unit,
-    pointerPreviousPosition: () -> Offset,
     onPointerActionAtPosition: (Int, Int, Boolean, PointerAction) -> Unit,
 ): PointerHandle {
     val coroutineScope = rememberCoroutineScope()
@@ -166,6 +161,28 @@ internal fun rememberPointerHandle(
 
     LaunchedEffect(gestureSettings.pointer) {
         pSettings.value = gestureSettings.pointer
+    }
+
+    fun clearTouchState() {
+        longPressJob.value?.cancel()
+        longPressJob.value = null
+        touchPosition.value = Offset.Unspecified
+        leftCancelEdge.value = false
+        longPressTriggered.value = false
+        longPressAnchor.value = Offset.Unspecified
+    }
+
+    fun finishWithAction(action: PointerAction, keepActive: Boolean) {
+        val target = cursorPosition.value
+        isActive.value = false
+        clearTouchState()
+        clickPulseKey.value += 1
+        onPointerActionAtPosition(
+            target.x.roundToInt(),
+            target.y.roundToInt(),
+            keepActive,
+            action,
+        )
     }
 
     fun scheduleLongPress() {
@@ -187,35 +204,17 @@ internal fun rememberPointerHandle(
                 s.continuousMode,
                 PointerAction.LongPress,
             )
-            if (s.continuousMode) {
-                onPointerStart()
-            }
         }
     }
 
     fun finish(click: Boolean) {
         if (!isActive.value) return
-        longPressJob.value?.cancel()
-        longPressJob.value = null
-        val target = cursorPosition.value
-        isActive.value = false
         if (click && !longPressTriggered.value) {
-            clickPulseKey.value += 1
-            onPointerActionAtPosition(
-                target.x.roundToInt(),
-                target.y.roundToInt(),
-                pSettings.value.continuousMode,
-                PointerAction.Click,
-            )
-        } else if (!longPressTriggered.value) {
+            finishWithAction(PointerAction.Click, pSettings.value.continuousMode)
+        } else {
+            isActive.value = false
+            clearTouchState()
             onPointerEnd()
-        }
-        touchPosition.value = Offset.Unspecified
-        leftCancelEdge.value = false
-        longPressTriggered.value = false
-        longPressAnchor.value = Offset.Unspecified
-        if (pSettings.value.continuousMode) {
-            onPointerStart()
         }
     }
 
@@ -228,11 +227,11 @@ internal fun rememberPointerHandle(
         )
     }
 
-    fun handleStart(action: Action, fingerPos: Offset, prevPos: Offset): Boolean {
+    fun handleStart(action: Action, fingerPos: Offset): Boolean {
         if (isActive.value) return false
         pSettings.value = action.pointerSettings(pSettings.value)
-        onPointerSettingsUpdate(pSettings.value)
-        cursorPosition.value = pointerInitialPosition(pSettings.value, prevPos)
+        if (!onPointerStart(pSettings.value)) return false
+        cursorPosition.value = pointerInitialPosition(pSettings.value, Offset.Unspecified)
         touchPosition.value = fingerPos
         leftCancelEdge.value = false
         longPressTriggered.value = false
@@ -246,7 +245,9 @@ internal fun rememberPointerHandle(
         touchPosition.value += dragAmount
         if (!longPressTriggered.value) {
             val still = isPointerWithinLongPressTolerance(
-                longPressAnchor.value, touchPosition.value, pSettings.value
+                longPressAnchor.value,
+                touchPosition.value,
+                pSettings.value,
             )
             if (!still) scheduleLongPress()
         }

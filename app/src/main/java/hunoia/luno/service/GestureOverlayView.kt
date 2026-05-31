@@ -9,7 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hunoia.luno.bridge.WallpaperChangedEvent
 import hunoia.luno.config.model.ActionSettings
@@ -20,18 +19,16 @@ import hunoia.luno.config.ConfigProvider
 import hunoia.luno.ui.component.container.SideGestureContainer
 import hunoia.luno.core.Events
 import hunoia.luno.core.Events.SubscribeEvent
-import hunoia.luno.ui.theme.SideGestureTheme
 import hunoia.luno.pointer.PointerAction
+import hunoia.luno.ui.theme.SideGestureTheme
 
 @Composable
 fun GestureOverlayView(
     screenshotService: SideGestureService,
     onSubGestureModeChanged: (Boolean) -> Unit,
     onAction: (hunoia.luno.config.model.Action, hunoia.luno.config.model.GestureButton?) -> Unit,
-    onPointerStart: () -> Boolean,
+    onPointerStart: (GestureSettings.Pointer) -> Boolean,
     onPointerEnd: () -> Unit,
-    onPointerSettingsUpdate: (GestureSettings.Pointer) -> Unit,
-    pointerPreviousPosition: () -> Offset,
     onPointerActionAtPosition: (Int, Int, Boolean, PointerAction) -> Unit,
     windowController: SideGestureWindowController,
 ) {
@@ -69,8 +66,6 @@ fun GestureOverlayView(
                 onAction = onAction,
                 onPointerStart = onPointerStart,
                 onPointerEnd = onPointerEnd,
-                onPointerSettingsUpdate = onPointerSettingsUpdate,
-                pointerPreviousPosition = pointerPreviousPosition,
                 onPointerActionAtPosition = onPointerActionAtPosition,
                 actionSettings = actionSettings,
                 advancedSettings = advancedSettings,

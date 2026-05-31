@@ -15,26 +15,35 @@ class PointerRuntime(
 ) {
     private var overlay: PointerOverlay? = null
     private var sessionSettings: GestureSettings.Pointer? = null
-    private var lastPosition = Offset.Unspecified
     var isActive: Boolean = false
         private set
 
     fun show(continuousModeOverride: Boolean? = null): Boolean {
         if (!begin()) return false
-        val settings = (gestureSettingsProvider()?.pointer ?: GestureSettings.Pointer()).let {
+        val settings = (sessionSettings ?: gestureSettingsProvider()?.pointer ?: GestureSettings.Pointer()).let {
             if (continuousModeOverride == null) it else it.copy(continuousMode = continuousModeOverride)
         }
+        showOverlay(settings, Offset.Unspecified)
+        return true
+    }
+
+    fun beginBridge(settings: GestureSettings.Pointer): Boolean {
+        if (!begin()) return false
+        sessionSettings = settings
+        return true
+    }
+
+    private fun showOverlay(settings: GestureSettings.Pointer, previousPosition: Offset) {
         sessionSettings = settings
         val o = overlay ?: PointerOverlay(host).also { overlay = it }
         o.show(
             settings = settings,
             onPointerAction = { x, y, keepActive, action ->
-                performPointerAction(x, y, keepActive, action)
+                performActionAt(x, y, keepActive, action)
             },
-            previousPosition = lastPosition,
+            previousPosition = previousPosition,
             onDismiss = { end() },
         )
-        return true
     }
 
     private fun begin(): Boolean {
@@ -45,43 +54,43 @@ class PointerRuntime(
     }
 
     fun end() {
-        if (!isActive && overlay == null) return
+        if (!isActive && overlay == null && sessionSettings == null) return
         isActive = false
         overlay?.closeImmediately()
         sessionSettings = null
         onStateChanged()
     }
 
-    private fun performPointerAction(
+    fun performActionAt(
         x: Int, y: Int, keepActive: Boolean, action: PointerAction,
     ) {
-        lastPosition = clampPointerPosition(Offset(x.toFloat(), y.toFloat()))
+        val actionPosition = clampPointerPosition(Offset(x.toFloat(), y.toFloat()))
         overlay?.closeImmediately()
+        if (!isActive) {
+            isActive = true
+            onStateChanged()
+        }
         scope.launch {
             delay(80)
-            val service = (host as? android.accessibilityservice.AccessibilityService) ?: return@launch
-            when (action) {
-                PointerAction.Click -> Accessibility.click(service, x, y)
-                PointerAction.LongPress -> Accessibility.longPress(service, x, y)
+            val service = host as? android.accessibilityservice.AccessibilityService
+            if (service != null) {
+                when (action) {
+                    PointerAction.Click -> Accessibility.click(service, x, y)
+                    PointerAction.LongPress -> Accessibility.longPress(service, x, y)
+                }
             }
-        }
-        if (keepActive && isActive) {
-            val o = overlay ?: PointerOverlay(host).also { overlay = it }
-            o.show(
-                settings = sessionSettings ?: gestureSettingsProvider()?.pointer ?: GestureSettings.Pointer(),
-                previousPosition = lastPosition,
-                onPointerAction = { nextX, nextY, nextKeepActive, nextAction ->
-                    performPointerAction(nextX, nextY, nextKeepActive, nextAction)
-                },
-                onDismiss = { end() },
-            )
-        } else {
-            end()
+            if (keepActive) {
+                showOverlay(
+                    sessionSettings ?: gestureSettingsProvider()?.pointer ?: GestureSettings.Pointer(),
+                    actionPosition,
+                )
+            } else {
+                end()
+            }
         }
     }
 
     fun getCurrentSettings(): GestureSettings.Pointer? = sessionSettings
-    fun getLastPosition(): Offset = lastPosition
     fun onSettingsUpdate(settings: GestureSettings.Pointer) { sessionSettings = settings }
     fun onDestroy() { overlay?.closeImmediately() }
 }
