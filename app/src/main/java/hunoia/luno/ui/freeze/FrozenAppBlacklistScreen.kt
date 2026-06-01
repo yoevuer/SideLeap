@@ -92,6 +92,7 @@ fun FrozenAppBlacklistContent(
                 ) {
                     var searchQuery by remember { mutableStateOf("") }
                     var filterType by remember { mutableStateOf<String?>(null) }
+                    var excludeType by remember { mutableStateOf(ExcludeType.Gesture) }
                     var showResetDialog by remember { mutableStateOf(false) }
 
                     val allApps = remember(searchQuery, uiState.selectedAppInfos, uiState.unselectedAppInfos) {
@@ -102,11 +103,15 @@ fun FrozenAppBlacklistContent(
                                 it.packageName.contains(searchQuery, ignoreCase = true)
                         }
                     }
+                    val activeExcludeApps = when (excludeType) {
+                        ExcludeType.Gesture -> uiState.excludeApps
+                        ExcludeType.PreviousApp -> uiState.previousAppExcludeApps
+                    }
                     val filteredApps = when (filterType) {
-                        "selected" -> allApps.filter { it.packageName in uiState.excludeApps }
+                        "selected" -> allApps.filter { it.packageName in activeExcludeApps }
                         else -> allApps
                     }
-                    val excludedCount = uiState.excludeApps.size
+                    val excludedCount = activeExcludeApps.size
                     val hasAnyMatch = (searchQuery.isBlank() && filteredApps.isNotEmpty()) || (searchQuery.isNotBlank() && allApps.isNotEmpty())
 
                     if (showResetDialog) {
@@ -156,6 +161,26 @@ fun FrozenAppBlacklistContent(
                                 horizontalArrangement = Arrangement.spacedBy(Spacing8)
                             ) {
                                 item {
+                                    FilterChip(
+                                        selected = excludeType == ExcludeType.Gesture,
+                                        onClick = { excludeType = ExcludeType.Gesture },
+                                        label = { Text(stringResource(R.string.gesture_exclude_apps)) },
+                                        leadingIcon = if (excludeType == ExcludeType.Gesture) {
+                                            { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                                        } else null
+                                    )
+                                }
+                                item {
+                                    FilterChip(
+                                        selected = excludeType == ExcludeType.PreviousApp,
+                                        onClick = { excludeType = ExcludeType.PreviousApp },
+                                        label = { Text(stringResource(R.string.previous_app_exclude_apps)) },
+                                        leadingIcon = if (excludeType == ExcludeType.PreviousApp) {
+                                            { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                                        } else null
+                                    )
+                                }
+                                item {
                                     val isAll = filterType == null
                                     FilterChip(
                                         selected = isAll,
@@ -186,7 +211,10 @@ fun FrozenAppBlacklistContent(
                                     color = MaterialTheme.colorScheme.surfaceContainerHigh
                                 ) {
                                     Text(
-                                        text = stringResource(R.string.excluded_count, excludedCount),
+                                        text = stringResource(
+                                            if (excludeType == ExcludeType.Gesture) R.string.excluded_count else R.string.previous_app_excluded_count,
+                                            excludedCount,
+                                        ),
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.padding(horizontal = Spacing16, vertical = Spacing10)
@@ -206,9 +234,12 @@ fun FrozenAppBlacklistContent(
                                     items(filteredApps, key = { it.qualifiedName }) { item ->
                                         AppBlacklistItem(
                                             appInfo = item,
-                                            selected = item.packageName in uiState.excludeApps,
+                                            selected = item.packageName in activeExcludeApps,
                                             onSelect = { selected ->
-                                                vm.selectApp(item, selected)
+                                                when (excludeType) {
+                                                    ExcludeType.Gesture -> vm.selectApp(item, selected)
+                                                    ExcludeType.PreviousApp -> vm.selectPreviousApp(item, selected)
+                                                }
                                             }
                                         )
                                     }
@@ -239,6 +270,8 @@ fun FrozenAppBlacklistContent(
         }
     }
 }
+
+private enum class ExcludeType { Gesture, PreviousApp }
 
 @Composable
 private fun AppBlacklistItem(

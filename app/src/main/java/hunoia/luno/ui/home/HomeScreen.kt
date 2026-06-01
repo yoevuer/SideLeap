@@ -51,7 +51,6 @@ import hunoia.luno.ui.component.color.ColorSelection
 import hunoia.luno.ui.theme.resolveColor
 import hunoia.luno.config.model.ThemeColorKey
 import kotlin.math.roundToInt
-import hunoia.luno.ui.home.sheet.MiniWindowSettingsSheet
 
 
 
@@ -64,10 +63,10 @@ fun HomeScreen(
     onNavToFrozenManage: () -> Unit = {},
     onNavToAppBlacklist: () -> Unit = {},
     onNavToActionLibrary: () -> Unit = {},
+    onNavToActionSettings: () -> Unit = {},
     vm: HomeVM = viewModel()
 ) {
         val scrollState = rememberScrollState()
-        var showMiniWindowSettings by remember { mutableStateOf(false) }
         var showResetConfirm by remember { mutableStateOf(false) }
         var colorPickerTarget by remember { mutableStateOf<Any?>(null) }
         var colorPickerColor by remember { mutableStateOf(Color.Transparent) }
@@ -119,12 +118,6 @@ fun HomeScreen(
         }
 
             Box {
-                MiniWindowSettingsSheet(
-                    show = showMiniWindowSettings,
-                    onDismiss = { showMiniWindowSettings = false },
-                    uiState = uiState,
-                    vm = vm
-                )
                 if (colorPickerTarget != null) {
                     val scheme = MaterialTheme.colorScheme
                     val themeColorArgb = remember(scheme) {
@@ -203,13 +196,12 @@ fun HomeScreen(
                         HomeFeatureGrid(
                             uiState = uiState,
                             onExcludeClick = onNavToAppBlacklist,
+                            onActionSettingsClick = onNavToActionSettings,
                             onActionLibraryClick = onNavToActionLibrary,
                             onPointerClick = onNavToPointerSettings,
                             onFrozenClick = onNavToFrozenManage,
                             onFreezeClick = { vm.oneKeyFreeze() },
                             onUnfreezeClick = { vm.oneKeyUnfreeze() },
-                            onMiniWindowClick = { showMiniWindowSettings = true },
-                            onMiniWindowOverrideChange = { vm.onMiniWindowOverrideBoundsChange(it) },
                             onBackupClick = {
                                 val appName = context.getString(context.applicationInfo.labelRes)
                                 val date = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))

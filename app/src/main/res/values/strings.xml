@@ -38,6 +38,8 @@
     <string name="display_hint">动画风格·配色·深色模式·小窗位置</string>
     <string name="exclude_app">应用黑名单</string>
     <string name="exclude_app_hint">选择不识别手势的应用</string>
+    <string name="gesture_exclude_apps">手势排除</string>
+    <string name="previous_app_exclude_apps">上个应用排除</string>
     <string name="animation_style">动画风格</string>
     <string name="animation_style_hint">手势动画样式和颜色</string>
     <string name="animation_style_capsule">胶囊</string>
@@ -75,6 +77,7 @@
     <string name="keep_alive_hint">无障碍服务被关闭时自动恢复</string>
     <string name="keep_alive_need_permission">保活需要授予「修改系统设置」权限，请先在 Shizuku 中授权或通过 ADB 执行：adb shell pm grant hunoia.luno android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="excluded_count">已排除 %1$d 个应用</string>
+    <string name="previous_app_excluded_count">已排除 %1$d 个上个应用候选</string>
     <string name="frozen_app_manage_short">冻结</string>
     <string name="mini_window_position_short">小窗</string>
     <string name="landscape">横屏模式</string>
@@ -334,7 +337,6 @@
     <string name="action_permission_hint_flashlight">需要设备相机/手电筒能力</string>
     <string name="action_permission_hint_screenshot">需要系统截图能力或无障碍支持</string>
     <string name="action_permission_hint_power_button">需要无障碍服务支持</string>
-    <string name="action_setting_hint_previous_app">配置应用切换行为</string>
     <string name="action_setting_hint_open_activity">选择目标 Activity</string>
     <string name="action_setting_hint_shell_command">输入 adb shell 后面的命令，例如 pm list packages</string>
     <string name="search_app_hint">搜索应用</string>
@@ -422,12 +424,6 @@
     <string name="pointer_long_press_hint">光标停住达到延迟后触发长按，移动超过容差会重新计时</string>
     <string name="pointer_long_press_delay">长按延迟：%1$d ms</string>
     <string name="pointer_long_press_tolerance">停留容差：%1$d dp</string>
-    <string name="pointer_action_mode">鼠标模式</string>
-    <string name="pointer_action_mode_default">跟随全局</string>
-    <string name="pointer_action_mode_continuous">连续</string>
-    <string name="pointer_action_mode_single">单次</string>
-    <string name="action_setting_hint_pointer">配置指针的连续模式</string>
-    <string name="action_setting_hint_volume_scrub">配置滑动方向和灵敏度</string>
     <string name="hover_trigger_delay">悬停触发延迟</string>
     <string name="intercept_system_back_gesture">拦截系统返回手势</string>
     <string name="intercept_system_back_gesture_hint">使用系统接口拦截，可能有兼容性问题</string>
@@ -451,6 +447,14 @@
     <string name="delete_sub_gesture_warning_desc">删除后会清理所有引用该子手势的动作。</string>
     <string name="sub_gesture_angles">子手势角度</string>
     <string name="action_settings">动作设置</string>
+    <string name="action_settings_hint">隐藏触钮·音量·小窗·指针</string>
+    <string name="manage_action_settings">管理动作设置</string>
+    <string name="global_action_settings">全局动作设置</string>
+    <string name="gesture_button_action_settings">触钮动作设置</string>
+    <string name="sub_gesture_action_settings">子手势动作设置</string>
+    <string name="custom_action_setting">单独配置</string>
+    <string name="follow_global_action_setting">跟随全局</string>
+    <string name="restore_follow_global">恢复跟随全局</string>
     <string name="action_library">动作库</string>
     <string name="action_library_hint">统一管理 Shell、链接和 Activity 动作</string>
     <string name="manage_action_library">管理动作库</string>

@@ -88,6 +88,7 @@ fun SubGestureActionSelectContent(
                     contentPadding = PaddingValues(bottom = ScrollBottomPadding),
                     subGestures = uiState.subGestures,
                     actions = uiState.actions,
+                    actionLibraryEntries = uiState.actionLibraryEntries,
                     appInfos = uiState.apps,
                     createShortcuts = uiState.createShortcuts,
                     launchShortcuts = uiState.launchShortcuts,
@@ -98,6 +99,7 @@ fun SubGestureActionSelectContent(
                     snackbarHostState = snackbarHostState,
                     permissionState = permissionState,
                     onSelect = { action, selected -> vm.select(action, selected) },
+                    onSelectLibraryEntry = { entry, selected -> vm.select(entry, selected) },
                     onSettingsClick = { action -> vm.showActionSettingsDialogHelper(action) },
                     onSelectApp = { appInfo, selected -> vm.select(appInfo, selected) },
                     onSelectShortcut = { shortcutInfo, selected -> vm.select(shortcutInfo, selected) },
@@ -107,5 +109,4 @@ fun SubGestureActionSelectContent(
         }
     }
 }
-
 

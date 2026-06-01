@@ -14,6 +14,7 @@ import hunoia.luno.bridge.WallpaperChangedEvent
 import hunoia.luno.config.model.ActionSettings
 import hunoia.luno.config.model.AdvancedSettings
 import hunoia.luno.config.model.GestureSettings
+import hunoia.luno.config.model.GestureButtonActionSettingsOverride
 import hunoia.luno.config.model.SubGestureSettings
 import hunoia.luno.config.ConfigProvider
 import hunoia.luno.ui.component.container.SideGestureContainer
@@ -26,7 +27,7 @@ import hunoia.luno.ui.theme.SideGestureTheme
 fun GestureOverlayView(
     screenshotService: SideGestureService,
     onSubGestureModeChanged: (Boolean) -> Unit,
-    onAction: (hunoia.luno.config.model.Action, hunoia.luno.config.model.GestureButton?) -> Unit,
+    onAction: (hunoia.luno.config.model.Action, hunoia.luno.config.model.GestureButton?, GestureButtonActionSettingsOverride?) -> Unit,
     onPointerStart: (GestureSettings.Pointer) -> Boolean,
     onPointerEnd: () -> Unit,
     onPointerActionAtPosition: (Int, Int, Boolean, PointerAction) -> Unit,

@@ -56,11 +56,8 @@ val actionDescResMap: Map<String, Int> = mapOf(
 )
 
 val actionSettingHintResMap: Map<ActionConfigKind, Int> = mapOf(
-    ActionConfigKind.PREVIOUS_APP to R.string.action_setting_hint_previous_app,
     ActionConfigKind.OPEN_APP_OR_URL to R.string.action_setting_hint_open_activity,
     ActionConfigKind.SHELL_COMMAND to R.string.action_setting_hint_shell_command,
-    ActionConfigKind.POINTER to R.string.action_setting_hint_pointer,
-    ActionConfigKind.VOLUME_SCRUB to R.string.action_setting_hint_volume_scrub,
 )
 
 val actionPermissionHintResMap: Map<String, Int> = mapOf(

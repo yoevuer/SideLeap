@@ -10,7 +10,6 @@ import hunoia.luno.config.model.ActionSettings
 
 class VolumeScrubState(
     private val context: Context,
-    private val actionSettings: ActionSettings,
     private val onModeChanged: (Boolean) -> Unit,
 ) {
     var isActive by mutableStateOf(false)
@@ -20,10 +19,12 @@ class VolumeScrubState(
     var accumulatorX by mutableStateOf(0f)
         private set
 
-    private val stepThreshold: Float =
-        context.resources.displayMetrics.density * actionSettings.volumeScrub.stepThresholdDp
+    private var actionSettings: ActionSettings = ActionSettings()
+    private val stepThreshold: Float
+        get() = context.resources.displayMetrics.density * actionSettings.volumeScrub.stepThresholdDp
 
-    fun activate() {
+    fun activate(settings: ActionSettings) {
+        actionSettings = settings
         isActive = true
         accumulator = 0f
         accumulatorX = 0f

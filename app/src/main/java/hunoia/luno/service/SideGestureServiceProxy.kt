@@ -2,6 +2,7 @@ package hunoia.luno.service
 
 import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.GestureButtonActionSettingsOverride
 
 
 class SideGestureServiceProxy(private val host: SideGestureService) {
@@ -16,7 +17,7 @@ class SideGestureServiceProxy(private val host: SideGestureService) {
         actionCoordinator.onAccessibilityEvent(event)
     }
 
-    fun onAction(action: Action, sourceButton: GestureButton?) {
-        actionCoordinator.onAction(action, sourceButton)
+    fun onAction(action: Action, sourceButton: GestureButton?, sourceOverride: GestureButtonActionSettingsOverride? = sourceButton?.actionSettingsOverride) {
+        actionCoordinator.onAction(action, sourceButton, sourceOverride)
     }
 }

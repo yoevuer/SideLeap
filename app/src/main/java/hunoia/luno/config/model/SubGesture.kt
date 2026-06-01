@@ -28,6 +28,7 @@ data class SubGesture(
     val vibrateImmediately: Boolean = false,
     val vibrationEffect: VibrationEffects = VibrationEffects.Click,
     val customVibrationMs: Long = 50L,
+    val actionSettingsOverride: GestureButtonActionSettingsOverride = GestureButtonActionSettingsOverride(),
     val timeoutMs: Long = SubGestureTimeoutMs,
     val triggerDistance: Int = DensityProvider.dp2px(30f),
 ) {

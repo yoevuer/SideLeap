@@ -10,8 +10,8 @@ import hunoia.luno.ui.freeze.FrozenAppBlacklistVM.UiEvent
 import hunoia.luno.ui.freeze.FrozenAppBlacklistVM.UiState
 import hunoia.luno.config.ConfigProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -37,11 +37,25 @@ class FrozenAppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
         save()
     }
 
+    fun selectPreviousApp(appInfo: AppInfo, selected: Boolean) {
+        updateUiState {
+            val mutableList = it.previousAppExcludeApps.toMutableList()
+            if (selected) {
+                if (appInfo.packageName !in mutableList) mutableList.add(appInfo.packageName)
+            } else {
+                mutableList.remove(appInfo.packageName)
+            }
+            it.copy(previousAppExcludeApps = mutableList)
+        }
+        savePreviousAppExcludeApps()
+    }
+
     fun reset() {
         updateUiState {
-            it.copy(excludeApps = emptyList())
+            it.copy(excludeApps = emptyList(), previousAppExcludeApps = emptyList())
         }
         save()
+        savePreviousAppExcludeApps()
         reloadApps()
     }
 
@@ -79,28 +93,37 @@ class FrozenAppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
         }
     }
 
+    private fun savePreviousAppExcludeApps() {
+        viewModelScope.launch {
+            ConfigProvider.updateActionSettings {
+                it.copy(previousApp = it.previousApp.copy(packageNames = uiState.previousAppExcludeApps))
+            }
+        }
+    }
+
     private fun loadData() {
         viewModelScope.launch {
-            ConfigProvider
-                .advancedSettings
-                .take(1)
-                .collectLatest { item ->
+            combine(ConfigProvider.advancedSettings, ConfigProvider.actionSettings) { advancedSettings, actionSettings ->
+                advancedSettings.excludeApps to actionSettings.previousApp.packageNames
+            }.collectLatest { (excludeApps, previousAppExcludeApps) ->
                     updateUiState {
-                        it.copy(excludeApps = item.excludeApps)
+                        it.copy(excludeApps = excludeApps, previousAppExcludeApps = previousAppExcludeApps)
                     }
                 }
-        }
+            }
     }
 
     private suspend fun arrangeAppInfos(appInfos: List<AppInfo>) {
         val selectedList = mutableListOf<AppInfo>()
         val unselectedList = mutableListOf<AppInfo>()
         val excludeApps = uiState.excludeApps.toMutableList()
+        val previousAppExcludeApps = uiState.previousAppExcludeApps.toMutableList()
         withContext(Dispatchers.Default) {
+            val packageNames = appInfos.map { app -> app.packageName }
             excludeApps.apply {
-                val packageNames = appInfos.map { app -> app.packageName }
                 removeAll { packageName -> packageName !in packageNames }
             }
+            previousAppExcludeApps.removeAll { packageName -> packageName !in packageNames }
             appInfos.forEach { info ->
                 if (info.packageName in excludeApps) {
                     selectedList.add(info)
@@ -112,6 +135,7 @@ class FrozenAppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
         updateUiState {
             it.copy(
                 excludeApps = excludeApps,
+                previousAppExcludeApps = previousAppExcludeApps,
                 selectedAppInfos = selectedList,
                 unselectedAppInfos = unselectedList
             )
@@ -122,6 +146,7 @@ class FrozenAppBlacklistVM : BaseComposeVM<UiState, UiEvent>() {
         val selectedAppInfos: List<AppInfo> = emptyList(),
         val unselectedAppInfos: List<AppInfo> = emptyList(),
         val excludeApps: List<String> = emptyList(),
+        val previousAppExcludeApps: List<String> = emptyList(),
     )
 
     sealed interface UiEvent

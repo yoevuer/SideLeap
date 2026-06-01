@@ -21,7 +21,9 @@ import hunoia.luno.config.model.AdvancedSettings
 import hunoia.luno.config.model.ArcStyle
 import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.GestureButtonActionSettingsOverride
 import hunoia.luno.config.model.SubGestureSettings
+import hunoia.luno.config.model.effectiveFor
 import hunoia.luno.gesture.DragGestureHandler
 import hunoia.luno.gesture.GestureFacade
 import hunoia.luno.ui.component.panel.ActionPanel
@@ -35,7 +37,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun SideGestureContainer(
-    onAction: (Action, GestureButton?) -> Unit,
+    onAction: (Action, GestureButton?, GestureButtonActionSettingsOverride?) -> Unit,
     buttons: List<GestureButton>,
     modifier: Modifier = Modifier,
     imePadding: Int = 0,
@@ -77,15 +79,32 @@ fun SideGestureContainer(
     val subGestureState = remember(subGestureSettings, coroutineScope) {
         SubGestureState(coroutineScope, subGestureSettings, curOnSubGestureModeChanged)
     }
-    val volumeScrubState = remember(actionSettings, context) {
-        VolumeScrubState(context, actionSettings, curOnSubGestureModeChanged)
+    val volumeScrubState = remember(context) {
+        VolumeScrubState(context, curOnSubGestureModeChanged)
     }
 
-    fun handleResolvedAction(action: Action, sourceButton: GestureButton?, touchPosition: Offset) {
+    fun effectiveActionSettings(override: GestureButtonActionSettingsOverride?): ActionSettings = actionSettings.effectiveFor(override)
+
+    fun effectiveActionSettings(button: GestureButton?): ActionSettings = effectiveActionSettings(button?.actionSettingsOverride)
+
+    fun effectivePointerSettings(override: GestureButtonActionSettingsOverride?): GestureSettings.Pointer {
+        return gestureSettings.effectiveFor(override).pointer
+    }
+
+    fun effectivePointerSettings(button: GestureButton?): GestureSettings.Pointer {
+        return effectivePointerSettings(button?.actionSettingsOverride)
+    }
+
+    fun handleResolvedAction(
+        action: Action,
+        sourceButton: GestureButton?,
+        touchPosition: Offset,
+        sourceOverride: GestureButtonActionSettingsOverride? = sourceButton?.actionSettingsOverride,
+    ) {
         if (subGestureState.tryEnterSubGesture(action)) return
         val resolvedAction = if (!touchPosition.x.isFinite() || !touchPosition.y.isFinite()) action
         else Action(value = action.value, data = action.data, extra = listOf(touchPosition.x.roundToInt(), touchPosition.y.roundToInt()), longPressAction = action.longPressAction)
-        curOnAction(resolvedAction, sourceButton)
+        curOnAction(resolvedAction, sourceButton, sourceOverride)
     }
 
     SideEffect {
@@ -107,14 +126,15 @@ fun SideGestureContainer(
             if (subGestureState.isActive) {
                 val resolvedAction = subGestureState.onDrag(dragAmount)
                 if (resolvedAction != null) {
+                    val sourceOverride = subGestureState.lastResolvedActionSubGesture?.actionSettingsOverride
                     when (resolvedAction.value) {
                         ActionFacade.VOLUME_SCRUB -> {
-                            volumeScrubState.activate()
+                            volumeScrubState.activate(effectiveActionSettings(sourceOverride))
                             sideGestureState.cancel()
                             subGestureState.clear(notifyService = false)
                         }
                         ActionFacade.POINTER -> {
-                            val started = pointerHandle.start(resolvedAction, sideGestureState.finger)
+                            val started = pointerHandle.start(effectivePointerSettings(sourceOverride), sideGestureState.finger)
                             sideGestureState.cancel()
                             if (started) {
                                 pointerStartedFromSubGesture = true
@@ -125,14 +145,14 @@ fun SideGestureContainer(
                             }
                         }
                         ActionFacade.SUB_GESTURE -> {
-                            handleResolvedAction(resolvedAction, sideGestureState.button, sideGestureState.finger)
+                            handleResolvedAction(resolvedAction, sideGestureState.button, sideGestureState.finger, sourceOverride)
                         }
                         ActionFacade.NONE -> {
                             sideGestureState.cancel()
                             subGestureState.clear()
                         }
                         else -> {
-                            handleResolvedAction(resolvedAction, sideGestureState.button, sideGestureState.finger)
+                            handleResolvedAction(resolvedAction, sideGestureState.button, sideGestureState.finger, sourceOverride)
                             sideGestureState.cancel()
                             subGestureState.clear()
                         }
@@ -172,11 +192,11 @@ fun SideGestureContainer(
                         val action = actions.first()
                         when (action.value) {
                             ActionFacade.VOLUME_SCRUB -> {
-                                volumeScrubState.activate()
+                                volumeScrubState.activate(effectiveActionSettings(button))
                                 sideGestureState.cancel()
                             }
                             ActionFacade.POINTER -> {
-                                pointerHandle.start(action, sideGestureState.finger)
+                                pointerHandle.start(effectivePointerSettings(button), sideGestureState.finger)
                                 sideGestureState.cancel()
                             }
                             else -> {

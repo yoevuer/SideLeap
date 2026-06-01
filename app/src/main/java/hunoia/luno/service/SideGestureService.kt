@@ -212,8 +212,8 @@ class SideGestureService : ComponentAccessibilityService(), SideGestureRuntime, 
                 if (inSubGesture) windowController.attachSubGestureOverlay()
                 else windowController.detachSubGestureOverlay()
             },
-            onAction = { action, sourceButton ->
-                proxy.onAction(action, sourceButton)
+            onAction = { action, sourceButton, sourceOverride ->
+                proxy.onAction(action, sourceButton, sourceOverride)
             },
             onPointerStart = { settings -> pointerRuntime.beginBridge(settings) },
             onPointerEnd = { pointerRuntime.end() },

@@ -4,15 +4,12 @@ import hunoia.luno.ui.theme.*
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,12 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.aaron.compose.ktx.onSingleClick
 import hunoia.luno.R
 import hunoia.luno.config.model.Action
 import hunoia.luno.config.model.OpenAppOrUrlData
 import hunoia.luno.core.JsonSerializer
-import hunoia.luno.pointer.PointerActionData
 
 @Composable
 fun UrlSettingsContent(
@@ -70,53 +65,6 @@ fun UrlSettingsContent(
         ) {
             Icon(imageVector = Icons.Default.Check, contentDescription = null)
             Text(text = stringResource(id = R.string.confirm))
-        }
-    }
-}
-
-@Composable
-fun PointerActionSettingsContent(
-    action: Action,
-    onConfirm: (String) -> Unit
-) {
-    val existingData = remember(action.data) {
-        runCatching { JsonSerializer.decodeFromString<PointerActionData>(action.data) }.getOrNull()
-    }
-    var mode by remember(action.data) { mutableStateOf(existingData?.mode ?: PointerActionData.Mode.Default) }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = ItemPadding),
-        verticalArrangement = Arrangement.spacedBy(ItemPadding)
-    ) {
-        Text(
-            text = stringResource(R.string.pointer_action_mode),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        listOf(
-            PointerActionData.Mode.Default to R.string.pointer_action_mode_default,
-            PointerActionData.Mode.Continuous to R.string.pointer_action_mode_continuous,
-            PointerActionData.Mode.Single to R.string.pointer_action_mode_single,
-        ).forEach { (option, labelRes) ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onSingleClick { onConfirm(JsonSerializer.encodeToString(PointerActionData(option))) }
-                    .padding(vertical = Spacing2),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(ItemPadding)
-            ) {
-                RadioButton(
-                    selected = mode == option,
-                    onClick = { onConfirm(JsonSerializer.encodeToString(PointerActionData(option))) }
-                )
-                Text(
-                    text = stringResource(labelRes),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
         }
     }
 }

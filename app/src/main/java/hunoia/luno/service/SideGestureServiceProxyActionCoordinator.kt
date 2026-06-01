@@ -10,7 +10,9 @@ import hunoia.luno.config.model.Action
 import hunoia.luno.action.api.ActionHandlerContext
 import hunoia.luno.action.api.ActionRegistry
 import hunoia.luno.config.model.GestureButton
+import hunoia.luno.config.model.GestureButtonActionSettingsOverride
 import hunoia.luno.config.model.ActionSettings
+import hunoia.luno.config.model.effectiveFor
 import hunoia.luno.bridge.feedback.showToast
 import hunoia.luno.bridge.feedback.showToastLong
 import hunoia.luno.bridge.feedback.showVersionTooLowToast as showVersionTooLowToastUtil
@@ -68,21 +70,21 @@ internal class SideGestureServiceProxyActionCoordinator(
         }
     }
 
-    fun onAction(action: Action, sourceButton: GestureButton?) {
+    fun onAction(action: Action, sourceButton: GestureButton?, sourceOverride: GestureButtonActionSettingsOverride? = sourceButton?.actionSettingsOverride) {
         val scope = scopeProvider()
         scope.launch(Dispatchers.Main.immediate) {
-            ActionRegistry.execute(action, buildActionHandlerContext(sourceButton))
+            ActionRegistry.execute(action, buildActionHandlerContext(sourceButton, sourceOverride))
         }
     }
 
-    private fun buildActionHandlerContext(sourceButton: GestureButton?): ActionHandlerContext {
+    private fun buildActionHandlerContext(sourceButton: GestureButton?, sourceOverride: GestureButtonActionSettingsOverride?): ActionHandlerContext {
         return ActionHandlerContext(
             accessibilityService = host,
             appContext = host.applicationContext,
             scope = scopeProvider(),
-            actionSettings = host.actionSettings ?: ActionSettings(),
-            advancedSettings = host.advancedSettings ?: hunoia.luno.config.model.AdvancedSettings(),
-            gestureSettings = host.gestureSettings ?: hunoia.luno.config.model.GestureSettings(),
+            actionSettings = (host.actionSettings ?: ActionSettings()).effectiveFor(sourceOverride),
+            advancedSettings = (host.advancedSettings ?: hunoia.luno.config.model.AdvancedSettings()).effectiveFor(sourceOverride),
+            gestureSettings = (host.gestureSettings ?: hunoia.luno.config.model.GestureSettings()).effectiveFor(sourceOverride),
             showToast = { showToast(it) },
             showLongToast = { showToastLong(it) },
             currentPackageName = { currPackageName },

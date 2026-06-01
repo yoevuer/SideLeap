@@ -7,6 +7,7 @@ import com.aaron.compose.base.BaseComposeVM
 import hunoia.luno.core.AppContext
 import hunoia.luno.R
 import hunoia.luno.config.model.Action
+import hunoia.luno.config.model.ActionLibraryEntry
 import hunoia.luno.action.api.ActionFacade
 
 import hunoia.luno.action.payload.SubGestureActionData
@@ -18,6 +19,7 @@ import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.config.ConfigProvider
 import hunoia.luno.config.model.SubGesture
 import hunoia.luno.ui.actionselect.UiState.SelectedRecord
+import hunoia.luno.ui.actionselect.toReferenceAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -31,6 +33,7 @@ data class SubGestureActionSelectUiState(
     val createShortcuts: List<LauncherInfo> = emptyList(),
     val launchShortcuts: List<LauncherInfo> = emptyList(),
     val selectedRecord: SelectedRecord = SelectedRecord(),
+    val actionLibraryEntries: List<ActionLibraryEntry> = emptyList(),
     val actionSettingsDialog: SubGestureActionSelectVM.ActionSettingsDialogValue = SubGestureActionSelectVM.ActionSettingsDialogValue(false, Action.NONE),
 )
 
@@ -56,6 +59,8 @@ class SubGestureActionSelectVM(
             selectShortcutInfo(obj, selected)
         } else if (obj is Action) {
             selectAction(obj, selected)
+        } else if (obj is ActionLibraryEntry) {
+            selectAction(obj.toReferenceAction(), selected)
         }
     }
 
@@ -138,12 +143,18 @@ class SubGestureActionSelectVM(
     private fun assembleActions() {
         viewModelScope.launch {
             val settings = ConfigProvider.getSubGestureSettings()
+            val actionLibraryEntries = ConfigProvider.getActionLibrarySettings().entries
             val currentAction = settings.subGestures
                 .find { it.id == subGestureId }
                 ?.actionFor(direction)
 
             val allActions = ActionFacade.definitions
                 .filter { it.isDisplayed }
+                .filterNot { def ->
+                    def.actionId == ActionFacade.OPEN_APP_ACTIVITY ||
+                        def.actionId == ActionFacade.OPEN_URL ||
+                        def.actionId == ActionFacade.EXECUTE_SHELL_COMMAND
+                }
                 .map { it.toAction() }
                 .toMutableList()
 
@@ -165,6 +176,7 @@ class SubGestureActionSelectVM(
                 it.copy(
                     actions = allActions,
                     subGestures = settings.subGestures,
+                    actionLibraryEntries = actionLibraryEntries,
                     selectedRecord = SelectedRecord(selectedList)
                 )
             }

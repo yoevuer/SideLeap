@@ -132,7 +132,7 @@ fun PointerCursor(
 
 class PointerHandle(
     internal val isActiveState: MutableState<Boolean>,
-    internal val start: (Action, Offset) -> Boolean,
+    internal val start: (GestureSettings.Pointer, Offset) -> Boolean,
     internal val onDrag: (Offset) -> Boolean,
     internal val onDragEnd: () -> Unit,
     internal val onDragCancel: () -> Unit,
@@ -250,9 +250,9 @@ internal fun rememberPointerHandle(
         )
     }
 
-    fun handleStart(action: Action, fingerPos: Offset): Boolean {
+    fun handleStart(pointerSettings: GestureSettings.Pointer, fingerPos: Offset): Boolean {
         if (isActive.value) return false
-        pSettings.value = action.pointerSettings(pSettings.value)
+        pSettings.value = pointerSettings
         if (!onPointerStart(pSettings.value)) return false
         cursorPosition.value = pointerInitialPosition(pSettings.value, Offset.Unspecified)
         touchPosition.value = fingerPos

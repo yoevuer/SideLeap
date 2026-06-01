@@ -29,6 +29,8 @@ class SubGestureState(
         private set
     var subGestureDepth by mutableIntStateOf(0)
         private set
+    var lastResolvedActionSubGesture by mutableStateOf<SubGesture?>(null)
+        private set
     private var timeoutJob by mutableStateOf<Job?>(null)
 
     val isActive: Boolean get() = activeSubGesture != null
@@ -63,6 +65,7 @@ class SubGestureState(
         if (kotlin.math.hypot(subGestureAccum.x, subGestureAccum.y) >= sg.triggerDistance) {
             val direction = sg.angle.directionOf(subGestureAccum)
             val action = sg.actionFor(direction)
+            lastResolvedActionSubGesture = sg
             activeSubGesture = null
             subGestureAccum = Offset.Zero
             sg.tryVibrate()
@@ -83,6 +86,7 @@ class SubGestureState(
 
     fun clear(notifyService: Boolean = true) {
         activeSubGesture = null
+        lastResolvedActionSubGesture = null
         subGestureAccum = Offset.Zero
         subGestureDepth = 0
         timeoutJob?.cancel()

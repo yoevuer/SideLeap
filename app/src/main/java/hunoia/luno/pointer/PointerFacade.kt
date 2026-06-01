@@ -1,7 +1,6 @@
 package hunoia.luno.pointer
 
 import androidx.compose.ui.geometry.Offset
-import hunoia.luno.config.model.Action
 
 object PointerFacade {
 
@@ -24,7 +23,4 @@ object PointerFacade {
         val current = runtime.getCurrentSettings() ?: return
         runtime.onSettingsUpdate(current.copy(continuousMode = !current.continuousMode))
     }
-
-    fun pointerContinuousModeOverride(action: Action): Boolean? =
-        action.pointerContinuousModeOverride()
 }

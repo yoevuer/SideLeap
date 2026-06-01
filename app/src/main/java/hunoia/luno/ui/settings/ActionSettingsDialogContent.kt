@@ -25,7 +25,6 @@ fun ActionSettingsDialogContent(
         },
         text = {
             when (action.value) {
-                ActionFacade.PREVIOUS_APP -> PreviousAppSettingsContent()
                 ActionFacade.OPEN_APP_ACTIVITY -> ActivitySettingsContent(
                     action = action,
                     onConfirm = {
@@ -47,15 +46,6 @@ fun ActionSettingsDialogContent(
                         if (autoDismiss) onDismissRequest()
                     }
                 )
-                ActionFacade.POINTER -> PointerActionSettingsContent(
-                    action = action,
-                    onConfirm = {
-                        onActionDataChanged(it)
-                        if (autoDismiss) onDismissRequest()
-                    }
-                )
-                ActionFacade.HIDE_GESTURE_BUTTON -> HideGestureButtonSettingsContent()
-                ActionFacade.VOLUME_SCRUB -> VolumeScrubSettingsContent()
             }
         },
         confirmButton = {},

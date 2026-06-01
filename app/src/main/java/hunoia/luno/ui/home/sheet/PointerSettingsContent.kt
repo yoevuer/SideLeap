@@ -49,12 +49,6 @@ internal fun PointerSettingsContent(
 ) {
     var showTrailStyleDropdown by remember { mutableStateOf(false) }
     MyColumn(scrollState = scrollState ?: rememberScrollState()) {
-        ExpressiveSwitchItem(
-            onCheckedChange = { vm.onPointerContinuousModeChange(it) },
-            checked = pointer.continuousMode,
-            title = stringResource(id = R.string.pointer_continuous_mode),
-            subtitle = stringResource(id = R.string.pointer_continuous_mode_hint)
-        )
         val currentPointer by rememberUpdatedState(pointer)
         MyTextSlider(
             value = pointer.continuousModeTimeoutMs / 1000f,

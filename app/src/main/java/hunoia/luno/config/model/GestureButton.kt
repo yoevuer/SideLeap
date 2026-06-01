@@ -65,6 +65,7 @@ data class GestureButton(
     val longSlideActions: DirectionActions = GestureButtonDefaults.LongSlideActions,
     val longSlideActionPanelStyles: LongSlideActionPanelStyles = GestureButtonDefaults.LongSlideActionPanelStyles,
     val angle: GestureButtonAngle = GestureButtonAngle(),
+    val actionSettingsOverride: GestureButtonActionSettingsOverride = GestureButtonActionSettingsOverride(),
     val tapActions: List<Action> = GestureButtonDefaults.TapActions,
     val longPressActions: List<Action> = GestureButtonDefaults.LongPressActions,
     val color: Int = GestureButtonDefaults.Color,
