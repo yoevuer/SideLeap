@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import hunoia.luno.R
-import hunoia.luno.action.ShellCommandData
+import hunoia.luno.config.model.ShellCommandData
 import hunoia.luno.bridge.feedback.showToast
 import hunoia.luno.config.model.Action
 import hunoia.luno.core.JsonSerializer

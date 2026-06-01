@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 fun HomeFeatureGrid(
     uiState: UiState,
     onExcludeClick: () -> Unit,
+    onActionLibraryClick: () -> Unit,
     onPointerClick: () -> Unit,
     onFrozenClick: () -> Unit,
     onFreezeClick: () -> Unit,
@@ -40,6 +41,7 @@ fun HomeFeatureGrid(
                     verticalArrangement = Arrangement.spacedBy(Spacing12),
                 ) {
                     HomePointerCard(onPointerClick)
+                    HomeActionLibraryCard(onActionLibraryClick)
                     HomeMiniWindowCard(uiState, onMiniWindowClick, onMiniWindowOverrideChange)
                 }
                 Column(
@@ -61,6 +63,7 @@ fun HomeFeatureGrid(
                 verticalArrangement = Arrangement.spacedBy(Spacing12),
             ) {
                 HomePointerCard(onPointerClick)
+                HomeActionLibraryCard(onActionLibraryClick)
                 HomeFrozenCard(uiState, onFrozenClick, onFreezeClick, onUnfreezeClick)
                 HomeMiniWindowCard(uiState, onMiniWindowClick, onMiniWindowOverrideChange)
                 HomeExcludeCard(uiState, onExcludeClick)

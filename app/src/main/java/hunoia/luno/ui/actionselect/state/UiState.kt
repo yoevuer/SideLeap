@@ -3,6 +3,7 @@ package hunoia.luno.ui.actionselect
 import hunoia.luno.action.api.appInfo
 import hunoia.luno.action.api.shortcutInfo
 import hunoia.luno.config.model.Action
+import hunoia.luno.config.model.ActionLibraryEntry
 import hunoia.luno.config.model.SubGesture
 import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.quicklaunch.model.LauncherInfo
@@ -22,6 +23,7 @@ data class UiState(
     val longPressTargetIndex: Int? = null,
     val actionSettingsDialog: ActionSettingsDialogValue = ActionSettingsDialogValue(false, Action.NONE),
     val subGestures: List<SubGesture> = emptyList(),
+    val actionLibraryEntries: List<ActionLibraryEntry> = emptyList(),
 ) {
     data class SelectedRecord(val list: List<Any> = emptyList()) {
 

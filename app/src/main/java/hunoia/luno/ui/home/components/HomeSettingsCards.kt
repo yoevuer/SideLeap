@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Widgets
@@ -61,6 +62,22 @@ fun HomePointerCard(onClick: () -> Unit) {
     ) {
         FilledTonalButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(id = R.string.pointer_settings))
+        }
+    }
+}
+
+@Composable
+fun HomeActionLibraryCard(onClick: () -> Unit) {
+    ExpressiveCard(
+        title = stringResource(id = R.string.action_library),
+        subtitle = stringResource(id = R.string.action_library_hint),
+        icon = Icons.AutoMirrored.Filled.LibraryBooks,
+        onClick = onClick,
+        accent = MaterialTheme.colorScheme.primaryContainer,
+        onAccent = MaterialTheme.colorScheme.onPrimaryContainer,
+    ) {
+        FilledTonalButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(id = R.string.manage_action_library))
         }
     }
 }

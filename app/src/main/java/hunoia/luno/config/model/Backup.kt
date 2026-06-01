@@ -15,6 +15,7 @@ data class Backup(
     val quickAppLauncherSettings: QuickAppLauncherSettings? = null,
     val frozenAppSettings: FrozenAppSettings? = null,
     val subGestureSettings: SubGestureSettings? = null,
+    val actionLibrarySettings: ActionLibrarySettings? = null,
     val timestamp: Long? = null,
     val version: String? = null
 )

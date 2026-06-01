@@ -63,6 +63,7 @@ fun HomeScreen(
     onNavToPointerSettings: () -> Unit = {},
     onNavToFrozenManage: () -> Unit = {},
     onNavToAppBlacklist: () -> Unit = {},
+    onNavToActionLibrary: () -> Unit = {},
     vm: HomeVM = viewModel()
 ) {
         val scrollState = rememberScrollState()
@@ -202,6 +203,7 @@ fun HomeScreen(
                         HomeFeatureGrid(
                             uiState = uiState,
                             onExcludeClick = onNavToAppBlacklist,
+                            onActionLibraryClick = onNavToActionLibrary,
                             onPointerClick = onNavToPointerSettings,
                             onFrozenClick = onNavToFrozenManage,
                             onFreezeClick = { vm.oneKeyFreeze() },

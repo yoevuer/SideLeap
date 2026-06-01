@@ -7,6 +7,9 @@ import hunoia.luno.action.api.appInfo
 import hunoia.luno.action.api.shortcutInfo
 import hunoia.luno.action.payload.SubGestureActionData
 import hunoia.luno.config.model.Action
+import hunoia.luno.config.model.ActionLibraryEntry
+import hunoia.luno.config.model.ActionLibraryRefData
+import hunoia.luno.config.model.ActionLibraryType
 import hunoia.luno.config.model.SubGesture
 import hunoia.luno.config.model.GestureDirection
 import hunoia.luno.core.AppContext
@@ -20,8 +23,16 @@ import hunoia.luno.quicklaunch.model.LauncherInfo
 import hunoia.luno.quicklaunch.model.qualifiedName
 
 fun Context.selectedItemLabel(item: Any, subGestures: List<SubGesture>): String {
+    return selectedItemLabel(item, subGestures, emptyList())
+}
+
+fun Context.selectedItemLabel(
+    item: Any,
+    subGestures: List<SubGesture>,
+    actionLibraryEntries: List<ActionLibraryEntry>
+): String {
     return when (item) {
-        is Action -> actionTextWithSubGesture(item, subGestures, emptyIfNone = false)
+        is Action -> actionTextWithSubGesture(item, subGestures, actionLibraryEntries, emptyIfNone = false)
         is AppInfo -> item.label
         is LauncherInfo.ShortcutInfo -> item.label
         else -> ""
@@ -32,7 +43,17 @@ fun Context.actionTextWithSubGesture(
     action: Action,
     subGestures: List<SubGesture>,
     emptyIfNone: Boolean
+): String = actionTextWithSubGesture(action, subGestures, emptyList(), emptyIfNone)
+
+fun Context.actionTextWithSubGesture(
+    action: Action,
+    subGestures: List<SubGesture>,
+    actionLibraryEntries: List<ActionLibraryEntry>,
+    emptyIfNone: Boolean
 ): String {
+    action.actionLibraryRefId()?.let { id ->
+        return actionLibraryEntries.firstOrNull { it.id == id }?.name ?: getString(R.string.action_library_missing)
+    }
     if (action.value != ActionFacade.SUB_GESTURE) {
         return actionText(action, emptyIfNone)
     }
@@ -107,6 +128,7 @@ internal fun createTitle(actionSelect: ActionSelect): String {
 internal fun Any.toAction(): Action {
     return when (this) {
         is Action -> this.copy(extra = null)
+        is ActionLibraryEntry -> this.toReferenceAction()
         is AppInfo -> Action(
             value = ActionFacade.EXTRA_LAUNCH_APP,
             data = JsonSerializer.encodeToString(this)
@@ -119,6 +141,27 @@ internal fun Any.toAction(): Action {
     }
 }
 
+internal fun ActionLibraryEntry.toReferenceAction(): Action {
+    val value = when (type) {
+        ActionLibraryType.Shell -> ActionFacade.EXECUTE_SHELL_COMMAND
+        ActionLibraryType.Url -> ActionFacade.OPEN_URL
+        ActionLibraryType.Activity -> ActionFacade.OPEN_APP_ACTIVITY
+    }
+    return Action(value = value, data = JsonSerializer.encodeToString(ActionLibraryRefData(id)))
+}
+
+internal fun Action.actionLibraryRefId(): String? {
+    if (value != ActionFacade.EXECUTE_SHELL_COMMAND &&
+        value != ActionFacade.OPEN_URL &&
+        value != ActionFacade.OPEN_APP_ACTIVITY
+    ) {
+        return null
+    }
+    return runCatching { JsonSerializer.decodeFromString<ActionLibraryRefData>(data).entryId }
+        .getOrNull()
+        ?.takeIf { it.isNotBlank() }
+}
+
 internal fun Action.sameAction(other: Action): Boolean {
     return value == other.value && data == other.data
 }
@@ -126,6 +169,11 @@ internal fun Action.sameAction(other: Action): Boolean {
 internal fun assembleDataTransform(state: UiState): UiState {
     val allActions = ActionFacade.definitions
         .filter { def -> def.isDisplayed }
+        .filterNot { def ->
+            def.actionId == ActionFacade.OPEN_APP_ACTIVITY ||
+                def.actionId == ActionFacade.OPEN_URL ||
+                def.actionId == ActionFacade.EXECUTE_SHELL_COMMAND
+        }
         .map { def -> def.toAction() }
         .toMutableList()
         .apply {

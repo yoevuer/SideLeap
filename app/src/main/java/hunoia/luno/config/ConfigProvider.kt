@@ -4,15 +4,22 @@ import androidx.datastore.core.DataStore
 import hunoia.luno.BuildConfig
 import hunoia.luno.config.store.DataStoreFiles
 import hunoia.luno.config.model.ActionSettings
+import hunoia.luno.config.model.Action
+import hunoia.luno.config.model.ActionLibraryRefData
+import hunoia.luno.config.model.ActionLibrarySettings
 import hunoia.luno.config.model.AdvancedSettings
 import hunoia.luno.config.model.Backup
+import hunoia.luno.config.model.DirectionActions
 import hunoia.luno.config.model.FrozenAppSettings
 import hunoia.luno.config.model.GestureSettings
 import hunoia.luno.config.model.SubGestureSettings
 import hunoia.luno.config.model.InitialSettings
 import hunoia.luno.config.model.QuickAppLauncherSettings
+import hunoia.luno.config.model.SubGesture
+import hunoia.luno.config.model.SubGestureDirection
 import hunoia.luno.core.AppContext
 import hunoia.luno.config.model.GestureButton
+import hunoia.luno.core.JsonSerializer
 import hunoia.luno.config.store.dataStore
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -46,6 +53,9 @@ object ConfigProvider {
     private val _subGestureSettings: DataStore<SubGestureSettings> by lazy {
         AppContext.get().dataStore(DataStoreFiles.SUB_GESTURE_SETTINGS, SubGestureSettings())
     }
+    private val _actionLibrarySettings: DataStore<ActionLibrarySettings> by lazy {
+        AppContext.get().dataStore(DataStoreFiles.ACTION_LIBRARY_SETTINGS, ActionLibrarySettings())
+    }
 
     val initialSettings: Flow<InitialSettings> = _initialSettings.data
     val advancedSettings: Flow<AdvancedSettings> = _advancedSettings.data
@@ -55,6 +65,7 @@ object ConfigProvider {
     val quickAppLauncherSettings: Flow<QuickAppLauncherSettings> = _quickAppLauncherSettings.data
     val frozenAppSettings: Flow<FrozenAppSettings> = _frozenAppSettings.data
     val subGestureSettings: Flow<SubGestureSettings> = _subGestureSettings.data
+    val actionLibrarySettings: Flow<ActionLibrarySettings> = _actionLibrarySettings.data
 
     suspend fun getInitialSettings(): InitialSettings = _initialSettings.data.first()
     suspend fun getAdvancedSettings(): AdvancedSettings = _advancedSettings.data.first()
@@ -64,6 +75,7 @@ object ConfigProvider {
     suspend fun getQuickAppLauncherSettings(): QuickAppLauncherSettings = _quickAppLauncherSettings.data.first()
     suspend fun getFrozenAppSettings(): FrozenAppSettings = _frozenAppSettings.data.first()
     suspend fun getSubGestureSettings(): SubGestureSettings = _subGestureSettings.data.first()
+    suspend fun getActionLibrarySettings(): ActionLibrarySettings = _actionLibrarySettings.data.first()
 
     suspend fun updateInitialSettings(transform: suspend (InitialSettings) -> InitialSettings) {
         _initialSettings.updateData(transform)
@@ -123,6 +135,23 @@ object ConfigProvider {
     suspend fun updateSubGestureSettings(transform: suspend (SubGestureSettings) -> SubGestureSettings) {
         _subGestureSettings.updateData(transform)
     }
+    suspend fun updateActionLibrarySettings(transform: suspend (ActionLibrarySettings) -> ActionLibrarySettings) {
+        _actionLibrarySettings.updateData(transform)
+    }
+
+    suspend fun removeActionLibraryEntry(entryId: String) = coroutineScope {
+        launch {
+            _actionLibrarySettings.updateData { settings ->
+                settings.copy(entries = settings.entries.filterNot { it.id == entryId })
+            }
+        }
+        launch { _gestureButtons.updateData { buttons -> buttons.map { it.cleanActionLibraryRef(entryId) } } }
+        launch {
+            _subGestureSettings.updateData { settings ->
+                settings.copy(subGestures = settings.subGestures.map { it.cleanActionLibraryRef(entryId) })
+            }
+        }
+    }
 
     suspend fun snapshotAll(): Backup = coroutineScope {
         val initialDeferred = async { getInitialSettings() }
@@ -133,6 +162,7 @@ object ConfigProvider {
         val qlaDeferred = async { getQuickAppLauncherSettings() }
         val frozenDeferred = async { getFrozenAppSettings() }
         val subGestureDeferred = async { getSubGestureSettings() }
+        val actionLibraryDeferred = async { getActionLibrarySettings() }
         Backup(
             initialSettings = initialDeferred.await(),
             advancedSettings = advancedDeferred.await(),
@@ -142,6 +172,7 @@ object ConfigProvider {
             quickAppLauncherSettings = qlaDeferred.await(),
             frozenAppSettings = frozenDeferred.await(),
             subGestureSettings = subGestureDeferred.await(),
+            actionLibrarySettings = actionLibraryDeferred.await(),
             timestamp = System.currentTimeMillis(),
             version = BuildConfig.VERSION_NAME
         )
@@ -156,6 +187,7 @@ object ConfigProvider {
         launch { backup.quickAppLauncherSettings?.let { v -> _quickAppLauncherSettings.updateData { v } } }
         launch { backup.frozenAppSettings?.let { v -> _frozenAppSettings.updateData { v } } }
         launch { backup.subGestureSettings?.let { v -> _subGestureSettings.updateData { v } } }
+        launch { backup.actionLibrarySettings?.let { v -> _actionLibrarySettings.updateData { v } } }
     }
 
     suspend fun resetAll() = coroutineScope {
@@ -167,5 +199,37 @@ object ConfigProvider {
         launch { _quickAppLauncherSettings.updateData { QuickAppLauncherSettings() } }
         launch { _frozenAppSettings.updateData { FrozenAppSettings() } }
         launch { _subGestureSettings.updateData { SubGestureSettings() } }
+        launch { _actionLibrarySettings.updateData { ActionLibrarySettings() } }
+    }
+
+    private fun GestureButton.cleanActionLibraryRef(entryId: String): GestureButton = copy(
+        slideActions = slideActions.cleanActionLibraryRef(entryId),
+        longSlideActions = longSlideActions.cleanActionLibraryRef(entryId),
+        tapActions = tapActions.cleanActionLibraryRef(entryId),
+        longPressActions = longPressActions.cleanActionLibraryRef(entryId),
+    )
+
+    private fun DirectionActions.cleanActionLibraryRef(entryId: String): DirectionActions {
+        return copy(actions = actions.mapValues { (_, list) -> list.cleanActionLibraryRef(entryId) })
+    }
+
+    private fun List<Action>.cleanActionLibraryRef(entryId: String): List<Action> {
+        return mapNotNull { action ->
+            if (action.isActionLibraryRef(entryId)) null
+            else action.copy(longPressAction = action.longPressAction?.takeUnless { it.isActionLibraryRef(entryId) })
+        }
+    }
+
+    private fun SubGesture.cleanActionLibraryRef(entryId: String): SubGesture {
+        return SubGestureDirection.entries.fold(this) { gesture, direction ->
+            val action = gesture.actionFor(direction)
+            gesture.withAction(direction, action?.takeUnless { it.isActionLibraryRef(entryId) })
+        }
+    }
+
+    private fun Action.isActionLibraryRef(entryId: String): Boolean {
+        val ref = runCatching { JsonSerializer.decodeFromString<ActionLibraryRefData>(data) }.getOrNull()
+            ?: return false
+        return ref.entryId.isNotBlank() && ref.entryId == entryId
     }
 }

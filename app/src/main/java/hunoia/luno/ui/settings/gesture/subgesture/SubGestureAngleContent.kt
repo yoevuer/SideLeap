@@ -300,6 +300,19 @@ private fun SubGestureAngleDial(
             style = Stroke(width = Spacing1.toPx())
         )
 
+        drawLine(
+            color = color.copy(alpha = 0.18f),
+            start = Offset(x = myCenter.x - lineRadius, y = myCenter.y),
+            end = Offset(x = myCenter.x + lineRadius, y = myCenter.y),
+            strokeWidth = Spacing1.toPx(),
+        )
+        drawLine(
+            color = color.copy(alpha = 0.18f),
+            start = Offset(x = myCenter.x, y = myCenter.y - lineRadius),
+            end = Offset(x = myCenter.x, y = myCenter.y + lineRadius),
+            strokeWidth = Spacing1.toPx(),
+        )
+
         boundaries.forEachIndexed { index, bound ->
             val angleRad = bound * 2f * PI.toFloat()
             val offset = Offset(

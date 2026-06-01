@@ -451,6 +451,25 @@
     <string name="delete_sub_gesture_warning_desc">删除后会清理所有引用该子手势的动作。</string>
     <string name="sub_gesture_angles">子手势角度</string>
     <string name="action_settings">动作设置</string>
+    <string name="action_library">动作库</string>
+    <string name="action_library_hint">统一管理 Shell、链接和 Activity 动作</string>
+    <string name="manage_action_library">管理动作库</string>
+    <string name="action_library_search_hint">搜索名称、命令、链接或 Activity</string>
+    <string name="action_library_empty">暂无动作库条目</string>
+    <string name="action_library_select">选择动作库条目</string>
+    <string name="action_library_entry_name">条目名称</string>
+    <string name="action_library_add">新增动作库条目</string>
+    <string name="action_library_edit">编辑动作库条目</string>
+    <string name="action_library_missing">动作库条目已移除</string>
+    <string name="action_library_delete_title">删除动作库条目？</string>
+    <string name="action_library_delete_desc">当前有 %1$d 处引用。删除后会清理这些引用，是否继续？</string>
+    <string name="action_library_reference_count">引用 %1$d</string>
+    <string name="action_library_shell">Shell</string>
+    <string name="action_library_url">链接</string>
+    <string name="action_library_activity">活动</string>
+    <string name="action_library_default_shell">Shell %1$d</string>
+    <string name="action_library_default_url">链接 %1$d</string>
+    <string name="action_library_default_activity">活动 %1$d</string>
     <string name="mirror_sub_gesture">建立镜像子手势</string>
     <string name="mirror_sub_gesture_desc">将当前子手势方向做镜像复制（左↔右、左上↔右上、左下↔右下）。</string>
 

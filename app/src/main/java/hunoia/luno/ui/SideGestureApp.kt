@@ -31,6 +31,7 @@ import hunoia.luno.ui.navigation.ActionSelect
 import hunoia.luno.ui.navigation.GestureButtonSettings
 
 import hunoia.luno.ui.navigation.Home
+import hunoia.luno.ui.navigation.ActionLibrary
 import hunoia.luno.ui.navigation.SubGestureActionSelect
 import hunoia.luno.ui.navigation.SubGestureEditor
 import hunoia.luno.ui.navigation.PointerSettings
@@ -38,6 +39,7 @@ import hunoia.luno.ui.navigation.FrozenManage
 import hunoia.luno.ui.navigation.AppBlacklist
 
 import hunoia.luno.ui.actionselect.ActionSelectContent
+import hunoia.luno.ui.actionlibrary.ActionLibraryScreen
 
 import hunoia.luno.ui.settings.gesture.button.GestureButtonSettingsScreen
 
@@ -99,6 +101,9 @@ fun SideGestureApp() {
                         },
                         onNavToAppBlacklist = {
                             navController.navigate(AppBlacklist)
+                        },
+                        onNavToActionLibrary = {
+                            navController.navigate(ActionLibrary)
                         }
                     )
                 }
@@ -112,6 +117,11 @@ fun SideGestureApp() {
                     ActionSelectContent(
                         onDismiss = { navController.popBackStack() },
                         actionSelect = it.toRoute()
+                    )
+                }
+                myComposable<ActionLibrary> {
+                    ActionLibraryScreen(
+                        onBack = { navController.popBackStack() }
                     )
                 }
                 myComposable<SubGestureEditor> {

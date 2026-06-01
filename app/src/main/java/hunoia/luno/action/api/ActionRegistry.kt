@@ -1,6 +1,7 @@
 package hunoia.luno.action.api
 
 import hunoia.luno.config.model.Action
+import hunoia.luno.action.ActionLibraryResolver
 import hunoia.luno.action.handlers.allHandlers
 
 object ActionRegistry {
@@ -24,12 +25,13 @@ object ActionRegistry {
     fun isRegistered(actionId: String): Boolean = actionId in handlerMap
 
     suspend fun execute(action: Action, context: ActionHandlerContext): ActionExecutionResult {
-        val handler = handlerMap[action.value]
+        val executable = ActionLibraryResolver.resolve(action) ?: return ActionExecutionResult.Ignored
+        val handler = handlerMap[executable.value]
         if (handler == null) {
             return ActionExecutionResult.Ignored
         }
         return runCatching {
-            handler.handle(action, context)
+            handler.handle(executable, context)
         }.getOrElse { e ->
             ActionExecutionResult.Failed(e.message)
         }

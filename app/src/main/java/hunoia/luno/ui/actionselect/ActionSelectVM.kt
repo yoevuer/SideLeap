@@ -7,6 +7,7 @@ import hunoia.luno.core.AppContext
 import hunoia.luno.action.api.ActionFacade
 import hunoia.luno.action.api.appInfo
 import hunoia.luno.config.model.Action
+import hunoia.luno.config.model.ActionLibraryEntry
 import hunoia.luno.quicklaunch.QuickLaunchFacade
 import hunoia.luno.quicklaunch.model.AppInfo
 import hunoia.luno.quicklaunch.model.LauncherInfo
@@ -88,6 +89,10 @@ class ActionSelectVM(
                 obj.value == ActionFacade.OPEN_URL ||
                 obj.value == ActionFacade.EXECUTE_SHELL_COMMAND
             if (currentState.selectSingle && (!needsData || obj.data.isNotEmpty())) saveSettings()
+        } else if (obj is ActionLibraryEntry) {
+            val action = obj.toReferenceAction()
+            updateUiState { selectActionTransform(it, action, selected) }
+            if (currentState.selectSingle) saveSettings()
         }
     }
 

@@ -340,6 +340,7 @@ internal suspend fun loadDataBody(
     val buttons = ConfigProvider.getGestureButtons()
     val gestureSettings = ConfigProvider.getGestureSettings()
     val subGestures = ConfigProvider.getSubGestureSettings().subGestures
+    val actionLibraryEntries = ConfigProvider.getActionLibrarySettings().entries
     val button = buttons.find {
         it.id == actionSelect.gestureButtonId
     }
@@ -348,7 +349,8 @@ internal suspend fun loadDataBody(
         state.copy(
             selectSingle = selectSingle,
             maxSelectCount = if (selectSingle) 1 else LONG_SLIDE_SOFT_MAX_SELECT_COUNT,
-            subGestures = subGestures
+            subGestures = subGestures,
+            actionLibraryEntries = actionLibraryEntries,
         )
     }
     if (button != null) {
